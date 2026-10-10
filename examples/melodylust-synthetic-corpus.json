@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "entities": [
+    {
+      "id": "designer-a",
+      "kind": "designer",
+      "name": "Designer A"
+    },
+    {
+      "id": "artist-usher",
+      "kind": "artist",
+      "name": "Usher"
+    }
+  ],
+  "documents": [
+    {
+      "id": "test-001",
+      "url": "https://example.org/synthetic-001",
+      "publication": "Synthetic test data \u2014 not Hearst",
+      "published_at": "2026-10-01",
+      "title": "Synthetic scenario: Usher wears Designer A",
+      "summary": "",
+      "categories": [],
+      "entity_ids": [
+        "designer-a",
+        "artist-usher"
+      ]
+    },
+    {
+      "id": "test-002",
+      "url": "https://example.org/synthetic-002",
+      "publication": "Synthetic test data \u2014 not Hearst",
+      "published_at": "2026-10-01",
+      "title": "An unrelated editorial",
+      "summary": "",
+      "categories": [],
+      "entity_ids": []
+    }
+  ],
+  "observations": [
+    {
+      "id": "obs-001",
+      "article_id": "test-001",
+      "left_id": "artist-usher",
+      "right_id": "designer-a",
+      "relationship": "worn_by",
+      "quote": "Usher wears Designer A",
+      "field": "title",
+      "section": "headline",
+      "proximity": "same_sentence",
+      "evidence_level": "artist",
+      "song_specific": false
+    }
+  ]
+}

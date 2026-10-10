@@ -1,0 +1,1 @@
+Local VS Code edition. Start with START-HERE.md. Includes npm lockfile, frontend/backend launcher, and labeled SVG placeholders for media absent from the source export. Original media and service credentials are not included.
