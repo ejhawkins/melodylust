@@ -36,8 +36,10 @@ export const songCatalog: Song[] = [
 /** Editor's read of each house's sound — the "style" half of a designer × music pairing. */
 export const designerLanes: Record<string, { lane: string; genres: Genre[] }> = {
   'Off-White': { lane: 'streetwear', genres: ['Hip-hop', 'R&B'] },
-  'Dolce & Gabbana': { lane: 'glamour', genres: ['Pop', 'R&B'] },
+  'Dolce & Gabbana': { lane: 'glamour', genres: ['Pop'] },
+  'Jacquie Aiche': { lane: 'crystal-lit', genres: ['R&B'] },
   'Alexander McQueen': { lane: 'dark romance', genres: ['Rock', 'Electronic'] },
+  'Bianca Saunders': { lane: 'soft tailoring', genres: ['R&B'] },
   'Dr. Martens': { lane: 'punk', genres: ['Rock'] },
 };
 
@@ -51,13 +53,20 @@ export type SongQuery = {
 export type SongPick = { song: Song; score: number; reasons: string[] };
 
 /** "Off White", "off-white" and "OFF–WHITE" all fold to "offwhite". */
-const fold = (value: string) => value.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
-const same = (a: string, b: string) => fold(a) === fold(b);
+export const foldName = (value: string) => value.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '');
+const same = (a: string, b: string) => foldName(a) === foldName(b);
+
+/** Stable per-house shuffle for tied songs (FNV-1a), so each look on Restyle leads with a different track. */
+function tieBreak(designer: string, title: string) {
+  let hash = 0x811c9dc5;
+  for (const char of `${foldName(designer)}|${title}`) hash = Math.imul(hash ^ char.charCodeAt(0), 0x01000193);
+  return hash >>> 0;
+}
 
 export function recommendSongs({ music, designer, mood, profile }: SongQuery, limit = 3): SongPick[] {
   const lane = designer ? Object.entries(designerLanes).find(([name]) => same(name, designer)) : undefined;
   const quizGenres = profile?.music ?? [];
-  const quizArtists = fold(profile?.artists ?? '');
+  const quizArtists = foldName(profile?.artists ?? '');
 
   const picks = songCatalog.map(song => {
     let score = 0;
@@ -76,14 +85,14 @@ export function recommendSongs({ music, designer, mood, profile }: SongQuery, li
     if (lane && laneGenres.length) add(2, `Fits ${lane[0]}'s ${lane[1].lane} lane: ${laneGenres.join(' & ')}`);
     const quizMatches = song.genres.filter(genre => quizGenres.some(choice => same(choice, genre)));
     if (quizMatches.length) add(Math.min(quizMatches.length, 2), `Matches your quiz: ${quizMatches.join(' & ')}`, false);
-    if (quizArtists && song.artists.some(name => quizArtists.includes(fold(name)))) add(1, 'An artist from your style profile', false);
+    if (quizArtists && song.artists.some(name => quizArtists.includes(foldName(name)))) add(1, 'An artist from your style profile', false);
     if (mood && song.moods.includes(mood)) add(2, `${mood} mood`, false);
     return { song, score, reasons, connected };
   });
 
   return picks
     .filter(pick => pick.connected)
-    .sort((a, b) => b.score - a.score || songCatalog.indexOf(a.song) - songCatalog.indexOf(b.song))
+    .sort((a, b) => b.score - a.score || (designer ? tieBreak(designer, a.song.title) - tieBreak(designer, b.song.title) : 0) || songCatalog.indexOf(a.song) - songCatalog.indexOf(b.song))
     .slice(0, limit)
     .map(({ song, score, reasons }) => ({ song, score, reasons }));
 }

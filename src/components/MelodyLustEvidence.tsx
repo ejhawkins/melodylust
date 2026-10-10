@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search } from 'lucide-react';
+import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type Association } from '@/lib/melodylust-evidence';
 import { searchTrackedEditorialEvidence } from '@/lib/melodylust.functions';
 import { type EvidenceSearchResult } from '@/lib/style-search';
-import { moods, recommendSongs, spotifySearchUrl, type Mood } from '@/lib/song-recommendations';
+import { foldName, moods, recommendSongs, spotifySearchUrl, type Mood } from '@/lib/song-recommendations';
 import { type StyleProfile } from '@/lib/style-profile';
 import { addWish } from '@/lib/wishlist';
 
@@ -52,11 +52,15 @@ export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
   const [articles, setArticles] = useState<Awaited<ReturnType<typeof searchTrackedEditorialEvidence>>['articles']>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [look, setLook] = useState(0);
+  // One look per house (the tracker can spell a house two ways), strongest lift first.
+  const looks = result?.associations.filter((association, index, all) => all.findIndex(other => foldName(other.designer.name) === foldName(association.designer.name)) === index) ?? [];
+  const current = looks[look % Math.max(looks.length, 1)];
   return <div className="stylus-evidence" aria-label="MelodyLust evidence search" aria-busy={busy}>
     <form className="stylus-search stylus-search-visible" role="search" aria-label="Music and fashion evidence" onSubmit={async event => {
       event.preventDefault();
       if (busy || !query.trim()) return;
-      setError(''); setResult(null); setArticles([]); setBusy(true);
+      setError(''); setResult(null); setArticles([]); setLook(0); setBusy(true);
       try {
         const response = await searchTrackedEditorialEvidence({ data: { query: query.trim() } });
         if (response.error || !response.result) throw new Error(response.error || 'No evidence search result was returned.');
@@ -78,9 +82,10 @@ export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
       {!result.music && <p>No {result.intent.music_kind}-level evidence for {result.intent.music_name} in the tracker. No artist, genre or scene evidence was substituted.</p>}
       {result.missingDesigner && <p>No designer evidence for {result.intent.designer_name} in the tracker.</p>}
       {result.music && !result.missingDesigner && result.associations.length === 0 && <p>No designer overlap for {result.music.name} at the {result.music.kind} evidence level. No hierarchy fallback applied.</p>}
-      {result.associations.map(association => <AssociationResult key={`${association.designer.id}:${association.music.id}`} result={association} profile={profile} />)}
+      {looks.length > 1 && <div className="stylus-restyle"><span>Look {look % looks.length + 1} of {looks.length}</span><Button variant="stylusTool" onClick={() => setLook(index => (index + 1) % looks.length)}><Shuffle aria-hidden="true" />Restyle</Button></div>}
+      {current && <AssociationResult key={`${current.designer.id}:${current.music.id}`} result={current} profile={profile} />}
       {result.music && result.associations.length === 0 && <SongPicks music={result.music} designer={null} profile={profile} />}
-      {articles.filter(article => !result.associations.some(association => association.sources.some(source => source.id === article.id))).map(article => <article className="stylus-source" key={article.id}>
+      {result.associations.length === 0 && articles.filter(article => !result.associations.some(association => association.sources.some(source => source.id === article.id))).map(article => <article className="stylus-source" key={article.id}>
         <a href={article.url} target="_blank" rel="noopener noreferrer">{article.title} <ExternalLink aria-hidden="true" /></a>
         <p>{article.publication} · {article.published_at}</p><p>{article.summary}</p>
       </article>)}

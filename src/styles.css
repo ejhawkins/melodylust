@@ -299,6 +299,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-metrics dt { font-size: 12px; opacity: .75; }
 .stylus-metrics dd { font-size: 22px; }
 .stylus-source { margin: 20px 0; overflow-wrap: anywhere; }
+.stylus-restyle { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 .stylus-songs { margin-top: 24px; padding-top: 20px; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 25%, transparent); }
 .stylus-moods { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
 .stylus-moods button { min-height: 44px; padding: 0 16px; border: 1px solid color-mix(in oklab, var(--stylus-paper) 40%, transparent); border-radius: 999px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }

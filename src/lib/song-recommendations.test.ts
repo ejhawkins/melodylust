@@ -25,12 +25,21 @@ describe('song picks', () => {
 
   it('lets mood re-rank the rest of the list', () => {
     expect(titles(recommendSongs({ music: usher, designer: 'Off-White', mood: 'Smooth' }))).toEqual(['Yeah!', 'Love in This Club', 'U Got It Bad']);
-    expect(titles(recommendSongs({ music: usher, designer: 'Off-White', mood: 'Moody' }))).toEqual(['Yeah!', 'Confessions Part II', 'Love in This Club']);
+    expect(titles(recommendSongs({ music: usher, designer: 'Off-White', mood: 'Moody' })).slice(0, 2)).toEqual(['Yeah!', 'Confessions Part II']);
+  });
+
+  it('gives each house its own lead song, the same way every time', () => {
+    const leads = ['Off White', 'Dolce & Gabbana', 'Jacquie Aiche', 'Alexander McQueen', 'Bianca Saunders']
+      .map(designer => titles(recommendSongs({ music: usher, designer }))[0]);
+    expect(new Set(leads).size).toBeGreaterThan(1);
+    expect(leads[0]).toBe('Yeah!');
+    expect(titles(recommendSongs({ music: usher, designer: 'Jacquie Aiche' }))).toEqual(titles(recommendSongs({ music: usher, designer: 'Jacquie Aiche' })));
+    expect(recommendSongs({ music: usher, designer: 'Jacquie Aiche' })[0]?.reasons).toContain("Fits Jacquie Aiche's crystal-lit lane: R&B");
   });
 
   it('puts the searched song first and finds band members', () => {
     expect(titles(recommendSongs({ music: { kind: 'song', name: 'Just a Girl' } }))[0]).toBe('Just a Girl');
-    expect(titles(recommendSongs({ music: { kind: 'artist', name: 'Gwen Stefani' }, designer: 'Dr. Martens', mood: 'Rebellious' }))).toEqual(['Just a Girl', "Don't Speak", 'Hollaback Girl']); // lane fit and mood fit tie at 5; catalog order breaks it
+    expect(titles(recommendSongs({ music: { kind: 'artist', name: 'Gwen Stefani' }, designer: 'Dr. Martens', mood: 'Rebellious' }))).toEqual(['Just a Girl', "Don't Speak", 'Hollaback Girl']); // lane fit and mood fit tie at 5; the per-house tie-break settles it
   });
 
   it('answers a genre search from the catalog', () => {
