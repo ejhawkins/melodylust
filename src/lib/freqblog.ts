@@ -40,7 +40,8 @@ export function readTrackDetails(payload: unknown, artworkUrl?: string | null): 
     album: track.album_name || null,
     artworkUrl: httpsOnly(artworkUrl),
     bpm: typeof track.bpm === 'number' && track.bpm > 0 ? Math.round(track.bpm) : null,
-    key: track.key || null,
+    // FreqBlog writes keys as "C-Major"; the card reads better as "C major".
+    key: track.key ? track.key.replace(/-(major|minor)$/i, (_, mode: string) => ` ${mode.toLowerCase()}`) : null,
     mood: track.mood || null,
   };
 }

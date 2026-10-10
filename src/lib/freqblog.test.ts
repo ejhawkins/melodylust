@@ -33,5 +33,9 @@ describe('FreqBlog track details', () => {
 
   it('formats tempo and key for the card', () => {
     expect(trackStats(readTrackDetails(payload)!)).toBe('105 BPM · G minor');
+    // Shape of a live FreqBlog response (Uptown Funk): fractional BPM, hyphenated key, FreqBlog track ID.
+    const live = readTrackDetails({ track_name: 'Uptown Funk', artist_name: 'Mark Ronson featuring Bruno Mars', album_name: 'Uptown Special', itunes_track_id: 'apple_6be7d70bfc5e180d', bpm: 116.69, key: 'C-Major', mood: 'neutral', genre: 'pop', camelot: '8B' }, 'https://coverartarchive.org/release/6c36554e-1e01-4136-8df6-7cb74ed3cb4b/front-600');
+    expect(live?.artworkUrl).toBe('https://coverartarchive.org/release/6c36554e-1e01-4136-8df6-7cb74ed3cb4b/front-600');
+    expect(trackStats(live!)).toBe('117 BPM · C major');
   });
 });
