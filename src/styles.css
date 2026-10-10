@@ -301,17 +301,13 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-source { margin: 20px 0; overflow-wrap: anywhere; }
 .stylus-look { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 24px; align-items: start; }
 .stylus-look-card { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px; background: var(--stylus-accent); color: var(--stylus-ink); font-family: var(--font-cover); font-size: 20px; line-height: 1; text-align: center; text-transform: uppercase; overflow-wrap: anywhere; }
-.stylus-look-thumb { margin: 0; }
-.stylus-look-thumb img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
-.stylus-look-thumb figcaption { display: flex; flex-direction: column; margin-top: 8px; font-size: 13px; }
-.stylus-look-thumb figcaption span { opacity: .75; }
 .stylus-look-description { margin-top: 12px; font-family: var(--font-editorial); font-size: 18px; font-style: italic; line-height: 1.45; }
 .stylus-look-credit { margin-top: 8px; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
 .stylus-evidence-details { margin-top: 16px; }
 .stylus-evidence-details > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 13px; letter-spacing: .04em; text-decoration: underline; text-underline-offset: 4px; text-transform: uppercase; }
 @media (max-width: 600px) {
   .stylus-look { grid-template-columns: 1fr; gap: 16px; }
-  .stylus-look-card, .stylus-look-thumb { max-width: 200px; }
+  .stylus-look-card { max-width: 200px; }
 }
 .stylus-restyle { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 .stylus-songs { margin-top: 24px; padding-top: 20px; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 25%, transparent); }
@@ -319,6 +315,13 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-moods button { min-height: 44px; padding: 0 16px; border: 1px solid color-mix(in oklab, var(--stylus-paper) 40%, transparent); border-radius: 999px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 .stylus-moods button[aria-pressed="true"] { background: var(--stylus-accent); border-color: var(--stylus-accent); color: var(--stylus-ink); }
 .stylus-songs > ol { display: grid; gap: 20px; }
+.stylus-song { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; align-items: start; }
+.stylus-song-cover { display: flex; flex-direction: column; gap: 6px; }
+.stylus-song-cover img, .stylus-song-cover > span { display: block; width: 72px; aspect-ratio: 1; object-fit: cover; box-shadow: 0 6px 16px rgb(0 0 0 / .35); transition: transform .3s ease; }
+.stylus-song-cover > span { border: 1px solid color-mix(in oklab, var(--stylus-paper) 35%, transparent); box-shadow: none; }
+.stylus-song-cover small { font-size: 11px; line-height: 1.3; opacity: .75; }
+.stylus-song:hover .stylus-song-cover img { transform: rotate(-4deg) scale(1.04); }
+@media (prefers-reduced-motion: reduce) { .stylus-song-cover img { transition: none; } .stylus-song:hover .stylus-song-cover img { transform: none; } }
 .stylus-song-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .stylus-song-head h4 { font-family: var(--font-editorial); font-size: 22px; line-height: 1.2; }
 .stylus-song-head span { font-size: 13px; opacity: .75; }

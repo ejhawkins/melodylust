@@ -9,6 +9,8 @@ type Genre = 'R&B' | 'Hip-hop' | 'Pop' | 'Rock' | 'Electronic';
 
 export type Song = {
   title: string;
+  /** The studio album the song first appeared on — its sleeve is the cover we show. */
+  album: string;
   artist: string;
   /** Lead artist first, then featured artists / members who should also match a search. */
   artists: string[];
@@ -20,17 +22,17 @@ export type Song = {
 };
 
 export const songCatalog: Song[] = [
-  { title: 'Yeah!', artist: 'Usher feat. Lil Jon & Ludacris', artists: ['Usher', 'Lil Jon', 'Ludacris'], year: 2004, genres: ['R&B', 'Hip-hop'], moods: ['Hype', 'Late night'],
+  { title: 'Yeah!', album: 'Confessions', artist: 'Usher feat. Lil Jon & Ludacris', artists: ['Usher', 'Lil Jon', 'Ludacris'], year: 2004, genres: ['R&B', 'Hip-hop'], moods: ['Hype', 'Late night'],
     moment: { designer: 'Off-White', note: 'Performed at his 2024 Super Bowl halftime show, where he wore the Off-White crystal biker suit' } },
-  { title: 'Love in This Club', artist: 'Usher feat. Young Jeezy', artists: ['Usher', 'Young Jeezy'], year: 2008, genres: ['R&B', 'Hip-hop'], moods: ['Late night', 'Smooth'] },
-  { title: 'U Got It Bad', artist: 'Usher', artists: ['Usher'], year: 2001, genres: ['R&B'], moods: ['Smooth', 'Romantic'] },
-  { title: 'Confessions Part II', artist: 'Usher', artists: ['Usher'], year: 2004, genres: ['R&B'], moods: ['Moody', 'Late night'] },
-  { title: 'OMG', artist: 'Usher feat. will.i.am', artists: ['Usher', 'will.i.am'], year: 2010, genres: ['Pop', 'R&B', 'Electronic'], moods: ['Hype'] },
-  { title: 'Just a Girl', artist: 'No Doubt', artists: ['No Doubt', 'Gwen Stefani'], year: 1995, genres: ['Rock', 'Pop'], moods: ['Rebellious', 'Hype'] },
-  { title: "Don't Speak", artist: 'No Doubt', artists: ['No Doubt', 'Gwen Stefani'], year: 1996, genres: ['Rock', 'Pop'], moods: ['Moody', 'Romantic'] },
-  { title: 'Hollaback Girl', artist: 'Gwen Stefani', artists: ['Gwen Stefani'], year: 2005, genres: ['Pop', 'Hip-hop'], moods: ['Hype', 'Rebellious'] },
-  { title: 'good 4 u', artist: 'Olivia Rodrigo', artists: ['Olivia Rodrigo'], year: 2021, genres: ['Pop', 'Rock'], moods: ['Rebellious', 'Hype'] },
-  { title: 'vampire', artist: 'Olivia Rodrigo', artists: ['Olivia Rodrigo'], year: 2023, genres: ['Pop', 'Rock'], moods: ['Moody', 'Rebellious'] },
+  { title: 'Love in This Club', album: 'Here I Stand', artist: 'Usher feat. Young Jeezy', artists: ['Usher', 'Young Jeezy'], year: 2008, genres: ['R&B', 'Hip-hop'], moods: ['Late night', 'Smooth'] },
+  { title: 'U Got It Bad', album: '8701', artist: 'Usher', artists: ['Usher'], year: 2001, genres: ['R&B'], moods: ['Smooth', 'Romantic'] },
+  { title: 'Confessions Part II', album: 'Confessions', artist: 'Usher', artists: ['Usher'], year: 2004, genres: ['R&B'], moods: ['Moody', 'Late night'] },
+  { title: 'OMG', album: 'Raymond v. Raymond', artist: 'Usher feat. will.i.am', artists: ['Usher', 'will.i.am'], year: 2010, genres: ['Pop', 'R&B', 'Electronic'], moods: ['Hype'] },
+  { title: 'Just a Girl', album: 'Tragic Kingdom', artist: 'No Doubt', artists: ['No Doubt', 'Gwen Stefani'], year: 1995, genres: ['Rock', 'Pop'], moods: ['Rebellious', 'Hype'] },
+  { title: "Don't Speak", album: 'Tragic Kingdom', artist: 'No Doubt', artists: ['No Doubt', 'Gwen Stefani'], year: 1996, genres: ['Rock', 'Pop'], moods: ['Moody', 'Romantic'] },
+  { title: 'Hollaback Girl', album: 'Love. Angel. Music. Baby.', artist: 'Gwen Stefani', artists: ['Gwen Stefani'], year: 2005, genres: ['Pop', 'Hip-hop'], moods: ['Hype', 'Rebellious'] },
+  { title: 'good 4 u', album: 'SOUR', artist: 'Olivia Rodrigo', artists: ['Olivia Rodrigo'], year: 2021, genres: ['Pop', 'Rock'], moods: ['Rebellious', 'Hype'] },
+  { title: 'vampire', album: 'GUTS', artist: 'Olivia Rodrigo', artists: ['Olivia Rodrigo'], year: 2023, genres: ['Pop', 'Rock'], moods: ['Moody', 'Rebellious'] },
 ];
 
 /** Editor's read of each house's sound — the "style" half of a designer × music pairing. */

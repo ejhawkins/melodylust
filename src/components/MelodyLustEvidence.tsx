@@ -7,6 +7,7 @@ import { type EvidenceSearchResult } from '@/lib/style-search';
 import { foldName, moods, recommendSongs, spotifySearchUrl, type Mood, type Song } from '@/lib/song-recommendations';
 import { trackStats, type TrackDetails } from '@/lib/freqblog';
 import { lookupTrackDetails } from '@/lib/freqblog.functions';
+import { lookupAlbumCover } from '@/lib/album-cover.functions';
 import { type StyleProfile } from '@/lib/style-profile';
 import { addWish } from '@/lib/wishlist';
 
@@ -20,12 +21,15 @@ function SongPicks({ music, designer, profile }: { music: { kind: string; name: 
     <div className="stylus-moods" role="group" aria-label="Pick a mood">{moods.map(option => <button type="button" key={option} aria-pressed={mood === option} onClick={() => setMood(mood === option ? null : option)}>{option}</button>)}</div>
     <ol>{picks.map(({ song, reasons }) => {
       const name = `${song.title} — ${song.artist}`;
-      return <li key={song.title}>
-        <div className="stylus-song-head"><h4>{song.title}</h4><span>{song.artist} · {song.year}</span></div>
-        <ul className="stylus-song-reasons">{reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
-        <div className="stylus-song-actions">
-          <Button variant="stylusTool" asChild><a href={spotifySearchUrl(song)} target="_blank" rel="noopener noreferrer">Spotify <ArrowRight aria-hidden="true" /></a></Button>
-          <Button variant="stylusTool" aria-label={`Save ${name} to My Edit`} onClick={() => { addWish({ kind: 'song', name, detail: designer ? `${designer} × ${music.name}` : music.name, link: spotifySearchUrl(song), note: '', from: 'Song picks' }); setSaved(s => [...s, song.title]); }}>{saved.includes(song.title) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}{saved.includes(song.title) ? 'Saved' : 'My Edit'}</Button>
+      return <li key={song.title} className="stylus-song">
+        <SongCover song={song} />
+        <div className="min-w-0">
+          <div className="stylus-song-head"><h4>{song.title}</h4><span>{song.artist} · <em>{song.album}</em> · {song.year}</span></div>
+          <ul className="stylus-song-reasons">{reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
+          <div className="stylus-song-actions">
+            <Button variant="stylusTool" asChild><a href={spotifySearchUrl(song)} target="_blank" rel="noopener noreferrer">Spotify <ArrowRight aria-hidden="true" /></a></Button>
+            <Button variant="stylusTool" aria-label={`Save ${name} to My Edit`} onClick={() => { addWish({ kind: 'song', name, detail: designer ? `${designer} × ${music.name}` : music.name, link: spotifySearchUrl(song), note: '', from: 'Song picks' }); setSaved(s => [...s, song.title]); }}>{saved.includes(song.title) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}{saved.includes(song.title) ? 'Saved' : 'My Edit'}</Button>
+          </div>
         </div>
       </li>;
     })}</ol>
@@ -33,21 +37,27 @@ function SongPicks({ music, designer, profile }: { music: { kind: string; name: 
   </section>;
 }
 
-function LookThumbnail({ designer, music, song }: { designer: string; music: string; song: Song | undefined }) {
+/** The song's original album sleeve (MusicBrainz + Cover Art Archive) with FreqBlog's tempo and key.
+ *  A plain sleeve shows while loading, when no cover is found, or if the image fails. */
+function SongCover({ song }: { song: Song }) {
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [track, setTrack] = useState<TrackDetails | null>(null);
   useEffect(() => {
-    setTrack(null);
-    if (!song) return;
+    setCoverUrl(null); setTrack(null);
     let current = true;
-    lookupTrackDetails({ data: { track: song.title, artist: song.artists[0] ?? song.artist } })
-      .then(response => { if (current) setTrack(response.track); })
-      .catch(() => { /* keep the typographic card */ });
+    const artist = song.artists[0] ?? song.artist;
+    lookupAlbumCover({ data: { album: song.album, artist } }).then(response => { if (current) setCoverUrl(response.coverUrl); }).catch(() => {});
+    lookupTrackDetails({ data: { track: song.title, artist } }).then(response => { if (current) setTrack(response.track); }).catch(() => {});
     return () => { current = false; };
   }, [song]);
-  if (song && track?.artworkUrl) return <figure className="stylus-look-thumb">
-    <img src={track.artworkUrl} alt={`Cover art for ${song.title} by ${song.artist}`} width={600} height={600} />
-    <figcaption>{song.title}{trackStats(track) && <span>{trackStats(track)}</span>}</figcaption>
-  </figure>;
+  return <div className="stylus-song-cover">
+    {coverUrl ? <img src={coverUrl} alt={`${song.album} album cover`} width={128} height={128} loading="lazy" onError={() => setCoverUrl(null)} /> : <span aria-hidden="true" />}
+    {track && trackStats(track) && <small>{trackStats(track)}</small>}
+  </div>;
+}
+
+/** Option D: the house and the artist set in the cover font — every look gets one. */
+function LookCard({ designer, music }: { designer: string; music: string }) {
   return <div className="stylus-look-card" aria-hidden="true"><span>{designer}</span><span>×</span><span>{music}</span></div>;
 }
 
@@ -57,10 +67,9 @@ function AssociationResult({ result, profile }: { result: Association; profile: 
   const quotes = (id: string) => result.observations.filter(observation => observation.article_id === id);
   // Lead with the article that says the most about this pairing.
   const lead = [...result.sources].sort((a, b) => quotes(b.id).length - quotes(a.id).length)[0];
-  const topSong = recommendSongs({ music: result.music, designer: result.designer.name, profile })[0]?.song;
   return <article className="stylus-association">
     <div className="stylus-look">
-      <LookThumbnail designer={result.designer.name} music={result.music.name} song={topSong} />
+      <LookCard designer={result.designer.name} music={result.music.name} />
       <div className="min-w-0">
         <div className="stylus-association-heading"><h3>{result.designer.name} × {result.music.name}</h3><span className="stylus-lift">{result.lift === null ? 'Insufficient evidence' : `${result.lift.toFixed(2)}× lift`}</span></div>
         {lead?.summary && <p className="stylus-look-description">{lead.summary}</p>}
