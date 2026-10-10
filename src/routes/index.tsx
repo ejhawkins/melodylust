@@ -147,21 +147,40 @@ const genres = [
   { name: "Jazz", note: "Tailoring, loafers and an easy, late-night polish." },
   { name: "Country", note: "Western boots, faded denim and a well-loved jacket." },
 ];
-const playlist = {
+type PhotoCredit = { author: string; source: string; license: string; licenseUrl: string };
+type PlaylistPhoto = { image: string; alt: string; width: number; height: number; credit: PhotoCredit };
+// Wikimedia Commons photos under CC licences — each one's credit line is required by its licence.
+const commons = (file: string, author: string, license: "CC BY 2.0" | "CC BY 4.0" | "CC BY-SA 2.0") => ({
+  author,
+  source: `https://commons.wikimedia.org/wiki/File:${file}`,
+  license,
+  licenseUrl: `https://creativecommons.org/licenses/${license.replace("CC ", "").replace(" ", "/").toLowerCase()}/`,
+});
+const playlist: { feature: PlaylistPhoto & { caption: string }; tracks: { title: string; artist: string; image: string; musician: PlaylistPhoto }[] } = {
   feature: {
-    // Wikimedia Commons, CC BY 4.0 — the credit below is required by the licence.
     image: "https://upload.wikimedia.org/wikipedia/commons/c/c7/BillieEilishO2140725-39_-_54665577407_%28cropped%29.jpg",
-    alt: "Billie Eilish performing at The O2, London, July 2025",
+    alt: "Billie Eilish performing at The O2, London, July 2025", width: 779, height: 1039,
     caption: "The October Mix",
-    credit: { author: "Raph_PH", source: "https://commons.wikimedia.org/wiki/File:BillieEilishO2140725-39_-_54665577407_(cropped).jpg", license: "CC BY 4.0", licenseUrl: "https://creativecommons.org/licenses/by/4.0/" },
+    credit: commons("BillieEilishO2140725-39_-_54665577407_(cropped).jpg", "Raph_PH", "CC BY 4.0"),
   },
   tracks: [
-    { title: "Day 'N' Nite", artist: "Kid Cudi", image: kidCudi },
-    { title: "DANCE...", artist: "Slayyyter", image: slayyyterDance.url },
-    { title: "WE ON GO II", artist: "BIA", image: biaWeOnGo.url },
-    { title: "Nicole Kidman", artist: "ADÉLA", image: nicoleKidman.url },
+    { title: "Day 'N' Nite", artist: "Kid Cudi", image: kidCudi, musician: {
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Kid_Cudi_2010_2_%28crop%29.jpg/960px-Kid_Cudi_2010_2_%28crop%29.jpg",
+      alt: "Kid Cudi in New York City, April 2010", width: 960, height: 1511, credit: commons("Kid_Cudi_2010_2_(crop).jpg", "brinsknaps", "CC BY-SA 2.0") } },
+    { title: "DANCE...", artist: "Slayyyter", image: slayyyterDance.url, musician: {
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Slayyyter_%40_Greek_Theatre_10_09_2024_%2854229625185%29_%28cropped%29.jpg/960px-Slayyyter_%40_Greek_Theatre_10_09_2024_%2854229625185%29_%28cropped%29.jpg",
+      alt: "Slayyyter performing at the Greek Theatre, October 2024", width: 960, height: 1282, credit: commons("Slayyyter_@_Greek_Theatre_10_09_2024_(54229625185)_(cropped).jpg", "Justin Higuchi", "CC BY 2.0") } },
+    { title: "WE ON GO II", artist: "BIA", image: biaWeOnGo.url, musician: {
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Bia_rapper_%28cropped%29.jpg/960px-Bia_rapper_%28cropped%29.jpg",
+      alt: "BIA performing on the Dangerous Woman Tour, February 2017", width: 960, height: 1198, credit: commons("Bia_rapper_(cropped).jpg", "Emma", "CC BY-SA 2.0") } },
+    { title: "Nicole Kidman", artist: "ADÉLA", image: nicoleKidman.url, musician: {
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/ADELAINNYC.jpg/960px-ADELAINNYC.jpg",
+      alt: "ADÉLA performing at Brooklyn Steel, New York, September 2026", width: 960, height: 1280, credit: commons("ADELAINNYC.jpg", "Saturnmondays", "CC BY 4.0") } },
   ],
 };
+function PhotoCreditLine({ credit }: { credit: PhotoCredit }) {
+  return <small className="playlist-credit">Photo: <a href={credit.source} target="_blank" rel="noopener noreferrer">{credit.author}</a> / Wikimedia Commons, <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer license">{credit.license}</a>, cropped</small>;
+}
 const filmWords = ["THIS", "IS", "A", "MOOD"];
 const filmLetters = filmWords.map((word, wi) => ({ word, letters: word.split("").map((ch, ci) => ({ ch, delay: (filmWords.slice(0, wi).reduce((n, w) => n + w.length, 0) + ci) * 45 })) }));
 const soundWords = ["SEARCH", "BY", "SOUND"];
@@ -249,6 +268,8 @@ function Index() {
   const filmVideo = useRef<HTMLVideoElement>(null);
   const [filmConsent, setFilmConsent] = useState<"ask" | "yes" | "no">("ask");
   const [shopSong, setShopSong] = useState<string | null>(null);
+  // Which playlist track's musician fills the feature photo; null shows The October Mix.
+  const [playlistPick, setPlaylistPick] = useState<number | null>(null);
   const [askFilm, setAskFilm] = useState(false);
   useEffect(() => {
     let stored: string | null = null;
@@ -462,18 +483,24 @@ function Index() {
       <section className="playlist" id="playlist" aria-label="Playlist">
         <h2 className="iconic-title"><span>+ Playlist</span></h2>
         <div className="playlist-layout">
-          <figure className="playlist-feature">
-            <img src={playlist.feature.image} alt={playlist.feature.alt} width={779} height={1039} loading="lazy" className="playlist-feature-photo" />
-            <figcaption>{playlist.feature.caption}<small className="playlist-credit">Photo: <a href={playlist.feature.credit.source} target="_blank" rel="noopener noreferrer">{playlist.feature.credit.author}</a> / Wikimedia Commons, <a href={playlist.feature.credit.licenseUrl} target="_blank" rel="noopener noreferrer license">{playlist.feature.credit.license}</a>, cropped</small></figcaption>
-          </figure>
+          {(() => {
+            const track = playlistPick === null ? null : playlist.tracks[playlistPick];
+            const photo = track ? track.musician : playlist.feature;
+            return <figure className="playlist-feature" aria-live="polite">
+              <img key={photo.image} src={photo.image} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className="playlist-feature-photo" />
+              <figcaption>{track ? track.artist : playlist.feature.caption}{track && playlistPick !== null && <span className="playlist-feature-sub">Track {String(playlistPick + 1).padStart(2, "0")} · {track.title}</span>}<PhotoCreditLine credit={photo.credit} /></figcaption>
+            </figure>;
+          })()}
           <ol className="playlist-tracks">
             {playlist.tracks.map((t, i) => <li className="playlist-track" key={t.title}>
-              <span className="playlist-track-num">{String(i + 1).padStart(2, "0")}</span>
-              <div className="playlist-track-text">
-                <h3>{t.title}</h3>
-                <span>{t.artist}</span>
-              </div>
-              <img src={t.image} alt={`Cover artwork for ${t.title} by ${t.artist}`} width={160} height={160} loading="lazy" />
+              <button type="button" className="playlist-track-button" aria-pressed={playlistPick === i} aria-label={`${t.title} by ${t.artist}: show ${t.artist}`} onClick={() => setPlaylistPick(pick => (pick === i ? null : i))}>
+                <span className="playlist-track-num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="playlist-track-text">
+                  <span className="playlist-track-title">{t.title}</span>
+                  <span>{t.artist}</span>
+                </span>
+                <img src={t.image} alt="" width={160} height={160} loading="lazy" />
+              </button>
             </li>)}
           </ol>
         </div>
