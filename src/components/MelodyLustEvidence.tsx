@@ -1,11 +1,37 @@
 import { useState } from 'react';
-import { ArrowRight, ExternalLink, LoaderCircle, Search } from 'lucide-react';
+import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type Association } from '@/lib/melodylust-evidence';
 import { searchTrackedEditorialEvidence } from '@/lib/melodylust.functions';
 import { type EvidenceSearchResult } from '@/lib/style-search';
+import { moods, recommendSongs, spotifySearchUrl, type Mood } from '@/lib/song-recommendations';
+import { type StyleProfile } from '@/lib/style-profile';
+import { addWish } from '@/lib/wishlist';
 
-function AssociationResult({ result }: { result: Association }) {
+function SongPicks({ music, designer, profile }: { music: { kind: string; name: string }; designer: string | null; profile: StyleProfile }) {
+  const [mood, setMood] = useState<Mood | null>(null);
+  const [saved, setSaved] = useState<string[]>([]);
+  const picks = recommendSongs({ music, designer, mood, profile });
+  if (!picks.length) return null;
+  return <section className="stylus-songs" aria-label={`Song picks for ${designer ? `${designer} × ` : ''}${music.name}`}>
+    <span className="stylus-eyebrow">Song picks</span>
+    <div className="stylus-moods" role="group" aria-label="Pick a mood">{moods.map(option => <button type="button" key={option} aria-pressed={mood === option} onClick={() => setMood(mood === option ? null : option)}>{option}</button>)}</div>
+    <ol>{picks.map(({ song, reasons }) => {
+      const name = `${song.title} — ${song.artist}`;
+      return <li key={song.title}>
+        <div className="stylus-song-head"><h4>{song.title}</h4><span>{song.artist} · {song.year}</span></div>
+        <ul className="stylus-song-reasons">{reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
+        <div className="stylus-song-actions">
+          <Button variant="stylusTool" asChild><a href={spotifySearchUrl(song)} target="_blank" rel="noopener noreferrer">Spotify <ArrowRight aria-hidden="true" /></a></Button>
+          <Button variant="stylusTool" aria-label={`Save ${name} to My Edit`} onClick={() => { addWish({ kind: 'song', name, detail: designer ? `${designer} × ${music.name}` : music.name, link: spotifySearchUrl(song), note: '', from: 'Song picks' }); setSaved(s => [...s, song.title]); }}>{saved.includes(song.title) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}{saved.includes(song.title) ? 'Saved' : 'My Edit'}</Button>
+        </div>
+      </li>;
+    })}</ol>
+    <p className="stylus-evidence-note">Editor's picks, ranked by the search, the house's style, your quiz and mood. Not tracker evidence.</p>
+  </section>;
+}
+
+function AssociationResult({ result, profile }: { result: Association; profile: StyleProfile }) {
   return <article className="stylus-association">
     <div className="stylus-association-heading"><h3>{result.designer.name} × {result.music.name}</h3><span className="stylus-lift">{result.lift === null ? 'Insufficient evidence' : `${result.lift.toFixed(2)}× lift`}</span></div>
     <p>{result.song_specific ? 'Song-specific evidence.' : 'Artist, genre or scene evidence; not song-specific.'}</p>
@@ -16,10 +42,11 @@ function AssociationResult({ result }: { result: Association }) {
       {result.observations.filter(observation => observation.article_id === source.id).map(observation => <blockquote key={observation.id}>“{observation.quote}”</blockquote>)}
     </div>)}
     <Button variant="stylusTool" asChild><a href={`https://open.spotify.com/search/${encodeURIComponent(result.music.name)}`} target="_blank" rel="noopener noreferrer">Find on Spotify <ArrowRight aria-hidden="true" /></a></Button>
+    <SongPicks music={result.music} designer={result.designer.name} profile={profile} />
   </article>;
 }
 
-export function MelodyLustEvidence() {
+export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<EvidenceSearchResult | null>(null);
   const [articles, setArticles] = useState<Awaited<ReturnType<typeof searchTrackedEditorialEvidence>>['articles']>([]);
@@ -51,7 +78,8 @@ export function MelodyLustEvidence() {
       {!result.music && <p>No {result.intent.music_kind}-level evidence for {result.intent.music_name} in the tracker. No artist, genre or scene evidence was substituted.</p>}
       {result.missingDesigner && <p>No designer evidence for {result.intent.designer_name} in the tracker.</p>}
       {result.music && !result.missingDesigner && result.associations.length === 0 && <p>No designer overlap for {result.music.name} at the {result.music.kind} evidence level. No hierarchy fallback applied.</p>}
-      {result.associations.map(association => <AssociationResult key={`${association.designer.id}:${association.music.id}`} result={association} />)}
+      {result.associations.map(association => <AssociationResult key={`${association.designer.id}:${association.music.id}`} result={association} profile={profile} />)}
+      {result.music && result.associations.length === 0 && <SongPicks music={result.music} designer={null} profile={profile} />}
       {articles.filter(article => !result.associations.some(association => association.sources.some(source => source.id === article.id))).map(article => <article className="stylus-source" key={article.id}>
         <a href={article.url} target="_blank" rel="noopener noreferrer">{article.title} <ExternalLink aria-hidden="true" /></a>
         <p>{article.publication} · {article.published_at}</p><p>{article.summary}</p>

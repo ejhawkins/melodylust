@@ -299,6 +299,16 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-metrics dt { font-size: 12px; opacity: .75; }
 .stylus-metrics dd { font-size: 22px; }
 .stylus-source { margin: 20px 0; overflow-wrap: anywhere; }
+.stylus-songs { margin-top: 24px; padding-top: 20px; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 25%, transparent); }
+.stylus-moods { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
+.stylus-moods button { min-height: 44px; padding: 0 16px; border: 1px solid color-mix(in oklab, var(--stylus-paper) 40%, transparent); border-radius: 999px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+.stylus-moods button[aria-pressed="true"] { background: var(--stylus-accent); border-color: var(--stylus-accent); color: var(--stylus-ink); }
+.stylus-songs > ol { display: grid; gap: 20px; }
+.stylus-song-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.stylus-song-head h4 { font-family: var(--font-editorial); font-size: 22px; line-height: 1.2; }
+.stylus-song-head span { font-size: 13px; opacity: .75; }
+.stylus-song-reasons { margin: 8px 0 12px; padding-left: 18px; list-style: disc; font-size: 14px; line-height: 1.5; }
+.stylus-song-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .stylus-source > a { text-decoration: underline; text-underline-offset: 4px; }
 .stylus-source > a svg { display: inline-block; width: 14px; height: 14px; margin-left: 4px; }
 .stylus-source blockquote { border-left: 2px solid var(--stylus-accent); padding-left: 14px; margin-top: 12px; }
