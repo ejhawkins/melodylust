@@ -5,7 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
 
+// Vercel builds (VERCEL=1) emit .vercel/output; everything else keeps the Node server build.
 export default defineConfig(({ command }) => ({
-  plugins: [tsconfigPaths(), tailwindcss(), tanstackStart({ server: { entry: "server" } }), react(), ...(command === "build" ? [nitro({ preset: "node-server" })] : [])],
+  plugins: [tsconfigPaths(), tailwindcss(), tanstackStart({ server: { entry: "server" } }), react(), ...(command === "build" ? [nitro({ preset: process.env["VERCEL"] ? "vercel" : "node-server" })] : [])],
   server: { watch: { usePolling: true, interval: 500 }, proxy: { "/api/association": "http://127.0.0.1:3000", "/health": "http://127.0.0.1:3000" } },
 }));

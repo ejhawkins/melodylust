@@ -37,3 +37,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Vercel CLI link and build output
+.vercel
+.env*.local
