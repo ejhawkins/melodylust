@@ -519,6 +519,9 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .playlist-feature { margin: 0; }
 .playlist-feature img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .playlist-feature figcaption { font-family: var(--font-editorial); font-size: clamp(24px, 2.6vw, 40px); line-height: 1.15; margin-top: 18px; }
+.playlist-feature img.playlist-feature-photo { object-position: center 22%; }
+.playlist-credit { display: block; margin-top: 8px; font-family: var(--font-sans); font-size: 12px; line-height: 1.4; opacity: .7; }
+.playlist-credit a { text-decoration: underline; text-underline-offset: 2px; }
 .playlist-tracks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .playlist-track { display: flex; align-items: center; gap: 18px; padding: 22px 0; }
 .playlist-track-num { font-family: var(--font-iconic); font-weight: 300; font-size: 11px; letter-spacing: .14em; color: var(--muted-foreground); width: 22px; flex-shrink: 0; }

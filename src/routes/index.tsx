@@ -148,7 +148,13 @@ const genres = [
   { name: "Country", note: "Western boots, faded denim and a well-loved jacket." },
 ];
 const playlist = {
-  feature: { image: songE, alt: "A face half emerging from pure black shadow", caption: "The October Mix" },
+  feature: {
+    // Wikimedia Commons, CC BY 4.0 — the credit below is required by the licence.
+    image: "https://upload.wikimedia.org/wikipedia/commons/c/c7/BillieEilishO2140725-39_-_54665577407_%28cropped%29.jpg",
+    alt: "Billie Eilish performing at The O2, London, July 2025",
+    caption: "The October Mix",
+    credit: { author: "Raph_PH", source: "https://commons.wikimedia.org/wiki/File:BillieEilishO2140725-39_-_54665577407_(cropped).jpg", license: "CC BY 4.0", licenseUrl: "https://creativecommons.org/licenses/by/4.0/" },
+  },
   tracks: [
     { title: "Day 'N' Nite", artist: "Kid Cudi", image: kidCudi },
     { title: "DANCE...", artist: "Slayyyter", image: slayyyterDance.url },
@@ -457,8 +463,8 @@ function Index() {
         <h2 className="iconic-title"><span>+ Playlist</span></h2>
         <div className="playlist-layout">
           <figure className="playlist-feature">
-            <img src={playlist.feature.image} alt={playlist.feature.alt} width={1024} height={1280} loading="lazy" />
-            <figcaption>{playlist.feature.caption}</figcaption>
+            <img src={playlist.feature.image} alt={playlist.feature.alt} width={779} height={1039} loading="lazy" className="playlist-feature-photo" />
+            <figcaption>{playlist.feature.caption}<small className="playlist-credit">Photo: <a href={playlist.feature.credit.source} target="_blank" rel="noopener noreferrer">{playlist.feature.credit.author}</a> / Wikimedia Commons, <a href={playlist.feature.credit.licenseUrl} target="_blank" rel="noopener noreferrer license">{playlist.feature.credit.license}</a>, cropped</small></figcaption>
           </figure>
           <ol className="playlist-tracks">
             {playlist.tracks.map((t, i) => <li className="playlist-track" key={t.title}>
