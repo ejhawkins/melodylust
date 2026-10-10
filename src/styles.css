@@ -299,6 +299,20 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-metrics dt { font-size: 12px; opacity: .75; }
 .stylus-metrics dd { font-size: 22px; }
 .stylus-source { margin: 20px 0; overflow-wrap: anywhere; }
+.stylus-look { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 24px; align-items: start; }
+.stylus-look-card { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px; background: var(--stylus-accent); color: var(--stylus-ink); font-family: var(--font-cover); font-size: 20px; line-height: 1; text-align: center; text-transform: uppercase; overflow-wrap: anywhere; }
+.stylus-look-thumb { margin: 0; }
+.stylus-look-thumb img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.stylus-look-thumb figcaption { display: flex; flex-direction: column; margin-top: 8px; font-size: 13px; }
+.stylus-look-thumb figcaption span { opacity: .75; }
+.stylus-look-description { margin-top: 12px; font-family: var(--font-editorial); font-size: 18px; font-style: italic; line-height: 1.45; }
+.stylus-look-credit { margin-top: 8px; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+.stylus-evidence-details { margin-top: 16px; }
+.stylus-evidence-details > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 13px; letter-spacing: .04em; text-decoration: underline; text-underline-offset: 4px; text-transform: uppercase; }
+@media (max-width: 600px) {
+  .stylus-look { grid-template-columns: 1fr; gap: 16px; }
+  .stylus-look-card, .stylus-look-thumb { max-width: 200px; }
+}
 .stylus-restyle { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 .stylus-songs { margin-top: 24px; padding-top: 20px; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 25%, transparent); }
 .stylus-moods { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }

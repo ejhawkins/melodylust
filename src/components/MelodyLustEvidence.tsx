@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search, Shuffle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type Association } from '@/lib/melodylust-evidence';
 import { searchTrackedEditorialEvidence } from '@/lib/melodylust.functions';
 import { type EvidenceSearchResult } from '@/lib/style-search';
-import { foldName, moods, recommendSongs, spotifySearchUrl, type Mood } from '@/lib/song-recommendations';
+import { foldName, moods, recommendSongs, spotifySearchUrl, type Mood, type Song } from '@/lib/song-recommendations';
+import { trackStats, type TrackDetails } from '@/lib/freqblog';
+import { lookupTrackDetails } from '@/lib/freqblog.functions';
 import { type StyleProfile } from '@/lib/style-profile';
 import { addWish } from '@/lib/wishlist';
 
@@ -31,17 +33,51 @@ function SongPicks({ music, designer, profile }: { music: { kind: string; name: 
   </section>;
 }
 
+function LookThumbnail({ designer, music, song }: { designer: string; music: string; song: Song | undefined }) {
+  const [track, setTrack] = useState<TrackDetails | null>(null);
+  useEffect(() => {
+    setTrack(null);
+    if (!song) return;
+    let current = true;
+    lookupTrackDetails({ data: { track: song.title, artist: song.artists[0] ?? song.artist } })
+      .then(response => { if (current) setTrack(response.track); })
+      .catch(() => { /* keep the typographic card */ });
+    return () => { current = false; };
+  }, [song]);
+  if (song && track?.artworkUrl) return <figure className="stylus-look-thumb">
+    <img src={track.artworkUrl} alt={`Cover art for ${song.title} by ${song.artist}`} width={600} height={600} />
+    <figcaption>{song.title}{trackStats(track) && <span>{trackStats(track)}</span>}</figcaption>
+  </figure>;
+  return <div className="stylus-look-card" aria-hidden="true"><span>{designer}</span><span>×</span><span>{music}</span></div>;
+}
+
+const publishedMonth = (date: string) => new Date(`${date.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+
 function AssociationResult({ result, profile }: { result: Association; profile: StyleProfile }) {
+  const quotes = (id: string) => result.observations.filter(observation => observation.article_id === id);
+  // Lead with the article that says the most about this pairing.
+  const lead = [...result.sources].sort((a, b) => quotes(b.id).length - quotes(a.id).length)[0];
+  const topSong = recommendSongs({ music: result.music, designer: result.designer.name, profile })[0]?.song;
   return <article className="stylus-association">
-    <div className="stylus-association-heading"><h3>{result.designer.name} × {result.music.name}</h3><span className="stylus-lift">{result.lift === null ? 'Insufficient evidence' : `${result.lift.toFixed(2)}× lift`}</span></div>
-    <p>{result.song_specific ? 'Song-specific evidence.' : 'Artist, genre or scene evidence; not song-specific.'}</p>
-    {result.corpusSize < 30 && <p className="stylus-evidence-note">Small sample: these results measure only the tracker.</p>}
-    {result.sources.map(source => <div key={source.id} className="stylus-source">
-      <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title} <ExternalLink aria-hidden="true" /></a>
-      <p>{source.publication} · {source.published_at}</p>
-      {result.observations.filter(observation => observation.article_id === source.id).map(observation => <blockquote key={observation.id}>“{observation.quote}”</blockquote>)}
-    </div>)}
-    <Button variant="stylusTool" asChild><a href={`https://open.spotify.com/search/${encodeURIComponent(result.music.name)}`} target="_blank" rel="noopener noreferrer">Find on Spotify <ArrowRight aria-hidden="true" /></a></Button>
+    <div className="stylus-look">
+      <LookThumbnail designer={result.designer.name} music={result.music.name} song={topSong} />
+      <div className="min-w-0">
+        <div className="stylus-association-heading"><h3>{result.designer.name} × {result.music.name}</h3><span className="stylus-lift">{result.lift === null ? 'Insufficient evidence' : `${result.lift.toFixed(2)}× lift`}</span></div>
+        {lead?.summary && <p className="stylus-look-description">{lead.summary}</p>}
+        {lead && <p className="stylus-look-credit">— {lead.publication}, {publishedMonth(lead.published_at)}</p>}
+      </div>
+    </div>
+    <details className="stylus-evidence-details">
+      <summary>See the evidence · {result.sources.length} {result.sources.length === 1 ? 'source' : 'sources'}</summary>
+      <p>{result.song_specific ? 'Song-specific evidence.' : 'Artist, genre or scene evidence; not song-specific.'}</p>
+      {result.corpusSize < 30 && <p className="stylus-evidence-note">Small sample: these results measure only the tracker.</p>}
+      {result.sources.map(source => <div key={source.id} className="stylus-source">
+        <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title} <ExternalLink aria-hidden="true" /></a>
+        <p>{source.publication} · {source.published_at}</p>
+        {quotes(source.id).map(observation => <blockquote key={observation.id}>“{observation.quote}”</blockquote>)}
+      </div>)}
+      <Button variant="stylusTool" asChild><a href={`https://open.spotify.com/search/${encodeURIComponent(result.music.name)}`} target="_blank" rel="noopener noreferrer">Find on Spotify <ArrowRight aria-hidden="true" /></a></Button>
+    </details>
     <SongPicks music={result.music} designer={result.designer.name} profile={profile} />
   </article>;
 }
