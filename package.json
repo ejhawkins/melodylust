@@ -18,7 +18,8 @@
     "dev:api": "node --env-file-if-exists=.env scripts/melodylust-server.mjs",
     "start": "node scripts/dev.mjs --production",
     "typecheck": "tsc --noEmit",
-    "scout": "node --env-file-if-exists=.env scripts/scout-articles.ts"
+    "scout": "node --env-file-if-exists=.env scripts/scout-articles.ts",
+    "tracker:import": "node scripts/import-tracker.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
