@@ -41,3 +41,6 @@ dist-ssr
 # Vercel CLI link and build output
 .vercel
 .env*.local
+
+# Local product cache (recent Farfetch searches)
+.cache

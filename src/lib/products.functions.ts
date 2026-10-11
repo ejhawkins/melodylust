@@ -1,9 +1,14 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { readFarfetchSearch, type ShopProduct } from './farfetch';
+import { productCacheKey } from './product-cache';
 
-// Each search costs RapidAPI quota, so a house + item is fetched once per server run.
-const cache = new Map<string, Promise<ShopProduct[]>>();
+// Each search costs RapidAPI quota. Two layers keep that down:
+// 1. `inFlight` (memory): visitors asking for the same search at the same moment share one request.
+// 2. The product cache file (disk): finished searches are reused for a day, across restarts.
+const inFlight = new Map<string, Promise<ShopProduct[]>>();
+let requestsThisRun = 0;
+const debug = process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1';
 
 async function search(apiKey: string, designer: string, item: string | undefined, limit: number) {
   const keyword = item ? `${designer} ${item}` : designer;
@@ -32,14 +37,26 @@ export const lookupProducts = createServerFn({ method: 'POST' })
     const apiKey = process.env['RAPIDAPI_KEY'];
     // No key yet: looks simply show no products.
     if (!apiKey) return { products: [] };
-    const id = `${data.designer}|${data.item ?? ''}|${data.limit}`.toLowerCase();
-    if (!cache.has(id)) {
-      cache.set(id, search(apiKey, data.designer, data.item, data.limit).catch(failure => {
-        // Server log only: never the key. Failed searches aren't cached, so they retry later.
-        console.error('[Products] Farfetch search failed', failure instanceof Error ? failure.message : failure);
-        cache.delete(id);
-        return [];
-      }));
+    const key = productCacheKey(data.designer, data.item, data.limit);
+    const { readSavedProducts, saveProducts } = await import('./product-cache.server');
+    const saved = await readSavedProducts(key);
+    if (saved) {
+      if (debug) console.info('[Products] from cache', key);
+      return { products: saved };
     }
-    return { products: await cache.get(id)! };
+    if (!inFlight.has(key)) {
+      inFlight.set(key, (async () => {
+        requestsThisRun += 1;
+        if (debug) console.info('[Products] Farfetch request', key, `(${requestsThisRun} this run)`);
+        const products = await search(apiKey, data.designer, data.item, data.limit);
+        // Only successful answers are saved; a failure is retried on the next visit.
+        await saveProducts(key, products);
+        return products;
+      })().catch(failure => {
+        // Server log only: never the key.
+        console.error('[Products] Farfetch search failed', failure instanceof Error ? failure.message : failure);
+        return [];
+      }).finally(() => inFlight.delete(key)));
+    }
+    return { products: await inFlight.get(key)! };
   });
