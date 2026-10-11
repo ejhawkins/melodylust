@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import trackerCsv from '../../data/articles-tracker.csv?raw';
+import { getDb } from './db.server';
+import { readApprovedTrackerCsv } from './article-source.server';
 import { parseEditorialCsv, validateEvidenceExtraction } from './style-search';
 import { parseEvidenceCorpus, type Entity, type EvidenceCorpus, type EvidenceDocument, type Observation } from './melodylust-evidence';
 
@@ -91,8 +93,9 @@ async function loadArticles(documents: TrackerDocuments, reader: TrackerReader, 
   const unread = documents.filter((_, index) => !saved[keys[index]!]);
   const fresh = unread.length ? await readInBatches(unread, reader) : {};
   const articles = documents.map((document, index) => saved[keys[index]!] ?? fresh[document.id]!);
-  // Only current articles are kept, so removed or edited ones don't pile up.
-  await store.write(Object.fromEntries(keys.map((key, index) => [key, articles[index]!])));
+  // Add to the notebook rather than replace it: switching sources (CSV ↔ Supabase) or
+  // temporarily removing articles must not throw away evidence that cost an AI read.
+  if (unread.length) await store.write({ ...saved, ...Object.fromEntries(keys.map((key, index) => [key, articles[index]!])) });
   stats.reused = documents.length - unread.length;
   stats.read = unread.length;
   return assembleCorpus(articles);
@@ -128,8 +131,12 @@ export async function readTrackedEvidence(reader: TrackerReader, readerVersion =
   }
   const loadTracker = loaders.get(readerVersion)!;
   let csv = trackerCsv;
+  const db = getDb();
+  const source = db ? 'supabase' : 'csv';
   const path = process.env['MELODYLUST_TRACKER_CSV'];
-  if (path) {
+  if (db) {
+    csv = await readApprovedTrackerCsv(db);
+  } else if (path) {
     const { readFile, stat } = await import('node:fs/promises');
     if ((await stat(path)).size > 2000000) throw new Error('CSV exceeds the 2 MB import limit.');
     csv = await readFile(path, 'utf8');
@@ -137,7 +144,7 @@ export async function readTrackedEvidence(reader: TrackerReader, readerVersion =
   const started = Date.now();
   const corpus = await loadTracker(csv, reader);
   if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
-    console.info('[MelodyLust] tracker', { documents: corpus.documents.length, readNow: loadTracker.stats.read, reusedFromCache: loadTracker.stats.reused, entities: corpus.entities.length, observations: corpus.observations.length, elapsedMs: Date.now() - started });
+    console.info('[MelodyLust] tracker', { source, documents: corpus.documents.length, readNow: loadTracker.stats.read, reusedFromCache: loadTracker.stats.reused, entities: corpus.entities.length, observations: corpus.observations.length, elapsedMs: Date.now() - started });
   }
   return corpus;
 }

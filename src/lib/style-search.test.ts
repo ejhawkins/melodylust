@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+vi.mock('./db.server', () => ({ getDb: () => null }));
+import { describe, it, expect, vi } from 'vitest';
 import { articleAnalysisInputSchema, editorialCorpusInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, parseEditorialCsv, readStyleResult, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
 import { parseEvidenceCorpus } from './melodylust-evidence';
 import { createMemoryEvidenceStore, createTrackerLoader, readTrackedEvidence } from './article-tracker.server';
@@ -95,6 +96,18 @@ describe('backend article tracker', () => {
     // A different reader (provider, model or instructions) reads everything again.
     await createTrackerLoader(store, 'openai')(twoRows, tracking);
     expect(seen.at(-1)).toEqual(['1', '2']);
+  });
+
+  it('keeps saved evidence for articles that drop out of the source, so switching sources costs no re-reads', async () => {
+    const twoRows = `${csv}\n2,https://example.com/two,Test,2024-01-02,Gwen Stefani,,Fashion`;
+    const store = createMemoryEvidenceStore();
+    let reads = 0;
+    const counting = async (input: ReturnType<typeof parseEditorialCsv>) => { reads += input.documents.length; return reader(input); };
+    await createTrackerLoader(store, 'gemini')(twoRows, counting);
+    await createTrackerLoader(store, 'gemini')(csv, counting); // source shrinks to one article
+    await createTrackerLoader(store, 'gemini')(twoRows, counting); // and grows back
+    expect(reads).toBe(2);
+    expect(Object.keys(await store.read())).toHaveLength(2);
   });
 
   it('does not cache failed or partially indexed evidence', async () => {
