@@ -304,6 +304,14 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-look-description { margin-top: 12px; font-family: var(--font-editorial); font-size: 18px; font-style: italic; line-height: 1.45; }
 .stylus-look-credit { margin-top: 8px; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
 .stylus-evidence-details { margin-top: 16px; }
+.stylus-notes { margin-top: 20px; }
+.stylus-notes h4 { margin-top: 8px; font-family: var(--font-editorial); font-size: 24px; line-height: 1.2; }
+.stylus-notes > p { margin-top: 8px; line-height: 1.5; }
+.stylus-notes ol { display: grid; gap: 4px; margin-top: 12px; counter-reset: piece; }
+.stylus-notes li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 20%, transparent); counter-increment: piece; }
+.stylus-notes li > span::before { content: counter(piece, decimal-leading-zero) "  "; font-size: 12px; opacity: .6; }
+.stylus-notes li strong { font-weight: 500; }
+.stylus-notes-tip { font-family: var(--font-editorial); font-style: italic; }
 .stylus-evidence-details > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 13px; letter-spacing: .04em; text-decoration: underline; text-underline-offset: 4px; text-transform: uppercase; }
 @media (max-width: 600px) {
   .stylus-look { grid-template-columns: 1fr; gap: 16px; }

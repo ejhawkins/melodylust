@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search, Shuffle } from 'lucide-react';
+import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search, Shuffle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type Association } from '@/lib/melodylust-evidence';
 import { searchTrackedEditorialEvidence } from '@/lib/melodylust.functions';
@@ -8,6 +8,8 @@ import { foldName, moods, recommendSongs, spotifySearchUrl, type Mood, type Song
 import { trackStats, type TrackDetails } from '@/lib/freqblog';
 import { lookupTrackDetails } from '@/lib/freqblog.functions';
 import { lookupAlbumCover } from '@/lib/album-cover.functions';
+import { styleLook } from '@/lib/style-look.functions';
+import { type StyleLookInput, type StyleNotes } from '@/lib/style-look';
 import { type StyleProfile } from '@/lib/style-profile';
 import { addWish } from '@/lib/wishlist';
 
@@ -61,6 +63,35 @@ function LookCard({ designer, music }: { designer: string; music: string }) {
   return <div className="stylus-look-card" aria-hidden="true"><span>{designer}</span><span>×</span><span>{music}</span></div>;
 }
 
+/** Hybrid search, AI half: on request, OpenAI styles the look the evidence found. */
+function LookStyleNotes({ look }: { look: StyleLookInput }) {
+  const [notes, setNotes] = useState<StyleNotes | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [saved, setSaved] = useState<string[]>([]);
+  const from = `${look.designer} × ${look.music.name}`;
+  if (!notes) return <div className="stylus-notes">
+    <Button variant="stylusTool" disabled={busy} onClick={async () => {
+      setBusy(true); setError('');
+      try { const response = await styleLook({ data: look }); setNotes(response.notes); setError(response.error); }
+      catch { setError('Style notes are unavailable right now. Please try again later.'); }
+      finally { setBusy(false); }
+    }}>{busy ? <LoaderCircle className="motion-safe:animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}{busy ? 'Styling the look…' : 'Style this look'}</Button>
+    {error && <p role="alert" className="stylus-status">{error}</p>}
+  </div>;
+  return <section className="stylus-notes" aria-label={`Style notes for ${from}`}>
+    <span className="stylus-eyebrow">Style notes</span>
+    <h4>{notes.title}</h4>
+    <p>{notes.direction}</p>
+    <ol>{notes.pieces.map(piece => <li key={piece.name}>
+      <span><strong>{piece.name}</strong> {piece.detail}</span>
+      <Button variant="stylusTool" size="icon" aria-label={`Save ${piece.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: piece.name, detail: piece.detail, link: '', note: '', from }); setSaved(s => [...s, piece.name]); }}>{saved.includes(piece.name) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
+    </li>)}</ol>
+    <p className="stylus-notes-tip">{notes.note}</p>
+    <p className="stylus-evidence-note">Written by AI from this look's source and your profile. Not tracker evidence.</p>
+  </section>;
+}
+
 const publishedMonth = (date: string) => new Date(`${date.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 
 function AssociationResult({ result, profile }: { result: Association; profile: StyleProfile }) {
@@ -76,6 +107,13 @@ function AssociationResult({ result, profile }: { result: Association; profile: 
         {lead && <p className="stylus-look-credit">— {lead.publication}, {publishedMonth(lead.published_at)}</p>}
       </div>
     </div>
+    <LookStyleNotes look={{
+      designer: result.designer.name,
+      music: { kind: result.music.kind, name: result.music.name },
+      source: lead ? { title: lead.title, publication: lead.publication, summary: lead.summary.slice(0, 2000) } : null,
+      songs: recommendSongs({ music: result.music, designer: result.designer.name, profile }).map(pick => `${pick.song.title} — ${pick.song.artist}`),
+      profile,
+    }} />
     <details className="stylus-evidence-details">
       <summary>See the evidence · {result.sources.length} {result.sources.length === 1 ? 'source' : 'sources'}</summary>
       <p>{result.song_specific ? 'Song-specific evidence.' : 'Artist, genre or scene evidence; not song-specific.'}</p>
