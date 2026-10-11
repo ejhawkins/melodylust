@@ -39,6 +39,11 @@ describe('Farfetch products', () => {
     expect(itemMatchScore('striped tank top', 'Stripe-print tank')).toBe(2);
   });
 
+  it("leaves out children's lines", () => {
+    const result = readFarfetchSearch(payload([entry(1, { brand: { name: 'adidas Kids' } }), entry(2, { gender: 'Kid' }), entry(3)]), null);
+    expect(result.map(product => product.id)).toEqual(['3']);
+  });
+
   it('skips unpriced, unpictured or unnamed entries and stops at the limit', () => {
     const result = readFarfetchSearch(payload([
       entry(1, { price: 0 }), entry(2, { images: [] }), entry(3, { shortDescription: '' }),

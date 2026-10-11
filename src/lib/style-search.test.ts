@@ -1,7 +1,7 @@
 vi.mock('./db.server', () => ({ getDb: () => null }));
 import { describe, it, expect, vi } from 'vitest';
 import { articleAnalysisInputSchema, editorialCorpusInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, parseEditorialCsv, readStyleResult, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
-import { parseEvidenceCorpus } from './melodylust-evidence';
+import { evidenceStrength, parseEvidenceCorpus } from './melodylust-evidence';
 import { createMemoryEvidenceStore, createTrackerLoader, readTrackedEvidence } from './article-tracker.server';
 
 const corpus = parseEvidenceCorpus({
@@ -218,5 +218,36 @@ describe('bundled articles tracker', () => {
     expect(documents.length).toBeGreaterThanOrEqual(20);
     expect(new Set(documents.map(document => document.id)).size).toBe(documents.length);
     expect(new Set(documents.map(document => document.url)).size).toBe(documents.length);
+  });
+});
+
+describe('ranking designer connections by how directly the articles state them', () => {
+  // Modelled on the Glastonbury roundup: Charli XCX wore McQueen; Doechii (not Charli) wore Westwood.
+  const roundup = 'Charli XCX turned an Alexander McQueen skull scarf into a halter top, Doechii wore custom Vivienne Westwood';
+  const doc = (id: string, title: string, entity_ids: string[]) => ({ id, url: `https://example.com/${id}`, publication: 'Synthetic test', published_at: '2025-07-01', title, summary: '', categories: [], entity_ids });
+  const charli = parseEvidenceCorpus({
+    version: 1,
+    entities: [{ id: 'artist:Charli XCX', kind: 'artist', name: 'Charli XCX' }, { id: 'designer:Alexander McQueen', kind: 'designer', name: 'Alexander McQueen' }, { id: 'designer:Vivienne Westwood', kind: 'designer', name: 'Vivienne Westwood' }, { id: 'designer:Chanel', kind: 'designer', name: 'Chanel' }],
+    documents: [
+      doc('roundup', roundup, ['artist:Charli XCX', 'designer:Alexander McQueen', 'designer:Vivienne Westwood']),
+      doc('chanel', 'Charli XCX was seen beside a Chanel show', ['artist:Charli XCX', 'designer:Chanel']),
+      // McQueen is common elsewhere, which lowers its lift.
+      doc('m1', 'Alexander McQueen spring', ['designer:Alexander McQueen']), doc('m2', 'Alexander McQueen archive', ['designer:Alexander McQueen']),
+      doc('c1', 'Chanel couture', ['designer:Chanel']),
+    ],
+    observations: [
+      { id: 'o1', article_id: 'roundup', left_id: 'artist:Charli XCX', right_id: 'designer:Alexander McQueen', relationship: 'worn_by', quote: 'Charli XCX turned an Alexander McQueen skull scarf', field: 'title', section: 'headline', proximity: 'same_sentence', evidence_level: 'artist', song_specific: false },
+      { id: 'o2', article_id: 'chanel', left_id: 'artist:Charli XCX', right_id: 'designer:Chanel', relationship: 'co_occurs_with', quote: 'Charli XCX was seen beside a Chanel show', field: 'title', section: 'headline', proximity: 'same_sentence', evidence_level: 'artist', song_specific: false },
+    ],
+  });
+
+  it('puts the quoted "worn by" house first even with lower lift, and a shared article last', () => {
+    const { associations } = searchEvidence(charli, { music_name: 'Charli xcx', music_kind: 'artist', designer_name: null });
+    expect(associations.map(a => [a.designer.name, evidenceStrength(a)])).toEqual([
+      ['Alexander McQueen', 'verified'], ['Chanel', 'quoted'], ['Vivienne Westwood', 'same_article'],
+    ]);
+    // Lift alone would have put Westwood first.
+    const lift = (name: string) => associations.find(a => a.designer.name === name)!.lift!;
+    expect(lift('Vivienne Westwood')).toBeGreaterThan(lift('Alexander McQueen'));
   });
 });

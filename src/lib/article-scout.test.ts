@@ -53,3 +53,11 @@ describe('article scout', () => {
     expect(canonicalUrl('not a url')).toBeNull();
   });
 });
+
+it('accepts cited Esquire music-video coverage without inventing a designer', () => {
+  const url = 'https://www.esquire.com/entertainment/music/a26590682/cardi-b-bruno-mars-please-me-video/';
+  const candidate = { url, publication: 'Esquire', published_at: '2019-03-01', title: 'Cardi B and Bruno Mars music video', summary: 'Bruno Mars and Cardi B appear in a music video with a 1990s visual aesthetic.', categories: ['Music Videos'] };
+  const result = readScoutCandidates({ articles: [candidate] }, [url], [], 'Bruno Mars');
+  expect(result.rejected).toEqual([]);
+  expect(result.accepted).toHaveLength(1);
+});

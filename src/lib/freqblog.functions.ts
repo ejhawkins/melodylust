@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { readTrackDetails, type TrackDetails } from './freqblog';
+import { readArtistSongs, readTrackDetails, type ArtistSong, type TrackDetails } from './freqblog';
 
 // One lookup per song per server run: restyling back to a look shouldn't call FreqBlog again.
 const cache = new Map<string, Promise<TrackDetails | null>>();
@@ -38,4 +38,33 @@ export const lookupTrackDetails = createServerFn({ method: 'POST' })
         .then(result => { if (!result) cache.delete(id); return result; }));
     }
     return { track: await cache.get(id)! };
+  });
+
+// An artist's top songs change slowly: one answer per artist per day.
+const DAY_MS = 24 * 60 * 60 * 1000;
+const songCache = new Map<string, { at: number; songs: Promise<ArtistSong[] | null> }>();
+
+/** The searched artist's three most popular songs from FreqBlog. */
+export const lookupArtistSongs = createServerFn({ method: 'POST' })
+  .inputValidator((input: unknown) => z.object({ artist: z.string().trim().min(1).max(120) }).strict().parse(input))
+  .handler(async ({ data }): Promise<{ songs: ArtistSong[]; status: 'ok' | 'not_configured' | 'unavailable' }> => {
+    const apiKey = process.env['FREQBLOG_API_KEY'];
+    if (!apiKey) return { songs: [], status: 'not_configured' };
+    const baseUrl = (process.env['FREQBLOG_API_URL'] || 'https://api.freqblog.com').replace(/\/$/, '');
+    const id = data.artist.toLowerCase();
+    const saved = songCache.get(id);
+    if (!saved || Date.now() - saved.at > DAY_MS) {
+      songCache.set(id, { at: Date.now(), songs: (async () => {
+        const response = await fetchWithTimeout(`${baseUrl}/artist/tracks?${new URLSearchParams({ artist: data.artist })}`, { headers: { 'X-Api-Key': apiKey } }, 15_000);
+        if (!response.ok) throw new Error(`FreqBlog artist tracks returned ${response.status}`);
+        return readArtistSongs(await response.json(), data.artist);
+      })().catch(failure => {
+        // A failure isn't remembered, so the next search tries again. Server log only: never the key.
+        console.error('[FreqBlog] artist tracks failed', failure instanceof Error ? failure.message : failure);
+        songCache.delete(id);
+        return null;
+      }) });
+    }
+    const songs = await songCache.get(id)!.songs;
+    return songs ? { songs, status: 'ok' } : { songs: [], status: 'unavailable' };
   });

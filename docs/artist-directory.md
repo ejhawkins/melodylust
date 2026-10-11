@@ -37,3 +37,9 @@ Rate limits are per server instance (60 searches/minute and 5 submissions/hour p
 - Enabled real FreqBlog after the owner confirmed the Hobbyist plan. `ush` returned USHER with R&B, a sample track/year, source label and attribution.
 - Isolated invalid-key test: approved database record remained keyboard-selectable with the provider-unavailable notice; removed the exact QA artist afterward.
 - Added a private rate-limit salt locally. Local environment values are not committed. Production deployment and a manual VoiceOver pass remain outside this verification.
+
+### Main evidence search verification (2026-10-11)
+
+The Music & fashion evidence search now shares artist suggestions with the quiz. Selecting a suggestion fills the name; Enter or the search arrow then searches approved articles. Songs and genres still work as free text. No coverage shows an explicit empty state. Live browser verification selected Bruno Mars from FreqBlog and returned the user-provided Esquire “Please Me” article, added as approved/manual after source verification. The article supports visual aesthetic/grooming context, not a designer association.
+
+Discovery now accepts documented menswear, grooming and music-video aesthetics without requiring a named designer. The scout writes candidate rows into Supabase as well as the review CSV; explicit approval updates Supabase, which is the live search source. Discovery does not downgrade existing approved or rejected rows. A live Bruno Mars scout returned seven new candidates, including four Esquire articles; these remain candidates pending editorial review. Main search searches approved saved articles, not the web on every keystroke.

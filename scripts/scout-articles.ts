@@ -6,11 +6,12 @@
 //
 // Review the candidates file between the two steps and delete any row you don't want.
 
+import { getDb } from '../src/lib/db.server.ts';
+import { saveScoutArticles } from '../src/lib/scout-storage.server.ts';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import Papa from 'papaparse';
-import { createOpenAI } from '@ai-sdk/openai';
-import { generateText } from 'ai';
-import { parseScoutJson, readScoutCandidates, SCOUT_DOMAINS, scoutPrompt, type ScoutCandidate } from '../src/lib/article-scout.ts';
+import { readScoutCandidates, type ScoutCandidate } from '../src/lib/article-scout.ts';
+import { searchScoutArticles } from '../src/lib/article-scout.server.ts';
 
 const TRACKER = 'data/articles-tracker.csv';
 const CANDIDATES = 'data/articles-candidates.csv';
@@ -22,40 +23,42 @@ const cell = (value: string) => /[",\n]/.test(value) ? `"${value.replace(/"/g, '
 const line = (values: string[]) => values.map(cell).join(',');
 const toRow = (id: string, c: ScoutCandidate) => [id, c.url, c.publication, c.published_at, c.title, c.summary, c.categories.join(', ')];
 
-function approve() {
+async function approve() {
   const candidates = readCsv(CANDIDATES);
   if (!candidates.length) return console.log('No candidates to approve.');
   const tracker = readFileSync(TRACKER, 'utf8').replace(/\n*$/, '\n');
   let next = Math.max(0, ...readCsv(TRACKER).map(row => Number(row['ID']) || 0)) + 1;
   const rows = candidates.map(row => line([String(next++), ...HEADER.slice(1).map(key => row[key] ?? '')]));
+  const db = getDb();
+  if (db) await saveScoutArticles(db, candidates.map((row, index) => ({
+    tracker_id: String(next - candidates.length + index), url: row['URL'] ?? '', publication: row['Publication'] ?? '',
+    published_at: row['Published At'] ?? '', title: row['Title'] ?? '', summary: row['Summary'] ?? '',
+    categories: (row['Categories'] ?? '').split(',').map(value => value.trim()).filter(Boolean),
+  })), 'approved');
   writeFileSync(TRACKER, tracker + rows.join('\n') + '\n');
   rmSync(CANDIDATES);
-  console.log(`Approved ${rows.length} article(s) into ${TRACKER}. Gemini indexes them on the next search.`);
+  console.log(`Approved ${rows.length} article(s) into ${TRACKER}. ${db ? 'Supabase is updated; search indexes them on its next request.' : 'Search indexes the local tracker on its next request.'}`);
 }
 
 async function scout(artist: string) {
   const apiKey = process.env['OPENAI_API_KEY'];
   if (!apiKey) throw new Error('OPENAI_API_KEY is missing from .env.');
-  const openai = createOpenAI({ apiKey });
-  const result = await generateText({
-    model: openai.responses(process.env['MELODYLUST_SCOUT_MODEL'] || 'gpt-5-mini'),
-    tools: { web_search: openai.tools.webSearch({ filters: { allowedDomains: [...SCOUT_DOMAINS] }, searchContextSize: 'medium' }) },
-    prompt: scoutPrompt(artist, 8),
-  });
-  // Every URL the search itself returned: citations on the answer plus the tool's own source list.
-  const cited = [
-    ...result.steps.flatMap(step => step.sources),
-    ...result.sources,
-  ].flatMap(source => (source.sourceType === 'url' ? [source.url] : []));
-  for (const output of result.steps.flatMap(step => step.toolResults)) {
-    const sources = (output.output as { sources?: { type: string; url?: string }[] } | undefined)?.sources ?? [];
-    for (const source of sources) if (source.type === 'url' && source.url) cited.push(source.url);
-  }
+  const { payload, cited } = await searchScoutArticles(apiKey, artist, 8);
   const queued = readCsv(CANDIDATES);
   const tracked = [...readCsv(TRACKER), ...queued].map(row => row['URL'] ?? '');
-  const { accepted, rejected } = readScoutCandidates(parseScoutJson(result.text), cited, tracked, artist);
+  const db = getDb();
+  if (db) {
+    for (let start = 0; ; start += 500) {
+      const { data, error } = await db.from('articles').select('url').order('id').range(start, start + 499);
+      if (error) throw new Error(`Could not check existing articles: ${error.message}`);
+      tracked.push(...(data ?? []).map(row => row.url));
+      if (!data || data.length < 500) break;
+    }
+  }
+  const { accepted, rejected } = readScoutCandidates(payload, cited, tracked, artist);
 
   if (accepted.length) {
+    if (db) await saveScoutArticles(db, accepted, 'candidate');
     const existing = existsSync(CANDIDATES) ? readFileSync(CANDIDATES, 'utf8').replace(/\n*$/, '\n') : line(HEADER) + '\n';
     writeFileSync(CANDIDATES, existing + accepted.map(c => line(toRow('new', c))).join('\n') + '\n');
   }
@@ -66,6 +69,6 @@ async function scout(artist: string) {
 }
 
 const arg = process.argv.slice(2).join(' ').trim();
-if (arg === '--approve') approve();
+if (arg === '--approve') await approve().catch(failure => { console.error(`Approval failed: ${failure instanceof Error ? failure.message : failure}`); process.exitCode = 1; });
 else if (!arg) console.log('Usage: npm run scout -- "Artist name"   |   npm run scout -- --approve');
 else await scout(arg).catch(failure => { console.error(`Scout failed: ${failure instanceof Error ? failure.message : failure}`); process.exitCode = 1; });

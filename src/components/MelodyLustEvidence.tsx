@@ -7,16 +7,20 @@ import type { ArtistSuggestion, SelectedArtist } from '@/lib/artist-search';
 import { ArtistSuggestionList } from './ArtistSuggestionList';
 import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search, Shuffle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { type Association } from '@/lib/melodylust-evidence';
+import { evidenceStrength, type Association } from '@/lib/melodylust-evidence';
 import { searchTrackedEditorialEvidence } from '@/lib/melodylust.functions';
 import { type EvidenceSearchResult } from '@/lib/style-search';
+import type { ArtistStyleRecommendation } from '@/lib/artist-style';
 import { foldName, moods, recommendSongs, spotifySearchUrl, type Mood, type Song } from '@/lib/song-recommendations';
 import { trackStats, type TrackDetails } from '@/lib/freqblog';
 import { lookupTrackDetails } from '@/lib/freqblog.functions';
 import { lookupAlbumCover } from '@/lib/album-cover.functions';
 import { styleLook } from '@/lib/style-look.functions';
-import { lookupProducts } from '@/lib/products.functions';
-import { formatPrice, pieceKeyword, type ShopProduct } from '@/lib/farfetch';
+import { ShopProducts } from './ShopProducts';
+import { ScoutedArticles } from './ScoutedArticles';
+import { ArtistSongs } from './ArtistSongs';
+import { AIArtistStyle } from './AIArtistStyle';
+import { pieceKeyword } from '@/lib/farfetch';
 import { articleItems } from '@/lib/article-items';
 import { type StyleLookInput, type StyleNotes } from '@/lib/style-look';
 import { type StyleProfile } from '@/lib/style-profile';
@@ -72,39 +76,6 @@ function LookCard({ designer, music }: { designer: string; music: string }) {
   return <div className="stylus-look-card" aria-hidden="true"><span>{designer}</span><span>×</span><span>{music}</span></div>;
 }
 
-/** Real products for a look from Farfetch: the house's signature pieces, or one match per style-notes piece. */
-function ShopProducts({ designer, items, from, title }: { designer: string | null; items?: string[]; from: string; title?: string }) {
-  const [products, setProducts] = useState<ShopProduct[]>([]);
-  const [saved, setSaved] = useState<string[]>([]);
-  const query = items?.join('|') ?? '';
-  useEffect(() => {
-    setProducts([]);
-    let current = true;
-    const searches = items?.length
-      ? [...new Set(items)].slice(0, 3).map(item => lookupProducts({ data: { ...(designer ? { designer } : {}), item, limit: 1 } }))
-      : designer ? [lookupProducts({ data: { designer, limit: 3 } })] : [];
-    Promise.all(searches)
-      .then(responses => { if (current) setProducts(responses.flatMap(response => response.products).filter((product, index, all) => all.findIndex(other => other.id === product.id) === index)); })
-      .catch(() => { /* no products is fine */ });
-    return () => { current = false; };
-  }, [designer, query]);
-  if (!products.length) return null;
-  const heading = title ?? (items?.length ? 'Shop these pieces' : 'Shop the house');
-  return <section className="stylus-shop" aria-label={designer ? `${heading}: ${designer}` : heading}>
-    <span className="stylus-eyebrow">{heading}</span>
-    <ul>{products.map(product => <li key={product.id}>
-      <img src={product.image} alt={`${product.brand} ${product.name}`} width={400} height={533} loading="lazy" />
-      <span className="stylus-shop-name">{product.name}</span>
-      <span className="stylus-shop-price">{formatPrice(product.price, product.currency)}</span>
-      <span className="stylus-shop-actions">
-        <Button variant="stylusTool" size="sm" asChild><a href={product.link} target="_blank" rel="noopener noreferrer">Farfetch <ExternalLink aria-hidden="true" /></a></Button>
-        <Button variant="stylusTool" size="icon" aria-label={`Save ${product.brand} ${product.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: `${product.brand} ${product.name}`, detail: formatPrice(product.price, product.currency), link: product.link, note: '', from }); setSaved(s => [...s, product.id]); }}>{saved.includes(product.id) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
-      </span>
-    </li>)}</ul>
-    <p className="stylus-evidence-note">Products via Farfetch; prices and stock change. Not tracker evidence.</p>
-  </section>;
-}
-
 /** Hybrid search, AI half: on request, OpenAI styles the look the evidence found. */
 function LookStyleNotes({ look }: { look: StyleLookInput }) {
   const [notes, setNotes] = useState<StyleNotes | null>(null);
@@ -138,6 +109,17 @@ function LookStyleNotes({ look }: { look: StyleLookInput }) {
 
 const publishedMonth = (date: string) => new Date(`${date.slice(0, 10)}T00:00:00Z`).toLocaleDateString('en', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 
+const RELATIONSHIP_WORDS = { worn_by: 'worn by', styled_by: 'styled by', worked_with: 'worked with', co_occurs_with: 'named with' } as const;
+/** Says how directly the articles connect this designer and this music, so a shared article never reads as a wardrobe fact. */
+function strengthLabel(result: Association) {
+  const strength = evidenceStrength(result);
+  if (strength === 'verified') {
+    const relationship = result.observations.find(observation => observation.relationship !== 'co_occurs_with')!.relationship;
+    return `Verified in a quote: ${RELATIONSHIP_WORDS[relationship]} ${result.music.name}`;
+  }
+  return strength === 'quoted' ? `Named together in a quote; no wardrobe link stated` : `Contextual: appears in the same article, with no quote linking them`;
+}
+
 function AssociationResult({ result, profile }: { result: Association; profile: StyleProfile }) {
   const quotes = (id: string) => result.observations.filter(observation => observation.article_id === id);
   // Lead with the article that says the most about this pairing.
@@ -147,6 +129,7 @@ function AssociationResult({ result, profile }: { result: Association; profile: 
       <LookCard designer={result.designer.name} music={result.music.name} />
       <div className="min-w-0">
         <div className="stylus-association-heading"><h3>{result.designer.name} × {result.music.name}</h3><span className="stylus-lift">{result.lift === null ? 'Insufficient evidence' : `${result.lift.toFixed(2)}× lift`}</span></div>
+        <p className="stylus-look-credit">{strengthLabel(result)}</p>
         {lead?.summary && <p className="stylus-look-description">{lead.summary}</p>}
         {lead && <p className="stylus-look-credit">— {lead.publication}, {publishedMonth(lead.published_at)}</p>}
       </div>
@@ -181,6 +164,8 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [look, setLook] = useState(0);
+  const [recommendation, setRecommendation] = useState<ArtistStyleRecommendation | null>(null);
+  const [searchWarning, setSearchWarning] = useState('');
   const suggestionId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -194,7 +179,7 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
   function chooseArtist(artist: ArtistSuggestion) {
     setChosenArtist({ id: artist.id, name: artist.name, source: artist.source });
     setQuery(artist.name); setSuggestionsOpen(false); setActiveSuggestion(-1);
-    setResult(null); setArticles([]); setError(''); onArtist?.(null);
+    setResult(null); setArticles([]); setError(''); setRecommendation(null); setSearchWarning(''); onArtist?.(null);
   }
   useEffect(() => { setActiveSuggestion(-1); }, [query]);
   useEffect(() => {
@@ -208,12 +193,13 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
     <form className="stylus-search stylus-search-visible" role="search" aria-label="Music and fashion evidence" onSubmit={async event => {
       event.preventDefault();
       if (busy || !query.trim()) return;
-      setError(''); setResult(null); setArticles([]); setLook(0); setBusy(true); setSuggestionsOpen(false); onArtist?.(null);
+      setError(''); setResult(null); setArticles([]); setRecommendation(null); setSearchWarning(''); setLook(0); setBusy(true); setSuggestionsOpen(false); onArtist?.(null);
       try {
-        const response = await searchTrackedEditorialEvidence({ data: { query: query.trim() } });
-        if (response.error || !response.result) throw new Error(response.error || 'No evidence search result was returned.');
+        const response = await searchTrackedEditorialEvidence({ data: { query: query.trim(), profile, ...(chosenArtist ? { artist: chosenArtist } : {}) } });
+        if (response.error && !response.recommendation) throw new Error(response.error);
+        setRecommendation(response.recommendation ?? null); setSearchWarning(response.warning ?? '');
         setResult(response.result); setArticles(response.articles);
-        onArtist?.(response.result.music?.kind === 'artist' ? response.result.music.name : null);
+        onArtist?.(response.recommendation?.artist.name ?? (response.result?.music?.kind === 'artist' ? response.result.music.name : null));
       } catch (failure) {
         setError(failure instanceof Error ? failure.message : 'Evidence search is unavailable. Please try again.');
       } finally { setBusy(false); }
@@ -232,12 +218,12 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
               setActiveSuggestion(previous => event.key === 'ArrowDown' ? (previous + 1) % artistResults.length : previous <= 0 ? artistResults.length - 1 : previous - 1);
             }
             if (event.key === 'Enter' && expanded && activeSuggestion >= 0 && artistResults[activeSuggestion]) { event.preventDefault(); chooseArtist(artistResults[activeSuggestion]); }
-          }} placeholder="Artist, song or genre" value={query} onChange={event => { setQuery(event.target.value); setChosenArtist(null); setSuggestionsOpen(true); setResult(null); setArticles([]); setError(''); onArtist?.(null); }} maxLength={500} required disabled={busy} enterKeyHint="search" />
+          }} placeholder="Artist, song or genre" value={query} onChange={event => { setQuery(event.target.value); setChosenArtist(null); setSuggestionsOpen(true); setResult(null); setArticles([]); setError(''); setRecommendation(null); setSearchWarning(''); onArtist?.(null); }} maxLength={500} required disabled={busy} enterKeyHint="search" />
         <Button variant="stylusTool" size="icon" type="submit" className="h-11 w-11 border-stylus-ink/30 text-stylus-ink hover:bg-stylus-ink/10" aria-label="Search evidence" title="Search evidence" disabled={busy || !query.trim()}>{busy ? <LoaderCircle className="motion-safe:animate-spin" aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}</Button>
       </div>
       <input type="hidden" name="artist_id" value={chosenArtist?.id ?? ''} />
       <input type="hidden" name="artist_name" value={chosenArtist?.name ?? ''} />
-      <p id={`${suggestionId}-hint`} className="stylus-search-hint">Choose an artist suggestion, or type a song or genre. Then search our fashion articles.</p>
+      <p id={`${suggestionId}-hint`} className="stylus-search-hint">Choose an artist for outfit ideas and supporting articles, or search a song or genre.</p>
       <div className="artist-search evidence-artist-options">
         <ArtistSuggestionList id={suggestionId} results={artistResults} expanded={expanded} active={activeSuggestion} onChoose={chooseArtist} />
         <div id={`${suggestionId}-status`} role="status" className="artist-search-status">
@@ -257,8 +243,9 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
     </form>
     {busy && <p role="status" className="stylus-status">Searching articles...</p>}
     {error && <p role="alert" className="stylus-status">{error}</p>}
+    {searchWarning && <p role="status" className="stylus-status">{searchWarning}</p>}
     {result && <div className="stylus-results" aria-live="polite">
-      {!result.music && <section className="stylus-empty" role="status">
+      {!result.music && !recommendation && <section className="stylus-empty" role="status">
         <span className="stylus-eyebrow">No matching coverage</span>
         <h3>No fashion matches for {result.intent.music_name} yet.</h3>
         <p>This search uses articles in Melody Lust’s collection. We don’t have matching coverage for this {result.intent.music_kind} yet.</p>
@@ -266,7 +253,7 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
         <Button type="button" variant="stylusTool" onClick={() => { inputRef.current?.focus(); inputRef.current?.select(); }}>Try another search <ArrowRight aria-hidden="true" /></Button>
       </section>}
       {result.missingDesigner && <p>No designer evidence for {result.intent.designer_name} in the tracker.</p>}
-      {result.music && !result.missingDesigner && result.associations.length === 0 && <p>No designer overlap for {result.music.name} at the {result.music.kind} evidence level. No hierarchy fallback applied.</p>}
+      {result.music && !result.missingDesigner && result.associations.length === 0 && <p>Articles mentioning {result.music.name}. These sources don’t establish a designer connection.</p>}
       {looks.length > 1 && <div className="stylus-restyle"><span>Look {look % looks.length + 1} of {looks.length}</span><Button variant="stylusTool" onClick={() => setLook(index => (index + 1) % looks.length)}><Shuffle aria-hidden="true" />Restyle</Button></div>}
       {current && <AssociationResult key={`${current.designer.id}:${current.music.id}`} result={current} profile={profile} />}
       {result.music && result.associations.length === 0 && articles[0] && articleItems(articles[0].summary).length > 0 && <ShopProducts designer={null} items={articleItems(articles[0].summary)} from={articles[0].title} title={`Shop the article: ${articles[0].publication}`} />}
@@ -277,5 +264,12 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
       </article>)}
       {result.associations.length > 0 && <p className="stylus-evidence-note">Lift measures overlap in the tracker, not taste or causation. Evidence is from the approved article collection.</p>}
     </div>}
+    {/* Articles about the artist come first; the editorial outfit follows them. */}
+    {recommendation && !articles.length && <p role="status" className="stylus-status">No approved articles about {recommendation.artist.name} in Melody Lust’s collection yet. The outfit below is an editorial suggestion, not sourced.</p>}
+    {/* Then the live publication search for this artist (unreviewed leads), then the outfit. */}
+    {recommendation && <ScoutedArticles key={recommendation.artist.name} artist={recommendation.artist.name} />}
+    {/* Three songs for any artist, unless the editor's song picks above already cover them. */}
+    {recommendation && !recommendSongs({ music: { kind: 'artist', name: recommendation.artist.name }, designer: null, profile }).length && <ArtistSongs key={`songs:${recommendation.artist.name}`} artist={recommendation.artist.name} />}
+    {recommendation && <AIArtistStyle key={`style:${recommendation.artist.id}`} recommendation={recommendation} articles={articles} profile={profile} />}
   </div>;
 }

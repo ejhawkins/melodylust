@@ -6,7 +6,7 @@ import { productCacheKey } from './product-cache';
 // Each search costs RapidAPI quota. Two layers keep that down:
 // 1. `inFlight` (memory): visitors asking for the same search at the same moment share one request.
 // 2. The product cache file (disk): finished searches are reused for a day, across restarts.
-const inFlight = new Map<string, Promise<ShopProduct[]>>();
+const inFlight = new Map<string, Promise<ShopProduct[] | null>>();
 let requestsThisRun = 0;
 const debug = process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1';
 
@@ -34,18 +34,20 @@ export const lookupProducts = createServerFn({ method: 'POST' })
     // Without a designer, the item (a garment from an article) is searched across all brands.
     designer: z.string().trim().min(1).max(120).optional(),
     item: z.string().trim().min(1).max(60).regex(/^[a-z][a-z -]*$/).optional(),
-    limit: z.number().int().min(1).max(6).default(3),
+    // Up to CANDIDATE_POOL (8): an outfit piece fetches a few candidates and the page picks one per artist.
+    limit: z.number().int().min(1).max(8).default(3),
   }).strict().refine(data => data.designer || data.item, 'A designer or an item is required.').parse(input))
-  .handler(async ({ data }): Promise<{ products: ShopProduct[] }> => {
+  // status tells the page why a list is empty: no key, provider down, or simply no match.
+  .handler(async ({ data }): Promise<{ products: ShopProduct[]; status: 'ok' | 'not_configured' | 'unavailable' }> => {
     const apiKey = process.env['RAPIDAPI_KEY'];
     // No key yet: looks simply show no products.
-    if (!apiKey) return { products: [] };
+    if (!apiKey) return { products: [], status: 'not_configured' };
     const key = productCacheKey(data.designer ?? 'any-brand', data.item, data.limit);
     const { readSavedProducts, saveProducts } = await import('./product-cache.server');
     const saved = await readSavedProducts(key);
     if (saved) {
       if (debug) console.info('[Products] from cache', key);
-      return { products: saved };
+      return { products: saved, status: 'ok' };
     }
     if (!inFlight.has(key)) {
       inFlight.set(key, (async () => {
@@ -58,8 +60,9 @@ export const lookupProducts = createServerFn({ method: 'POST' })
       })().catch(failure => {
         // Server log only: never the key.
         console.error('[Products] Farfetch search failed', failure instanceof Error ? failure.message : failure);
-        return [];
+        return null;
       }).finally(() => inFlight.delete(key)));
     }
-    return { products: await inFlight.get(key)! };
+    const products = await inFlight.get(key)!;
+    return products ? { products, status: 'ok' } : { products: [], status: 'unavailable' };
   });

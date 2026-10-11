@@ -12,6 +12,8 @@ import { searchEvidence } from "@/lib/style-search";
 import syntheticCorpus from "../../examples/melodylust-synthetic-corpus.json";
 import { routeTree } from "@/routeTree.gen";
 
+vi.mock('@tanstack/react-start', async importOriginal => ({ ...(await importOriginal<typeof import('@tanstack/react-start')>()), useServerFn: (fn: unknown) => fn }));
+vi.mock('@/lib/artists.functions', () => ({ searchArtists: vi.fn().mockResolvedValue({ status: 'ok', results: [], database: 'ok', provider: 'ok' }), submitArtist: vi.fn() }));
 vi.mock("@/lib/melodylust.functions", () => ({ searchTrackedEditorialEvidence: vi.fn() }));
 beforeEach(() => vi.clearAllMocks());
 afterEach(cleanup);
@@ -141,13 +143,13 @@ describe("Automatic tracker search", () => {
     return { result, articles: corpus.documents.filter(document => result.music && document.entity_ids.includes(result.music.id)), interpretation: 'literal', error: '' };
   };
   const submit = (query = 'Usher') => {
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Music & fashion evidence' }), { target: { value: query } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Music & fashion evidence' }), { target: { value: query } });
     fireEvent.submit(screen.getByRole('search', { name: 'Music and fashion evidence' }));
   };
 
   it("removes preparation controls and does not call paid AI on page load", () => {
     render(<StyleSearch profile={emptyStyleProfile()} onEditProfile={() => {}} />);
-    expect(screen.getByRole('searchbox', { name: 'Music & fashion evidence' })).toHaveAttribute('placeholder', 'Artist, song or genre');
+    expect(screen.getByRole('combobox', { name: 'Music & fashion evidence' })).toHaveAttribute('placeholder', 'Artist, song or genre');
     for (const name of ['Upload article CSV', 'Read with AI', 'Read article', 'Summarize & style', 'Measure association']) {
       expect(screen.queryByRole('button', { name })).not.toBeInTheDocument();
     }
@@ -156,12 +158,12 @@ describe("Automatic tracker search", () => {
     expect(searchTrackedEditorialEvidence).not.toHaveBeenCalled();
   });
 
-  it("searches on a fresh device with only the trimmed query, not client corpus or article URLs", async () => {
+  it("searches on a fresh device with the trimmed query and profile, not client corpus or article URLs", async () => {
     vi.mocked(searchTrackedEditorialEvidence).mockResolvedValue(response());
     render(<StyleSearch profile={emptyStyleProfile()} onEditProfile={() => {}} />);
     submit('  Usher  ');
     expect(await screen.findByText('2.00× lift')).toBeInTheDocument();
-    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Usher' } });
+    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Usher', profile: emptyStyleProfile() } });
     expect(screen.getByRole('link', { name: 'Synthetic scenario: Usher wears Designer A' })).toHaveAttribute('href', 'https://example.org/synthetic-001');
     expect(screen.getByText(/not song-specific/)).toBeInTheDocument();
   });
@@ -186,7 +188,8 @@ describe("Automatic tracker search", () => {
     vi.mocked(searchTrackedEditorialEvidence).mockResolvedValue(response('Narcos', 'song'));
     render(<StyleSearch profile={emptyStyleProfile()} onEditProfile={() => {}} />);
     submit('Narcos');
-    expect(await screen.findByText(/No song-level evidence for Narcos/)).toHaveTextContent('No artist, genre or scene evidence was substituted');
+    expect(await screen.findByRole('heading', { name: 'No fashion matches for Narcos yet.' })).toBeInTheDocument();
+    expect(screen.getByText(/matching coverage for this song yet/)).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Designer A × Usher' })).not.toBeInTheDocument();
   });
 
@@ -194,8 +197,9 @@ describe("Automatic tracker search", () => {
     vi.mocked(searchTrackedEditorialEvidence).mockResolvedValue(response('Jazz', 'genre'));
     render(<StyleSearch profile={emptyStyleProfile()} onEditProfile={() => {}} />);
     submit('Jazz');
-    expect(await screen.findByText(/No genre-level evidence for Jazz/)).toBeInTheDocument();
-    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Jazz' } });
+    expect(await screen.findByRole('heading', { name: 'No fashion matches for Jazz yet.' })).toBeInTheDocument();
+    expect(screen.getByText(/matching coverage for this genre yet/)).toBeInTheDocument();
+    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Jazz', profile: emptyStyleProfile() } });
   });
 
   it("clears stale results when the query changes", async () => {
@@ -203,7 +207,7 @@ describe("Automatic tracker search", () => {
     render(<StyleSearch profile={emptyStyleProfile()} onEditProfile={() => {}} />);
     submit();
     await screen.findByText('2.00× lift');
-    fireEvent.change(screen.getByRole('searchbox', { name: 'Music & fashion evidence' }), { target: { value: 'Gwen Stefani' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Music & fashion evidence' }), { target: { value: 'Gwen Stefani' } });
     expect(screen.queryByText('2.00× lift')).not.toBeInTheDocument();
   });
 });

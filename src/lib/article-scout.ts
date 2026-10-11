@@ -14,10 +14,11 @@ export const SCOUT_DOMAINS = [
   'elle.in', 'esquiresg.com', 'harpersbazaar.mx', 'harpersbazaar.com.sg',
 ] as const;
 
-export const scoutPrompt = (artist: string, limit: number) => `Find up to ${limit} fashion articles about the musician ${JSON.stringify(artist)} that name a fashion designer or brand they wore, collaborated with or were styled in. Use web search. Prefer articles that name the designer in the headline or first paragraph.
+export const scoutPrompt = (artist: string, limit: number) => `Find up to ${limit} editorial articles about the musician ${JSON.stringify(artist)} covering fashion, menswear, personal style, grooming, stage costumes, music-video styling or a documented visual aesthetic. Use web search. Search Esquire explicitly (both Style and Entertainment/Music, including older archive articles) alongside ELLE and Harper's BAZAAR. Include men's coverage as well as women's coverage, without inferring an artist's gender.
+A named designer or brand is useful but NOT required. A music-video or culture article qualifies when its text describes a look, era, visual aesthetic or grooming detail. Do not exclude older coverage or articles outside a fashion URL section. Search the artist's full name and relevant collaborations/music videos. Do not require every publication to have a result.
 Return only JSON, no code fences: {"articles":[{"url":"...","publication":"...","published_at":"YYYY-MM-DD","title":"...","summary":"...","categories":["..."]}]}.
-url: the exact address of a page you found through search. title: the article's real headline. published_at: its publication date. summary: one or two sentences in your own words (no quotes longer than ten words) that name ${JSON.stringify(artist)} and each designer or brand exactly as the article spells them, and say what was worn or done. categories: one to three of Fashion, Celebrity Style, Red Carpet, Menswear, Music, Festivals, Campaigns, Trends.
-Only include articles you found; never guess an address, date or detail. Return {"articles":[]} if none qualify.`;
+url: the exact address of a page you found through search. title: the article's real headline. published_at: its publication date. summary: one or two original sentences (no quotes longer than ten words) naming ${JSON.stringify(artist)} and describing only what the article supports. Include a designer or brand only when explicitly named; never invent garments, brand associations or scores from imagery, identity, gender or era. categories: one to three of Fashion, Celebrity Style, Red Carpet, Menswear, Music, Music Videos, Grooming, Festivals, Campaigns, Trends.
+Only include cited articles you actually found; never guess an address, date or detail. Return {"articles":[]} if none qualify.`;
 
 const candidateSchema = z.object({
   url: z.string().trim().url(),

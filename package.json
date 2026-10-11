@@ -21,7 +21,8 @@
     "scout": "node --env-file-if-exists=.env scripts/scout-articles.ts",
     "tracker:import": "node scripts/import-tracker.ts",
     "db:check": "node --env-file-if-exists=.env scripts/db-check.ts",
-    "db:seed": "node --env-file-if-exists=.env scripts/db-seed.ts"
+    "db:seed": "node --env-file-if-exists=.env scripts/db-seed.ts",
+    "db:articles": "node --env-file-if-exists=.env scripts/db-articles.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

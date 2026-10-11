@@ -301,6 +301,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-metrics dt { font-size: 12px; opacity: .75; }
 .stylus-metrics dd { font-size: 22px; }
 .stylus-source { margin: 20px 0; overflow-wrap: anywhere; }
+.stylus-scouted { margin: 28px 0; padding-top: 20px; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 25%, transparent); }
 .stylus-look { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 24px; align-items: start; }
 .stylus-look-card { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px; background: var(--stylus-accent); color: var(--stylus-ink); font-family: var(--font-cover); font-size: 20px; line-height: 1; text-align: center; text-transform: uppercase; overflow-wrap: anywhere; }
 .stylus-look-description { margin-top: 12px; font-family: var(--font-editorial); font-size: 18px; font-style: italic; line-height: 1.45; }
@@ -318,6 +319,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-shop li { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .stylus-shop img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: color-mix(in oklab, var(--stylus-paper) 10%, transparent); }
 .stylus-shop-name { font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.stylus-shop-status { margin-top: 10px; font-size: 14px; opacity: .85; }
 .stylus-shop-price { font-size: 13px; opacity: .8; }
 .stylus-shop-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
 @media (max-width: 600px) { .stylus-shop ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -868,3 +870,12 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-empty h3 { font-family: 'Bodoni Moda', serif; font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 12px 0; overflow-wrap: anywhere; }
 .stylus-empty p { margin: 12px 0; }
 .stylus-empty button { min-height: 44px; margin-top: 12px; white-space: normal; text-align: left; }
+
+.stylus-artist-outfit { margin-top: 28px; padding: 24px 0; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 35%, transparent); }
+.stylus-artist-outfit h3 { margin: 12px 0; font-family: var(--font-editorial); font-size: clamp(28px, 5vw, 44px); line-height: 1.1; overflow-wrap: anywhere; }
+.stylus-artist-outfit p, .stylus-artist-outfit li { font-size: 16px; line-height: 1.6; }
+.stylus-artist-outfit .stylus-artist-meta { font-size: 14px; opacity: .8; }
+.stylus-artist-outfit .stylus-evidence-note { margin-top: 16px; font-size: 14px; opacity: .8; }
+.stylus-artist-outfit .stylus-evidence-details ul { display: grid; gap: 8px; margin: 12px 0; }
+.stylus-artist-outfit .stylus-evidence-details a { text-decoration: underline; text-underline-offset: 3px; }
+.stylus-artist-outfit button { min-height: 44px; min-width: 44px; }

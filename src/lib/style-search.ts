@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import Papa from 'papaparse';
-import { measureAssociation, parseEvidenceCorpus, type EvidenceCorpus } from './melodylust-evidence';
+import { evidenceStrength, measureAssociation, parseEvidenceCorpus, STRENGTH_RANK, type EvidenceCorpus } from './melodylust-evidence';
 
 export const editorialMetadataSchema = z.object({
   id: z.string().trim().min(1).max(200),
@@ -70,7 +70,8 @@ export function searchEvidence(corpus: EvidenceCorpus, intent: EvidenceSearchInt
   const designers = corpus.entities.filter(entity => entity.kind === 'designer' && (!intent.designer_name || normalizedName(entity.name) === normalizedName(intent.designer_name)));
   const associations = music ? designers.map(designer => measureAssociation(corpus, designer.id, music.id))
     .filter(association => intent.designer_name || association.observed > 0)
-    .sort((left, right) => (right.lift ?? 0) - (left.lift ?? 0) || right.observed - left.observed) : [];
+    // Quoted relationships outrank shared articles; lift orders connections of equal strength.
+    .sort((left, right) => STRENGTH_RANK[evidenceStrength(right)] - STRENGTH_RANK[evidenceStrength(left)] || (right.lift ?? 0) - (left.lift ?? 0) || right.observed - left.observed) : [];
   return { intent, music, associations, missingDesigner: Boolean(intent.designer_name && !designers.length) };
 }
 export type EvidenceSearchResult = ReturnType<typeof searchEvidence>;

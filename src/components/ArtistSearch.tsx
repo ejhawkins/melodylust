@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { ArtistSuggestionList } from './ArtistSuggestionList';
 import { useServerFn } from '@tanstack/react-start';
 import { Button } from '@/components/ui/button';
 import { searchArtists, submitArtist } from '@/lib/artists.functions';
@@ -63,14 +64,7 @@ export function ArtistSearch({ onSelect, disabled = false }: { onSelect: (artist
       }} />
     <input type="hidden" name="artist_id" value={selected?.id ?? ''} />
     <input type="hidden" name="artist_name" value={selected?.name ?? ''} />
-    <ul id={`${id}-list`} role="listbox" aria-label="Artist suggestions" hidden={!expanded}>
-      {results.map((artist, index) => <li key={artist.id} id={`${id}-option-${index}`} role="option" aria-selected={index === active}
-        onMouseDown={event => event.preventDefault()} onClick={() => choose(artist)}>
-        {artist.imageUrl && <img src={artist.imageUrl} alt="" loading="lazy" referrerPolicy="no-referrer" />}
-        <span className="artist-option-copy"><strong>{artist.name}</strong><span>{artist.genres.join(' · ')}</span>{artist.disambiguation && <small>{artist.disambiguation}</small>}</span>
-        <small className="artist-source">{artist.source === 'mock' ? 'Mock data' : artist.source === 'freqblog' ? 'via FreqBlog' : 'Melody Lust'}</small>
-      </li>)}
-    </ul>
+    <ArtistSuggestionList id={id} results={results} expanded={expanded} active={active} onChoose={choose} />
     <div id={`${id}-status`} role="status" aria-live="polite" className="artist-search-status">
       {disabled ? 'Ten artists selected. Remove one to add another.' : selected ? `${selected.name} selected.` : current && state.status === 'loading' ? 'Searching artists…' :
         current && state.status === 'offline' ? 'You’re offline. Reconnect to search for artists.' :
