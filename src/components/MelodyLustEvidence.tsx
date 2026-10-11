@@ -9,6 +9,8 @@ import { trackStats, type TrackDetails } from '@/lib/freqblog';
 import { lookupTrackDetails } from '@/lib/freqblog.functions';
 import { lookupAlbumCover } from '@/lib/album-cover.functions';
 import { styleLook } from '@/lib/style-look.functions';
+import { lookupProducts } from '@/lib/products.functions';
+import { formatPrice, pieceKeyword, type ShopProduct } from '@/lib/farfetch';
 import { type StyleLookInput, type StyleNotes } from '@/lib/style-look';
 import { type StyleProfile } from '@/lib/style-profile';
 import { addWish } from '@/lib/wishlist';
@@ -63,6 +65,38 @@ function LookCard({ designer, music }: { designer: string; music: string }) {
   return <div className="stylus-look-card" aria-hidden="true"><span>{designer}</span><span>×</span><span>{music}</span></div>;
 }
 
+/** Real products for a look from Farfetch: the house's signature pieces, or one match per style-notes piece. */
+function ShopProducts({ designer, items, from }: { designer: string; items?: string[]; from: string }) {
+  const [products, setProducts] = useState<ShopProduct[]>([]);
+  const [saved, setSaved] = useState<string[]>([]);
+  const query = items?.join('|') ?? '';
+  useEffect(() => {
+    setProducts([]);
+    let current = true;
+    const searches = items?.length
+      ? [...new Set(items)].slice(0, 3).map(item => lookupProducts({ data: { designer, item, limit: 1 } }))
+      : [lookupProducts({ data: { designer, limit: 3 } })];
+    Promise.all(searches)
+      .then(responses => { if (current) setProducts(responses.flatMap(response => response.products).filter((product, index, all) => all.findIndex(other => other.id === product.id) === index)); })
+      .catch(() => { /* no products is fine */ });
+    return () => { current = false; };
+  }, [designer, query]);
+  if (!products.length) return null;
+  return <section className="stylus-shop" aria-label={`${items?.length ? 'Shop these pieces' : 'Shop the house'}: ${designer}`}>
+    <span className="stylus-eyebrow">{items?.length ? 'Shop these pieces' : 'Shop the house'}</span>
+    <ul>{products.map(product => <li key={product.id}>
+      <img src={product.image} alt={`${product.brand} ${product.name}`} width={400} height={533} loading="lazy" />
+      <span className="stylus-shop-name">{product.name}</span>
+      <span className="stylus-shop-price">{formatPrice(product.price, product.currency)}</span>
+      <span className="stylus-shop-actions">
+        <Button variant="stylusTool" size="sm" asChild><a href={product.link} target="_blank" rel="noopener noreferrer">Farfetch <ExternalLink aria-hidden="true" /></a></Button>
+        <Button variant="stylusTool" size="icon" aria-label={`Save ${product.brand} ${product.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: `${product.brand} ${product.name}`, detail: formatPrice(product.price, product.currency), link: product.link, note: '', from }); setSaved(s => [...s, product.id]); }}>{saved.includes(product.id) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
+      </span>
+    </li>)}</ul>
+    <p className="stylus-evidence-note">Products via Farfetch; prices and stock change. Not tracker evidence.</p>
+  </section>;
+}
+
 /** Hybrid search, AI half: on request, OpenAI styles the look the evidence found. */
 function LookStyleNotes({ look }: { look: StyleLookInput }) {
   const [notes, setNotes] = useState<StyleNotes | null>(null);
@@ -78,6 +112,7 @@ function LookStyleNotes({ look }: { look: StyleLookInput }) {
       finally { setBusy(false); }
     }}>{busy ? <LoaderCircle className="motion-safe:animate-spin" aria-hidden="true" /> : <Sparkles aria-hidden="true" />}{busy ? 'Styling the look…' : 'Style this look'}</Button>
     {error && <p role="alert" className="stylus-status">{error}</p>}
+    <ShopProducts designer={look.designer} from={from} />
   </div>;
   return <section className="stylus-notes" aria-label={`Style notes for ${from}`}>
     <span className="stylus-eyebrow">Style notes</span>
@@ -89,6 +124,7 @@ function LookStyleNotes({ look }: { look: StyleLookInput }) {
     </li>)}</ol>
     <p className="stylus-notes-tip">{notes.note}</p>
     <p className="stylus-evidence-note">Written by AI from this look's source and your profile. Not tracker evidence.</p>
+    <ShopProducts designer={look.designer} items={notes.pieces.map(piece => pieceKeyword(piece.name)).filter(Boolean)} from={from} />
   </section>;
 }
 

@@ -311,6 +311,14 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-notes li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 20%, transparent); counter-increment: piece; }
 .stylus-notes li > span::before { content: counter(piece, decimal-leading-zero) "  "; font-size: 12px; opacity: .6; }
 .stylus-notes li strong { font-weight: 500; }
+.stylus-shop { margin-top: 24px; }
+.stylus-shop ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 12px; }
+.stylus-shop li { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.stylus-shop img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: color-mix(in oklab, var(--stylus-paper) 10%, transparent); }
+.stylus-shop-name { font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.stylus-shop-price { font-size: 13px; opacity: .8; }
+.stylus-shop-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+@media (max-width: 600px) { .stylus-shop ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .stylus-notes-tip { font-family: var(--font-editorial); font-style: italic; }
 .stylus-evidence-details > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-size: 13px; letter-spacing: .04em; text-decoration: underline; text-underline-offset: 4px; text-transform: uppercase; }
 @media (max-width: 600px) {
