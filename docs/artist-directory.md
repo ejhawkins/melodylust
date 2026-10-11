@@ -27,3 +27,13 @@ FreqBlog's search returns tracks with artist names, not artist IDs or images. It
 Findable FreqBlog attribution appears with its suggestions. Respect the paid-plan caching/display terms, including deleting cached FreqBlog data within 90 days of cancellation. Do not export provider data as a feed or dataset.
 
 Rate limits are per server instance (60 searches/minute and 5 submissions/hour per hashed client IP), not distributed across a serverless fleet. IP headers must come from a trusted deployment proxy. Official-profile ownership is checked by reviewers; URL validation does not verify ownership. VoiceOver requires a manual assistive-technology pass; automated checks cover combobox labels, keyboard selection, live status, and mobile overflow.
+
+## Verification completed 2026-10-11
+
+- 173 tests passed with two workers; TypeScript and production build passed. The first unconstrained suite run timed out in an existing worksheet test while other tools were running; the controlled rerun passed.
+- Verified both artist table definitions against live REST OpenAPI after the SQL migration.
+- Browser: two same-name mock artists, keyboard selection, hidden identity fields, save/reopen/remove, prefilled submission form, 375px layout without horizontal overflow, and 16px inputs.
+- Browser and live database: pending submission, duplicate rejection, zero automatic approved records; removed the exact QA submission afterward.
+- Enabled real FreqBlog after the owner confirmed the Hobbyist plan. `ush` returned USHER with R&B, a sample track/year, source label and attribution.
+- Isolated invalid-key test: approved database record remained keyboard-selectable with the provider-unavailable notice; removed the exact QA artist afterward.
+- Added a private rate-limit salt locally. Local environment values are not committed. Production deployment and a manual VoiceOver pass remain outside this verification.
