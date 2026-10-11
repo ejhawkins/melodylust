@@ -53,7 +53,7 @@ export function mergeSuggestions(query: string, database: ArtistSuggestion[], pr
   const approvedNames = new Set(database.map(suggestion => normalizeArtistName(suggestion.name)));
   const seen = new Set<string>();
   for (const suggestion of provider) {
-    const key = `${normalizeArtistName(suggestion.name)}|${suggestion.disambiguation ?? ''}`;
+    const key = `${suggestion.source}:${suggestion.id}`;
     if (approvedNames.has(normalizeArtistName(suggestion.name)) || seen.has(key)) continue;
     seen.add(key);
     ordered.push(suggestion);
