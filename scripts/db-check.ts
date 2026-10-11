@@ -13,11 +13,11 @@ if (!url || !key) {
 
 const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 let ok = true;
-for (const table of ['articles', 'article_evidence', 'product_cache']) {
+for (const table of ['articles', 'article_evidence', 'product_cache', 'artists', 'artist_submissions']) {
   // A real read (not a HEAD request): HEAD answers 204 even for tables that don't exist.
   const { count, error } = await supabase.from(table).select('*', { count: 'exact' }).limit(1);
   if (error) { ok = false; console.log(`  ✗ ${table}: ${error.message}`); }
   else console.log(`  ✓ ${table}: ${count ?? 0} rows`);
 }
-console.log(ok ? '\nConnected — all MelodyLust tables are ready.' : '\nSome tables are missing: run supabase/migrations/20261011000000_melodylust_core.sql in the SQL Editor.');
+console.log(ok ? '\nConnected — all MelodyLust tables are ready.' : '\nSome tables are missing: run the matching SQL migrations in supabase/migrations in the SQL Editor.');
 process.exitCode = ok ? 0 : 1;

@@ -832,3 +832,26 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 }
 @media (max-width: 560px) { .wishlist { padding: 52px 0 48px; } .wish-form { grid-template-columns: 1fr; } .wish-export { justify-content: stretch; } .wish-export > * { flex: 1; } }
 
+
+/* Artist directory: editorial rules and readable touch targets in the profile dialog. */
+.artist-search { min-width: 0; color: var(--foreground); }
+.artist-search label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; margin: 12px 0 8px; }
+.artist-search-hint, .artist-search-status, .artist-credit, .artist-submit > p { font-size: 14px; line-height: 1.5; color: var(--muted-foreground); margin: 8px 0; }
+.artist-search input:not([type=hidden]), .artist-search textarea { width: 100%; min-height: 44px; border: 1px solid var(--input); background: var(--background); color: var(--foreground); padding: 12px; font-size: 16px; border-radius: 0; }
+.artist-search input:focus-visible, .artist-search textarea:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.artist-search [role=listbox] { border: 1px solid var(--border); max-height: 280px; overflow-y: auto; margin: 4px 0; background: var(--popover); }
+.artist-search [role=option] { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border); }
+.artist-search [role=option]:last-child { border-bottom: 0; }
+.artist-search [role=option]:hover, .artist-search [aria-selected=true] { background: var(--accent); color: var(--accent-foreground); }
+.artist-search [role=option] img { width: 44px; height: 44px; object-fit: cover; }
+.artist-option-copy { display: grid; min-width: 0; flex: 1; gap: 3px; overflow-wrap: anywhere; }
+.artist-option-copy strong { font-size: 16px; font-weight: 500; }
+.artist-option-copy span, .artist-option-copy small { font-size: 13px; line-height: 1.4; color: var(--muted-foreground); }
+.artist-source { max-width: 70px; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.artist-submit { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; }
+.artist-submit-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.artist-search button, .artist-picks button { min-height: 44px; }
+.artist-honeypot { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.artist-picks { display: grid; gap: 4px; }
+.artist-picks li { display: flex; gap: 12px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.artist-picks span { min-width: 0; overflow-wrap: anywhere; }

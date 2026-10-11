@@ -17,3 +17,10 @@ describe('style profile', () => {
     expect(styleProfileSchema.safeParse({ color: Array(13).fill('Burgundy') }).success).toBe(false);
   });
 });
+
+it('loads old profiles and counts artist picks with bounded identities', () => {
+  expect(styleProfileSchema.parse({ artists: 'Usher' }).artistPicks).toEqual([]);
+  const pick = { id: 'mock:1', name: 'Velvet Static', source: 'mock' };
+  expect(profileSelectionCount(styleProfileSchema.parse({ artistPicks: [pick] }))).toBe(1);
+  expect(styleProfileSchema.safeParse({ artistPicks: Array(11).fill(pick) }).success).toBe(false);
+});

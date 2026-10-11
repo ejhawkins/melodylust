@@ -19,6 +19,7 @@ export const styleProfileSchema = z.object({
   color: selections, material: selections, brand: selections, pattern: selections,
   item: selections, fit: selections, details: selections, occasion: selections,
   season: selections, aesthetic: selections, music: selections,
+  artistPicks: z.array(z.object({ id: z.string().min(1).max(200), name: z.string().min(1).max(120), source: z.string().min(1).max(20) })).max(10).default([]),
   artists: z.string().trim().max(200).default(''),
   articles: z.array(z.enum(['elle-knitwear', 'bazaar-animal', 'ml-glorilla', 'ml-charli', 'ml-skuzland'])).max(5).default([]),
 });
@@ -36,7 +37,7 @@ export const editorialReferences = [
 
 export function profileSelectionCount(profile?: Partial<StyleProfile> | null) {
   if (!profile) return 0;
-  return profileFields.reduce((total, field) => total + (profile[field.key]?.length ?? 0), 0) + (profile.articles?.length ?? 0) + (profile.artists ? 1 : 0);
+  return profileFields.reduce((total, field) => total + (profile[field.key]?.length ?? 0), 0) + (profile.articles?.length ?? 0) + (profile.artists ? 1 : 0) + (profile.artistPicks?.length ?? 0);
 }
 
 export function styleSearchInput(prompt: string, profile?: StyleProfile) {
