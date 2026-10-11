@@ -103,7 +103,10 @@ export const searchTrackedEditorialEvidence = createServerFn({ method: 'POST' })
     try {
       const { readTrackedEvidence } = await import('./article-tracker.server');
       const prompt = READER_PROMPT.replace('Extract one editorial metadata record only.', 'Extract every supplied editorial metadata record.').replace('exactly one object', 'exactly one object per supplied document');
-      const corpus = await readTrackedEvidence(input => readWithAI(prompt, input));
+      const { getAIProvider } = await import('./ai/read-json.server');
+      // Changing the AI provider, model or instructions re-reads every article.
+      const readerVersion = `${getAIProvider() ?? 'none'}|${process.env['MELODYLUST_AI_MODEL'] ?? 'default-model'}|${prompt}`;
+      const corpus = await readTrackedEvidence(input => readWithAI(prompt, input), readerVersion);
       const response = await searchEditorialEvidence({ data: { query: data.query, corpus } });
       const music = response.result?.music;
       const articles = music ? corpus.documents.filter(document => document.entity_ids.includes(music.id)) : [];

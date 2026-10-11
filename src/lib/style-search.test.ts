@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { articleAnalysisInputSchema, editorialCorpusInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, parseEditorialCsv, readStyleResult, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
 import { parseEvidenceCorpus } from './melodylust-evidence';
-import { createTrackerLoader, readTrackedEvidence } from './article-tracker.server';
+import { createMemoryEvidenceStore, createTrackerLoader, readTrackedEvidence } from './article-tracker.server';
 
 const corpus = parseEvidenceCorpus({
   version: 1,
@@ -70,6 +70,31 @@ describe('backend article tracker', () => {
     let broken = 0;
     await expect(createTrackerLoader()(csv, async () => { broken += 1; return { version: 1, entities: [], documents: [], observations: [] }; })).rejects.toThrow('omitted eligible documents');
     expect(broken).toBe(2);
+  });
+
+  it('reads each article once: saved evidence is reused, only edited articles are re-read', async () => {
+    const twoRows = `${csv}\n2,https://example.com/two,Test,2024-01-02,Gwen Stefani,,Fashion`;
+    const store = createMemoryEvidenceStore();
+    const seen: string[][] = [];
+    const tracking = async (input: ReturnType<typeof parseEditorialCsv>) => { seen.push(input.documents.map(document => document.id)); return reader(input); };
+
+    // First run reads both articles.
+    expect((await createTrackerLoader(store, 'gemini')(twoRows, tracking)).documents).toHaveLength(2);
+    expect(seen).toEqual([['1', '2']]);
+
+    // A fresh loader (as after a restart) with the same notebook reads nothing.
+    const restarted = createTrackerLoader(store, 'gemini');
+    expect((await restarted(twoRows, tracking)).documents).toHaveLength(2);
+    expect(seen).toHaveLength(1);
+    expect(restarted.stats).toEqual({ reused: 2, read: 0 });
+
+    // Editing one article's title re-reads only that article.
+    await createTrackerLoader(store, 'gemini')(twoRows.replace('Gwen Stefani', 'Gwen Stefani at Coachella'), tracking);
+    expect(seen.at(-1)).toEqual(['2']);
+
+    // A different reader (provider, model or instructions) reads everything again.
+    await createTrackerLoader(store, 'openai')(twoRows, tracking);
+    expect(seen.at(-1)).toEqual(['1', '2']);
   });
 
   it('does not cache failed or partially indexed evidence', async () => {
