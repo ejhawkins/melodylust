@@ -25,26 +25,43 @@ function pickImage(images: unknown) {
 /** Farfetch search for the exact product, so the link always lands on something real. */
 export const farfetchLink = (brand: string, name: string) => `https://www.farfetch.com/shopping/search/items.aspx?q=${encodeURIComponent(`${brand} ${name}`)}`;
 
-/** Search payload → up to `limit` priced, pictured products from the requested house only. */
-export function readFarfetchSearch(payload: unknown, designer: string, limit = 3): ShopProduct[] {
+/** "striped" ≈ "stripe", "pants" ≈ "pant": compare word stems, not exact spellings. */
+const stems = (text: string) => text.toLowerCase().match(/[a-z]+/g)?.map(word => word.slice(0, 5)) ?? [];
+
+/** How many of the wanted item's words appear in a product name ("striped tank top" vs "striped tank top" = 3). */
+export function itemMatchScore(item: string, productName: string) {
+  const name = new Set(stems(productName));
+  return [...new Set(stems(item))].filter(stem => name.has(stem)).length;
+}
+
+/** Search payload → up to `limit` priced, pictured products — from the requested house only,
+ *  or from any brand when `designer` is null (searching an article's garments). With an `item`,
+ *  products whose names share the most of its words come first. */
+export function readFarfetchSearch(payload: unknown, designer: string | null, limit = 3, item?: string): ShopProduct[] {
   const entries = payload && typeof payload === 'object' && 'products' in payload && payload.products && typeof payload.products === 'object' && 'entries' in payload.products && Array.isArray(payload.products.entries)
     ? payload.products.entries as FarfetchEntry[] : [];
-  const house = foldName(designer);
+  const house = designer === null ? null : foldName(designer);
   const products: ShopProduct[] = [];
   for (const entry of entries) {
     const brand = typeof entry.brand?.name === 'string' ? entry.brand.name : '';
     const name = typeof entry.shortDescription === 'string' ? entry.shortDescription.trim() : '';
     const image = pickImage(entry.images);
-    if (!brand || foldName(brand) !== house || !name || !image || typeof entry.price !== 'number' || entry.price <= 0) continue;
+    if (!brand || (house !== null && foldName(brand) !== house) || !name || !image || typeof entry.price !== 'number' || entry.price <= 0) continue;
     products.push({
       id: String(entry.id), brand, name, image,
       price: entry.price,
       currency: typeof entry.currencyIsoCode === 'string' ? entry.currencyIsoCode : 'USD',
       link: farfetchLink(brand, name),
     });
-    if (products.length >= limit) break;
+    if (!item && products.length >= limit) break;
   }
-  return products;
+  if (!item) return products;
+  // Stable sort: equally good matches keep Farfetch's order.
+  return products
+    .map((product, index) => ({ product, index, score: itemMatchScore(item, product.name) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, limit)
+    .map(entry => entry.product);
 }
 
 const TRAILING_NOISE = new Set(['stack', 'set', 'look', 'layer', 'layers', 'pair', 'combo', 'moment']);

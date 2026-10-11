@@ -11,6 +11,7 @@ import { lookupAlbumCover } from '@/lib/album-cover.functions';
 import { styleLook } from '@/lib/style-look.functions';
 import { lookupProducts } from '@/lib/products.functions';
 import { formatPrice, pieceKeyword, type ShopProduct } from '@/lib/farfetch';
+import { articleItems } from '@/lib/article-items';
 import { type StyleLookInput, type StyleNotes } from '@/lib/style-look';
 import { type StyleProfile } from '@/lib/style-profile';
 import { addWish } from '@/lib/wishlist';
@@ -66,7 +67,7 @@ function LookCard({ designer, music }: { designer: string; music: string }) {
 }
 
 /** Real products for a look from Farfetch: the house's signature pieces, or one match per style-notes piece. */
-function ShopProducts({ designer, items, from }: { designer: string; items?: string[]; from: string }) {
+function ShopProducts({ designer, items, from, title }: { designer: string | null; items?: string[]; from: string; title?: string }) {
   const [products, setProducts] = useState<ShopProduct[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const query = items?.join('|') ?? '';
@@ -74,16 +75,17 @@ function ShopProducts({ designer, items, from }: { designer: string; items?: str
     setProducts([]);
     let current = true;
     const searches = items?.length
-      ? [...new Set(items)].slice(0, 3).map(item => lookupProducts({ data: { designer, item, limit: 1 } }))
-      : [lookupProducts({ data: { designer, limit: 3 } })];
+      ? [...new Set(items)].slice(0, 3).map(item => lookupProducts({ data: { ...(designer ? { designer } : {}), item, limit: 1 } }))
+      : designer ? [lookupProducts({ data: { designer, limit: 3 } })] : [];
     Promise.all(searches)
       .then(responses => { if (current) setProducts(responses.flatMap(response => response.products).filter((product, index, all) => all.findIndex(other => other.id === product.id) === index)); })
       .catch(() => { /* no products is fine */ });
     return () => { current = false; };
   }, [designer, query]);
   if (!products.length) return null;
-  return <section className="stylus-shop" aria-label={`${items?.length ? 'Shop these pieces' : 'Shop the house'}: ${designer}`}>
-    <span className="stylus-eyebrow">{items?.length ? 'Shop these pieces' : 'Shop the house'}</span>
+  const heading = title ?? (items?.length ? 'Shop these pieces' : 'Shop the house');
+  return <section className="stylus-shop" aria-label={designer ? `${heading}: ${designer}` : heading}>
+    <span className="stylus-eyebrow">{heading}</span>
     <ul>{products.map(product => <li key={product.id}>
       <img src={product.image} alt={`${product.brand} ${product.name}`} width={400} height={533} loading="lazy" />
       <span className="stylus-shop-name">{product.name}</span>
@@ -203,6 +205,7 @@ export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
       {result.music && !result.missingDesigner && result.associations.length === 0 && <p>No designer overlap for {result.music.name} at the {result.music.kind} evidence level. No hierarchy fallback applied.</p>}
       {looks.length > 1 && <div className="stylus-restyle"><span>Look {look % looks.length + 1} of {looks.length}</span><Button variant="stylusTool" onClick={() => setLook(index => (index + 1) % looks.length)}><Shuffle aria-hidden="true" />Restyle</Button></div>}
       {current && <AssociationResult key={`${current.designer.id}:${current.music.id}`} result={current} profile={profile} />}
+      {result.music && result.associations.length === 0 && articles[0] && articleItems(articles[0].summary).length > 0 && <ShopProducts designer={null} items={articleItems(articles[0].summary)} from={articles[0].title} title={`Shop the article: ${articles[0].publication}`} />}
       {result.music && result.associations.length === 0 && <SongPicks music={result.music} designer={null} profile={profile} />}
       {result.associations.length === 0 && articles.filter(article => !result.associations.some(association => association.sources.some(source => source.id === article.id))).map(article => <article className="stylus-source" key={article.id}>
         <a href={article.url} target="_blank" rel="noopener noreferrer">{article.title} <ExternalLink aria-hidden="true" /></a>

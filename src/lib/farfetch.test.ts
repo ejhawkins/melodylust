@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { farfetchLink, formatPrice, pieceKeyword, readFarfetchSearch } from './farfetch';
+import { farfetchLink, formatPrice, itemMatchScore, pieceKeyword, readFarfetchSearch } from './farfetch';
 
 // Shape of a live farfetch-data search.php response (trimmed).
 const images = (id: number) => [54, 250, 400, 800].map(size => ({ order: 1, size: String(size), url: `https://cdn-images.farfetch-contents.com/${id}_${size}.jpg` }));
@@ -21,6 +21,22 @@ describe('Farfetch products', () => {
   it('keeps only the requested house, however the tracker spells it', () => {
     const result = readFarfetchSearch(payload([entry(1, { brand: { name: 'Dolce & Gabbana' } }), entry(2)]), 'Off White');
     expect(result.map(product => product.id)).toEqual(['2']);
+  });
+
+  it('keeps every brand when searching an article garment (no designer)', () => {
+    const result = readFarfetchSearch(payload([entry(1, { brand: { name: 'Dolce & Gabbana' } }), entry(2)]), null);
+    expect(result.map(product => product.brand)).toEqual(['Dolce & Gabbana', 'Off-White']);
+  });
+
+  it('puts the closest name match first when searching an item', () => {
+    const result = readFarfetchSearch(payload([
+      entry(1, { shortDescription: 'crystal mesh crop top' }),
+      entry(2, { shortDescription: 'high-rise straight-leg trousers' }),
+      entry(3, { shortDescription: 'striped ribbed tank top' }),
+    ]), null, 1, 'striped tank top');
+    expect(result.map(product => product.name)).toEqual(['striped ribbed tank top']);
+    expect(itemMatchScore('blue track pants', 'logo-tape track pants')).toBe(2);
+    expect(itemMatchScore('striped tank top', 'Stripe-print tank')).toBe(2);
   });
 
   it('skips unpriced, unpictured or unnamed entries and stops at the limit', () => {
