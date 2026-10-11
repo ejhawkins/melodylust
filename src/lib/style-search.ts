@@ -14,6 +14,11 @@ export const editorialCorpusInputSchema = z.object({
   documents: z.array(editorialMetadataSchema).min(1).max(30),
 }).refine(value => new Set(value.documents.map(document => document.id)).size === value.documents.length, 'Duplicate document ID.');
 
+// The tracker is indexed in batches, so it can hold far more rows than one AI request takes.
+const trackerCorpusSchema = z.object({
+  documents: z.array(editorialMetadataSchema).min(1).max(2000),
+}).refine(value => new Set(value.documents.map(document => document.id)).size === value.documents.length, 'Duplicate document ID.');
+
 export function parseEditorialCsv(csv: string) {
   if (new TextEncoder().encode(csv).length > 2000000) throw new Error('CSV exceeds the 2 MB import limit.');
   const parsed = Papa.parse<Record<string, string>>(csv, {
@@ -38,7 +43,7 @@ export function parseEditorialCsv(csv: string) {
     }
     return document.data;
   });
-  return editorialCorpusInputSchema.parse({ documents });
+  return trackerCorpusSchema.parse({ documents });
 }
 
 export function validateEvidenceExtraction(value: unknown, documents: z.infer<typeof editorialMetadataSchema>[]) {

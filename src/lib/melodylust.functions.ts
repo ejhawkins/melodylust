@@ -112,6 +112,9 @@ export const searchTrackedEditorialEvidence = createServerFn({ method: 'POST' })
       }
       return { ...response, articles };
     } catch (failure) {
+      if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
+        console.warn('[MelodyLust] tracker indexing failed', failure instanceof Error ? failure.message : failure);
+      }
       return { result: null, articles: [], interpretation: 'ai', error: await aiFailureMessage(failure, 'The article tracker could not be indexed. No partial evidence was used. Please try again.') };
     }
   });

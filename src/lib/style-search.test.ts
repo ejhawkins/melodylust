@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { articleAnalysisInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, parseEditorialCsv, readStyleResult, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
+import { articleAnalysisInputSchema, editorialCorpusInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, parseEditorialCsv, readStyleResult, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
 import { parseEvidenceCorpus } from './melodylust-evidence';
 import { createTrackerLoader, readTrackedEvidence } from './article-tracker.server';
 
@@ -22,9 +22,10 @@ describe('backend article tracker', () => {
   const csv = 'ID,URL,Publication,Published At,Title,Summary,Categories\n1,https://example.com/one,Test,2024-01-01,Usher,,Fashion';
   const reader = async (input: ReturnType<typeof parseEditorialCsv>) => ({ version: 1, entities: [], documents: input.documents.map(document => ({ ...document, entity_ids: [] })), observations: [] });
 
-  it('loads all eight configured tracker rows without browser uploads', async () => {
+  it('loads every configured tracker row without browser uploads', async () => {
+    const { default: trackerCsv } = await import('../../data/articles-tracker.csv?raw');
     const result = await readTrackedEvidence(reader);
-    expect(result.documents).toHaveLength(8);
+    expect(result.documents).toHaveLength(parseEditorialCsv(trackerCsv).documents.length);
     expect(result.documents.find(document => document.id === '5')?.title).toContain('Usher');
   });
 
@@ -38,6 +39,27 @@ describe('backend article tracker', () => {
     expect(calls).toBe(1);
     await load(csv.replace('Usher', 'Gwen Stefani'), countedReader);
     expect(calls).toBe(2);
+  });
+
+  it('indexes large trackers in batches and merges them into one corpus', async () => {
+    const rows = Array.from({ length: 12 }, (_, i) => `${i + 1},https://example.com/${i + 1},Test,2024-01-01,Usher in Off-White ${i + 1},,Fashion`);
+    const bigCsv = ['ID,URL,Publication,Published At,Title,Summary,Categories', ...rows].join('\n');
+    const batchSizes: number[] = [];
+    const linkingReader = async (input: ReturnType<typeof parseEditorialCsv>) => {
+      batchSizes.push(input.documents.length);
+      return {
+        version: 1,
+        entities: [{ id: 'artist:usher', kind: 'artist', name: 'Usher' }, { id: 'designer:off-white', kind: 'designer', name: 'Off-White' }],
+        documents: input.documents.map(document => ({ ...document, entity_ids: ['artist:usher', 'designer:off-white'] })),
+        // Every batch reuses the same local observation IDs.
+        observations: input.documents.map((document, i) => ({ id: `o${i + 1}`, article_id: document.id, left_id: 'designer:off-white', right_id: 'artist:usher', relationship: 'co_occurs_with', quote: 'Usher in Off-White', field: 'title', section: 'headline', proximity: 'same_sentence', evidence_level: 'artist', song_specific: false })),
+      };
+    };
+    const corpus = await createTrackerLoader()(bigCsv, linkingReader);
+    expect(batchSizes.sort()).toEqual([2, 5, 5]);
+    expect(corpus.documents).toHaveLength(12);
+    expect(corpus.entities).toHaveLength(2);
+    expect(new Set(corpus.observations.map(observation => observation.id)).size).toBe(12);
   });
 
   it('does not cache failed or partially indexed evidence', async () => {
@@ -94,10 +116,14 @@ describe('editorial CSV import', () => {
     expect(() => parseEditorialCsv(`${header}\n1,https://example.com,ELLE,2024-01-01,Title,"Unclosed,Fashion`)).toThrow('Could not parse CSV');
   });
 
-  it('rejects oversized files and batches above the AI reader limit', () => {
+  it('rejects oversized files; trackers may exceed one AI request, single requests may not', () => {
     expect(() => parseEditorialCsv('a'.repeat(2000001))).toThrow('2 MB');
     const rows = Array.from({ length: 31 }, (_, index) => `${index},https://example.com/${index},ELLE,2024-01-01,Title,,Fashion`);
-    expect(() => parseEditorialCsv([header, ...rows].join('\n'))).toThrow();
+    // The tracker is indexed in batches, so 31 rows are fine there…
+    const { documents } = parseEditorialCsv([header, ...rows].join('\n'));
+    expect(documents).toHaveLength(31);
+    // …but a corpus sent to the AI reader in one request is still capped at 30.
+    expect(editorialCorpusInputSchema.safeParse({ documents }).success).toBe(false);
   });
 });
 
@@ -134,5 +160,15 @@ describe('evidence search', () => {
     expect(validateEvidenceExtraction(corpus, corpus.documents)).toEqual(corpus);
     expect(() => validateEvidenceExtraction({ ...corpus, documents: [corpus.documents[0]] }, corpus.documents)).toThrow('omitted eligible documents');
     expect(() => validateEvidenceExtraction({ ...corpus, documents: [{ ...corpus.documents[0], publication: 'Invented source' }, corpus.documents[1]] }, corpus.documents)).toThrow('changed source metadata');
+  });
+});
+
+describe('bundled articles tracker', () => {
+  it('parses, with unique IDs and URLs', async () => {
+    const { default: csv } = await import('../../data/articles-tracker.csv?raw');
+    const { documents } = parseEditorialCsv(csv);
+    expect(documents.length).toBeGreaterThanOrEqual(20);
+    expect(new Set(documents.map(document => document.id)).size).toBe(documents.length);
+    expect(new Set(documents.map(document => document.url)).size).toBe(documents.length);
   });
 });
