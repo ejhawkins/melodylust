@@ -21,3 +21,10 @@ Page order for a searched artist (`src/components/MelodyLustEvidence.tsx`):
 3. Genre Mixing Playground (primary/secondary genre, blend slider, example pairs) feeding the same Gemini input; include blend in the cache key.
 4. QA metrics report (overlap, duplicate IDs, evidence coverage, latency) from the logs `[AI style]`, `[Scout] live`, `[Products]`.
 5. Commit in small steps when the owner asks (files are mixed with other sessions' uncommitted work).
+
+## Update (later on 2026-10-11)
+- Committed on branch `melodylust/hybrid-artist-search`: `c9fdfa1` (hybrid search, songs, Gemini styling, products) and `f18ad7d` (genre moodboards + style pills under the Style Matrix). Not pushed.
+- GitHub CLI is signed in as **ejhawkins**. No Lovable repo exists in that account yet: the owner is connecting the Lovable project to GitHub (Lovable → GitHub → Connect).
+  When the repo URL arrives: add it as `origin`, push this branch, check whether histories are related, then (after owner confirms) merge into `main` with a normal merge commit (`--allow-unrelated-histories` if needed). Never force-push.
+- Left uncommitted on purpose: `package-lock.json` (unused @supabase/ssr), `work/`, `data/articles-candidates.csv`.
+- Site copy rewrite (numbered 01–05 story) was proposed in chat and is waiting for the owner's edits.
