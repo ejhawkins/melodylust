@@ -1,4 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
+import { useServerFn } from '@tanstack/react-start';
+import { searchArtists } from '@/lib/artists.functions';
+import { useArtistSuggestions } from '@/lib/use-artist-suggestions';
+import { FREQBLOG_ATTRIBUTION } from '@/lib/artist-provider';
+import type { ArtistSuggestion, SelectedArtist } from '@/lib/artist-search';
+import { ArtistSuggestionList } from './ArtistSuggestionList';
 import { ArrowRight, Check, ExternalLink, LoaderCircle, Plus, Search, Shuffle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { type Association } from '@/lib/melodylust-evidence';
@@ -167,13 +173,34 @@ function AssociationResult({ result, profile }: { result: Association; profile: 
   </article>;
 }
 
-export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
+/** `onArtist` hears the artist a search found (or null), e.g. to show their portrait as the cursor. */
+export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfile; onArtist?: (name: string | null) => void }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<EvidenceSearchResult | null>(null);
   const [articles, setArticles] = useState<Awaited<ReturnType<typeof searchTrackedEditorialEvidence>>['articles']>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [look, setLook] = useState(0);
+  const suggestionId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [chosenArtist, setChosenArtist] = useState<SelectedArtist | null>(null);
+  const artistSearch = useServerFn(searchArtists);
+  const suggestions = useArtistSuggestions(busy || chosenArtist ? '' : query, (value, signal) => artistSearch({ data: { query: value }, signal }));
+  const currentSuggestions = 'query' in suggestions && suggestions.query === query.trim();
+  const artistResults = currentSuggestions && suggestions.status === 'ready' ? suggestions.results : [];
+  const expanded = suggestionsOpen && !busy && artistResults.length > 0;
+  function chooseArtist(artist: ArtistSuggestion) {
+    setChosenArtist({ id: artist.id, name: artist.name, source: artist.source });
+    setQuery(artist.name); setSuggestionsOpen(false); setActiveSuggestion(-1);
+    setResult(null); setArticles([]); setError(''); onArtist?.(null);
+  }
+  useEffect(() => { setActiveSuggestion(-1); }, [query]);
+  useEffect(() => {
+    if (activeSuggestion >= 0) document.getElementById(`${suggestionId}-option-${activeSuggestion}`)?.scrollIntoView?.({ block: 'nearest' });
+  }, [activeSuggestion, suggestionId]);
+
   // One look per house (the tracker can spell a house two ways), strongest lift first.
   const looks = result?.associations.filter((association, index, all) => all.findIndex(other => foldName(other.designer.name) === foldName(association.designer.name)) === index) ?? [];
   const current = looks[look % Math.max(looks.length, 1)];
@@ -181,11 +208,12 @@ export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
     <form className="stylus-search stylus-search-visible" role="search" aria-label="Music and fashion evidence" onSubmit={async event => {
       event.preventDefault();
       if (busy || !query.trim()) return;
-      setError(''); setResult(null); setArticles([]); setLook(0); setBusy(true);
+      setError(''); setResult(null); setArticles([]); setLook(0); setBusy(true); setSuggestionsOpen(false); onArtist?.(null);
       try {
         const response = await searchTrackedEditorialEvidence({ data: { query: query.trim() } });
         if (response.error || !response.result) throw new Error(response.error || 'No evidence search result was returned.');
         setResult(response.result); setArticles(response.articles);
+        onArtist?.(response.result.music?.kind === 'artist' ? response.result.music.name : null);
       } catch (failure) {
         setError(failure instanceof Error ? failure.message : 'Evidence search is unavailable. Please try again.');
       } finally { setBusy(false); }
@@ -193,14 +221,50 @@ export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
       <label htmlFor="stylus-query" className="stylus-eyebrow font-editorial">Music &<br />fashion evidence</label>
       <div className="stylus-input-row">
         <Search aria-hidden="true" />
-        <input id="stylus-query" type="search" placeholder="Artist, song or genre" value={query} onChange={event => { setQuery(event.target.value); setResult(null); setArticles([]); setError(''); }} maxLength={500} required disabled={busy} enterKeyHint="search" />
+        <input ref={inputRef} id="stylus-query" type="search" role="combobox" autoComplete="off" aria-autocomplete="list"
+          aria-expanded={expanded} aria-controls={`${suggestionId}-list`} aria-describedby={`${suggestionId}-hint ${suggestionId}-status`}
+          aria-activedescendant={expanded && activeSuggestion >= 0 && activeSuggestion < artistResults.length ? `${suggestionId}-option-${activeSuggestion}` : undefined}
+          onFocus={() => setSuggestionsOpen(true)} onBlur={() => { setSuggestionsOpen(false); setActiveSuggestion(-1); }}
+          onKeyDown={event => {
+            if (event.key === 'Escape') { event.preventDefault(); setSuggestionsOpen(false); setActiveSuggestion(-1); }
+            if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && artistResults.length) {
+              event.preventDefault(); setSuggestionsOpen(true);
+              setActiveSuggestion(previous => event.key === 'ArrowDown' ? (previous + 1) % artistResults.length : previous <= 0 ? artistResults.length - 1 : previous - 1);
+            }
+            if (event.key === 'Enter' && expanded && activeSuggestion >= 0 && artistResults[activeSuggestion]) { event.preventDefault(); chooseArtist(artistResults[activeSuggestion]); }
+          }} placeholder="Artist, song or genre" value={query} onChange={event => { setQuery(event.target.value); setChosenArtist(null); setSuggestionsOpen(true); setResult(null); setArticles([]); setError(''); onArtist?.(null); }} maxLength={500} required disabled={busy} enterKeyHint="search" />
         <Button variant="stylusTool" size="icon" type="submit" className="h-11 w-11 border-stylus-ink/30 text-stylus-ink hover:bg-stylus-ink/10" aria-label="Search evidence" title="Search evidence" disabled={busy || !query.trim()}>{busy ? <LoaderCircle className="motion-safe:animate-spin" aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}</Button>
+      </div>
+      <input type="hidden" name="artist_id" value={chosenArtist?.id ?? ''} />
+      <input type="hidden" name="artist_name" value={chosenArtist?.name ?? ''} />
+      <p id={`${suggestionId}-hint`} className="stylus-search-hint">Choose an artist suggestion, or type a song or genre. Then search our fashion articles.</p>
+      <div className="artist-search evidence-artist-options">
+        <ArtistSuggestionList id={suggestionId} results={artistResults} expanded={expanded} active={activeSuggestion} onChoose={chooseArtist} />
+        <div id={`${suggestionId}-status`} role="status" className="artist-search-status">
+          {suggestionsOpen && currentSuggestions && !busy && <>
+            {suggestions.status === 'loading' && 'Searching artists…'}
+            {suggestions.status === 'offline' && 'You’re offline. Reconnect to see artist suggestions.'}
+            {suggestions.status === 'error' && 'Artist suggestions are unavailable. You can still submit your search.'}
+            {suggestions.status === 'rate_limited' && 'Too many artist searches — wait a moment.'}
+            {suggestions.status === 'ready' && <>
+              {artistResults.length === 0 && 'No artist suggestions. You can still search a name, song or genre.'}
+              {(suggestions.provider === 'unavailable' || suggestions.database === 'unavailable' || suggestions.provider === 'not_configured') && <p>Artist suggestions may be incomplete because a directory is unavailable.</p>}
+            </>}
+          </>}
+        </div>
+        {expanded && artistResults.some(artist => artist.source === 'freqblog') && <p className="artist-credit">{FREQBLOG_ATTRIBUTION}</p>}
       </div>
     </form>
     {busy && <p role="status" className="stylus-status">Searching articles...</p>}
     {error && <p role="alert" className="stylus-status">{error}</p>}
     {result && <div className="stylus-results" aria-live="polite">
-      {!result.music && <p>No {result.intent.music_kind}-level evidence for {result.intent.music_name} in the tracker. No artist, genre or scene evidence was substituted.</p>}
+      {!result.music && <section className="stylus-empty" role="status">
+        <span className="stylus-eyebrow">No matching coverage</span>
+        <h3>No fashion matches for {result.intent.music_name} yet.</h3>
+        <p>This search uses articles in Melody Lust’s collection. We don’t have matching coverage for this {result.intent.music_kind} yet.</p>
+        <p>Artist suggestions help you find a name; fashion results need supporting articles.</p>
+        <Button type="button" variant="stylusTool" onClick={() => { inputRef.current?.focus(); inputRef.current?.select(); }}>Try another search <ArrowRight aria-hidden="true" /></Button>
+      </section>}
       {result.missingDesigner && <p>No designer evidence for {result.intent.designer_name} in the tracker.</p>}
       {result.music && !result.missingDesigner && result.associations.length === 0 && <p>No designer overlap for {result.music.name} at the {result.music.kind} evidence level. No hierarchy fallback applied.</p>}
       {looks.length > 1 && <div className="stylus-restyle"><span>Look {look % looks.length + 1} of {looks.length}</span><Button variant="stylusTool" onClick={() => setLook(index => (index + 1) % looks.length)}><Shuffle aria-hidden="true" />Restyle</Button></div>}
@@ -211,7 +275,7 @@ export function MelodyLustEvidence({ profile }: { profile: StyleProfile }) {
         <a href={article.url} target="_blank" rel="noopener noreferrer">{article.title} <ExternalLink aria-hidden="true" /></a>
         <p>{article.publication} · {article.published_at}</p><p>{article.summary}</p>
       </article>)}
-      {result.associations.length > 0 && <p className="stylus-evidence-note">Lift measures overlap in the tracker, not taste or causation. Evidence is from CSV metadata.</p>}
+      {result.associations.length > 0 && <p className="stylus-evidence-note">Lift measures overlap in the tracker, not taste or causation. Evidence is from the approved article collection.</p>}
     </div>}
   </div>;
 }

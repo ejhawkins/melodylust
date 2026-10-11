@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Plus, Check, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MelodyLustEvidence } from './MelodyLustEvidence';
+import { lookupArtistPortrait } from '@/lib/artist-portrait.functions';
+import type { ArtistPortrait } from '@/lib/artist-portrait';
 import { addWish } from '@/lib/wishlist';
 import { profileSelectionCount, type StyleProfile } from '@/lib/style-profile';
 import pick1 from '@/assets/editorial-pick-1.jpg';
@@ -26,6 +28,21 @@ export function StyleSearch({ profile, onEditProfile }: { profile: StyleProfile;
   const cursor = useRef<HTMLDivElement>(null);
   const wordmark = useRef<HTMLDivElement>(null);
   const [cursorActive, setCursorActive] = useState(false);
+  // The searched artist's free-licence portrait replaces the Kali Uchis cursor while their results show.
+  const [portrait, setPortrait] = useState<ArtistPortrait | null>(null);
+  const portraitFor = useRef('');
+  const showArtist = (name: string | null) => {
+    portraitFor.current = name ?? '';
+    if (!name) { setPortrait(null); return; }
+    lookupArtistPortrait({ data: { name } }).then(({ portrait: found }) => {
+      if (portraitFor.current !== name) return; // a newer search took over
+      if (!found) { setPortrait(null); return; }
+      // Swap only once the photo has loaded, so the cursor never flashes empty.
+      const image = new Image();
+      image.onload = () => { if (portraitFor.current === name) setPortrait(found); };
+      image.src = found.imageUrl;
+    }).catch(() => setPortrait(null));
+  };
   const [searchFocused, setSearchFocused] = useState(false);
   const [saved, setSaved] = useState<string[]>([]);
   const [position, setPosition] = useState(1);
@@ -79,7 +96,7 @@ export function StyleSearch({ profile, onEditProfile }: { profile: StyleProfile;
     <h2 className="stylus-heading">THE UPBEAT STYLUS</h2>
     <div className="stylus-body">
       <div className="flex flex-col items-end gap-3 text-right text-stylus-paper"><span className="text-xs uppercase">{profileSelectionCount(profile) ? `Your style profile · ${profileSelectionCount(profile)} preferences` : 'Your style profile'}</span><Button variant="stylusTool" className="font-editorial stylus-quiz-button" onClick={onEditProfile}><SlidersHorizontal />{profileSelectionCount(profile) ? 'Edit profile' : 'Take the quiz'}</Button></div>
-      <div className="mb-7" onFocusCapture={() => { setSearchFocused(true); setCursorActive(false); }} onBlurCapture={() => setSearchFocused(false)}><MelodyLustEvidence profile={profile} /></div>
+      <div className="mb-7" onFocusCapture={() => { setSearchFocused(true); setCursorActive(false); }} onBlurCapture={() => setSearchFocused(false)}><MelodyLustEvidence profile={profile} onArtist={showArtist} />{portrait && <p className="stylus-cursor-credit">Cursor photo of {portrait.name}: <a href={portrait.sourceUrl} target="_blank" rel="noopener noreferrer">{portrait.author}</a> / Wikimedia Commons, {portrait.licenseUrl ? <a href={portrait.licenseUrl} target="_blank" rel="noopener noreferrer license">{portrait.license}</a> : portrait.license}</p>}</div>
       <div className="stylus-picks-head"><div className="min-w-0"><span className="stylus-eyebrow">The editorial picks</span><p className="stylus-trend">Now trending: <span className="sr-only">Desert intelligence</span><span className="stylus-trend-swipe" aria-hidden="true">{trendPlaceholders.map(phrase => <span key={phrase}>{phrase}</span>)}</span></p></div><div className="stylus-arrows"><span>{position} / 6</span><Button variant="stylusTool" size="icon" aria-label="Previous editorial picks" title="Previous picks" onClick={() => scroll(-1)}><ArrowLeft /></Button><Button variant="stylusTool" size="icon" aria-label="Next editorial picks" title="Next picks" onClick={() => scroll(1)}><ArrowRight /></Button></div></div>
       <div className="stylus-track" ref={track} onScroll={() => {
         const el = track.current;
@@ -91,6 +108,6 @@ export function StyleSearch({ profile, onEditProfile }: { profile: StyleProfile;
         <figure className="stylus-album"><img src={kali.url} alt="Kali Uchis — Red Moon in Venus album artwork" width={440} height={440} loading="lazy" /><figcaption>Editor's pick: Kali Uchis<br /><em>Red Moon in Venus</em></figcaption></figure>
       </div>
     </div>
-    <div className="stylus-cursor" data-active={cursorActive && !searchFocused} ref={cursor} aria-hidden="true"><img src={kali.url} alt="" width={440} height={440} /><span>Kali Uchis</span></div>
+    <div className="stylus-cursor" data-active={cursorActive && !searchFocused} ref={cursor} aria-hidden="true"><img src={portrait?.imageUrl ?? kali.url} alt="" width={440} height={440} /><span>{portrait?.name ?? 'Kali Uchis'}</span></div>
   </section>;
 }

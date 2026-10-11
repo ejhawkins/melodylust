@@ -262,7 +262,9 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-results p { white-space: pre-line; font-size: 15px; line-height: 1.8; max-width: 760px; }
 .stylus-cursor { position: fixed; width: 140px; height: 140px; border-radius: 50%; overflow: hidden; pointer-events: none; z-index: 45; transform: translate(16px,16px); opacity: 0; transition: opacity .2s; }
 .stylus-cursor[data-active="true"] { opacity: 1; }
-.stylus-cursor img { width: 100%; height: 100%; object-fit: cover; }
+.stylus-cursor img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+.stylus-cursor-credit { margin-top: 12px; font-size: 12px; line-height: 1.4; opacity: .7; }
+.stylus-cursor-credit a { text-decoration: underline; text-underline-offset: 2px; }
 .stylus-cursor span { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--stylus-paper); background: var(--stylus-ink); }
 @media(min-width: 1450px) { .stylus-heading { font-size: 80px; } .stylus-wordmark { font-size: 104px; } .stylus { --stylus-overlay: 238px; } }
 @media(max-width: 900px) { .stylus-heading { font-size: 44px; } .stylus-body { padding: 24px; } .stylus-scene { grid-template-columns: minmax(0,1fr) 200px; } .stylus-wordmark { font-size: 56px; } .stylus { --stylus-overlay: 130px; } .stylus-search { max-width: calc(100% - 224px); } }
@@ -855,3 +857,14 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .artist-picks { display: grid; gap: 4px; }
 .artist-picks li { display: flex; gap: 12px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
 .artist-picks span { min-width: 0; overflow-wrap: anywhere; }
+
+.stylus-search-hint { font-size: 13px; line-height: 1.5; margin: 12px 0; opacity: .85; }
+.evidence-artist-options { color: var(--stylus-paper); }
+.evidence-artist-options [role=listbox] { background: var(--stylus-paper); color: var(--stylus-ink); }
+.evidence-artist-options .artist-option-copy span, .evidence-artist-options .artist-option-copy small { color: var(--stylus-ink); opacity: .8; }
+.evidence-artist-options .artist-search-status, .evidence-artist-options .artist-credit { color: var(--stylus-paper); }
+.evidence-artist-options .artist-search-status:empty { display: none; }
+.stylus-empty { padding: 8px 0 24px; }
+.stylus-empty h3 { font-family: 'Bodoni Moda', serif; font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 12px 0; overflow-wrap: anywhere; }
+.stylus-empty p { margin: 12px 0; }
+.stylus-empty button { min-height: 44px; margin-top: 12px; white-space: normal; text-align: left; }
