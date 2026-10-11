@@ -9,6 +9,10 @@ import songD from "@/assets/song-d.jpg";
 import songE from "@/assets/song-e.jpg";
 import songF from "@/assets/song-f.jpg";
 import matrixShoeImage from "@/assets/style-matrix-shoe.png";
+import moodTechno from "@/assets/moodboard-techno.jpg";
+import moodIndiePop from "@/assets/moodboard-indie-pop.jpg";
+import moodClassicRock from "@/assets/moodboard-classic-rock.jpg";
+import moodGrunge from "@/assets/moodboard-grunge.jpg";
 import glorillaMetaImage from "@/assets/glorilla-meta.jpg";
 import charliRockImage from "@/assets/charli-rock-music.webp";
 import skuzlandImage from "@/assets/skuzland.jpg";
@@ -21,6 +25,15 @@ import coverStoryImage from "@/assets/cover-story.jpg";
 import logoImage from "@/assets/melody-lust-logo.png";
 const logo = { url: logoImage };
 const matrixShoe = { url: matrixShoeImage };
+/** One moodboard per matrix quarter, each read through a music genre. */
+const MATRIX_MOODS = [
+  { genre: "Techno", image: moodTechno, alt: "Monochrome moodboard: sculptural black and white tailoring, stark interiors and a sand-to-charcoal palette" },
+  { genre: "Indie Pop", image: moodIndiePop, alt: "Pastel moodboard: a ribbed lilac knit, striped fringed trousers, a green bag, pink sandals and a red balloon" },
+  { genre: "Classic Rock", image: moodClassicRock, alt: "Seventies moodboard: fur coats, black and oxblood leather jackets, stacked bangles and white mini dresses" },
+  { genre: "Grunge", image: moodGrunge, alt: "Grunge moodboard: bleached hair, slip dresses, tartan, chokers and a Hole album cover" },
+];
+/** Style pills under the matrix: each toggles an aesthetic in the reader's style profile, which the AI stylist reads. */
+const MATRIX_STYLES = ["Streetwear", "Y2K", "Grunge", "Punk", "Minimalist", "Preppy", "Romantic", "Western"];
 const glorillaMeta = { url: glorillaMetaImage };
 const charliRock = { url: charliRockImage };
 const skuzland = { url: skuzlandImage };
@@ -536,10 +549,20 @@ function Index() {
         <div className="matrix-grid">
           <span className="matrix-line matrix-line-v" aria-hidden="true" />
           <span className="matrix-line matrix-line-h" aria-hidden="true" />
-          {[0, 1].map(i => <div className="matrix-cell" key={i}><img src={matrixShoe.url} alt={i === 0 ? "Black high-top sneaker, profile view" : ""} loading="lazy" /></div>)}
-          <div className="matrix-cell matrix-center"><img src={matrixShoe.url} alt="" loading="lazy" /></div>
-          {[2, 3].map(i => <div className="matrix-cell" key={i}><img src={matrixShoe.url} alt="" loading="lazy" /></div>)}
+          {MATRIX_MOODS.map(mood => <figure className="matrix-cell matrix-mood" key={mood.genre}>
+            <img src={mood.image} alt={mood.alt} loading="lazy" />
+            <figcaption>{mood.genre}</figcaption>
+          </figure>)}
+          <div className="matrix-cell matrix-center"><img src={matrixShoe.url} alt="Black high-top sneaker, profile view" loading="lazy" /></div>
         </div>
+        <div className="matrix-styles" role="group" aria-label="Fashion styles">
+          {MATRIX_STYLES.map(style => {
+            const on = styleProfile.aesthetic.some(saved => saved.toLowerCase() === style.toLowerCase());
+            return <Button key={style} type="button" variant="stylePill" aria-pressed={on}
+              onClick={() => saveStyleProfile({ ...styleProfile, aesthetic: on ? styleProfile.aesthetic.filter(saved => saved.toLowerCase() !== style.toLowerCase()) : [...styleProfile.aesthetic, style].slice(-12) })}>{style}</Button>;
+          })}
+        </div>
+        <p className="matrix-styles-note">Tap the styles you wear. Your next artist search is styled with them.</p>
       </section>
       <section className="archive" id="archive" aria-label="Archive">
         <h2 className="iconic-title"><span>+ Archive</span></h2>

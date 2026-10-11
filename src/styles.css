@@ -573,6 +573,13 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .matrix-cell img { width: min(100%, 330px); height: auto; }
 .matrix-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .matrix-center img { width: min(100%, 300px); }
+.matrix-mood { flex-direction: column; gap: 12px; margin: 0; }
+.matrix-mood img { width: 100%; max-width: 420px; aspect-ratio: 4 / 5; object-fit: cover; }
+.matrix-mood figcaption { font-family: var(--font-iconic); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.matrix-center { z-index: 1; pointer-events: none; }
+.matrix-center img { width: min(34vw, 220px); mix-blend-mode: multiply; } /* the shoe photo has a white ground */
+.matrix-styles { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 32px; }
+.matrix-styles-note { margin-top: 14px; text-align: center; font-size: 13px; color: var(--muted-foreground); }
 @media (max-width: 900px) {
   .playlist { padding: 52px 0 46px; }
   .playlist-layout { grid-template-columns: 1fr; gap: 40px; }
