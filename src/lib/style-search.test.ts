@@ -62,6 +62,16 @@ describe('backend article tracker', () => {
     expect(new Set(corpus.observations.map(observation => observation.id)).size).toBe(12);
   });
 
+  it('retries a batch once when the reader returns invalid evidence, then gives up', async () => {
+    let calls = 0;
+    const flaky = async (input: ReturnType<typeof parseEditorialCsv>) => (++calls === 1 ? { version: 1, entities: [], documents: [], observations: [] } : reader(input));
+    expect((await createTrackerLoader()(csv, flaky)).documents).toHaveLength(1);
+    expect(calls).toBe(2);
+    let broken = 0;
+    await expect(createTrackerLoader()(csv, async () => { broken += 1; return { version: 1, entities: [], documents: [], observations: [] }; })).rejects.toThrow('omitted eligible documents');
+    expect(broken).toBe(2);
+  });
+
   it('does not cache failed or partially indexed evidence', async () => {
     const load = createTrackerLoader();
     await expect(load(csv, async () => ({ version: 1, entities: [], documents: [], observations: [] }))).rejects.toThrow('omitted eligible documents');

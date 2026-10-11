@@ -23,6 +23,22 @@ export function mergeEvidenceCorpora(parts: EvidenceCorpus[]): EvidenceCorpus {
   });
 }
 
+/** Models vary run to run, so a batch that fails the strict quote/metadata checks gets one more try.
+ *  Evidence is never loosened: whatever is kept still passes the same validation. */
+async function readBatch(batch: TrackerDocuments, reader: TrackerReader) {
+  for (let attempt = 1; ; attempt++) {
+    const extracted = await reader({ documents: batch });
+    if (!extracted) throw new Error('The AI reader is not connected. Configure a server-side AI provider.');
+    try { return validateEvidenceExtraction(extracted, batch); }
+    catch (failure) {
+      if (attempt >= 2) throw failure;
+      if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
+        console.warn('[MelodyLust] batch failed validation, retrying', { documents: batch.map(document => document.id), reason: failure instanceof Error ? failure.message : String(failure) });
+      }
+    }
+  }
+}
+
 async function readInBatches(documents: TrackerDocuments, reader: TrackerReader) {
   const batches: TrackerDocuments[] = [];
   for (let start = 0; start < documents.length; start += TRACKER_BATCH_SIZE) batches.push(documents.slice(start, start + TRACKER_BATCH_SIZE));
@@ -32,9 +48,7 @@ async function readInBatches(documents: TrackerDocuments, reader: TrackerReader)
     while (next < batches.length) {
       const index = next++;
       const batch = batches[index]!;
-      const extracted = await reader({ documents: batch });
-      if (!extracted) throw new Error('The AI reader is not connected. Configure a server-side AI provider.');
-      parts[index] = validateEvidenceExtraction(extracted, batch);
+      parts[index] = await readBatch(batch, reader);
     }
   }));
   return mergeEvidenceCorpora(parts);
