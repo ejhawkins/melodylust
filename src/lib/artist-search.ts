@@ -1,6 +1,6 @@
 // Artist search and submission rules, shared by the browser and the server. Pure and
-// credential-free so every rule is unit-tested. Finding an artist establishes identity
-// only; fashion evidence and recommendation scoring live elsewhere and never read this.
+// credential-free so every rule is unit-tested. Finding an artist establishes directory identity. Fashion evidence stays separate;
+// the outfit ranker uses only server-resolved metadata and labels its editorial choices.
 
 import { z } from 'zod';
 

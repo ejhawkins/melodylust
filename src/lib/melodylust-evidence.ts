@@ -109,6 +109,15 @@ export function measureAssociation(corpus: EvidenceCorpus, designerId: string, m
   const observations = corpus.observations.filter(o => sources.some(d => d.id === o.article_id) && ((o.left_id === designerId && o.right_id === musicId) || (o.left_id === musicId && o.right_id === designerId)));
   return { designer, music, corpusSize: documents.length, designerCount, musicCount, observed: sources.length, expected, lift: expected ? sources.length / expected : null, evidence_level: music.kind, song_specific: music.kind === 'song', sources, observations };
 }
+/** How directly the articles tie a designer to the music, strongest first:
+ *  verified = a quote says worn by / styled by / worked with; quoted = a quote names both;
+ *  same_article = both appear in an article with no quote linking them. */
+export type EvidenceStrength = 'verified' | 'quoted' | 'same_article';
+export function evidenceStrength(association: Pick<Association, 'observations'>): EvidenceStrength {
+  if (association.observations.some(o => o.relationship !== 'co_occurs_with')) return 'verified';
+  return association.observations.length ? 'quoted' : 'same_article';
+}
+export const STRENGTH_RANK: Record<EvidenceStrength, number> = { verified: 2, quoted: 1, same_article: 0 };
 /** Exact entity first. Fallback is returned with both IDs and a visible evidence level; never attributed to the song. */
 export function resolveMusicEvidence(corpus: EvidenceCorpus, designerId: string, requestedId: string, fallbackIds: string[] = []) {
   const requested = corpus.entities.find(e => e.id === requestedId);

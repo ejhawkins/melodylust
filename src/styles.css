@@ -350,6 +350,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-metrics dt { font-size: 12px; opacity: .75; }
 .stylus-metrics dd { font-size: 22px; }
 .stylus-source { margin: 20px 0; overflow-wrap: anywhere; }
+.stylus-scouted { margin: 28px 0; padding-top: 20px; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 25%, transparent); }
 .stylus-look { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 24px; align-items: start; }
 .stylus-look-card { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 14px; background: var(--stylus-accent); color: var(--stylus-ink); font-family: var(--font-cover); font-weight: 900; font-size: 24px; line-height: 1; text-align: center; text-transform: uppercase; overflow-wrap: anywhere; }
 .stylus-look-description { margin-top: 12px; font-family: var(--font-editorial); font-size: 18px; font-style: italic; line-height: 1.45; }
@@ -367,6 +368,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-shop li { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .stylus-shop img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; background: color-mix(in oklab, var(--stylus-paper) 10%, transparent); }
 .stylus-shop-name { font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.stylus-shop-status { margin-top: 10px; font-size: 14px; opacity: .85; }
 .stylus-shop-price { font-size: 13px; opacity: .8; }
 .stylus-shop-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
 @media (max-width: 600px) { .stylus-shop ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -648,6 +650,13 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .matrix-cell img { width: min(100%, 330px); height: auto; }
 .matrix-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .matrix-center img { width: min(100%, 300px); }
+.matrix-mood { flex-direction: column; gap: 12px; margin: 0; }
+.matrix-mood img { width: 100%; max-width: 420px; aspect-ratio: 4 / 5; object-fit: cover; }
+.matrix-mood figcaption { font-family: var(--font-iconic); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.matrix-center { z-index: 1; pointer-events: none; }
+.matrix-center img { width: min(34vw, 220px); mix-blend-mode: multiply; } /* the shoe photo has a white ground */
+.matrix-styles { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 32px; }
+.matrix-styles-note { margin-top: 14px; text-align: center; font-size: 13px; color: var(--muted-foreground); }
 @media (max-width: 900px) {
   .playlist { padding: 52px 0 46px; }
   .playlist-layout { grid-template-columns: 1fr; gap: 40px; }
@@ -1533,3 +1542,11 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 @media (prefers-reduced-motion: reduce) { .gs-quote-drift { transform: none; } .gs-quote .gs-reveal { transform: none; } .circles-block .circles-grid > * { animation: none !important; opacity: 1 !important; transform: none !important; } }
 .circles-section :is(p, span, small, label, input)  { color: var(--card-foreground); }
 .circles-section [data-active="true"], .circles-section [data-active="true"] * { color: var(--card) !important; }
+.stylus-artist-outfit { margin-top: 28px; padding: 24px 0; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 35%, transparent); }
+.stylus-artist-outfit h3 { margin: 12px 0; font-family: var(--font-editorial); font-size: clamp(28px, 5vw, 44px); line-height: 1.1; overflow-wrap: anywhere; }
+.stylus-artist-outfit p, .stylus-artist-outfit li { font-size: 16px; line-height: 1.6; }
+.stylus-artist-outfit .stylus-artist-meta { font-size: 14px; opacity: .8; }
+.stylus-artist-outfit .stylus-evidence-note { margin-top: 16px; font-size: 14px; opacity: .8; }
+.stylus-artist-outfit .stylus-evidence-details ul { display: grid; gap: 8px; margin: 12px 0; }
+.stylus-artist-outfit .stylus-evidence-details a { text-decoration: underline; text-underline-offset: 3px; }
+.stylus-artist-outfit button { min-height: 44px; min-width: 44px; }

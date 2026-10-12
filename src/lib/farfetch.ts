@@ -17,7 +17,10 @@ export type CatalogProduct = ShopProduct & {
 };
 
 type FarfetchImage = { order?: unknown; size?: unknown; url?: unknown };
-type FarfetchEntry = { id?: unknown; shortDescription?: unknown; brand?: { name?: unknown }; price?: unknown; currencyIsoCode?: unknown; images?: unknown; availableSizes?: unknown; quantity?: unknown; attributes?: unknown };
+type FarfetchEntry = { id?: unknown; shortDescription?: unknown; brand?: { name?: unknown }; price?: unknown; currencyIsoCode?: unknown; images?: unknown; availableSizes?: unknown; quantity?: unknown; attributes?: unknown; gender?: unknown };
+
+/** Children's lines ("adidas Kids", gender "Kid") don't belong in an adult editorial edit. */
+const CHILDRENS = /\b(kids?|baby|babies|junior|teens?|children|girls?|boys?)\b/i;
 
 /** Largest image no wider than this, so cards stay light. */
 const IMAGE_WIDTH = 400;
@@ -56,6 +59,7 @@ export function readFarfetchSearch(payload: unknown, designer: string | null, li
     const name = typeof entry.shortDescription === 'string' ? entry.shortDescription.trim() : '';
     const image = pickImage(entry.images);
     if (!brand || (house !== null && foldName(brand) !== house) || !name || !image || typeof entry.price !== 'number' || entry.price <= 0) continue;
+    if (CHILDRENS.test(brand) || (typeof entry.gender === 'string' && CHILDRENS.test(entry.gender))) continue;
     products.push({
       id: String(entry.id), brand, name, image,
       price: entry.price,

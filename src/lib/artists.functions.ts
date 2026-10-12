@@ -1,21 +1,14 @@
 import { createServerFn } from '@tanstack/react-start';
-import { createHash } from 'node:crypto';
 import {
   artistQuerySchema, MAX_SUGGESTIONS, normalizeArtistName, submissionInputSchema,
   type ArtistSearchResponse, type ArtistSource, type ArtistSuggestion, type SubmissionResponse,
 } from './artist-search';
 import { createRateLimiter } from './rate-limit';
+import { clientKey } from './client-key.server';
 
 // Per server instance; see rate-limit.ts for the limits of in-memory limiting.
 const searchLimiter = createRateLimiter({ limit: 60, windowMs: 60_000 });
 const submitLimiter = createRateLimiter({ limit: 5, windowMs: 60 * 60_000 });
-
-/** Who is asking, as a salted hash: enough to rate-limit and review spam, never the raw IP. */
-async function clientKey() {
-  const { getRequestIP } = await import('@tanstack/react-start/server');
-  const ip = getRequestIP({ xForwardedFor: true }) ?? 'unknown';
-  return createHash('sha256').update(`${process.env['RATE_LIMIT_SALT'] ?? 'melodylust'}:${ip}`).digest('hex').slice(0, 32);
-}
 
 type ArtistRow = { id: string; name: string; disambiguation: string | null; genres: string[] | null; image_url: string | null; source: string; source_id: string | null };
 

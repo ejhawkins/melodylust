@@ -48,3 +48,36 @@ export function readTrackDetails(payload: unknown, artworkUrl?: string | null): 
 
 /** "105 BPM · F minor", skipping whatever FreqBlog didn't return. */
 export const trackStats = (track: TrackDetails) => [track.bpm && `${track.bpm} BPM`, track.key].filter(Boolean).join(' · ');
+
+/** One of an artist's songs from FreqBlog's catalogue, as the artist search shows it. */
+export type ArtistSong = { title: string; album: string | null; year: string | null; genre: string | null; spotifyUrl: string };
+
+/** Same song however it was released: case, "(Remastered)" / "- Single Version" and extra spacing ignored. */
+const songKey = (title: string) => title.toLowerCase().replace(/\s*[([].*?[)\]]\s*/g, ' ').replace(/\s+-\s+.*$/, '').replace(/\s+/g, ' ').trim();
+
+/** /artist/tracks payload → the artist's most popular distinct songs. Only tracks credited to this
+ *  artist count; a song on several releases (album, deluxe, compilation) appears once. */
+export function readArtistSongs(payload: unknown, artist: string, limit = 3): ArtistSong[] {
+  const tracks = payload && typeof payload === 'object' && 'tracks' in payload && Array.isArray(payload.tracks) ? payload.tracks as Record<string, unknown>[] : [];
+  const wanted = artist.trim().toLowerCase();
+  const seen = new Set<string>();
+  return tracks
+    .filter(track => typeof track['track_name'] === 'string' && typeof track['artist_name'] === 'string' && track['artist_name'].toLowerCase().split(/\s*(?:,|&|\bfeat\.?|\bft\.?|\bwith\b|\bx\b)\s*/)[0] === wanted)
+    .map((track, index) => ({ track, index, popularity: typeof track['popularity'] === 'number' ? track['popularity'] : 0 }))
+    .sort((a, b) => b.popularity - a.popularity || a.index - b.index)
+    .flatMap(({ track }) => {
+      const title = String(track['track_name']).trim();
+      const key = songKey(title);
+      if (!key || seen.has(key)) return [];
+      seen.add(key);
+      const date = typeof track['release_date'] === 'string' ? track['release_date'] : '';
+      return [{
+        title,
+        album: typeof track['album_name'] === 'string' && track['album_name'] ? track['album_name'] : null,
+        year: /^\d{4}/.test(date) ? date.slice(0, 4) : null,
+        genre: typeof track['genre'] === 'string' && track['genre'] ? track['genre'] : null,
+        spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(`${title} ${String(track['artist_name'])}`)}`,
+      }];
+    })
+    .slice(0, limit);
+}

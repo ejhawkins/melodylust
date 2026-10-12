@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
+import { artistStyleSearchSchema, type TrackedStyleSearchResponse } from './artist-style';
 import { parseEvidenceCorpus } from './melodylust-evidence';
 import { articleAnalysisInputSchema, editorialMetadataSchema, editorialCorpusInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
 
@@ -97,9 +98,7 @@ export const analyzeEditorialArticle = createServerFn({ method: 'POST' })
     }
   });
 
-export const searchTrackedEditorialEvidence = createServerFn({ method: 'POST' })
-  .inputValidator((input: unknown) => z.object({ query: z.string().trim().min(1).max(500) }).strict().parse(input))
-  .handler(async ({ data }) => {
+async function readTrackedQuery(query: string, artistName?: string, selected = false): Promise<TrackedStyleSearchResponse> {
     try {
       const { readTrackedEvidence } = await import('./article-tracker.server');
       const prompt = READER_PROMPT.replace('Extract one editorial metadata record only.', 'Extract every supplied editorial metadata record.').replace('exactly one object', 'exactly one object per supplied document');
@@ -107,7 +106,10 @@ export const searchTrackedEditorialEvidence = createServerFn({ method: 'POST' })
       // Changing the AI provider, model or instructions re-reads every article.
       const readerVersion = `${getAIProvider() ?? 'none'}|${process.env['MELODYLUST_AI_MODEL'] ?? 'default-model'}|${prompt}`;
       const corpus = await readTrackedEvidence(input => readWithAI(prompt, input), readerVersion);
-      const response = await searchEditorialEvidence({ data: { query: data.query, corpus } });
+      const literal = literalEvidenceIntent(query, corpus);
+      const response = artistName && (selected || !literal || literal.music_kind === 'artist')
+        ? { result: searchEvidence(corpus, { music_name: artistName, music_kind: 'artist', designer_name: null }), interpretation: 'directory', error: '' }
+        : await searchEditorialEvidence({ data: { query, corpus } });
       const music = response.result?.music;
       const articles = music ? corpus.documents.filter(document => document.entity_ids.includes(music.id)) : [];
       if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
@@ -120,4 +122,15 @@ export const searchTrackedEditorialEvidence = createServerFn({ method: 'POST' })
       }
       return { result: null, articles: [], interpretation: 'ai', error: await aiFailureMessage(failure, 'The article tracker could not be indexed. No partial evidence was used. Please try again.') };
     }
+  }
+
+export const searchTrackedEditorialEvidence = createServerFn({ method: 'POST' })
+  .inputValidator((input: unknown) => artistStyleSearchSchema.parse(input))
+  .handler(async ({ data }): Promise<TrackedStyleSearchResponse> => {
+    const { runArtistStyleSearch } = await import('./artist-style-search.server');
+    const { searchArtists } = await import('./artists.functions');
+    return runArtistStyleSearch(data, {
+      lookupArtists: query => searchArtists({ data: { query } }),
+      readEvidence: readTrackedQuery,
+    });
   });
