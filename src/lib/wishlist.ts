@@ -46,4 +46,3 @@ export function exportWishlist(items: WishItem[], format: "csv" | "txt") {
 function fmt(i: WishItem) {
   return [`— ${i.name}${i.detail ? ` · ${i.detail}` : ""}`, i.from && `  for: ${i.from}`, i.link && `  ${i.link}`, i.note && `  ref: ${i.note}`].filter(Boolean).join("\n");
 }
-

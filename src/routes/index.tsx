@@ -1,7 +1,18 @@
+import { RecordStack } from "@/components/RecordStack";
+import { MobileParallax } from "@/components/MobileParallax";
+import { ScrollFadeUp } from "@/components/ScrollFadeUp";
 import cover from "@/assets/grunge-cover.jpg";
 import coverWide from "@/assets/grunge-cover-wide.jpg";
+
+import heroRunway from "@/assets/hero-runway-2.jpg";
+import heroRunway3 from "@/assets/hero-runway-3.jpg";
+import heroRunway4 from "@/assets/hero-runway-4.jpg";
 import street from "@/assets/street-style.jpg";
 import kidCudi from "@/assets/day-n-nite.jpg";
+import sleeveChihiro from "@/assets/sleeve-chihiro.jpg";
+import sleeveBanks from "@/assets/sleeve-banks.jpg";
+import sleeveSolange from "@/assets/sleeve-solange.jpg";
+import sleeveWeeknd from "@/assets/sleeve-weeknd.jpg";
 import songA from "@/assets/song-a.jpg";
 import songB from "@/assets/song-b.jpg";
 import songC from "@/assets/song-c.jpg";
@@ -9,6 +20,13 @@ import songD from "@/assets/song-d.jpg";
 import songE from "@/assets/song-e.jpg";
 import songF from "@/assets/song-f.jpg";
 import matrixShoeImage from "@/assets/style-matrix-shoe.png";
+import { StyleMatrix } from "@/components/StyleMatrix";
+import { ShopSection } from "@/components/ShopSection";
+import { DigitalZine } from "@/components/DigitalZine";
+import { MusicianCircles } from "@/components/MusicianCircles";
+import { StylingNotes } from "@/components/StylingNotes";
+import { GuidedStory, GuidedStoryQuote } from "@/components/GuidedStory";
+import { HowItWorks } from "@/components/HowItWorks";
 import glorillaMetaImage from "@/assets/glorilla-meta.jpg";
 import charliRockImage from "@/assets/charli-rock-music.webp";
 import skuzlandImage from "@/assets/skuzland.jpg";
@@ -63,9 +81,9 @@ const tumblrTypeLabel: Record<string, string> = {
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
     { title: "Melody Lust — Your Style, Your Sound" },
-    { name: "description", content: "Explore the intersection of fashion and music. Independent editorials, street style, runway notes, and a style quiz from Melody Lust." },
+    { name: "description", content: "Explore fashion through music, shop the moodboard, and share your own Styling Notes with photos and song picks." },
     { property: "og:title", content: "Melody Lust — Your Style, Your Sound" },
-    { property: "og:description", content: "Fashion, music, and a point of view. Discover the Melody Lust journal." },
+    { property: "og:description", content: "Fashion, music, and your point of view — editorials, live shopping, musician circles, and community Styling Notes." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
@@ -90,6 +108,7 @@ const stories = [
 ];
 type Story = typeof stories[number];
 const categories = ["All", "Style", "Music", "Fashion", "Runway"];
+const coverWords = ["MUSIC", "STYLE", "\nFASHION", "\nRUNWAYS", "\nPLAYLIST"];
 const iconicSongs = [
   { image: kidCudi, alt: "Day 'N' Nite (Crookers Remix) album art by Kid Cudi", caption: "Day 'N' Nite — Kid Cudi", link: "https://open.spotify.com/track/6ouTGbETM7ZdID1eMXZJde" },
   { image: slayyyterDance.url, alt: "DANCE... album art by Slayyyter", caption: "DANCE... — Slayyyter", link: "https://open.spotify.com/track/5rfOARz6QO73wPATyMtQQZ" },
@@ -156,7 +175,7 @@ const commons = (file: string, author: string, license: "CC BY 2.0" | "CC BY 4.0
   license,
   licenseUrl: `https://creativecommons.org/licenses/${license.replace("CC ", "").replace(" ", "/").toLowerCase()}/`,
 });
-const playlist: { feature: PlaylistPhoto & { caption: string }; tracks: { title: string; artist: string; image: string; musician: PlaylistPhoto }[] } = {
+const playlist: { feature: PlaylistPhoto & { caption: string }; tracks: { title: string; artist: string; image: string; musician?: PlaylistPhoto }[] } = {
   feature: {
     image: "https://upload.wikimedia.org/wikipedia/commons/c/c7/BillieEilishO2140725-39_-_54665577407_%28cropped%29.jpg",
     alt: "Billie Eilish performing at The O2, London, July 2025", width: 779, height: 1039,
@@ -176,8 +195,61 @@ const playlist: { feature: PlaylistPhoto & { caption: string }; tracks: { title:
     { title: "Nicole Kidman", artist: "ADÉLA", image: nicoleKidman.url, musician: {
       image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/ADELAINNYC.jpg/960px-ADELAINNYC.jpg",
       alt: "ADÉLA performing at Brooklyn Steel, New York, September 2026", width: 960, height: 1280, credit: commons("ADELAINNYC.jpg", "Saturnmondays", "CC BY 4.0") } },
+    { title: "CHIHIRO", artist: "Billie Eilish", image: sleeveChihiro },
+    { title: "This Is What It Feels Like", artist: "BANKS", image: sleeveBanks },
+    { title: "Cranes in the Sky", artist: "Solange", image: sleeveSolange },
+    { title: "Blinding Lights", artist: "The Weeknd", image: sleeveWeeknd },
+    { title: "360", artist: "Charli XCX", image: charliRockImage },
   ],
 };
+function PlaylistBoard({ pick, setPick }: { pick: number | null; setPick: React.Dispatch<React.SetStateAction<number | null>> }) {
+  const [flipped, setFlipped] = useState(false);
+  const [leaving, setLeaving] = useState<number | null>(null);
+  const list = useRef<HTMLOListElement>(null);
+  const n = playlist.tracks.length;
+  // Each picked song "plays" for a beat, then its row swipes away and the next rolls up.
+  useEffect(() => {
+    if (pick === null) return;
+    const done = window.setTimeout(() => setLeaving(pick), 7000);
+    const next = window.setTimeout(() => { setLeaving(null); setPick(p => (p === null ? null : (p + 1) % n)); }, 7600);
+    return () => { clearTimeout(done); clearTimeout(next); };
+  }, [pick, n, setPick]);
+  useEffect(() => {
+    const ol = list.current; if (!ol || pick === null) return;
+    const li = ol.children[pick] as HTMLElement | undefined;
+    if (li) ol.scrollTo({ top: li.offsetTop, behavior: "smooth" });
+  }, [pick]);
+  const track = pick === null ? null : playlist.tracks[pick];
+  const photo = track?.musician ?? (track ? { image: track.image, alt: `${track.title} by ${track.artist}`, width: 1024, height: 1024, credit: null } : playlist.feature);
+  const choose = (i: number) => { setLeaving(null); setPick(i); setFlipped(false); };
+  return <div className="playlist-layout">
+    <figure className="playlist-feature" aria-live="polite">
+      <div className="playlist-flip" data-flipped={flipped}>
+        <button type="button" className="playlist-face playlist-front" aria-label="Tap to view all songs" onClick={() => setFlipped(true)} tabIndex={flipped ? -1 : 0}>
+          <img key={photo.image} src={photo.image} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className="playlist-feature-photo" />
+          <span className="playlist-flip-hint">Tap to view all songs</span>
+        </button>
+        <div className="playlist-face playlist-back" aria-hidden={!flipped}>
+          {playlist.tracks.map((t, i) => <button type="button" key={t.title} tabIndex={flipped ? 0 : -1} className="playlist-tile" data-active={pick === i} aria-label={`Play ${t.title} by ${t.artist}`} onClick={() => choose(i)}>
+            <img src={t.image} alt="" loading="lazy" /><span>{String(i + 1).padStart(2, "0")}</span>
+          </button>)}
+          <button type="button" className="playlist-flip-back" tabIndex={flipped ? 0 : -1} onClick={() => setFlipped(false)}>Flip back</button>
+        </div>
+      </div>
+      <figcaption>{track ? track.artist : playlist.feature.caption}{track && pick !== null && <span className="playlist-feature-sub">Track {String(pick + 1).padStart(2, "0")} · {track.title}</span>}{photo.credit && <PhotoCreditLine credit={photo.credit} />}</figcaption>
+    </figure>
+    <ol className="playlist-tracks" ref={list}>
+      {playlist.tracks.map((t, i) => <li className="playlist-track" key={t.title} data-leaving={leaving === i}>
+        <button type="button" className="playlist-track-button" aria-pressed={pick === i} aria-label={`${t.title} by ${t.artist}`} onClick={() => setPick(p => (p === i ? null : i))}>
+          <span className="playlist-track-num">{String(i + 1).padStart(2, "0")}</span>
+          <span className="playlist-track-text"><span className="playlist-track-title">{t.title}</span><span>{t.artist}</span></span>
+          <img src={t.image} alt="" width={160} height={160} loading="lazy" />
+        </button>
+        {pick === i && <span className="playlist-progress" aria-hidden key={`p${i}`} />}
+      </li>)}
+    </ol>
+  </div>;
+}
 function PhotoCreditLine({ credit }: { credit: PhotoCredit }) {
   return <small className="playlist-credit">Photo: <a href={credit.source} target="_blank" rel="noopener noreferrer">{credit.author}</a> / Wikimedia Commons, <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer license">{credit.license}</a>, cropped</small>;
 }
@@ -203,6 +275,7 @@ function Index() {
   const [category, setCategory] = useState("All");
   const [solid, setSolid] = useState(false);
   const [filmIn, setFilmIn] = useState(false);
+  const [filmOnScreen, setFilmOnScreen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [article, setArticle] = useState<Story | null>(null);
@@ -225,7 +298,13 @@ function Index() {
   const [genre, setGenre] = useState("Pop");
   const [musicGenre, setMusicGenre] = useState("All genres");
   const [showTop, setShowTop] = useState(false);
-  const [playing, setPlaying] = useState(false);
+
+
+  const [coverWord, setCoverWord] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setCoverWord(w => (w + 1) % coverWords.length), 4600);
+    return () => window.clearInterval(id);
+  }, []);
   const soundRef = useRef<HTMLElement>(null);
   const [soundIn, setSoundIn] = useState(false);
   const [soundExample, setSoundExample] = useState(0);
@@ -241,6 +320,12 @@ function Index() {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         if (photo.current) photo.current.style.transform = `translateY(${Math.min(y * .18, 170)}px)`;
+        // Scroll-linked hero -> film handoff: hero scales back + dims as the film approaches.
+        const film = filmRef.current;
+        if (film) {
+          const p = Math.min(1, Math.max(0, 1 - film.getBoundingClientRect().top / window.innerHeight));
+          coverRef.current?.style.setProperty("--cover-out", p.toFixed(3));
+        }
       });
     };
     window.addEventListener("scroll", update, { passive: true });
@@ -251,6 +336,15 @@ function Index() {
     const el = filmRef.current;
     if (!el || typeof IntersectionObserver === "undefined") { setFilmIn(true); return; }
     const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { setFilmIn(true); io.disconnect(); } }, { threshold: .2 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  // The film offer only belongs while the music-video chapter is on screen; anywhere
+  // else the card would float over later chapters, so it stays hidden there.
+  useEffect(() => {
+    const el = filmRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") { setFilmOnScreen(true); return; }
+    const io = new IntersectionObserver(([e]) => setFilmOnScreen(!!e?.isIntersecting), { threshold: .15 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -360,7 +454,7 @@ function Index() {
   }, []);
   const [active, setActive] = useState("cover");
   useEffect(() => {
-    const els = ["cover", "film", "iconic", "journal"].map(id => document.getElementById(id)).filter((el): el is HTMLElement => el !== null);
+    const els = ["cover", "film", "iconic", "circles", "journal", "shop", "styling-notes"].map(id => document.getElementById(id)).filter((el): el is HTMLElement => el !== null);
     if (els.length === 0 || !("IntersectionObserver" in window)) return;
     const io = new IntersectionObserver(entries => {
       entries.forEach(e => { if (e?.isIntersecting) setActive(e.target.id); });
@@ -385,21 +479,35 @@ function Index() {
         <Button variant="railCta" asChild className="rail-cta" data-active={active === "film"}><a href="#film"><Play aria-hidden /><span className="rail-label">Music Video</span></a></Button>
         <a className="rail-item" href="#iconic" data-active={active === "iconic"}><span className="rail-rule" /><span className="rail-label">Songs</span></a>
         <a className="rail-item" href="#journal" data-active={active === "journal"}><span className="rail-rule" /><span className="rail-label">Journal</span></a>
+        <a className="rail-item" href="#shop" data-active={active === "shop"}><span className="rail-rule" /><span className="rail-label">Shop</span></a>
+        <a className="rail-item" href="#circles" data-active={active === "circles"}><span className="rail-rule" /><span className="rail-label">Circles</span></a>
+        <a className="rail-item" href="#styling-notes" data-active={active === "styling-notes"}><span className="rail-rule" /><span className="rail-label">Notes</span></a>
+
       </nav>
+      <MobileParallax />
+      <ScrollFadeUp />
       <section className="cover" id="cover" ref={coverRef} aria-label="Fashion meets music">
-        <picture>
-          <source media="(min-width: 901px)" srcSet={coverWide} />
-          <img ref={photo} className="cover-photo" src={cover} alt="Grunge outfit: a navy argyle sweater, a red tartan pleated skirt and three layered silver belts" width={1088} height={1600} fetchPriority="high" />
-        </picture>
+        <a className="cover-anchor" href="#search" aria-label="Open Stylist AI, the music and fashion evidence search engine">
+          <span className="cover-slide cover-slide-1">
+            <img ref={photo} className="cover-photo cover-photo-runway" src={heroRunway3} alt="Model walking a dim museum runway in a charcoal grey tailored overcoat over a striped sweater vest, a pleated skirt and cropped trousers" width={1200} height={1600} fetchPriority="high" />
+          </span>
+          <span className="cover-slide cover-slide-2">
+            <img className="cover-photo cover-photo-runway" src={heroRunway} alt="Model walking a dark runway in a black-and-white houndstooth tailored overcoat" width={1200} height={1600} loading="lazy" />
+          </span>
+          <span className="cover-slide cover-slide-3">
+            <img className="cover-photo cover-photo-runway" src={heroRunway4} alt="Model walking a dim museum runway in a navy hooded coat with white sleeve stripes over a burgundy sweater vest and a grey pleated skirt" width={1200} height={1600} loading="lazy" />
+          </span>
+          <span className="cover-gradient" aria-hidden="true" />
+        </a>
         <div className="cover-content">
           <nav className="cover-nav" aria-label="Journal categories">
             {categories.slice(1).map(c => <Button key={c} variant="coverNav" className="px-1 h-7" onClick={() => goJournal(c)}>{c}</Button>)}
-            <Button variant="coverNav" className="px-1 h-7" onClick={() => { setSearchOpen(true); goJournal(); setTimeout(() => searchInput.current?.focus(), 400); }}><span className="hidden sm:inline">Search</span><Search className="sm:hidden" aria-label="Search" /></Button>
+            <Button variant="coverNav" className="px-1 h-7" onClick={() => { setSearchOpen(true); goJournal(); setTimeout(() => searchInput.current?.focus(), 400); }}><span className="hidden sm:inline">Stylist AI</span><Search className="sm:hidden" aria-label="Stylist AI" /></Button>
           </nav>
-          <h1 className="cover-title">YOU KNOW<br />YOUR MUSIC</h1>
+          <h1 className="cover-title"><span className="rise-line">YOU KNOW</span><span className="rise-line" style={{ animationDelay: "120ms" }}><span className="cover-word-slot" aria-hidden="true" data-lines={coverWords[coverWord]?.includes("\n") ? 2 : 1}>{coverWords.map((w, i) => { const [a, b] = w.split("\n"); return <span key={w} className="cover-word" data-active={i === coverWord}>YOUR {a}{b ? <><br />{b}</> : null}</span>; })}</span></span><span className="sr-only">YOU KNOW YOUR MUSIC</span></h1>
           <div className="cover-subtitle"><span>EXPERIENCE</span><span>GET READY</span></div>
           <div className="cover-bottom">
-            <Button variant="coverStart" onClick={() => goJournal()}>START HERE <ArrowDown /></Button>
+            <Button variant="coverStart" onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}>START HERE <ArrowDown /></Button>
             <span className="cover-caption">FASHION X MUSIC X YOUR DECISION X TRENDS</span>
             <Button variant="coverLink" onClick={() => setQuiz(true)}>TAKE A QUIZ <ArrowUpRight /></Button>
           </div>
@@ -415,28 +523,16 @@ function Index() {
           <h2 className="film-title" aria-label="This is a mood">{filmLetters.map(({ word, letters }) => <span className="film-word" key={word} aria-hidden>{letters.map(({ ch, delay }, i) => <span key={i} style={{ transitionDelay: `${delay}ms` }}>{ch}</span>)}</span>)}</h2>
           <span className="film-credit">I do not own any of the vibes below</span>
           <span className="film-rule" aria-hidden="true" />
-
-          <span className="film-credit"><a className="film-link" href="https://www.youtube.com/watch?v=BY_XwvKogC8" target="_blank" rel="noreferrer">CHIHIRO — Official Music Video · Billie Eilish</a></span>
-          <span className="film-credit">Styling by <a className="film-link" href="https://www.streeters.com/artists/styling/andrew-mukamal" target="_blank" rel="noreferrer">Andrew Mukamal</a></span>
         </div>
-        <div className="film-frame">
-          {playing ? (
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/BY_XwvKogC8?autoplay=1&rel=0"
-              title="Billie Eilish — CHIHIRO (Official Music Video)"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-            />
-          ) : (
-            <button type="button" className="film-poster" onClick={() => setPlaying(true)} aria-label="Play Billie Eilish — CHIHIRO">
-              <img src="https://i.ytimg.com/vi/BY_XwvKogC8/maxresdefault.jpg" alt="Still from the CHIHIRO music video" loading="lazy" />
-              <span className="film-play"><Play aria-hidden /> PLAY THE FILM</span>
-            </button>
-          )}
-        </div>
+        <RecordStack />
       </section>
+      <HowItWorks />
+      <GuidedStoryQuote />
       <section className="iconic" id="iconic" aria-label="Featured iconic songs of today">
-        <h2 className="iconic-title"><span>+ Featured songs</span></h2>
+        <div className="iconic-head">
+          <h2 className="iconic-title"><span>+ Featured songs</span></h2>
+          <a className="iconic-circles-link" href="#circles">Musician Circles <ArrowUpRight /></a>
+        </div>
         <div className="iconic-grid" ref={iconicGrid}>
           {iconicSongs.map((s) => {
             const isFilm = "film" in s && s.film;
@@ -459,6 +555,9 @@ function Index() {
           })}
         </div>
       </section>
+      <section className="circles-section" id="circles" aria-label="Musician Circles">
+        <MusicianCircles />
+      </section>
       <section className="journal" ref={journal} id="journal">
         <div className="section-heading"><h2>The latest notes</h2><span className="text-xs uppercase">Fashion. Music. A point of view.</span></div>
         <div className="filter-row">
@@ -479,31 +578,11 @@ function Index() {
         </article>)}</div>
         {filtered.length === 0 && <p className="py-10 text-muted-foreground">{category === "Music" && musicGenre !== "All genres" ? `Nothing filed under ${musicGenre} yet. Try another sound.` : "No stories found. Try another word or category."}</p>}
       </section>
+      <DigitalZine />
       <StyleSearch profile={styleProfile} onEditProfile={() => setQuiz(true)} />
       <section className="playlist" id="playlist" aria-label="Playlist">
         <h2 className="iconic-title"><span>+ Playlist</span></h2>
-        <div className="playlist-layout">
-          {(() => {
-            const track = playlistPick === null ? null : playlist.tracks[playlistPick];
-            const photo = track ? track.musician : playlist.feature;
-            return <figure className="playlist-feature" aria-live="polite">
-              <img key={photo.image} src={photo.image} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className="playlist-feature-photo" />
-              <figcaption>{track ? track.artist : playlist.feature.caption}{track && playlistPick !== null && <span className="playlist-feature-sub">Track {String(playlistPick + 1).padStart(2, "0")} · {track.title}</span>}<PhotoCreditLine credit={photo.credit} /></figcaption>
-            </figure>;
-          })()}
-          <ol className="playlist-tracks">
-            {playlist.tracks.map((t, i) => <li className="playlist-track" key={t.title}>
-              <button type="button" className="playlist-track-button" aria-pressed={playlistPick === i} aria-label={`${t.title} by ${t.artist}: show ${t.artist}`} onClick={() => setPlaylistPick(pick => (pick === i ? null : i))}>
-                <span className="playlist-track-num">{String(i + 1).padStart(2, "0")}</span>
-                <span className="playlist-track-text">
-                  <span className="playlist-track-title">{t.title}</span>
-                  <span>{t.artist}</span>
-                </span>
-                <img src={t.image} alt="" width={160} height={160} loading="lazy" />
-              </button>
-            </li>)}
-          </ol>
-        </div>
+        <PlaylistBoard pick={playlistPick} setPick={setPlaylistPick} />
       </section>
       <section className="leaderboard" id="leaderboard" aria-label="Featured banner">
         <div className="leaderboard-band">
@@ -513,6 +592,7 @@ function Index() {
             <span className="leaderboard-kicker">+ Melody Lust</span>
             <p className="leaderboard-line">Dress loud. Listen louder.</p>
             <a className="leaderboard-link" href="#journal">Read the journal</a>
+            <a className="leaderboard-link leaderboard-link--circles" href="#circles">Browse Musician Circles</a>
           </div>
         </div>
       </section>
@@ -532,15 +612,10 @@ function Index() {
         </div>
       </section>
       <section className="matrix" id="matrix" aria-label="Style matrix">
-        <h2 className="iconic-title"><span>+ Style Matrix</span></h2>
-        <div className="matrix-grid">
-          <span className="matrix-line matrix-line-v" aria-hidden="true" />
-          <span className="matrix-line matrix-line-h" aria-hidden="true" />
-          {[0, 1].map(i => <div className="matrix-cell" key={i}><img src={matrixShoe.url} alt={i === 0 ? "Black high-top sneaker, profile view" : ""} loading="lazy" /></div>)}
-          <div className="matrix-cell matrix-center"><img src={matrixShoe.url} alt="" loading="lazy" /></div>
-          {[2, 3].map(i => <div className="matrix-cell" key={i}><img src={matrixShoe.url} alt="" loading="lazy" /></div>)}
-        </div>
+        <p className="matrix-intro"><strong>One statement piece, five ways.</strong> The same coat runs through every board below — the common denominator — styled a different way each time.</p>
+        <StyleMatrix />
       </section>
+
       <section className="archive" id="archive" aria-label="Archive">
         <h2 className="iconic-title"><span>+ Archive</span></h2>
         <div className="archive-grid">
@@ -551,10 +626,13 @@ function Index() {
           </article>)}
         </div>
       </section>
+      <ShopSection />
       <Wishlist />
+      <StylingNotes />
+      <GuidedStory />
       <section className="manifesto"><h2>GOOD STYLE.<br />GREAT MUSIC. YOUR RULES.</h2><p>For the clothes you live in. The records you return to. And the moments when the two come together.</p></section>
-      <footer className="footer"><a href="/" aria-label="Melody Lust home" className="brand"><img src={logo.url} alt="" className="brand-mark" width={448} height={209} /></a><span className="text-muted-foreground">Independent in style. Always.<br />© 2026 Melody Lust</span></footer>
-      {askFilm && filmConsent === "ask" && (
+      <footer className="footer"><a href="/" aria-label="Melody Lust home" className="brand"><img src={logo.url} alt="" className="brand-mark" width={448} height={209} /></a><a className="footer-link" href="#circles">Musician Circles</a><a className="footer-link" href="#styling-notes">Styling Notes</a><span className="text-muted-foreground">Independent in style. Always.<br />© 2026 Melody Lust</span></footer>
+      {askFilm && filmConsent === "ask" && solid && filmOnScreen && (
         <div className="film-consent" role="dialog" aria-modal="false" aria-labelledby="film-consent-title" aria-describedby="film-consent-note">
           <span className="film-consent-kicker">+ The cover story</span>
           <h2 className="film-consent-title" id="film-consent-title">The cover story moves.</h2>

@@ -88,12 +88,12 @@ export function StyleSearch({ profile, onEditProfile }: { profile: StyleProfile;
     el.scrollBy({ left: direction * step * 2, behavior: 'smooth' });
   };
 
-  return <section id="search" className="stylus" aria-label="The Upbeat Stylus" onPointerMove={event => {
+  return <section id="search" className="stylus" aria-label="Stylist AI — the music and fashion evidence search engine" onPointerMove={event => {
     if (event.pointerType !== 'mouse' || searchFocused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     setCursorActive(true);
     if (cursor.current) { cursor.current.style.left = `${event.clientX}px`; cursor.current.style.top = `${event.clientY}px`; }
   }} onPointerLeave={() => setCursorActive(false)}>
-    <h2 className="stylus-heading">THE UPBEAT STYLUS</h2>
+    <h2 className="stylus-heading">STYLIST AI</h2>
     <div className="stylus-body">
       <div className="flex flex-col items-end gap-3 text-right text-stylus-paper"><span className="text-xs uppercase">{profileSelectionCount(profile) ? `Your style profile · ${profileSelectionCount(profile)} preferences` : 'Your style profile'}</span><Button variant="stylusTool" className="font-editorial stylus-quiz-button" onClick={onEditProfile}><SlidersHorizontal />{profileSelectionCount(profile) ? 'Edit profile' : 'Take the quiz'}</Button></div>
       <div className="mb-7" onFocusCapture={() => { setSearchFocused(true); setCursorActive(false); }} onBlurCapture={() => setSearchFocused(false)}><MelodyLustEvidence profile={profile} onArtist={showArtist} />{portrait && <p className="stylus-cursor-credit">Cursor photo of {portrait.name}: <a href={portrait.sourceUrl} target="_blank" rel="noopener noreferrer">{portrait.author}</a> / Wikimedia Commons, {portrait.licenseUrl ? <a href={portrait.licenseUrl} target="_blank" rel="noopener noreferrer license">{portrait.license}</a> : portrait.license}</p>}</div>
@@ -102,7 +102,7 @@ export function StyleSearch({ profile, onEditProfile }: { profile: StyleProfile;
         const el = track.current;
         const child = el?.firstElementChild;
         if (el && child) setPosition(Math.min(6, Math.round(el.scrollLeft / (child.getBoundingClientRect().width + 12)) + 1));
-      }}>{picks.map((pick, i) => <article className="stylus-pick" key={pick.name}><img src={pick.image} alt={pick.name} width={512} height={512} loading="lazy" /><div className="stylus-pick-caption"><span><small>0{i + 1}</small>{pick.name}</span><Button variant="stylusTool" size="icon" aria-label={`Save ${pick.name}`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: pick.name, detail: 'Editorial inspiration', link: '', note: '', from: 'The Upbeat Stylus' }); setSaved(s => [...s, pick.name]); }}>{saved.includes(pick.name) ? <Check /> : <Plus />}</Button></div></article>)}</div>
+      }}>{picks.map((pick, i) => <article className="stylus-pick" key={pick.name}><img src={pick.image} alt={pick.name} width={512} height={512} loading="lazy" /><div className="stylus-pick-caption"><span><small>0{i + 1}</small>{pick.name}</span><Button variant="stylusTool" size="icon" aria-label={`Save ${pick.name}`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: pick.name, detail: 'Editorial inspiration', link: '', note: '', from: 'Stylist AI' }); setSaved(s => [...s, pick.name]); }}>{saved.includes(pick.name) ? <Check /> : <Plus />}</Button></div></article>)}</div>
       <div className="stylus-scene">
         <div className="stylus-wordmark" ref={wordmark}><div className="stylus-journal-copy"><p className="stylus-journal-title">An independent<br />fashion journal<br /><span>Vol. 01 — Autumn 2026</span></p><p className="stylus-brand-disclaimer">I AM NOT AFFILIATED WITH ANY OF THESE BRANDS. IT IS MEANT FOR INSPIRATION ONLY.</p></div></div>
         <figure className="stylus-album"><img src={kali.url} alt="Kali Uchis — Red Moon in Venus album artwork" width={440} height={440} loading="lazy" /><figcaption>Editor's pick: Kali Uchis<br /><em>Red Moon in Venus</em></figcaption></figure>

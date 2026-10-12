@@ -175,7 +175,7 @@ export function Wishlist() {
       window.location.href = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent("My Want List")}&body=${encodeURIComponent(body)}`;
     }}><label htmlFor="want-email">Email my edit</label><input id="want-email" type="email" value={email} onChange={event => setEmail(event.target.value)} required placeholder="you@example.com" /><Button variant="outline" type="submit" disabled={!items.length}><Mail aria-hidden="true" />Open email</Button></form>
     </section>
-    <footer className="want-footer"><span>Stylus / Your personal edit</span><button type="button" onClick={() => setPromo(true)}>Next issue <ArrowUpRight aria-hidden="true" /></button></footer>
+    <footer className="want-footer"><span>Stylus / Your personal edit</span><a href="#styling-notes">Share your Styling Notes <ArrowUpRight aria-hidden="true" /></a><button type="button" onClick={() => setPromo(true)}>Next issue <ArrowUpRight aria-hidden="true" /></button></footer>
     <Dialog open={selectedLook !== null} onOpenChange={open => { if (!open) setSelectedLook(null); }}><DialogContent className="want-product-dialog">
       <DialogTitle>{selectedLook?.title}</DialogTitle><DialogDescription>Product placeholders. No verified brand, price or availability.</DialogDescription>
       <div className="want-dialog-products">{selectedLook?.products.map(product => <figure key={product.name}><img src={product.image} alt={`${product.name} product placeholder`} /><figcaption>{product.name}</figcaption></figure>)}</div>

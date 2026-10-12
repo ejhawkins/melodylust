@@ -12,10 +12,10 @@ const buttonVariants = cva(
         profileChoice: "rounded-none border border-input bg-background text-foreground h-auto min-h-10 whitespace-normal text-left hover:bg-accent aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:border-primary",
         stylus: "rounded-none bg-stylus-ink text-stylus-paper hover:bg-stylus-accent hover:text-stylus-ink",
         stylusTool: "rounded-none bg-transparent text-stylus-paper hover:bg-stylus-paper/10 border border-stylus-paper/30",
-        coverNav: "rounded-none bg-transparent text-cover-ink hover:text-primary uppercase text-[11px] font-normal",
+        coverNav: "rounded-none bg-transparent text-foreground hover:text-foreground/70 uppercase text-[11px] font-normal",
         editorial: "rounded-none bg-transparent text-foreground hover:text-editorial-accent p-0 h-auto font-normal",
-        coverLink: "rounded-none bg-transparent text-primary hover:text-cover-ink font-editorial uppercase text-2xl font-normal p-0 h-auto",
-        coverStart: "rounded-none bg-transparent text-cover-accent hover:text-cover-ink font-editorial uppercase text-2xl font-normal p-0 h-auto",
+        coverLink: "rounded-none bg-transparent text-foreground hover:text-foreground/70 font-editorial uppercase text-2xl font-normal p-0 h-auto tracking-[-0.02em]",
+        coverStart: "rounded-none bg-transparent text-foreground hover:text-foreground/70 font-editorial uppercase text-2xl font-normal p-0 h-auto tracking-[-0.02em]",
         category: "rounded-none bg-transparent text-muted-foreground hover:text-foreground text-[11px] uppercase h-auto p-0 data-[active=true]:text-foreground data-[active=true]:underline underline-offset-4",
         railCta: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase text-[9.5px] font-normal tracking-[0.14em] h-7 px-3.5 whitespace-nowrap",
         soundCta: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase text-[11px] font-normal tracking-[0.22em] h-11 px-8 mt-2 transition-all hover:-translate-y-0.5",
@@ -57,4 +57,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
-

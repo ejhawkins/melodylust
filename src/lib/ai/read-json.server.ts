@@ -64,7 +64,8 @@ export async function readClaudeJSON(instructions: string, input: unknown, signa
 export async function readAIJSON(instructions: string, input: unknown, request: Request) {
   const provider = getAIProvider();
   if (!provider) return null;
-  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(60000)]);
+  // Tracker batches read several articles in one call, so they need longer than a single article.
+  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(240000)]);
   if (provider === 'claude') return readClaudeJSON(instructions, input, signal);
   if (provider === 'gemini') {
     const apiKey = process.env['GEMINI_API_KEY'] || process.env['GOOGLE_GENERATIVE_AI_API_KEY'];
@@ -102,7 +103,7 @@ export async function readAIJSON(instructions: string, input: unknown, request: 
   const { result } = createResponsesCall(new Request(request.url, { signal }), {
     baseURL: provider === 'openai' ? 'https://api.openai.com/v1' : 'https://ai.gateway.lovable.dev/v1',
     apiKey,
-    model: process.env['MELODYLUST_AI_MODEL'] || (provider === 'openai' ? 'gpt-5-mini' : 'openai/gpt-5-mini'),
+    model: process.env['MELODYLUST_AI_MODEL'] || (provider === 'openai' ? 'gpt-5-mini' : 'openai/gpt-6-astra'),
   }, [{ role: 'user', content: JSON.stringify(input) }], instructions);
   return JSON.parse(await result.text) as unknown;
 }

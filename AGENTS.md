@@ -9,10 +9,6 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep this editorial journal on the index route; category filtering and article reading stay browser-only, while the quiz persists its validated taste profile only in device storage to personalize search without accounts.
-- Keep the style-profile schema, vocabulary, and verified editorial metadata in a client-safe module shared by quiz and server validation; explicit search attributes override profile defaults to preserve reader intent.
-- Keep editorial style-search presentation in its own component on the index route; use a validated public server function for one-shot AI recommendations and request-local server-only Responses helpers so credentials never reach the browser.
-- Define editorial styles and semantic color roles in src/styles.css and expose interactive visual variants through the shared Button component for consistent theming.
-- Build animated headings as word groups of letter spans (never a literal space as its own flex item), and gate the reveal on an IntersectionObserver flag so motion only runs once the block is in view — a space glyph sized as a flex item blows the heading wider than its column.
-- Read third-party services through a createServerFn in src/lib/*.functions.ts with the credential read inside the handler, and keep the payload-to-UI conversion in a plain sibling module that is unit-tested without credentials — this keeps keys out of the browser bundle and lets the mapping be verified before any key exists.
-
+- Keep the digital zine in a dedicated component with page-flip loaded after hydration; isolate its mutable booklet DOM from React to preserve SSR and safe cleanup.
+- Source the home Shop catalogue through the server-side Farfetch RapidAPI adapter; never expose its key or restore demo product rows when the provider is unavailable.
+- Keep Styling Notes on the home page; store submissions and moderation in Lovable Cloud, with signed-photo delivery and server-verified ownership and roles.

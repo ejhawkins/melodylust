@@ -22,8 +22,6 @@ dist-ssr
 
 # Editor directories and files
 .vscode/*
-!.vscode/tasks.json
-!.vscode/launch.json
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -32,15 +30,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-
-.env
-.env.*
-!.env.example
-
-# Vercel CLI link and build output
-.vercel
-.env*.local
-
-# Local product cache (recent Farfetch searches)
-.cache
