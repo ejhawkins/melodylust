@@ -94,7 +94,12 @@ describe('upgradeProfile', () => {
     const tracker = Papa.parse<Record<string, string>>(read('../../data/articles-tracker.csv'), { header: true, skipEmptyLines: 'greedy' }).data;
     const { rows } = checkStyleNets(read('../../data/style-nets.csv'), tracker.map(row => row['ID'] ?? ''));
     const v1 = { ...emptyStyleProfile(), music: ['Rock'], pattern: ['Plaid'], details: ['Studded belt'] };
-    // The starter nets are all SS24, outside the current window, so they add no style points yet.
+    // The SS24 starter rows are outside the current window, so these chips add no style points.
     expect(upgradeProfile(v1, rows, today).pairing).toEqual({ sound: 'Rock', style: null, runnerUp: null, confidence: 0, chosenBy: 'quiz' });
+    // The editors' AW26 rows are in the window: Chocolate brown and Pleats → Quiet Luxury 2, Afrofuturist 1.
+    const quiet = upgradeProfile({ ...emptyStyleProfile(), color: ['Chocolate brown'], details: ['Pleats'] }, rows, today);
+    expect(quiet.pairing).toMatchObject({ style: 'Quiet Luxury', runnerUp: 'Afrofuturist' });
+    // In SS27 the AW26 rows fall out of the window again.
+    expect(upgradeProfile({ ...emptyStyleProfile(), color: ['Chocolate brown'] }, rows, new Date('2027-03-01T00:00:00Z')).pairing).toBeNull();
   });
 });
