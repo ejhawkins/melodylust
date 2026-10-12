@@ -1513,13 +1513,23 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 /* Musician Circles on home: white, all black, portraits drop in */
 .circles-section { --stylus-paper: var(--card); --stylus-ink: var(--card-foreground); --stylus-accent: var(--card-foreground); background: var(--card); color: var(--card-foreground); }
 .circles-section .circles-genre-pill[data-active="true"], .circles-section .circles-match-mode button[data-active="true"] { background: var(--card-foreground); color: var(--card); }
-.circles-block[data-in] .circles-grid > * { transition: transform .9s cubic-bezier(.34,1.45,.5,1) calc(var(--d, 0) * 60ms), opacity .5s ease calc(var(--d, 0) * 60ms); }
-.circles-block[data-in="false"] .circles-grid > * { transform: translateY(-80px); opacity: 0; }
+.circles-block[data-in="true"] .circles-grid > * { animation: pebble-drop 1.15s ease calc(var(--d, 0) * 70ms) both; transform-origin: 50% 100%; }
+.circles-block[data-in="false"] .circles-grid > * { opacity: 0; }
+/* pebbles: fall, land with a squash, bounce a little smaller each time */
+@keyframes pebble-drop {
+  0% { opacity: 0; transform: translateY(-96px) scale(.96,1.05); animation-timing-function: cubic-bezier(.5,0,.85,.45); }
+  42% { opacity: 1; transform: translateY(0) scale(1.07,.88); animation-timing-function: cubic-bezier(.15,.6,.35,1); }
+  58% { transform: translateY(-18px) scale(.98,1.04); animation-timing-function: cubic-bezier(.5,0,.85,.45); }
+  72% { transform: translateY(0) scale(1.04,.93); animation-timing-function: cubic-bezier(.15,.6,.35,1); }
+  84% { transform: translateY(-6px) scale(1,1.01); animation-timing-function: cubic-bezier(.5,0,.85,.45); }
+  93% { transform: translateY(0) scale(1.02,.98); animation-timing-function: cubic-bezier(.15,.6,.35,1); }
+  100% { opacity: 1; transform: translateY(0) scale(1,1); }
+}
 /* Quote: slide in from the left + parallax drift */
 .gs-quote-drift { transform: translateY(calc(var(--qp, 0) * -120px)); will-change: transform; }
 .gs-quote .gs-reveal { transform: translateX(-80px); }
 .gs-quote .gs-reveal.is-in { transform: none; }
 .gs-quote p.gs-reveal { transition-delay: .15s; }
-@media (prefers-reduced-motion: reduce) { .gs-quote-drift { transform: none; } .gs-quote .gs-reveal { transform: none; } .circles-block .circles-grid > * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { .gs-quote-drift { transform: none; } .gs-quote .gs-reveal { transform: none; } .circles-block .circles-grid > * { animation: none !important; opacity: 1 !important; transform: none !important; } }
 .circles-section :is(p, span, small, label, input)  { color: var(--card-foreground); }
 .circles-section [data-active="true"], .circles-section [data-active="true"] * { color: var(--card) !important; }

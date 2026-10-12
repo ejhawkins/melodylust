@@ -16,4 +16,8 @@
 - [x] Add a playlist chapter to the digital zine with tracks from the featured artists, linked to their music
 - [x] Bring EXPERIENCE / GET READY tight under the hero headline (headline bottom-anchored, no dead line)
 - [x] Give the record arc 20% more gap between sleeves (200→240 desktop, 57→68 tablet), keeping every sleeve inside the screen
+- [x] Give the Circles drop-in a pebble bounce: fall, land with a squash, two shrinking bounces, settle in place
 - [x] Remove the artist name labels from the record sleeves (screen-reader names and the credit line kept)
+- [x] Copy today's code into github.com/ejhawkins/melodylust on branch lovable/oct-12-sync (208 files, verified file-for-file)
+- [ ] Merge lovable/oct-12-sync into main in melodylust, or move main onto it (waiting on the user's call)
+- [ ] Add .github/workflows/deploy.yml to melodylust — needs the connection's "workflow" permission granted
