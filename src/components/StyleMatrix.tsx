@@ -3,9 +3,7 @@ import anita from '@/assets/moodboards/IMG_7247.jpg.asset.json';
 import mono from '@/assets/moodboards/IMG_7257.jpg.asset.json';
 import bright from '@/assets/moodboards/IMG_7253.jpg.asset.json';
 import y2k from '@/assets/moodboards/IMG_7250.jpg.asset.json';
-
-export const GENRES = ['Y2K', 'Afrofuturist', 'Quiet Luxury', 'Grunge', 'Soft Glam'] as const;
-type Genre = typeof GENRES[number];
+import { STYLE_GENRES as GENRES, type StyleGenre as Genre } from '@/lib/style-profile';
 type MoodImage = { src: string; alt: string; focus: string; caption?: string };
 export type Moodboard = { id: string; title: string; genres: Genre[]; images: MoodImage[]; palette: string[] };
 

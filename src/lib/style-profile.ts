@@ -14,7 +14,11 @@ export const profileFields = [
   { key: 'music', label: 'Music', options: ['R&B', 'Hip-hop', 'Pop', 'Rock', 'Electronic', 'Jazz', 'Indie', 'Country'] },
 ] as const;
 
-const selections = z.array(z.string().trim().min(1).max(100)).max(12).default([]);
+/** The style buckets: the Style Matrix pills, and the styles a style net can define. */
+export const STYLE_GENRES = ['Y2K', 'Afrofuturist', 'Quiet Luxury', 'Grunge', 'Soft Glam'] as const;
+export type StyleGenre = typeof STYLE_GENRES[number];
+
+const selections =z.array(z.string().trim().min(1).max(100)).max(12).default([]);
 export const styleProfileSchema = z.object({
   color: selections, material: selections, brand: selections, pattern: selections,
   item: selections, fit: selections, details: selections, occasion: selections,
