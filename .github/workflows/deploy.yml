@@ -1,0 +1,45 @@
+name: Vercel
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: vercel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun test
+      - name: Pull Vercel preview settings
+        if: github.event_name == 'pull_request'
+        run: bunx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build preview
+        if: github.event_name == 'pull_request'
+        run: bunx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy preview
+        if: github.event_name == 'pull_request'
+        run: bunx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull Vercel production settings
+        if: github.event_name == 'push'
+        run: bunx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build production
+        if: github.event_name == 'push'
+        run: bunx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy production
+        if: github.event_name == 'push'
+        run: bunx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
