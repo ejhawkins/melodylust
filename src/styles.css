@@ -1348,7 +1348,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 @keyframes gs-rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
 .guided { --gs-reveal: .8s; --gs-ease: cubic-bezier(.16,1,.3,1); position: relative; }
 .how-it-works { scroll-margin-top: calc(var(--head-h) + 16px); }
-.how-it-works .gs-paper { background: var(--background); }
+.how-it-works .gs-paper { background: var(--background); border-top: 0; } /* the record stack's rule above already divides the sections */
 /* Closing line after step 03: the "This is a mood" type, wrapping onto two lines because it is longer. */
 .gs-closing { background: var(--background); padding: clamp(40px,7vw,104px) max(36px, calc(50vw - 660px)) clamp(56px,9vw,140px); }
 .gs-closing .gs-closing-title { font-family: var(--font-editorial); font-weight: 400; letter-spacing: -.03em; line-height: .95; text-transform: none; flex-wrap: wrap; white-space: normal; row-gap: .05em; }
