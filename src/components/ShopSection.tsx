@@ -128,11 +128,12 @@ export function ShopSection() {
                    {p.availability === "low_stock" && <span className="mlshop-flag">Low stock</span>}
                 </button>
                 <button type="button" onClick={() => wl.toggle(p.id)} aria-pressed={saved} aria-label={saved ? `Remove ${p.name} from wishlist` : `Save ${p.name} to wishlist`} className="mlshop-heart" data-saved={saved}><Heart aria-hidden className="h-3.5 w-3.5" fill={saved ? "currentColor" : "none"} /></button>
-                <button type="button" className="mlshop-card-text" onClick={() => setOpenId(p.id)}>
+                 <button type="button" className="mlshop-card-text" onClick={() => setOpenId(p.id)}>
                   <span className="mlshop-name">{p.name}</span>
                   <span className="mlshop-brand">{p.brand}</span>
                    <span className="mlshop-price">{formatPrice(p.price, p.currency)}</span>
                 </button>
+                <SongPick productId={p.id} compact />
               </li>
             );
           })}
@@ -178,7 +179,7 @@ function ProductImage({ src, alt, className }: { src: string; alt: string; class
 
 /** "Goes with a song" slot on a product: pick one of the featured songs and its player
  *  embeds under the piece. The pairing is saved on this device, per product. */
-function SongPick({ productId }: { productId: string }) {
+function SongPick({ productId, compact = false }: { productId: string; compact?: boolean }) {
   const [pick, setPick] = useState("");
   useEffect(() => {
     try { setPick((JSON.parse(localStorage.getItem(PICKKEY) || "{}") as Record<string, string>)[productId] ?? ""); } catch { /* Empty slot. */ }
@@ -192,22 +193,29 @@ function SongPick({ productId }: { productId: string }) {
     } catch { /* Nothing to persist. */ }
   };
   const song = SONG_PICKS.find(s => s.id === pick);
+  const [thumb, setThumb] = useState("");
+  useEffect(() => {
+    setThumb("");
+    if (!song) return;
+    let current = true;
+    fetch(`https://open.spotify.com/oembed?url=https://open.spotify.com/track/${song.id}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (current && d?.thumbnail_url) setThumb(d.thumbnail_url as string); })
+      .catch(() => { /* No thumbnail — the name link still shows. */ });
+    return () => { current = false; };
+  }, [song?.id]);
   return (
-    <div className="mlshop-songpick">
+    <div className={`mlshop-songpick${compact ? " mlshop-songpick-card" : ""}`}>
       <label className="mlshop-songpick-label" htmlFor={`songpick-${productId}`}>Goes with a song</label>
-      <select id={`songpick-${productId}`} className="genre-select" value={pick} onChange={e => choose(e.target.value)}>
+      <select id={`songpick-${productId}`} className="genre-select" value={pick} onChange={e => choose(e.target.value)} aria-label={`Song that goes with this piece`}>
         <option value="">Pick a song…</option>
         {SONG_PICKS.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
       </select>
       {song && (
-        <iframe
-          title={`${song.name} on Spotify`}
-          src={`https://open.spotify.com/embed/track/${song.id}?utm_source=generator&theme=0`}
-          className="mlshop-songpick-embed"
-          height="152"
-          loading="lazy"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        />
+        <a className="mlshop-songpick-thumb" href={`https://open.spotify.com/track/${song.id}`} target="_blank" rel="noopener noreferrer" aria-label={`Play ${song.name} on Spotify`}>
+          {thumb && <img src={thumb} alt={`${song.name} album art`} loading="lazy" />}
+          <span>{song.name}</span>
+        </a>
       )}
     </div>
   );

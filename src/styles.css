@@ -1097,6 +1097,14 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .mlshop-songpick { margin-top: 18px; display: grid; gap: 8px; }
 .mlshop-songpick-label { font-family: "Big Shoulders Display", sans-serif; font-weight: 800; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
 .mlshop-songpick-embed { width: 100%; border: 0; border-radius: 12px; display: block; }
+.mlshop-songpick-card { margin-top: 8px; gap: 6px; padding: 8px; border: 1px solid var(--foreground); }
+.mlshop-songpick-card .mlshop-songpick-label { font-size: 10px; }
+.mlshop-songpick-card .genre-select { font-size: 11px; padding: 6px 8px; }
+.mlshop-songpick-card .mlshop-songpick-embed { border-radius: 8px; }
+.mlshop-songpick-thumb { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.mlshop-songpick-thumb img { width: 56px; height: 56px; object-fit: cover; display: block; }
+.mlshop-songpick-thumb span { font-size: 12px; font-weight: 600; line-height: 1.3; }
+.mlshop-songpick-thumb:hover span { text-decoration: underline; }
 .mlshop-modal-ask { margin-top: 18px; border-top: 1px solid var(--foreground); padding-top: 12px; }
 .mlshop-modal-ask h4 { margin: 0; font-size: 13px; }
 .mlshop-modal-ask p { margin: 6px 0 0; font-size: 12px; line-height: 1.6; color: var(--muted-foreground); }
