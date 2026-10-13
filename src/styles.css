@@ -1363,7 +1363,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .gs-sticky { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 clamp(20px,6vw,96px); }
 .gs-steps { width: 100%; max-width: 1240px; display: grid; gap: 24px; }
 .gs-steps > .gs-eyebrow { justify-self: center; }
-.gs-steps ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(24px,4vw,56px); }
+.gs-steps ol { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px,4vw,56px); } /* minmax(0,…): Safari otherwise sizes columns from the screenshots' natural width */
 .gs-steps li { display: flex; flex-direction: column; gap: 14px; opacity: .25; transition: opacity .6s var(--gs-ease); }
 .gs-steps li[data-active="true"] { opacity: 1; }
 .gs-steps li > span { font-family: var(--font-cover); font-weight: 900; font-size: 20px; }
@@ -1631,9 +1631,11 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .song-collage-cover:nth-child(1) { --collage-x: 5%; --collage-y: 3%; --collage-rotation: -12deg; }
 .song-collage-cover:nth-child(2) { --collage-x: 37%; --collage-y: 14%; --collage-rotation: 8deg; }
 .song-collage-cover:nth-child(3) { --collage-x: 68%; --collage-y: 0%; --collage-rotation: 14deg; }
-.song-collage-cover:nth-child(4) { --collage-x: 0%; --collage-y: 48%; --collage-rotation: 7deg; }
+.song-collage-cover:nth-child(4) { --collage-x: 3%; --collage-y: 48%; --collage-rotation: 7deg; } /* 3%: at 0% the tilt clipped the caption's first letters */
 .song-collage-cover:nth-child(5) { --collage-x: 34%; --collage-y: 58%; --collage-rotation: -9deg; }
 .song-collage-cover:nth-child(6) { --collage-x: 70%; --collage-y: 50%; --collage-rotation: -13deg; }
+/* The second note's caption sits on the fifth note's top edge; keep the caption readable. */
+.song-collage-stage:not([data-focused="true"]) .song-collage-cover:nth-child(2) { z-index: 1; }
 .song-collage-stage[data-focused="true"] .song-collage-cover { width: 12%; opacity: .2; pointer-events: none; left: -5%; top: 2%; }
 .song-collage-stage[data-focused="true"] .song-collage-cover:nth-child(even) { left: 93%; top: 65%; }
 .song-collage-stage[data-focused="true"] .song-collage-cover:nth-child(3n) { top: 84%; }
