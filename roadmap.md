@@ -19,5 +19,10 @@
 - [x] Give the Circles drop-in a pebble bounce: fall, land with a squash, two shrinking bounces, settle in place
 - [x] Remove the artist name labels from the record sleeves (screen-reader names and the credit line kept)
 - [x] Copy today's code into github.com/ejhawkins/melodylust on branch lovable/oct-12-sync (208 files, verified file-for-file)
+- [x] Sync this project to lovable/oct-12-sync at c4a768b (67 files pulled: search engine, search components, tests, scripts); 0 differences left
+- [x] Add the secrets the branch needs: OPENAI_API_KEY, GEMINI_API_KEY, MELODYLUST_AI_PROVIDER=gemini, RAPIDAPI_KEY, FREQBLOG_API_KEY, ARTIST_PROVIDER=freqblog
+- [x] Give the article notebook a source column and one-row-per-link rule so scouted articles save; verified live — a search for Solange stored 8 articles awaiting review
+- [x] Push the notebook fix and regenerated files to lovable/oct-12-sync (commit 890051a, 255 files, verified file-for-file)
+- [x] Publish to melodylust.fashion with the restored search engine live
 - [ ] Merge lovable/oct-12-sync into main in melodylust, or move main onto it (waiting on the user's call)
 - [ ] Add .github/workflows/deploy.yml to melodylust — needs the connection's "workflow" permission granted
