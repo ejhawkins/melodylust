@@ -25,7 +25,7 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
     const started = Date.now();
     const answer = readAIJSON(AI_STYLE_PROMPT, data, getRequest()).then((payload): AIStyleResponse => {
       const suggestions = readAIStyle(payload, data);
-      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, elapsedMs: Date.now() - started });
+      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, coverage: data.coverage.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, inspired: suggestions.filter(s => s.inspiration).length, brands: suggestions.flatMap(s => s.pieces.flatMap(p => p.brand ? [`${p.brand} ${p.item}`] : [])), elapsedMs: Date.now() - started });
       return suggestions.length ? { status: 'ok', suggestions, provider } : { status: 'unavailable', suggestions: [], provider };
     }).catch(failure => {
       // Server log only; never a key.

@@ -7,6 +7,14 @@ import { foldName } from './song-recommendations';
 
 export type ShopProduct = { id: string; brand: string; name: string; price: number; currency: string; image: string; link: string };
 
+/** A brand an article names, matched loosely: "Ralph Lauren" covers the "Polo Ralph Lauren" and
+ *  "Ralph Lauren Purple Label" labels, as whole words only ("Lauren" never matches "Laurence"). */
+export function brandMatches(productBrand: string, brand: string) {
+  const words = (value: string) => value.split(/[\s/&+-]+/).map(foldName).filter(Boolean);
+  const label = words(productBrand), wanted = words(brand);
+  return wanted.length > 0 && label.some((_, start) => wanted.every((word, offset) => label[start + offset] === word));
+}
+
 export type CatalogProduct = ShopProduct & {
   category: string;
   sizes: string[];
@@ -44,6 +52,15 @@ const stems = (text: string) => text.toLowerCase().match(/[a-z]+/g)?.map(word =>
 export function itemMatchScore(item: string, productName: string) {
   const name = new Set(stems(productName));
   return [...new Set(stems(item))].filter(stem => name.has(stem)).length;
+}
+
+/** The item's garment word (its last word: "shoes" in "dress shoes") is the product's own garment
+ *  word (the last word before "with …"), so a shared word never matches a different object:
+ *  "dress shoes" ≠ "tank dress", "fedora" ≠ "Fedora mug", but "trousers" = "poplin trousers with embroidery". */
+export function garmentMatches(item: string, productName: string) {
+  const garment = stems(item).at(-1);
+  const product = stems(productName.split(/\s(?:with|in|and|featuring)\s/i)[0] ?? '').at(-1);
+  return Boolean(garment) && garment === product;
 }
 
 /** Search payload → up to `limit` priced, pictured products — from the requested house only,

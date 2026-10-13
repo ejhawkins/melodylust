@@ -72,7 +72,7 @@ export function parseEvidenceCorpus(value: unknown): EvidenceCorpus {
     const field = option(o['field'], ['title', 'summary', 'categories'] as const);
     const quote = text(o['quote']);
     const source = field === 'categories' ? document.categories : [document[field]];
-    if (!source.some(s => s.includes(quote)) || !containsName(quote, entityMap.get(left_id)!.name) || !containsName(quote, entityMap.get(right_id)!.name)) throw new Error('Observation must quote both entities verbatim from its source field.');
+    if (!source.some(s => s.includes(quote)) || !containsName(quote, entityMap.get(left_id)!.name) || !containsName(quote, entityMap.get(right_id)!.name)) throw new Error(`Observation must quote both entities verbatim from its source field (article ${article_id}, ${field}: ${JSON.stringify(quote.slice(0, 160))}).`);
     const evidence_level = option(o['evidence_level'], levels);
     const musicEntity = [entityMap.get(left_id)!, entityMap.get(right_id)!].find(entity => entity.kind === evidence_level);
     if (!musicEntity || musicEntity.kind !== evidence_level || o['song_specific'] !== (evidence_level === 'song')) throw new Error('Evidence level must match the actual music entity.');

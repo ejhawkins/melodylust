@@ -2,7 +2,7 @@
 // artist + outfit always gets the same cards, while different artists draw different cards from
 // the same shared search results. Only products the catalog returned can be picked — nothing is invented.
 
-import { itemMatchScore, type ShopProduct } from './farfetch';
+import { garmentMatches, itemMatchScore, type ShopProduct } from './farfetch';
 import { normalizeArtistName } from './artist-search';
 
 /** How many catalog results each piece's search keeps as candidates. */
@@ -40,15 +40,15 @@ export function stableHash(text: string) {
 
 export type PiecePool = { item: string; products: ShopProduct[] };
 
-/** One product per piece: rank each pool by item match, then genre fit, keep the best TOP_K, and
- *  choose among them by `seed`. A product already used for an earlier piece is never repeated. */
+/** One product per piece: keep products of the piece's garment, rank them by item match, then genre fit,
+ *  keep the best TOP_K, and choose among them by `seed`. A product already used for an earlier piece is never repeated. */
 export function pickOutfitProducts(pools: PiecePool[], seed: string, genres: string[] = []): ShopProduct[] {
   const used = new Set<string>();
   const picks: ShopProduct[] = [];
   for (const { item, products } of pools) {
     const best = products
       .map((product, index) => ({ product, index, match: itemMatchScore(item, product.name), fit: genreAffinity(product.name, genres) }))
-      .filter(entry => entry.match > 0 && !used.has(entry.product.id))
+      .filter(entry => entry.match > 0 && garmentMatches(item, entry.product.name) && !used.has(entry.product.id))
       .sort((a, b) => b.match - a.match || b.fit - a.fit || a.index - b.index)
       .slice(0, TOP_K);
     const pick = best.sort((a, b) => stableHash(`${seed}|${item}|${a.product.id}`) - stableHash(`${seed}|${item}|${b.product.id}`))[0];

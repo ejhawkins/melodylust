@@ -22,6 +22,19 @@ describe('product cards for an outfit', () => {
     expect(lookupProducts).toHaveBeenCalledWith({ data: { item: 'leather jacket', limit: 1 } }); // no designer forced
   });
 
+  it('searches a piece\'s named brand first, then any brand when that brand has no match', async () => {
+    lookupProducts.mockImplementation((call?: { data?: { brand?: string } }) =>
+      Promise.resolve(call?.data?.brand === 'Ralph Lauren' ? ok(product('3', 'polo shirt')) : ok()));
+    render(<ShopProducts designer={null} items={['polo shirt', 'loafers']} brands={['Ralph Lauren', null]} from="test" showStatus />);
+    expect(await screen.findByAltText('Prada polo shirt')).toBeInTheDocument();
+    expect(lookupProducts).toHaveBeenCalledWith({ data: { brand: 'Ralph Lauren', item: 'polo shirt', limit: 1 } });
+    expect(lookupProducts).toHaveBeenCalledWith({ data: { item: 'loafers', limit: 1 } });
+    lookupProducts.mockReset();
+    lookupProducts.mockImplementation((call?: { data?: { brand?: string } }) => Promise.resolve(call?.data?.brand ? ok() : ok(product('4', 'polo shirt'))));
+    render(<ShopProducts designer={null} items={['polo shirt']} brands={['Ralph Lauren']} from="fallback" showStatus />);
+    await waitFor(() => expect(lookupProducts).toHaveBeenCalledWith({ data: { item: 'polo shirt', limit: 1 } }));
+  });
+
   it('says so when nothing matches, or when shopping is unavailable', async () => {
     lookupProducts.mockResolvedValue(ok());
     const { unmount } = render(<ShopProducts designer={null} items={['cape']} from="test" showStatus />);

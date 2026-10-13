@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { readFarfetchCatalog, readFarfetchSearch, type CatalogProduct, type ShopProduct } from './farfetch';
+import { brandMatches, readFarfetchCatalog, readFarfetchSearch, type CatalogProduct, type ShopProduct } from './farfetch';
 import { productCacheKey } from './product-cache';
 
 // Each search costs RapidAPI quota. Two layers keep that down:
@@ -11,12 +11,13 @@ let requestsThisRun = 0;
 let catalogCache: { savedAt: number; products: CatalogProduct[] } | undefined;
 let catalogInFlight: Promise<CatalogProduct[]> | undefined;
 
-async function search(apiKey: string, designer: string | undefined, item: string | undefined, limit: number) {
-  const keyword = [designer, item].filter(Boolean).join(' ');
+async function search(apiKey: string, designer: string | undefined, item: string | undefined, limit: number, brand?: string) {
+  const keyword = [designer ?? brand, item].filter(Boolean).join(' ');
   // For a house, highest price first surfaces signature pieces rather than phone cases and charms.
   // Across all brands (an article's garment) that just picks the priciest loose match, so keep
   // Farfetch's own order there and rank by how well names match the item instead.
-  const params = new URLSearchParams({ keyword, page: '1', ...(designer ? { sort: 'high_to_low' } : {}), country: 'US', currency: 'USD' });
+  // A brand an article names is treated like a house: its keyword search otherwise drifts to sportswear.
+  const params = new URLSearchParams({ keyword, page: '1', ...(designer || brand ? { sort: 'high_to_low' } : {}), country: 'US', currency: 'USD' });
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20_000);
   try {
@@ -25,6 +26,8 @@ async function search(apiKey: string, designer: string | undefined, item: string
       signal: controller.signal,
     });
     if (!response.ok) throw new Error(`Farfetch search returned ${response.status}`);
+    // A brand from an article keeps every label that carries its name, so read wider before filtering.
+    if (brand) return readFarfetchSearch(await response.json(), null, 40, item).filter(product => brandMatches(product.brand, brand)).slice(0, limit);
     return readFarfetchSearch(await response.json(), designer ?? null, limit, item);
   } finally { clearTimeout(timer); }
 }
@@ -80,16 +83,19 @@ export const lookupProducts = createServerFn({ method: 'POST' })
     // Without a designer, the item (a garment from an article) is searched across all brands.
     designer: z.string().trim().min(1).max(120).optional(),
     item: z.string().trim().min(1).max(60).regex(/^[a-z][a-z -]*$/).optional(),
+    // A brand an article names for one outfit piece ("Ralph Lauren" + "polo shirt"); always with an item.
+    brand: z.string().trim().min(1).max(60).optional(),
     // Up to CANDIDATE_POOL (8): an outfit piece fetches a few candidates and the page picks one per artist.
     limit: z.number().int().min(1).max(8).default(3),
-  }).strict().refine(data => data.designer || data.item, 'A designer or an item is required.').parse(input))
+  }).strict().refine(data => data.designer || data.item, 'A designer or an item is required.')
+    .refine(data => !data.brand || (data.item && !data.designer), 'A brand needs an item and no designer.').parse(input))
   // status tells the page why a list is empty: no key, provider down, or simply no match.
   .handler(async ({ data }): Promise<{ products: ShopProduct[]; status: 'ok' | 'not_configured' | 'unavailable' }> => {
     const apiKey = process.env['RAPIDAPI_KEY'];
     const debug = process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1';
     // No key yet: looks simply show no products.
     if (!apiKey) return { products: [], status: 'not_configured' };
-    const key = productCacheKey(data.designer ?? 'any-brand', data.item, data.limit);
+    const key = productCacheKey(data.designer ?? (data.brand ? `brand ${data.brand}` : 'any-brand'), data.item, data.limit);
     const { readSavedProducts, saveProducts } = await import('./product-cache.server');
     const saved = await readSavedProducts(key);
     if (saved) {
@@ -100,7 +106,7 @@ export const lookupProducts = createServerFn({ method: 'POST' })
       inFlight.set(key, (async () => {
         requestsThisRun += 1;
         if (debug) console.info('[Products] Farfetch request', key, `(${requestsThisRun} this run)`);
-        const products = await search(apiKey, data.designer, data.item, data.limit);
+        const products = await search(apiKey, data.designer, data.item, data.limit, data.brand);
         // Only successful answers are saved; a failure is retried on the next visit.
         await saveProducts(key, products);
         return products;
