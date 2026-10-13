@@ -5,6 +5,17 @@ import { lookupShopCatalog } from "@/lib/products.functions";
 import { formatPrice, type CatalogProduct } from "@/lib/farfetch";
 
 const WKEY = "ml-shop-wishlist";
+const PICKKEY = "ml-shop-song-picks";
+
+/** Songs a piece can be paired with — the same featured songs as the home page. */
+const SONG_PICKS = [
+  { id: "6ouTGbETM7ZdID1eMXZJde", name: "Day 'N' Nite — Kid Cudi" },
+  { id: "5rfOARz6QO73wPATyMtQQZ", name: "DANCE... — Slayyyter" },
+  { id: "3LtqBgvHGsaSjYw9NmLkky", name: "WE ON GO II — BIA" },
+  { id: "3fuCoVxqdBRd0xBeEivlR4", name: "Nicole Kidman — ADÉLA" },
+  { id: "0xDxS2g775ttrfrwDQl9f8", name: "I Know What You Want — Busta Rhymes" },
+  { id: "0Vtvich3vkhne7Pzum3tXF", name: "Fashion Week — Wale" },
+];
 const AVAILABILITY_LABEL = { in_stock: "In stock", low_stock: "Low stock", unknown: "Availability not listed" } as const;
 const uniq = (a: string[]) => [...new Set(a)].sort();
 
@@ -165,6 +176,43 @@ function ProductImage({ src, alt, className }: { src: string; alt: string; class
   );
 }
 
+/** "Goes with a song" slot on a product: pick one of the featured songs and its player
+ *  embeds under the piece. The pairing is saved on this device, per product. */
+function SongPick({ productId }: { productId: string }) {
+  const [pick, setPick] = useState("");
+  useEffect(() => {
+    try { setPick((JSON.parse(localStorage.getItem(PICKKEY) || "{}") as Record<string, string>)[productId] ?? ""); } catch { /* Empty slot. */ }
+  }, [productId]);
+  const choose = (id: string) => {
+    setPick(id);
+    try {
+      const all = JSON.parse(localStorage.getItem(PICKKEY) || "{}") as Record<string, string>;
+      if (id) all[productId] = id; else delete all[productId];
+      localStorage.setItem(PICKKEY, JSON.stringify(all));
+    } catch { /* Nothing to persist. */ }
+  };
+  const song = SONG_PICKS.find(s => s.id === pick);
+  return (
+    <div className="mlshop-songpick">
+      <label className="mlshop-songpick-label" htmlFor={`songpick-${productId}`}>Goes with a song</label>
+      <select id={`songpick-${productId}`} className="genre-select" value={pick} onChange={e => choose(e.target.value)}>
+        <option value="">Pick a song…</option>
+        {SONG_PICKS.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+      </select>
+      {song && (
+        <iframe
+          title={`${song.name} on Spotify`}
+          src={`https://open.spotify.com/embed/track/${song.id}?utm_source=generator&theme=0`}
+          className="mlshop-songpick-embed"
+          height="152"
+          loading="lazy"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        />
+      )}
+    </div>
+  );
+}
+
 function ShopDetail({ p, saved, onSave, onClose }: { p: CatalogProduct; saved: boolean; onSave: () => void; onClose: () => void }) {
   const [img, setImg] = useState(0);
   useEffect(() => setImg(0), [p.id]);
@@ -201,6 +249,7 @@ function ShopDetail({ p, saved, onSave, onClose }: { p: CatalogProduct; saved: b
               <button type="button" onClick={onSave} aria-pressed={saved} className="mlshop-save"><Heart aria-hidden className="h-3.5 w-3.5" fill={saved ? "currentColor" : "none"} />{saved ? "Saved" : "Save to wishlist"}</button>
               <a href={p.link} target="_blank" rel="noreferrer" className="mlshop-buy">Shop on Farfetch</a>
             </div>
+            <SongPick productId={p.id} />
             <div className="mlshop-modal-ask">
               <h4>How would you style this—and what would you play?</h4>
               <p>Community styling comments, videos and song picks arrive once accounts are switched on. Song picks will be shown as personal interpretations, not verified connections.</p>

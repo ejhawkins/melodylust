@@ -7,6 +7,14 @@ import street from "@/assets/street-style.jpg";
 
 const PAGE_COUNT = 7;
 
+// Sample links — swap in the real reads.
+const GOOD_READS = [
+  { source: "Sample read", title: "Why every pop star wants a uniform again", note: "On stage style as a signature.", url: "https://example.com/read-1" },
+  { source: "Sample read", title: "The return of the music magazine", note: "Print's quiet comeback.", url: "https://example.com/read-2" },
+  { source: "Sample read", title: "How a tour wardrobe gets built", note: "From fitting to opening night.", url: "https://example.com/read-3" },
+  { source: "Sample read", title: "Thrift culture and the new It-girl", note: "Second-hand, first choice.", url: "https://example.com/read-4" },
+];
+
 export function DigitalZine() {
   const source = useRef<HTMLDivElement>(null);
   const mount = useRef<HTMLDivElement>(null);
@@ -65,6 +73,8 @@ export function DigitalZine() {
       <h2 id="zine-heading">THE ZINE</h2>
       <p>A little fashion. A little music. Something to keep.</p>
     </header>
+    <div className="zine-layout">
+    <div className="zine-main">
     <div className="zine-stage" ref={mount} role="group" aria-label="Melody Lust digital booklet" tabIndex={0}
       onKeyDown={event => {
         if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
@@ -80,6 +90,22 @@ export function DigitalZine() {
       <Button variant="ghost" size="icon" title="Back to cover" aria-label="Return to zine cover" disabled={!ready || page === 0} onClick={() => book.current?.turnToPage(0)}><RotateCcw /></Button>
     </div>
     <p className="zine-caption">Melody Lust · Sample issue · 7 pages</p>
+    </div>
+    <aside className="good-reads" aria-labelledby="good-reads-heading">
+      <h3 id="good-reads-heading">GOOD READS</h3>
+      <p className="good-reads-note">Links worth your time, from around the web. Sample picks — the real list is on its way.</p>
+      <ol className="good-reads-list">
+        {GOOD_READS.map(read => <li key={read.url}>
+          <a href={read.url} target="_blank" rel="noopener noreferrer">
+            <span className="good-reads-source">{read.source}</span>
+            <span className="good-reads-title">{read.title}</span>
+            <span className="good-reads-desc">{read.note}</span>
+            <span className="good-reads-arrow" aria-hidden>↗</span>
+          </a>
+        </li>)}
+      </ol>
+    </aside>
+    </div>
     <div ref={source} hidden>
       <article className="zine-page zine-cover" data-density="hard">
         <img src={cover} alt="Argyle knit, tartan skirt and layered belts in a grunge-inspired outfit" />
