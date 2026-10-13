@@ -16,11 +16,25 @@ const steps = [
   { title: "Wear it your way", body: "Save pieces to The Want List and share how you'd style them in Styling Notes.", image: howWear, alt: "Screenshot of Styling Notes: share your note" },
 ];
 
+// Closing line after step 03, set like "This is a mood": word groups of letter spans, revealed in view.
+const runwayWords = ["BRING", "IT", "TO", "THE", "RUNWAY."];
+const runwayLetters = runwayWords.map((word, wi) => ({ word, letters: word.split("").map((ch, ci) => ({ ch, delay: (runwayWords.slice(0, wi).reduce((n, w) => n + w.length, 0) + ci) * 45 })) }));
+
 const reduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export function HowItWorks() {
   const pin = useRef<HTMLElement>(null);
+  const closing = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
+  const [closingIn, setClosingIn] = useState(false);
+
+  useEffect(() => {
+    const el = closing.current;
+    if (!el || typeof IntersectionObserver === "undefined") { setClosingIn(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { setClosingIn(true); io.disconnect(); } }, { threshold: .4 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const w = pin.current;
@@ -55,5 +69,8 @@ export function HowItWorks() {
         </div>
       </div>
     </section>
+    <div className="gs-closing" ref={closing} data-inview={closingIn}>
+      <h2 className="film-title gs-closing-title" aria-label="Bring it to the runway.">{runwayLetters.map(({ word, letters }) => <span className="film-word" key={word} aria-hidden>{letters.map(({ ch, delay }, i) => <span key={i} style={{ transitionDelay: `${delay}ms` }}>{ch}</span>)}</span>)}</h2>
+    </div>
   </div>;
 }
