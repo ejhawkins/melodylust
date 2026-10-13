@@ -465,7 +465,6 @@ function Index() {
       <section className="iconic" id="iconic" aria-label="Featured iconic songs of today">
         <div className="iconic-head">
           <h2 className="iconic-title"><span>+ Featured songs</span></h2>
-          <a className="iconic-circles-link" href="#circles">Musician Circles <ArrowUpRight /></a>
         </div>
         <FeaturedSongCollage songs={iconicSongs.filter((s): s is typeof s & { link: string } => "link" in s && typeof s.link === "string")} onShop={setShopSong} onSave={s => addWish({ kind: "song", name: s.caption, detail: "", link: s.link, note: "" })} />
         <article className="song-cover-story">

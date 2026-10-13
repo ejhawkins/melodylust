@@ -1225,9 +1225,6 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 /* --- links to Musician Circles --- */
 .iconic-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 34px; }
 .iconic-head .iconic-title { margin-bottom: 0; }
-.iconic-circles-link { font-family: var(--font-iconic); font-weight: 300; font-size: 11px; text-transform: uppercase; letter-spacing: .22em; color: var(--foreground); text-decoration: underline; text-underline-offset: .45em; text-decoration-thickness: 1px; display: inline-flex; align-items: center; gap: 6px; transition: color .3s ease; }
-.iconic-circles-link:hover { color: var(--primary); }
-.iconic-circles-link svg { width: 12px; height: 12px; }
 .footer-link { font-family: var(--font-iconic); font-size: 11px; text-transform: uppercase; letter-spacing: .22em; color: var(--foreground); text-decoration: underline; text-underline-offset: .45em; text-decoration-thickness: 1px; transition: color .3s ease; }
 .footer-link:hover { color: var(--primary); }
 @media (max-width: 600px) { .iconic-head { margin-bottom: 22px; } .footer { flex-wrap: wrap; gap: 14px; } }
