@@ -1,8 +1,10 @@
 import { useLayoutEffect, useRef, useState } from 'react';
+import { Check, Plus } from 'lucide-react';
 import anita from '@/assets/moodboards/IMG_7247.jpg.asset.json';
 import mono from '@/assets/moodboards/IMG_7257.jpg.asset.json';
 import bright from '@/assets/moodboards/IMG_7253.jpg.asset.json';
 import y2k from '@/assets/moodboards/IMG_7250.jpg.asset.json';
+import { addWish, removeWish, useWishlist } from '@/lib/wishlist';
 import { STYLE_GENRES as GENRES, type StyleGenre as Genre } from '@/lib/style-profile';
 type MoodImage = { src: string; alt: string; focus: string; caption?: string };
 export type Moodboard = { id: string; title: string; genres: Genre[]; images: MoodImage[]; palette: string[] };
@@ -38,8 +40,12 @@ export const moodboards: Moodboard[] = [
     { src: y2k.url, alt: 'Red kitten heels', focus: '45% 45%' } ] },
 ];
 
+/** The Want List row a board saves to: the statement coat worn this board's way. */
+const wishName = (b: Moodboard) => `${STATEMENT_PIECE} — ${b.title}`;
+
 export function StyleMatrix() {
   const [active, setActive] = useState<Genre[]>([]);
+  const wishes = useWishlist();
   const refs = useRef(new Map<string, HTMLElement>());
   const prev = useRef(new Map<string, DOMRect>());
   const toggle = (g: Genre) => {
@@ -47,6 +53,14 @@ export function StyleMatrix() {
     setActive(a => (a.includes(g) ? a.filter(x => x !== g) : [...a, g]));
   };
   const clear = () => { refs.current.forEach((el, id) => prev.current.set(id, el.getBoundingClientRect())); setActive([]); };
+  // The hero square's Want List button: add this look, or take it back out if it's already in.
+  const wantId = (b: Moodboard) => wishes.find(w => w.kind === 'piece' && w.name === wishName(b) && w.from === 'Style matrix')?.id;
+  const toggleWant = (b: Moodboard) => {
+    const id = wantId(b);
+    if (id) { removeWish(id); return; }
+    addWish({ kind: 'piece', name: wishName(b), detail: b.images[0]?.caption ?? '', link: '', note: '', from: 'Style matrix' });
+  };
+
   const matches = (b: Moodboard) => !active.length || b.genres.some(g => active.includes(g));
   const ordered = [...moodboards].sort((a, b) => Number(matches(b)) - Number(matches(a)));
 
@@ -69,7 +83,7 @@ export function StyleMatrix() {
       const i = moodboards.indexOf(b);
       return <article key={b.id} ref={el => { if (el) refs.current.set(b.id, el); else refs.current.delete(b.id); }} className="mood-tile" data-dim={!matches(b)} style={{ animationDelay: `${i * 60}ms` }}>
         <div className="mood-board" data-count={b.images.length}>
-          {b.images.map((img, j) => <div className={j === 0 ? 'mood-img mood-hero' : 'mood-img'} key={j}><img src={img.src} alt={img.alt} loading="lazy" style={{ objectPosition: img.focus }} />{j === 0 && img.caption && <span className="mood-caption">{img.caption}</span>}</div>)}
+          {b.images.map((img, j) => <div className={j === 0 ? 'mood-img mood-hero' : 'mood-img'} key={j}><img src={img.src} alt={img.alt} loading="lazy" style={{ objectPosition: img.focus }} />{j === 0 && img.caption && <span className="mood-caption">{img.caption}</span>}{j === 0 && <button type="button" className="mood-want" aria-pressed={!!wantId(b)} aria-label={`${wantId(b) ? 'Remove' : 'Add'} ${b.title} to the Want List`} title={wantId(b) ? 'In Want List' : 'Add to Want List'} onClick={() => toggleWant(b)}>{wantId(b) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}<span>{wantId(b) ? 'In Want List' : 'Want List'}</span></button>}</div>)}
         </div>
         <div className="mood-palette" aria-label={`${b.title} palette`}>{b.palette.map(c => <span key={c} style={{ background: c }} title={c} />)}</div>
         <h3 className="mood-title">{b.title}</h3>

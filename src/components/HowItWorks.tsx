@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import street from "@/assets/street-style.jpg";
-import coverStory from "@/assets/cover-story.jpg";
-import kidCudi from "@/assets/day-n-nite.jpg";
+import howHear from "@/assets/how-hear.jpg";
+import howEvidence from "@/assets/how-evidence.jpg";
+import howWear from "@/assets/how-wear.jpg";
 
 /*
  * "How it works" — pinned step sequence, placed directly under the music video.
@@ -11,9 +11,9 @@ import kidCudi from "@/assets/day-n-nite.jpg";
  * CONTENT: edit the steps array below.
  */
 const steps = [
-  { title: "Hear it", body: "Start with a song you can't stop replaying — the mood is the brief.", image: kidCudi, alt: "Kid Cudi Day 'n' Nite artwork" },
-  { title: "Find the evidence", body: "Stylist AI reads real articles and shows where the music and the clothes actually met.", image: coverStory, alt: "Editorial cover story" },
-  { title: "Wear it your way", body: "Save pieces to The Want List and share how you'd style them in Styling Notes.", image: street, alt: "Street style look" },
+  { title: "Hear it", body: "Start with a song you can't stop replaying — the mood is the brief.", image: howHear, alt: "Screenshot of the record stack: five album sleeves arced across the screen" },
+  { title: "Find the evidence", body: "Stylist AI reads real articles and shows where the music and the clothes actually met.", image: howEvidence, alt: "Screenshot of the Stylist AI search: artist, song or genre" },
+  { title: "Wear it your way", body: "Save pieces to The Want List and share how you'd style them in Styling Notes.", image: howWear, alt: "Screenshot of Styling Notes: share your note" },
 ];
 
 const reduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -45,9 +45,14 @@ export function HowItWorks() {
       <div className="gs-sticky">
         <div className="gs-steps">
           <span className="gs-eyebrow">How it works</span>
-          <ol>{steps.map((s, i) => <li key={s.title} data-active={i === step}><span>0{i + 1}</span><div><h3>{s.title}</h3><p>{s.body}</p></div></li>)}</ol>
+          <ol>{steps.map((s, i) => (
+            <li key={s.title} data-active={i === step}>
+              <span>0{i + 1}</span>
+              <figure className="gs-shot"><img src={s.image} alt={s.alt} loading="lazy" /></figure>
+              <div><h3>{s.title}</h3><p>{s.body}</p></div>
+            </li>
+          ))}</ol>
         </div>
-        <div className="gs-visual">{steps.map((s, i) => <img key={s.title} src={s.image} alt={s.alt} data-active={i === step} loading="lazy" />)}</div>
       </div>
     </section>
   </div>;

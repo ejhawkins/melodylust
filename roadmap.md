@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Replace Featured songs with a scroll-driven collage and album spotlight; labelled sample music/social metrics and verified song actions, desktop/mobile layout and reduced motion
+
+- [x] Make the song side panel black with Add to Want List and saveable image-and-quote Style Notes; verified saves survive refresh and phone layout fits
+
 - [x] Enable accounts, profiles, moderated Styling Notes data, roles, and photo storage
 - [x] Build the one-page Styling Notes chapter and account/submission/review flows
 - [x] Add editorial chapter transitions with accessible reduced-motion behavior
@@ -24,5 +28,6 @@
 - [x] Give the article notebook a source column and one-row-per-link rule so scouted articles save; verified live — a search for Solange stored 8 articles awaiting review
 - [x] Push the notebook fix and regenerated files to lovable/oct-12-sync (commit 890051a, 255 files, verified file-for-file)
 - [x] Publish to melodylust.fashion with the restored search engine live
-- [ ] Merge lovable/oct-12-sync into main in melodylust, or move main onto it (waiting on the user's call)
-- [ ] Add .github/workflows/deploy.yml to melodylust — needs the connection's "workflow" permission granted
+- [x] Fast-forward main to lovable/oct-12-sync without overwriting history (d696f36)
+- [x] Add .github/workflows/deploy.yml to both melodylust branches after workflow permission approval (fe02b31)
+- [x] Add a Want List button to the biggest square of every style-matrix moodboard; verified it saves, shows In Want List, and removes again

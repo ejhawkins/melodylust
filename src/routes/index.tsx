@@ -1,3 +1,4 @@
+import { FeaturedSongCollage } from "@/components/FeaturedSongCollage";
 import { RecordStack } from "@/components/RecordStack";
 import { MobileParallax } from "@/components/MobileParallax";
 import { ScrollFadeUp } from "@/components/ScrollFadeUp";
@@ -25,6 +26,7 @@ import { ShopSection } from "@/components/ShopSection";
 import { DigitalZine } from "@/components/DigitalZine";
 import { MusicianCircles } from "@/components/MusicianCircles";
 import { StylingNotes } from "@/components/StylingNotes";
+import { SongStyleNotes } from "@/components/SongStyleNotes";
 import { GuidedStory, GuidedStoryQuote } from "@/components/GuidedStory";
 import { HowItWorks } from "@/components/HowItWorks";
 import glorillaMetaImage from "@/assets/glorilla-meta.jpg";
@@ -384,74 +386,6 @@ function Index() {
     setAskFilm(false);
     try { window.localStorage.setItem(FILM_CONSENT_KEY, value); } catch { /* storage unavailable */ }
   };
-  const iconicGrid = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const grid = iconicGrid.current;
-    if (!grid) return;
-    if (typeof IntersectionObserver === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      grid.classList.add("iconic-revealed");
-      return;
-    }
-    const cards = Array.from(grid.querySelectorAll<HTMLElement>(".iconic-card"));
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        const card = entry.target as HTMLElement;
-        card.style.transitionDelay = `${(cards.indexOf(card) % 4) * 90}ms`;
-        card.classList.add("iconic-in");
-        io.unobserve(card);
-      });
-    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.15 });
-    cards.forEach((card) => io.observe(card));
-    return () => io.disconnect();
-  }, []);
-  useEffect(() => {
-    const grid = iconicGrid.current;
-    if (!grid) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const TILT = 12, SHIFT = 3.5;
-    let raf = 0;
-    let pending: { card: HTMLElement; x: number; y: number } | null = null;
-    const reset = (card: HTMLElement) => {
-      delete card.dataset['tilting'];
-      ["--rx", "--ry", "--px", "--py", "--gx", "--gy"].forEach((p) => card.style.removeProperty(p));
-    };
-    const paint = () => {
-      raf = 0;
-      if (!pending) return;
-      const { card, x, y } = pending;
-      const frame = card.querySelector<HTMLElement>(".iconic-frame");
-      if (!frame) return;
-      const r = frame.getBoundingClientRect();
-      const dx = Math.min(Math.max((x - r.left) / r.width - 0.5, -0.5), 0.5);
-      const dy = Math.min(Math.max((y - r.top) / r.height - 0.5, -0.5), 0.5);
-      card.dataset['tilting'] = "";
-      card.style.setProperty("--ry", `${(dx * TILT).toFixed(2)}deg`);
-      card.style.setProperty("--rx", `${(-dy * TILT).toFixed(2)}deg`);
-      card.style.setProperty("--px", `${(-dx * SHIFT).toFixed(2)}%`);
-      card.style.setProperty("--py", `${(-dy * SHIFT).toFixed(2)}%`);
-      card.style.setProperty("--gx", `${(50 + dx * 100).toFixed(1)}%`);
-      card.style.setProperty("--gy", `${(50 + dy * 100).toFixed(1)}%`);
-    };
-    const onMove = (e: PointerEvent) => {
-      const card = (e.target as HTMLElement).closest<HTMLElement>(".iconic-card");
-      if (!card) return;
-      pending = { card, x: e.clientX, y: e.clientY };
-      if (!raf) raf = requestAnimationFrame(paint);
-    };
-    const onOut = (e: PointerEvent) => {
-      const card = (e.target as HTMLElement).closest<HTMLElement>(".iconic-card");
-      if (card && !card.contains(e.relatedTarget as Node | null)) { pending = null; reset(card); }
-    };
-    grid.addEventListener("pointermove", onMove);
-    grid.addEventListener("pointerout", onOut);
-    return () => {
-      grid.removeEventListener("pointermove", onMove);
-      grid.removeEventListener("pointerout", onOut);
-      if (raf) cancelAnimationFrame(raf);
-      grid.querySelectorAll<HTMLElement>(".iconic-card").forEach(reset);
-    };
-  }, []);
   const [active, setActive] = useState("cover");
   useEffect(() => {
     const els = ["cover", "film", "iconic", "circles", "journal", "shop", "styling-notes"].map(id => document.getElementById(id)).filter((el): el is HTMLElement => el !== null);
@@ -533,27 +467,11 @@ function Index() {
           <h2 className="iconic-title"><span>+ Featured songs</span></h2>
           <a className="iconic-circles-link" href="#circles">Musician Circles <ArrowUpRight /></a>
         </div>
-        <div className="iconic-grid" ref={iconicGrid}>
-          {iconicSongs.map((s) => {
-            const isFilm = "film" in s && s.film;
-            return <article className="iconic-card" key={s.caption} data-tall={"tall" in s || undefined} data-film={isFilm || undefined}>
-              {"link" in s ? <a className="iconic-link" href={s.link} target="_blank" rel="noreferrer" aria-label={`Listen to ${s.caption} on Spotify`}>
-                <span className="iconic-frame"><img className="iconic-cover" src={s.image} alt={s.alt} width={1024} height={1024} loading="lazy" /></span>
-                <p className="iconic-caption">{s.caption}</p>
-                <span className="iconic-listen">Listen <ArrowUpRight /></span>
-              </a> : <>
-                <span className="iconic-frame">
-                  {isFilm
-                    ? <video ref={filmVideo} className="iconic-cover iconic-film" poster={coverStory.url} muted loop playsInline preload="none" aria-hidden="true" tabIndex={-1}>{coverStoryFilm.url && <source src={coverStoryFilm.url} type="video/mp4" />}</video>
-                    : <img className="iconic-cover" src={s.image} alt={s.alt} width={1024} height={1024} loading="lazy" />}
-                  {isFilm && filmConsent !== "yes" && <button type="button" className="iconic-film-play" onClick={() => setFilm(true)}><Play aria-hidden /> Play the film</button>}
-                </span>
-                <p className="iconic-caption">{s.caption}</p>
-              </>}
-              <button type="button" className="iconic-bag" aria-label={`Shop the look for ${s.caption}`} onClick={() => setShopSong(s.caption)}><ShoppingBag aria-hidden /></button>
-            </article>;
-          })}
-        </div>
+        <FeaturedSongCollage songs={iconicSongs.filter((s): s is typeof s & { link: string } => "link" in s && typeof s.link === "string")} onShop={setShopSong} onSave={s => addWish({ kind: "song", name: s.caption, detail: "", link: s.link, note: "" })} />
+        <article className="song-cover-story">
+          <video ref={filmVideo} poster={coverStory.url} muted loop playsInline preload="none" aria-label="The cover story film">{coverStoryFilm.url && <source src={coverStoryFilm.url} type="video/mp4" />}</video>
+          <div><h3>The cover story</h3>{filmConsent !== "yes" && <Button variant="editorial" onClick={() => setFilm(true)}><Play aria-hidden /> Play the film</Button>}</div>
+        </article>
       </section>
       <section className="circles-section" id="circles" aria-label="Musician Circles">
         <MusicianCircles />
@@ -644,7 +562,37 @@ function Index() {
         </div>
       )}
       <Button variant="railCta" className="to-top" data-show={showTop} aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}><ArrowUp /></Button>
-      <Sheet open={shopSong !== null} onOpenChange={open => { if (!open) setShopSong(null); }}><SheetContent className="shop-panel">{shopSong && (() => { const song = iconicSongs.find(x => x.caption === shopSong); return <><span className="text-xs uppercase tracking-[.18em] text-muted-foreground">Shop the song</span><SheetTitle className="font-editorial text-3xl font-normal">{shopSong}</SheetTitle><SheetDescription>Three pieces that dress the track.</SheetDescription>{song && <img src={song.image} alt="" className="shop-panel-art" />}<p className="shop-mood-title">+ Moodboard</p><div className="shop-mood">{(() => { const pool = [cover, street, songA, songB, songC, songD, songE, songF, coverWide]; const k = iconicSongs.findIndex(x => x.caption === shopSong); return [0, 1, 2, 3, 4].map(j => <img key={j} src={pool[(k * 2 + j) % pool.length]} alt="" loading="lazy" />); })()}</div><ul className="shop-list">{(songLooks[shopSong] ?? []).map(l => <li key={l.name}><div><p className="shop-name">{l.name}</p><p className="shop-note">{l.note}</p></div><span className="shop-price">{l.price}</span><button type="button" className="shop-save" aria-label={`Save ${l.name} to My Edit`} onClick={() => addWish({ kind: "piece", name: l.name, detail: l.price, link: "", note: "", from: shopSong })}>+</button></li>)}</ul><Button variant="outline" className="w-full" onClick={() => { (songLooks[shopSong] ?? []).forEach(l => addWish({ kind: "piece", name: l.name, detail: l.price, link: "", note: "", from: shopSong })); song && "link" in song && addWish({ kind: "song", name: shopSong, detail: "", link: song.link, note: "" }); setShopSong(null); setTimeout(() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" }), 300); }}>Save the look to My Edit</Button><Button variant="soundCta" className="w-full">Shop the look <ArrowUpRight /></Button></>; })()}</SheetContent></Sheet>
+      <Sheet open={shopSong !== null} onOpenChange={open => { if (!open) setShopSong(null); }}>
+        <SheetContent className="shop-panel">
+          {shopSong && (() => {
+            const song = iconicSongs.find(x => x.caption === shopSong);
+            const pool = [cover, street, songA, songB, songC, songD, songE, songF, coverWide];
+            const k = iconicSongs.findIndex(x => x.caption === shopSong);
+            const looks = songLooks[shopSong] ?? [];
+            const referenceImages = [pool[(k * 2) % pool.length], pool[(k * 2 + 1) % pool.length]];
+            return <>
+              <span className="shop-panel-kicker">The song / Your edit</span>
+              <SheetTitle className="font-editorial text-3xl font-normal">{shopSong}</SheetTitle>
+              <SheetDescription>Three pieces that dress the track.</SheetDescription>
+              {song && <img src={song.image} alt="" className="shop-panel-art" />}
+              <p className="shop-mood-title">+ Moodboard</p>
+              <div className="shop-mood">{[0, 1, 2, 3, 4].map(j => <img key={j} src={pool[(k * 2 + j) % pool.length]} alt="" loading="lazy" />)}</div>
+              <ul className="shop-list">{looks.map(l => <li key={l.name}>
+                <div><p className="shop-name">{l.name}</p><p className="shop-note">{l.note}</p></div>
+                <span className="shop-price">{l.price}</span>
+                <Button variant="ghost" size="icon" className="shop-save" aria-label={`Add ${l.name} to Want List`} title="Add to Want List" onClick={() => addWish({ kind: "piece", name: l.name, detail: l.price, link: "", note: "", from: shopSong })}>+</Button>
+              </li>)}</ul>
+              <Button variant="outline" className="shop-panel-want" onClick={() => {
+                looks.forEach(l => addWish({ kind: "piece", name: l.name, detail: l.price, link: "", note: "", from: shopSong }));
+                if (song && "link" in song) addWish({ kind: "song", name: shopSong, detail: "", link: song.link, note: "" });
+                setShopSong(null);
+                setTimeout(() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" }), 300);
+              }}><ShoppingBag />Add to Want List</Button>
+              <SongStyleNotes key={shopSong} song={shopSong} references={referenceImages.flatMap((image, index) => image ? [{ image, quote: index === 0 ? "Start with one soft piece and one hard piece." : "Keep the pieces you love, and try wearing them differently." }] : [])} />
+            </>;
+          })()}
+        </SheetContent>
+      </Sheet>
       <Dialog open={article !== null} onOpenChange={open => { if (!open) setArticle(null); }}><DialogContent className="article-dialog">{article && <><span className="text-xs uppercase text-muted-foreground">{article.category} · {article.genre} / {article.date}</span><DialogTitle className="font-editorial text-4xl font-normal">{article.title}</DialogTitle><DialogDescription>{article.intro}</DialogDescription><img src={article.image} alt={article.title} className="w-full aspect-[4/3] object-cover" width={1024} height={768} />{article.body.split("\n\n").map(p => <p className="article-copy" key={p}>{p}</p>)}</>}</DialogContent></Dialog>
       <StyleProfileQuiz open={quiz} onOpenChange={setQuiz} profile={styleProfile} onSave={saveStyleProfile} onClear={clearStyleProfile} onRead={id => { setQuiz(false); setArticle(stories.find(story => story.id === id) ?? null); }} />
     </main>
