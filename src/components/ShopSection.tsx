@@ -3,8 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Heart, LoaderCircle, X } from "lucide-react";
 import { lookupShopCatalog } from "@/lib/products.functions";
 import { formatPrice, type CatalogProduct } from "@/lib/farfetch";
+import { addWish, removeWish, updateWish, useWishlist } from "@/lib/wishlist";
 
-const WKEY = "ml-shop-wishlist";
 const PICKKEY = "ml-shop-song-picks";
 
 /** Songs a piece can be paired with — the same featured songs as the home page. */
@@ -19,17 +19,12 @@ const SONG_PICKS = [
 const AVAILABILITY_LABEL = { in_stock: "In stock", low_stock: "Low stock", unknown: "Availability not listed" } as const;
 const uniq = (a: string[]) => [...new Set(a)].sort();
 
-function useWishlist() {
-  const [ids, setIds] = useState<string[]>([]);
-  useEffect(() => {
-    try { setIds(JSON.parse(localStorage.getItem(WKEY) || "[]")); } catch { /* Unavailable storage leaves the list empty. */ }
-  }, []);
-  const toggle = (id: string) => setIds(prev => {
-    const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
-    try { localStorage.setItem(WKEY, JSON.stringify(next)); } catch { /* Nothing to persist. */ }
-    return next;
-  });
-  return { ids, toggle };
+/** The song currently picked for a product, or "" — read from the same store SongPick writes. */
+function readPick(productId: string): string {
+  try {
+    const id = (JSON.parse(localStorage.getItem(PICKKEY) || "{}") as Record<string, string>)[productId];
+    return SONG_PICKS.find(s => s.id === id)?.name ?? "";
+  } catch { return ""; }
 }
 
 export function ShopSection() {
@@ -45,7 +40,15 @@ export function ShopSection() {
   const [max, setMax] = useState("");
   const [onlySaved, setOnlySaved] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
-  const wl = useWishlist();
+  const wishes = useWishlist();
+  /** A shop piece's Want List entry, if the heart is on. */
+  const wishFor = (p: CatalogProduct) => wishes.find(i => i.kind === "piece" && i.from === "Shop" && i.name === `${p.brand} ${p.name}`);
+  const toggleWish = (p: CatalogProduct) => {
+    const w = wishFor(p);
+    if (w) removeWish(w.id);
+    else addWish({ kind: "piece", name: `${p.brand} ${p.name}`, detail: formatPrice(p.price, p.currency), link: p.link, note: readPick(p.id), from: "Shop" });
+  };
+  const shopCount = wishes.filter(i => i.from === "Shop").length;
 
   useEffect(() => {
     let current = true;
@@ -72,8 +75,8 @@ export function ShopSection() {
       (!needle || [p.name, p.brand, p.category, p.description, ...p.tags].join(" ").toLowerCase().includes(needle)) &&
       (!cat || p.category === cat) && (!brand || p.brand === brand) &&
       (!size || p.sizes.includes(size)) && (!avail || p.availability === avail) && (!cap || p.price <= cap) &&
-      (!onlySaved || wl.ids.includes(p.id)));
-  }, [products, q, cat, brand, size, avail, max, onlySaved, wl.ids]);
+      (!onlySaved || wishes.some(i => i.kind === "piece" && i.from === "Shop" && i.name === `${p.brand} ${p.name}`)));
+  }, [products, q, cat, brand, size, avail, max, onlySaved, wishes]);
 
   const chips = ([
     ["q", `“${q}”`], ["cat", cat], ["brand", brand],
@@ -95,7 +98,7 @@ export function ShopSection() {
         <select className="genre-select" aria-label="Availability" value={avail} onChange={e => setAvail(e.target.value)}><option value="">Any availability</option>{Object.entries(AVAILABILITY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
         <select className="genre-select" aria-label="Maximum price" value={max} onChange={e => setMax(e.target.value)}><option value="">Any price</option>{[100, 200, 500, 1000].map(v => <option key={v} value={v}>Under ${v}</option>)}</select>
         <button type="button" onClick={() => setOnlySaved(v => !v)} aria-pressed={onlySaved} className="mlshop-saved">
-          <Heart aria-hidden className="h-3 w-3" fill={onlySaved ? "currentColor" : "none"} />Wishlist ({wl.ids.length})
+          <Heart aria-hidden className="h-3 w-3" fill={onlySaved ? "currentColor" : "none"} />Wishlist ({shopCount})
         </button>
       </div>
 
@@ -113,27 +116,27 @@ export function ShopSection() {
         <p className="mlshop-empty" role="status">{catalogError}</p>
       ) : results.length === 0 ? (
         <p className="mlshop-empty">
-          {onlySaved && wl.ids.length === 0
+          {onlySaved && shopCount === 0
             ? "Your wishlist is empty — tap the heart on any piece to keep it here."
             : "Nothing matches those filters. Try removing one."}
         </p>
       ) : (
         <ul className="mlshop-grid">
           {results.map(p => {
-            const saved = wl.ids.includes(p.id);
+            const saved = !!wishFor(p);
             return (
               <li className="mlshop-card" key={p.id}>
                 <button type="button" className="mlshop-card-media" onClick={() => setOpenId(p.id)} aria-label={`View ${p.name}`}>
                    <ProductImage src={p.image} alt={`${p.brand} ${p.name}`} />
                    {p.availability === "low_stock" && <span className="mlshop-flag">Low stock</span>}
                 </button>
-                <button type="button" onClick={() => wl.toggle(p.id)} aria-pressed={saved} aria-label={saved ? `Remove ${p.name} from wishlist` : `Save ${p.name} to wishlist`} className="mlshop-heart" data-saved={saved}><Heart aria-hidden className="h-3.5 w-3.5" fill={saved ? "currentColor" : "none"} /></button>
+                <button type="button" onClick={() => toggleWish(p)} aria-pressed={saved} aria-label={saved ? `Remove ${p.name} from wishlist` : `Save ${p.name} to wishlist`} className="mlshop-heart" data-saved={saved}><Heart aria-hidden className="h-3.5 w-3.5" fill={saved ? "currentColor" : "none"} /></button>
                  <button type="button" className="mlshop-card-text" onClick={() => setOpenId(p.id)}>
                   <span className="mlshop-name">{p.name}</span>
                   <span className="mlshop-brand">{p.brand}</span>
                    <span className="mlshop-price">{formatPrice(p.price, p.currency)}</span>
                 </button>
-                <SongPick productId={p.id} compact />
+                <SongPick productId={p.id} compact onChoose={name => { const w = wishFor(p); if (w) updateWish(w.id, { note: name }); }} />
               </li>
             );
           })}
@@ -142,7 +145,7 @@ export function ShopSection() {
 
       {!loading && !catalogError && <p className="mlshop-note">Live products via Farfetch · prices, sizes and availability can change at the retailer.</p>}
 
-      {open && <ShopDetail p={open} saved={wl.ids.includes(open.id)} onSave={() => wl.toggle(open.id)} onClose={() => setOpenId(null)} />}
+      {open && <ShopDetail p={open} saved={!!wishFor(open)} onSave={() => toggleWish(open)} onClose={() => setOpenId(null)} />}
     </section>
   );
 }
@@ -179,7 +182,7 @@ function ProductImage({ src, alt, className }: { src: string; alt: string; class
 
 /** "Goes with a song" slot on a product: pick one of the featured songs and its player
  *  embeds under the piece. The pairing is saved on this device, per product. */
-function SongPick({ productId, compact = false }: { productId: string; compact?: boolean }) {
+function SongPick({ productId, compact = false, onChoose }: { productId: string; compact?: boolean; onChoose?: (songName: string) => void }) {
   const [pick, setPick] = useState("");
   useEffect(() => {
     try { setPick((JSON.parse(localStorage.getItem(PICKKEY) || "{}") as Record<string, string>)[productId] ?? ""); } catch { /* Empty slot. */ }
@@ -191,6 +194,7 @@ function SongPick({ productId, compact = false }: { productId: string; compact?:
       if (id) all[productId] = id; else delete all[productId];
       localStorage.setItem(PICKKEY, JSON.stringify(all));
     } catch { /* Nothing to persist. */ }
+    onChoose?.(SONG_PICKS.find(s => s.id === id)?.name ?? "");
   };
   const song = SONG_PICKS.find(s => s.id === pick);
   const [thumb, setThumb] = useState("");
