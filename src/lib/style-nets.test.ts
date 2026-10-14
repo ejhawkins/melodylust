@@ -11,15 +11,16 @@ const header = 'style,season,signal_type,signal_value,weight,evidence_ids,notes\
 
 describe('checkStyleNets', () => {
   it('loads the editors\' nets against the real tracker', () => {
-    const report = checkStyleNets(read('../../data/style-nets.csv'), trackerIds);
+    const csv = read('../../data/style-nets.csv');
+    const report = checkStyleNets(csv, trackerIds);
     expect(report.errors).toEqual([]);
-    expect(report.rows).toHaveLength(25);
+    // Counted from the file, so adding or removing rows is content work, not a test change.
+    expect(report.rows).toHaveLength(csv.trim().split('\n').length - 1);
     expect(report.rows[0]).toMatchObject({ style: 'Grunge', season: 'SS24', signalType: 'print', signalValue: 'Plaid', weight: 3, evidenceIds: ['2', '15'] });
     expect(report.warnings).toContain('Row 2: the quiz doesn\'t offer “Plaid” as a print yet.');
-    // The AW26 table covers every style, but none of its rows cite tracker articles yet.
+    // Every Style Matrix style has signals, and each row without articles is flagged for an editor.
     expect(report.warnings.filter(warning => warning.endsWith('has no signals yet, so the quiz can\'t place anyone there.'))).toEqual([]);
-    expect(report.rows.filter(row => row.season === 'AW26')).toHaveLength(21);
-    expect(report.warnings.filter(warning => warning.includes('no articles'))).toHaveLength(21);
+    expect(report.warnings.filter(warning => warning.includes('no articles'))).toHaveLength(report.rows.filter(row => !row.evidenceIds.length).length);
   });
 
   it('normalises case, the US spelling of colour and a lowercase season', () => {
