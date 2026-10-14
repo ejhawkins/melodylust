@@ -18,28 +18,35 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      # Empty until the Vercel secrets are added; the deploy steps below wait for it.
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      # The tests run on Vitest (jsdom and src/test/setup.ts come from vitest.config.ts), so give it Node 24.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: bun install --frozen-lockfile
-      - run: bun test
+      # Not `bun test`: Bun's own runner skips the Vitest config, so the browser tests fail there.
+      - run: bunx vitest run
       - name: Pull Vercel preview settings
-        if: github.event_name == 'pull_request'
-        run: bunx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        if: github.event_name == 'pull_request' && env.VERCEL_TOKEN != ''
+        run: bunx vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
       - name: Build preview
-        if: github.event_name == 'pull_request'
-        run: bunx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        if: github.event_name == 'pull_request' && env.VERCEL_TOKEN != ''
+        run: bunx vercel build --token=$VERCEL_TOKEN
       - name: Deploy preview
-        if: github.event_name == 'pull_request'
-        run: bunx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        if: github.event_name == 'pull_request' && env.VERCEL_TOKEN != ''
+        run: bunx vercel deploy --prebuilt --token=$VERCEL_TOKEN
       - name: Pull Vercel production settings
-        if: github.event_name == 'push'
-        run: bunx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        if: github.event_name == 'push' && env.VERCEL_TOKEN != ''
+        run: bunx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
       - name: Build production
-        if: github.event_name == 'push'
-        run: bunx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        if: github.event_name == 'push' && env.VERCEL_TOKEN != ''
+        run: bunx vercel build --prod --token=$VERCEL_TOKEN
       - name: Deploy production
-        if: github.event_name == 'push'
-        run: bunx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        if: github.event_name == 'push' && env.VERCEL_TOKEN != ''
+        run: bunx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
