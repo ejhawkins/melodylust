@@ -553,6 +553,7 @@ function Index() {
         <StyleMatrix />
       </section>
 
+      <MoodHeading text="Style matrix" className="matrix-head" stacked />
       <section className="archive" id="archive" aria-label="Archive">
         <h2 className="iconic-title"><span>+ Archive</span></h2>
         <div className="archive-grid">

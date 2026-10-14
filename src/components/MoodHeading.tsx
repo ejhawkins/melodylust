@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 
 /** A section heading in the "This is a mood" type: Bodoni capitals built as word groups of letter
  *  spans, revealed letter by letter once in view. `rule` adds the thin line underneath; leave it off
- *  where the next section's own border already sits below the heading. */
-export function MoodHeading({ text, className = '', rule = true }: { text: string; className?: string; rule?: boolean }) {
+ *  where the next section's own border already sits below the heading. `stacked` puts each word on
+ *  its own line, so a short heading matches the two-line ones beside it. */
+export function MoodHeading({ text, className = '', rule = true, stacked = false }: { text: string; className?: string; rule?: boolean; stacked?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
@@ -15,7 +16,7 @@ export function MoodHeading({ text, className = '', rule = true }: { text: strin
   }, []);
   const words = text.toUpperCase().split(/\s+/);
   let index = 0;
-  return <div className={`film-head mood-heading ${className}`.trim()} ref={ref} data-inview={inView}>
+  return <div className={`film-head mood-heading ${className}`.trim()} ref={ref} data-inview={inView} data-stacked={stacked || undefined}>
     <h2 className="film-title mood-heading-title" aria-label={text}>{words.map(word => <span className="film-word" key={word} aria-hidden>
       {word.split('').map((ch, i) => <span key={i} style={{ transitionDelay: `${index++ * 45}ms` }}>{ch}</span>)}
     </span>)}</h2>

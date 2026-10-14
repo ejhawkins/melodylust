@@ -556,6 +556,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .mood-heading .mood-heading-title { flex-wrap: wrap; white-space: normal; row-gap: .05em; }
 .mood-heading[data-inview="true"] .film-word > span, .mood-heading[data-inview="true"] .film-rule { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .mood-heading .film-word > span, .mood-heading .film-rule { opacity: 1; transform: none; transition: none; } }
+.mood-heading[data-stacked] .film-word { flex-basis: 100%; justify-content: center; }
 .iconic .moments-head { margin-bottom: 40px; }
 /* "Runway report" sits on the Zine's top border, which underlines it like the film rule. */
 .runway-head { margin-bottom: 23px; }
