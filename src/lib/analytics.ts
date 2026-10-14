@@ -2,7 +2,7 @@
 // below; while it is empty nothing loads and no banner shows. The ID is public by design (it
 // appears in every page's source), so it lives here rather than in a secret.
 
-export const GA_MEASUREMENT_ID = '';
+export const GA_MEASUREMENT_ID = 'G-TFEYRBGQ9Q';
 
 export const ANALYTICS_CONSENT_KEY = 'ml-analytics-consent';
 export type AnalyticsConsent = 'granted' | 'denied' | 'ask';
