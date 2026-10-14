@@ -33,3 +33,6 @@ dist-ssr
 
 # Local evidence and product caches (rebuilt from the tracker and Farfetch)
 .cache
+
+# Vercel build output and local project link
+.vercel
