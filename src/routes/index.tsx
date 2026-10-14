@@ -67,6 +67,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getTumblrPosts, TUMBLR_BLOG } from "@/lib/tumblr.functions";
 import { formatDay } from "@/lib/tumblr";
 import { AnalyticsConsent } from "@/components/AnalyticsConsent";
+import { WantListPop } from "@/components/WantListPop";
 import { analyticsEnabled, denyGoogleAnalytics, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent, type AnalyticsConsent as AnalyticsChoice } from "@/lib/analytics";
 
 const FILM_CONSENT_KEY = "ml-cover-story-film";
@@ -564,6 +565,7 @@ function Index() {
       <section className="manifesto"><h2>GOOD STYLE.<br />GREAT MUSIC. YOUR RULES.</h2><p>For the clothes you live in. The records you return to. And the moments when the two come together.</p></section>
       <footer className="footer"><a href="/" aria-label="Melody Lust home" className="brand"><img src={logo.url} alt="" className="brand-mark" width={448} height={209} /></a><a className="footer-link" href="#circles">Musician Circles</a><a className="footer-link" href="#styling-notes">Styling Notes</a>{analyticsEnabled() && <button type="button" className="footer-link" onClick={() => setAnalytics("ask")}>Analytics settings</button>}<span className="text-muted-foreground">Independent in style. Always.<br />© 2026 Melody Lust</span></footer>
       <AnalyticsConsent consent={analytics} onChoose={chooseAnalytics} />
+      <WantListPop />
       {/* One card at a time: the film question waits until analytics is answered. */}
       {askFilm && filmConsent === "ask" && solid && filmOnScreen && (!analyticsEnabled() || analytics !== "ask") && (
         <div className="film-consent" role="dialog" aria-modal="false" aria-labelledby="film-consent-title" aria-describedby="film-consent-note">
