@@ -66,7 +66,7 @@ export function ShopProducts({ designer, items, brands, from, title, showStatus 
       <span className="stylus-shop-price">{formatPrice(product.price, product.currency)}</span>
       <span className="stylus-shop-actions">
         <Button variant="stylusTool" size="sm" asChild><a href={product.link} target="_blank" rel="noopener noreferrer" aria-label={`Search Farfetch for ${product.brand} ${product.name}`}>Farfetch <ExternalLink aria-hidden="true" /></a></Button>
-        <Button variant="stylusTool" size="icon" aria-label={`Save ${product.brand} ${product.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: `${product.brand} ${product.name}`, detail: formatPrice(product.price, product.currency), link: product.link, note: '', from }); setSaved(s => [...s, product.id]); }}>{saved.includes(product.id) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
+        <Button variant="stylusTool" size="icon" aria-label={`Save ${product.brand} ${product.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: `${product.brand} ${product.name}`, detail: formatPrice(product.price, product.currency), link: product.link, note: '', from, image: product.image }); setSaved(s => [...s, product.id]); }}>{saved.includes(product.id) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
       </span>
     </li>)}</ul>}
     <p className="stylus-evidence-note">{note ?? 'Products via Farfetch search; prices and stock change. Not tracker evidence.'}</p>

@@ -14,11 +14,11 @@ import silver from "@/assets/editorial-pick-6.jpg";
 
 type RotationRow = { id: string; artist: string; song: string; expanded: boolean };
 const ROTATION_KEY = "ml-want-rotation";
-const previewLooks = [
-  { id: "tailoring", title: "The sharp entrance", note: "Tailoring, a sculptural heel and a soft suede accent.", products: [{ name: "Tiger-print tailoring", image: tailoring }, { name: "Sculptural heel", image: heel }, { name: "Suede accent", image: suede }] },
-  { id: "after-dark", title: "After the last track", note: "Patent shine, fluid silk and a little silver.", products: [{ name: "Patent accessory", image: patent }, { name: "Silk layer", image: silk }, { name: "Silver accent", image: silver }] },
+type EditLook = { id: string; title: string; note: string; real: boolean; products: { name: string; image: string; detail?: string; link?: string }[] };
+const previewLooks: EditLook[] = [
+  { id: "tailoring", real: false, title: "The sharp entrance", note: "Tailoring, a sculptural heel and a soft suede accent.", products: [{ name: "Tiger-print tailoring", image: tailoring }, { name: "Sculptural heel", image: heel }, { name: "Suede accent", image: suede }] },
+  { id: "after-dark", real: false, title: "After the last track", note: "Patent shine, fluid silk and a little silver.", products: [{ name: "Patent accessory", image: patent }, { name: "Silk layer", image: silk }, { name: "Silver accent", image: silver }] },
 ];
-type PreviewLook = typeof previewLooks[number];
 type TrackerResponse = Awaited<ReturnType<typeof searchTrackedEditorialEvidence>>;
 
 export function Wishlist() {
@@ -29,7 +29,8 @@ export function Wishlist() {
   const [styling, setStyling] = useState(false);
   const [signals, setSignals] = useState<{ name: string; response: TrackerResponse }[]>([]);
   const [message, setMessage] = useState("");
-  const [selectedLook, setSelectedLook] = useState<PreviewLook | null>(null);
+  const [selectedLook, setSelectedLook] = useState<EditLook | null>(null);
+  const [brokenPhotos, setBrokenPhotos] = useState<string[]>([]);
   const [promo, setPromo] = useState(false);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState<ShareFormat | null>(null);
@@ -56,11 +57,22 @@ export function Wishlist() {
     catch { setMessage("Device storage is unavailable. This rotation will not survive a refresh."); }
   };
   const editRow = (id: string, patch: Partial<RotationRow>) => changeRotation(rotation.map(row => row.id === id ? { ...row, ...patch } : row));
-  const saveLook = (look: PreviewLook) => {
+  // The reader's saved Farfetch pieces fill the preview cards, latest first: one hero and two thumbnails
+  // per look. Slots without enough saved photos keep the editorial placeholder look.
+  const savedPhotos = [...items].reverse().filter(item => item.kind === "piece" && item.image?.startsWith("https://") && !brokenPhotos.includes(item.image));
+  const yourLooks: EditLook[] = [0, 1].flatMap(slot => {
+    const group = savedPhotos.slice(slot * 3, slot * 3 + 3);
+    if (!group.length) return [];
+    const [hero] = group;
+    return [{ id: `yours-${slot}`, real: true, title: hero!.name, note: [hero!.detail, group.length > 1 ? `+ ${group.length - 1} more saved` : ""].filter(Boolean).join(" · "), products: group.map(item => ({ name: item.name, image: item.image!, detail: item.detail, link: item.link })) }];
+  });
+  const looks = previewLooks.map((look, slot) => yourLooks[slot] ?? look);
+  const brokenPhoto = (src: string) => setBrokenPhotos(current => current.includes(src) ? current : [...current, src]);
+  const saveLook = (look: EditLook) => {
     for (const product of look.products) addWish({ kind: "piece", name: product.name, detail: "Product placeholder", link: "", note: "Editorial preview; not a verified product or recommendation.", from: look.title });
     setMessage(`${look.title} saved to My Edit.`);
   };
-  const isSaved = (look: PreviewLook) => look.products.every(product => items.some(item => item.kind === "piece" && item.name === product.name && item.from === look.title));
+  const isSaved = (look: EditLook) => look.real || look.products.every(product => items.some(item => item.kind === "piece" && item.name === product.name && item.from === look.title));
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,14 +132,14 @@ export function Wishlist() {
     </form>
     {message && <p className="want-status" role="status">{message}</p>}
     <section className="want-output" aria-labelledby="want-output-heading" aria-busy={styling}>
-      <div className="want-section-label"><h3 id="want-output-heading">II. Output / {signals.length ? "Your editorial edit" : "Preview edit"}</h3><span>02 looks</span></div>
+      <div className="want-section-label"><h3 id="want-output-heading">II. Output / {signals.length ? "Your editorial edit" : yourLooks.length ? "Your edit" : "Preview edit"}</h3><span>02 looks</span></div>
       <div className="want-output-grid">
-        {previewLooks.map((look, index) => <article className="want-look" key={look.id}>
-          <button type="button" className="want-look-image" onClick={() => setSelectedLook(look)} aria-label={`View ${look.title} pieces`}><img src={look.products[0]!.image} alt={`${look.products[0]!.name} product placeholder`} loading="lazy" /><span>Product placeholder</span><ArrowUpRight aria-hidden="true" /></button>
-          <div className="want-look-meta"><span>Look {String(index + 1).padStart(2, "0")}</span><span>Editorial preview</span></div>
+        {looks.map((look, index) => <article className="want-look" key={look.id} data-real={look.real}>
+          <button type="button" className="want-look-image" onClick={() => setSelectedLook(look)} aria-label={`View ${look.title} pieces`}><img src={look.products[0]!.image} alt={look.real ? look.products[0]!.name : `${look.products[0]!.name} product placeholder`} loading="lazy" onError={look.real ? () => brokenPhoto(look.products[0]!.image) : undefined} /><span>{look.real ? "Via Farfetch" : "Product placeholder"}</span><ArrowUpRight aria-hidden="true" /></button>
+          <div className="want-look-meta"><span>Look {String(index + 1).padStart(2, "0")}</span><span>{look.real ? "Your edit" : "Editorial preview"}</span></div>
           <h4>{look.title}</h4><p>{look.note}</p>
-          <div className="want-look-products">{look.products.slice(1).map(product => <button type="button" key={product.name} onClick={() => setSelectedLook(look)} aria-label={`View ${product.name} placeholder`}><img src={product.image} alt={product.name} loading="lazy" /></button>)}</div>
-          <div className="want-look-actions"><button type="button" onClick={() => setSelectedLook(look)}>View pieces <ArrowUpRight aria-hidden="true" /></button><button type="button" onClick={() => saveLook(look)} disabled={isSaved(look)} aria-label={`Save ${look.title}`} title={`Save ${look.title}`}>{isSaved(look) ? <Check aria-hidden="true" /> : <Bookmark aria-hidden="true" />}</button></div>
+          <div className="want-look-products">{look.products.slice(1).map(product => <button type="button" key={product.name} onClick={() => setSelectedLook(look)} aria-label={look.real ? `View ${product.name}` : `View ${product.name} placeholder`}><img src={product.image} alt={product.name} loading="lazy" onError={look.real ? () => brokenPhoto(product.image) : undefined} /></button>)}</div>
+          <div className="want-look-actions"><button type="button" onClick={() => setSelectedLook(look)}>View pieces <ArrowUpRight aria-hidden="true" /></button><button type="button" onClick={() => saveLook(look)} disabled={isSaved(look)} aria-label={look.real ? `${look.title} is on your Want List` : `Save ${look.title}`} title={look.real ? "On your Want List" : `Save ${look.title}`}>{isSaved(look) ? <Check aria-hidden="true" /> : <Bookmark aria-hidden="true" />}</button></div>
         </article>)}
         <aside className="want-playlist" aria-labelledby="want-playlist-heading">
           <div className="want-playlist-heading"><h3 id="want-playlist-heading">Playlist</h3><span>{activeRotation.length} entries</span></div>
@@ -177,8 +189,8 @@ export function Wishlist() {
     </section>
     <footer className="want-footer"><span>Stylus / Your personal edit</span><a href="#styling-notes">Share your Styling Notes <ArrowUpRight aria-hidden="true" /></a><button type="button" onClick={() => setPromo(true)}>Next issue <ArrowUpRight aria-hidden="true" /></button></footer>
     <Dialog open={selectedLook !== null} onOpenChange={open => { if (!open) setSelectedLook(null); }}><DialogContent className="want-product-dialog">
-      <DialogTitle>{selectedLook?.title}</DialogTitle><DialogDescription>Product placeholders. No verified brand, price or availability.</DialogDescription>
-      <div className="want-dialog-products">{selectedLook?.products.map(product => <figure key={product.name}><img src={product.image} alt={`${product.name} product placeholder`} /><figcaption>{product.name}</figcaption></figure>)}</div>
+      <DialogTitle>{selectedLook?.title}</DialogTitle><DialogDescription>{selectedLook?.real ? "Saved from Farfetch. Prices and stock can change at the retailer." : "Product placeholders. No verified brand, price or availability."}</DialogDescription>
+      <div className="want-dialog-products">{selectedLook?.products.map(product => <figure key={product.name}><img src={product.image} alt={selectedLook.real ? product.name : `${product.name} product placeholder`} /><figcaption>{product.name}{selectedLook.real && product.detail && <span className="want-dialog-detail">{product.detail}</span>}{selectedLook.real && product.link && <a href={product.link} target="_blank" rel="noopener noreferrer">Farfetch <ArrowUpRight aria-hidden="true" /></a>}</figcaption></figure>)}</div>
       <Button className="want-primary" disabled={selectedLook ? isSaved(selectedLook) : true} onClick={() => { if (selectedLook) saveLook(selectedLook); }}><Bookmark aria-hidden="true" />{selectedLook && isSaved(selectedLook) ? "Saved to My Edit" : "Save this edit"}</Button>
     </DialogContent></Dialog>
     <Dialog open={promo} onOpenChange={setPromo}><DialogContent className="want-promo-dialog" onCloseAutoFocus={event => { if (returnToRotation.current) { event.preventDefault(); returnToRotation.current = false; document.getElementById(`${rotation[0]?.id}-artist`)?.focus(); } }}><img src={silk} alt="Silk product placeholder for the next editorial edit" /><div><span className="want-promo-kicker">The next rotation / Editorial preview</span><DialogTitle>One more on repeat.</DialogTitle><DialogDescription>A new rotation, a fresh personal edit.</DialogDescription><Button className="want-primary" onClick={() => { returnToRotation.current = true; setPromo(false); }}><Plus aria-hidden="true" />Edit my rotation</Button></div></DialogContent></Dialog>

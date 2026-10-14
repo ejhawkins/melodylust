@@ -46,7 +46,7 @@ export function ShopSection() {
   const toggleWish = (p: CatalogProduct) => {
     const w = wishFor(p);
     if (w) removeWish(w.id);
-    else addWish({ kind: "piece", name: `${p.brand} ${p.name}`, detail: formatPrice(p.price, p.currency), link: p.link, note: readPick(p.id), from: "Shop" });
+    else addWish({ kind: "piece", name: `${p.brand} ${p.name}`, detail: formatPrice(p.price, p.currency), link: p.link, note: readPick(p.id), from: "Shop", image: p.image });
   };
   const shopCount = wishes.filter(i => i.from === "Shop").length;
 

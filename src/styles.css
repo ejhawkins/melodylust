@@ -908,6 +908,9 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .want-dialog-products figure { margin: 0; min-width: 0; }
 .want-dialog-products img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #e5dfd1; }
 .want-dialog-products figcaption { font-size: 14px; margin-top: 10px; }
+.want-dialog-products figcaption a { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; color: var(--want-green, #F5A400); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
+.want-dialog-products figcaption a svg { width: 12px; height: 12px; }
+.want-dialog-detail { display: block; margin-top: 4px; font-size: 12px; opacity: .75; }
 .want-promo-dialog > img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #1F4D3A; }
 .want-promo-dialog > div { display: grid; gap: 16px; align-content: center; }
 .wishlist :is(input, button, a, textarea, summary):focus-visible { outline: 2px solid var(--want-green); outline-offset: 3px; }

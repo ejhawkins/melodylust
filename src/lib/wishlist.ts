@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-export type WishItem = { id: string; kind: "piece" | "song"; name: string; detail: string; link: string; note: string; from?: string };
+/** image: the provider's own product photo (Farfetch), kept so the Want List can preview real pieces. */
+export type WishItem = { id: string; kind: "piece" | "song"; name: string; detail: string; link: string; note: string; from?: string; image?: string };
 const KEY = "ml-wishlist";
 const EVT = "ml-wishlist-change";
 
