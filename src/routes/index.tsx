@@ -520,6 +520,7 @@ function Index() {
         <h2 className="iconic-title"><span>+ Playlist</span></h2>
         <PlaylistBoard pick={playlistPick} setPick={setPlaylistPick} />
       </section>
+      <MoodHeading text="Fashion music" className="music-head" />
       <section className="leaderboard" id="leaderboard" aria-label="Featured banner">
         <div className="leaderboard-band">
           <img src={coverWide} alt="" width={1920} height={1080} loading="lazy" />
