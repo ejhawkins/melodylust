@@ -550,12 +550,15 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .film-head--next { margin-top: 64px; }
 .film-frame--next { margin-top: 4px; }
 .iconic { padding: 74px 0 64px; }
-/* "Fashion moments": the "This is a mood" type and rule. */
-.iconic .moments-head { padding: 0; margin-bottom: 40px; }
-/* Same size as "This is a mood" and "Bring it to the runway.", wrapping onto two lines like the latter. */
-.iconic .moments-title { flex-wrap: wrap; white-space: normal; row-gap: .05em; }
-.moments-head[data-inview="true"] .film-word > span, .moments-head[data-inview="true"] .film-rule { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .moments-head .film-word > span, .moments-head .film-rule { opacity: 1; transform: none; transition: none; } }
+/* Section headings in the "This is a mood" type (MoodHeading): same size, wrapping onto two lines
+   like "Bring it to the runway.", inside the page column rather than full-bleed. */
+.mood-heading { padding: 0; }
+.mood-heading .mood-heading-title { flex-wrap: wrap; white-space: normal; row-gap: .05em; }
+.mood-heading[data-inview="true"] .film-word > span, .mood-heading[data-inview="true"] .film-rule { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .mood-heading .film-word > span, .mood-heading .film-rule { opacity: 1; transform: none; transition: none; } }
+.iconic .moments-head { margin-bottom: 40px; }
+/* "Runway report" sits on the Zine's top border, which underlines it like the film rule. */
+.runway-head { margin-bottom: 23px; }
 .iconic-title { font-family: var(--font-iconic); font-weight: 300; text-transform: uppercase; font-size: clamp(15px, 1.4vw, 20px); letter-spacing: .22em; color: var(--foreground); margin: 0 0 34px; }
 .iconic-title span { display: block; }
 .iconic-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: auto; gap: 26px; grid-auto-flow: dense; }

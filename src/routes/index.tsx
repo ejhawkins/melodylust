@@ -68,6 +68,7 @@ import { getTumblrPosts, TUMBLR_BLOG } from "@/lib/tumblr.functions";
 import { formatDay } from "@/lib/tumblr";
 import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 import { WantListPop } from "@/components/WantListPop";
+import { MoodHeading } from "@/components/MoodHeading";
 import { analyticsEnabled, denyGoogleAnalytics, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent, type AnalyticsConsent as AnalyticsChoice } from "@/lib/analytics";
 
 const FILM_CONSENT_KEY = "ml-cover-story-film";
@@ -260,9 +261,6 @@ function PhotoCreditLine({ credit }: { credit: PhotoCredit }) {
 }
 const filmWords = ["THIS", "IS", "A", "MOOD"];
 const filmLetters = filmWords.map((word, wi) => ({ word, letters: word.split("").map((ch, ci) => ({ ch, delay: (filmWords.slice(0, wi).reduce((n, w) => n + w.length, 0) + ci) * 45 })) }));
-// "Fashion moments" opens Featured songs in the "This is a mood" type: word groups of letter spans.
-const momentsWords = ["FASHION", "MOMENTS"];
-const momentsLetters = momentsWords.map((word, wi) => ({ word, letters: word.split("").map((ch, ci) => ({ ch, delay: (momentsWords.slice(0, wi).reduce((n, w) => n + w.length, 0) + ci) * 45 })) }));
 const soundWords = ["SEARCH", "BY", "SOUND"];
 const soundLetters = soundWords.map((word, wi) => ({ word, letters: word.split("").map((ch, ci) => ({ ch, delay: (soundWords.slice(0, wi).reduce((n, w) => n + w.length, 0) + ci) * 45 })) }));
 const soundExamples = [
@@ -314,15 +312,6 @@ function Index() {
     return () => window.clearInterval(id);
   }, []);
   const soundRef = useRef<HTMLElement>(null);
-  const momentsRef = useRef<HTMLDivElement>(null);
-  const [momentsIn, setMomentsIn] = useState(false);
-  useEffect(() => {
-    const el = momentsRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") { setMomentsIn(true); return; }
-    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { setMomentsIn(true); io.disconnect(); } }, { threshold: .3 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
   const [soundIn, setSoundIn] = useState(false);
   const [soundExample, setSoundExample] = useState(0);
 
@@ -490,10 +479,7 @@ function Index() {
       <HowItWorks />
       <GuidedStoryQuote />
       <section className="iconic" id="iconic" aria-label="Featured iconic songs of today">
-        <div className="film-head moments-head" ref={momentsRef} data-inview={momentsIn}>
-          <h2 className="film-title moments-title" aria-label="Fashion moments">{momentsLetters.map(({ word, letters }) => <span className="film-word" key={word} aria-hidden>{letters.map(({ ch, delay }, i) => <span key={i} style={{ transitionDelay: `${delay}ms` }}>{ch}</span>)}</span>)}</h2>
-          <span className="film-rule" aria-hidden="true" />
-        </div>
+        <MoodHeading text="Fashion moments" className="moments-head" />
         <div className="iconic-head">
           <h2 className="iconic-title"><span>+ Featured songs</span></h2>
         </div>
@@ -526,6 +512,8 @@ function Index() {
         </article>)}</div>
         {filtered.length === 0 && <p className="py-10 text-muted-foreground">{category === "Music" && musicGenre !== "All genres" ? `Nothing filed under ${musicGenre} yet. Try another sound.` : "No stories found. Try another word or category."}</p>}
       </section>
+      {/* No rule of its own: the Zine's top border sits right below and underlines it. */}
+      <MoodHeading text="Runway report" className="runway-head" rule={false} />
       <DigitalZine />
       <StyleSearch profile={styleProfile} onEditProfile={() => setQuiz(true)} />
       <section className="playlist" id="playlist" aria-label="Playlist">
