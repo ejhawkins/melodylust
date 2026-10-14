@@ -1227,6 +1227,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .iconic-head .iconic-title { margin-bottom: 0; }
 .footer-link { font-family: var(--font-iconic); font-size: 11px; text-transform: uppercase; letter-spacing: .22em; color: var(--foreground); text-decoration: underline; text-underline-offset: .45em; text-decoration-thickness: 1px; transition: color .3s ease; }
 .footer-link:hover { color: var(--primary); }
+button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 @media (max-width: 600px) { .iconic-head { margin-bottom: 22px; } .footer { flex-wrap: wrap; gap: 14px; } }
 
 /* legibility of the banner links over the photo */

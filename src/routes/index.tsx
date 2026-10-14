@@ -66,6 +66,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getTumblrPosts, TUMBLR_BLOG } from "@/lib/tumblr.functions";
 import { formatDay } from "@/lib/tumblr";
+import { AnalyticsConsent } from "@/components/AnalyticsConsent";
+import { analyticsEnabled, denyGoogleAnalytics, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent, type AnalyticsConsent as AnalyticsChoice } from "@/lib/analytics";
 
 const FILM_CONSENT_KEY = "ml-cover-story-film";
 
@@ -367,6 +369,18 @@ function Index() {
   // Which playlist track's musician fills the feature photo; null shows The October Mix.
   const [playlistPick, setPlaylistPick] = useState<number | null>(null);
   const [askFilm, setAskFilm] = useState(false);
+  // Google Analytics waits for the reader's yes; with no Measurement ID set this does nothing.
+  const [analytics, setAnalytics] = useState<AnalyticsChoice>("ask");
+  useEffect(() => {
+    const saved = readAnalyticsConsent();
+    setAnalytics(saved);
+    if (saved === "granted") loadGoogleAnalytics();
+  }, []);
+  const chooseAnalytics = (value: "granted" | "denied") => {
+    saveAnalyticsConsent(value);
+    setAnalytics(value);
+    if (value === "granted") loadGoogleAnalytics(); else denyGoogleAnalytics();
+  };
   useEffect(() => {
     let stored: string | null = null;
     try { stored = window.localStorage.getItem(FILM_CONSENT_KEY); } catch { stored = null; }
@@ -548,8 +562,10 @@ function Index() {
       <StylingNotes />
       <GuidedStory />
       <section className="manifesto"><h2>GOOD STYLE.<br />GREAT MUSIC. YOUR RULES.</h2><p>For the clothes you live in. The records you return to. And the moments when the two come together.</p></section>
-      <footer className="footer"><a href="/" aria-label="Melody Lust home" className="brand"><img src={logo.url} alt="" className="brand-mark" width={448} height={209} /></a><a className="footer-link" href="#circles">Musician Circles</a><a className="footer-link" href="#styling-notes">Styling Notes</a><span className="text-muted-foreground">Independent in style. Always.<br />© 2026 Melody Lust</span></footer>
-      {askFilm && filmConsent === "ask" && solid && filmOnScreen && (
+      <footer className="footer"><a href="/" aria-label="Melody Lust home" className="brand"><img src={logo.url} alt="" className="brand-mark" width={448} height={209} /></a><a className="footer-link" href="#circles">Musician Circles</a><a className="footer-link" href="#styling-notes">Styling Notes</a>{analyticsEnabled() && <button type="button" className="footer-link" onClick={() => setAnalytics("ask")}>Analytics settings</button>}<span className="text-muted-foreground">Independent in style. Always.<br />© 2026 Melody Lust</span></footer>
+      <AnalyticsConsent consent={analytics} onChoose={chooseAnalytics} />
+      {/* One card at a time: the film question waits until analytics is answered. */}
+      {askFilm && filmConsent === "ask" && solid && filmOnScreen && (!analyticsEnabled() || analytics !== "ask") && (
         <div className="film-consent" role="dialog" aria-modal="false" aria-labelledby="film-consent-title" aria-describedby="film-consent-note">
           <span className="film-consent-kicker">+ The cover story</span>
           <h2 className="film-consent-title" id="film-consent-title">The cover story moves.</h2>
