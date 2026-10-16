@@ -265,7 +265,8 @@
 * { letter-spacing: 0; }
 html { scroll-behavior: smooth; }
 body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
-.stylus { --stylus-overlay: 196px; margin: 56px 0 80px; scroll-margin-top: calc(var(--head-h) + 24px); letter-spacing: 0; }
+/* Stylist AI shares the Want List palette (see .wishlist): warm plum, warm white, amber. */
+.stylus { --stylus-ink: #221A20; --stylus-paper: #E4E2DD; --stylus-accent: #F5A400; --primary: #F5A400; --stylus-overlay: 196px; margin: 56px 0 80px; scroll-margin-top: calc(var(--head-h) + 24px); letter-spacing: 0; }
 .stylus-heading { font-family: var(--font-cover); font-weight: 900; font-size: 80px; letter-spacing: -.02em; color: var(--primary); text-align: center; margin: 0 auto -5px; position: relative; z-index: 1; }
 .stylus-body { background: var(--stylus-ink); color: var(--stylus-paper); padding: 28px 36px 36px; }
 .stylus-picks-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 16px; align-items: center; margin-bottom: 18px; }
@@ -327,7 +328,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-input-row input { min-width: 0; width: 100%; font-size: 14px; background: transparent; outline: none; padding: 10px 0; }
 .stylus-input-row:focus-within { outline: 2px solid var(--stylus-accent); outline-offset: 4px; }
 .stylus-status { margin: 24px 0 0; font-size: 14px; }
-.stylus-evidence > .stylus-status[role="alert"] { border-bottom: 1px solid #fff; padding-bottom: 16px; }
+.stylus-evidence > .stylus-status[role="alert"] { border-bottom: 1px solid var(--stylus-paper); padding-bottom: 16px; }
 .stylus-clearance { margin-top: calc(24px + var(--stylus-overlay)); }
 .stylus-results { border-top: 1px solid var(--stylus-paper); padding-top: 24px; margin-top: 28px; }
 .stylus-results p { white-space: pre-line; font-size: 15px; line-height: 1.8; max-width: 760px; }
