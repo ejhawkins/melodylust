@@ -1456,6 +1456,8 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 @keyframes gs-drift { to { background-position: 100% 100%; } }
 .gs-cta h2 { font-size: clamp(52px,9vw,150px); margin: 0 0 40px; }
 .gs-button { justify-self: center; display: inline-flex; align-items: center; min-height: 52px; padding: 0 28px; border-radius: 999px; background: var(--stylus-accent); color: var(--stylus-ink); font-weight: 600; }
+.gs-cta-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.gs-button--line { background: transparent; color: var(--stylus-paper); border: 1px solid currentColor; }
 @media (max-width: 760px) {
   .gs-steps ol { grid-template-columns: 1fr; gap: 18px; }
   .gs-steps li { flex-direction: row; align-items: center; gap: 16px; }

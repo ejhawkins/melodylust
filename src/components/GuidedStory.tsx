@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import street from "@/assets/street-style.jpg";
-import coverStory from "@/assets/cover-story.jpg";
-import fashionWeek from "@/assets/fashion-week.jpg";
-import kidCudi from "@/assets/day-n-nite.jpg";
+import runway from "@/assets/hero-runway-3.jpg";
+import boot from "@/assets/editorial-pick-2.jpg";
 import nicole from "@/assets/nicole-kidman.jpg";
 import charli from "@/assets/charli-rock-music.webp";
 import slayyyter from "@/assets/slayyyter-dance.jpg";
@@ -19,13 +18,17 @@ const tabs = [
   { name: "After dark", heading: "Patent and bass", quote: "“Dress for the second half of the night.”", body: "High shine, sharp shoulders and club records that keep the room moving.", image: slayyyter },
   { name: "Quiet luxury", heading: "Soft volume", quote: "“Let the fabric do the talking.”", body: "Cashmere, camel and tailoring that listens to slow, warm soul.", image: nicole },
 ];
+// The story from look to cart; the closing card offers one way in for each step.
 const features = [
-  { title: "Stylist AI", body: "Search an artist and see documented fashion moments, not guesses." },
-  { title: "Musician Circles", body: "Browse who recorded, produced and dressed alongside whom." },
-  { title: "The Shop", body: "Live pieces with real prices, sizes and store links." },
-  { title: "Styling Notes", body: "A reviewed community board of looks and the songs behind them." },
+  { title: "Featured looks", body: "The outfits that defined a song's moment, from runway to red carpet to street, each one sourced.", image: runway },
+  { title: "Opinions", body: "A stylist's read on why the look works, and readers' notes on how they'd wear it.", image: street },
+  { title: "Products", body: "Live pieces with real prices, sizes and store links, picked to rebuild the look.", image: boot },
 ];
-const featureImages = [coverStory, kidCudi, fashionWeek, street];
+const ctas = [
+  { label: "Find your look", href: "#search" },
+  { label: "Shop the pieces", href: "#shop" },
+  { label: "Share your note", href: "#styling-notes" },
+];
 const faqs = [
   { q: "Is Melody Lust affiliated with these brands?", a: "No. It's an independent journal meant for inspiration only." },
   { q: "Where do the connections come from?", a: "Documented links carry public sources. Anything based only on shared genres is labelled “Suggested discovery”." },
@@ -121,7 +124,7 @@ export function GuidedStory() {
     {/* PATTERN 4 — feature stack with sticky visual */}
     <section className="gs-card gs-paper gs-features">
       <div className="gs-feature-list">{features.map((f, i) => <div key={f.title} data-feature={i} data-active={i === feature} className="gs-feature"><span>0{i + 1}</span><h3>{f.title}</h3><p>{f.body}</p></div>)}</div>
-      <div className="gs-feature-visual">{featureImages.map((src, i) => <img key={i} src={src} alt="" data-active={i === feature} loading="lazy" />)}</div>
+      <div className="gs-feature-visual">{features.map((f, i) => <img key={f.title} src={f.image} alt="" data-active={i === feature} loading="lazy" />)}</div>
     </section>
 
     {/* PATTERN 6 — FAQ accordion (grid-rows height animation) */}
@@ -133,10 +136,10 @@ export function GuidedStory() {
       </div>)}
     </section>
 
-    {/* PATTERN 7 — closing CTA with slow gradient */}
+    {/* PATTERN 7 — closing CTAs with slow gradient */}
     <section className="gs-card gs-cta">
       <h2 className="gs-reveal">Bring a song.<br />Leave with a look.</h2>
-      <a href="#styling-notes" className="gs-button">Share your Styling Notes</a>
+      <div className="gs-cta-actions">{ctas.map((c, i) => <a key={c.href} href={c.href} className={i ? "gs-button gs-button--line" : "gs-button"}>{c.label}</a>)}</div>
     </section>
   </div>;
 }
