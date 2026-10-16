@@ -1279,14 +1279,15 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .circles-section .circles-footer { margin-top: 44px; }
 @media (max-width: 760px) { .circles-section { padding-top: 36px; padding-bottom: 46px; } }
 
-/* Styling Notes: community chapter, editorial motion, and author workspace. */
-.styling-notes { --notes-ink: var(--stylus-ink); --notes-paper: var(--stylus-paper); --notes-accent: var(--stylus-accent); position: relative; isolation: isolate; overflow: hidden; scroll-margin-top: var(--head-h); padding: clamp(52px, 8vw, 110px) clamp(18px, 5vw, 72px); background: var(--notes-ink); color: var(--notes-paper); min-height: 90vh; }
-.styling-wipe { position: absolute; z-index: 5; inset: 0; display: grid; place-items: center; background: var(--notes-accent); color: var(--notes-ink); pointer-events: none; transform-origin: top; animation: notes-wipe 1.15s cubic-bezier(.76,0,.24,1) both; animation-timeline: view(); animation-range: entry 0% cover 46%; }
+/* Styling Notes: community chapter, editorial motion, and author workspace. Black and white like
+   the rest of the journal, with the site's amber kept for actions. */
+.styling-notes { --notes-ink: oklch(0.13 0 0); --notes-paper: oklch(1 0 0); --notes-accent: var(--primary); position: relative; isolation: isolate; overflow: hidden; scroll-margin-top: var(--head-h); padding: clamp(52px, 8vw, 110px) clamp(18px, 5vw, 72px); background: var(--notes-ink); color: var(--notes-paper); min-height: 90vh; }
+.styling-wipe { position: absolute; z-index: 5; inset: 0; display: grid; place-items: center; background: var(--notes-paper); color: var(--notes-ink); pointer-events: none; transform-origin: top; animation: notes-wipe 1.15s cubic-bezier(.76,0,.24,1) both; animation-timeline: view(); animation-range: entry 0% cover 46%; }
 .styling-wipe span { font-family: var(--font-cover); font-size: clamp(54px, 13vw, 180px); font-weight: 900; line-height: .86; text-align: center; }
 @keyframes notes-wipe { 0%, 34% { transform: scaleY(1); } 100% { transform: scaleY(0); } }
 .styling-notes-head { border-top: 1px solid currentColor; padding-top: 14px; margin-bottom: clamp(46px, 7vw, 92px); }
 .styling-kicker, .styling-note-folio, .styling-section-label, .styling-state { font-family: var(--font-iconic); font-size: 10px; text-transform: uppercase; }
-.styling-notes-head h2 { font-family: var(--font-cover); font-size: clamp(76px, 16vw, 220px); font-weight: 900; line-height: .76; margin: clamp(30px, 5vw, 70px) 0; color: var(--primary); overflow-wrap: anywhere; clip-path: inset(0 0 0 0); animation: notes-title .9s cubic-bezier(.22,1,.36,1) both; animation-timeline: view(); animation-range: entry 10% cover 48%; }
+.styling-notes-head h2 { font-family: var(--font-cover); font-size: clamp(76px, 16vw, 220px); font-weight: 900; line-height: .76; margin: clamp(30px, 5vw, 70px) 0; color: var(--notes-paper); overflow-wrap: anywhere; clip-path: inset(0 0 0 0); animation: notes-title .9s cubic-bezier(.22,1,.36,1) both; animation-timeline: view(); animation-range: entry 10% cover 48%; }
 @keyframes notes-title { from { clip-path: inset(100% 0 0); transform: translateY(22px); } }
 .styling-notes-head > div { display: flex; justify-content: space-between; align-items: end; gap: 22px; border-bottom: 1px solid currentColor; padding-bottom: 24px; }
 .styling-notes-head > div p { max-width: 560px; font-family: var(--font-editorial); font-size: clamp(20px, 3vw, 34px); font-style: italic; line-height: 1.15; margin: 0; }
@@ -1487,7 +1488,7 @@ main .iconic-card.fu.fu-in .iconic-cover { transform: scale(1.08) translate(var(
 main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opacity: 1; transform: none; }
 
 /* Black headings on light sections */
-.zine-header h2, .zine-cover-copy h3, .section-heading h2, .film-credit--title, .film-title, .want-heading, .circles-heading, .styling-notes-head h2 { color: var(--foreground); }
+.zine-header h2, .zine-cover-copy h3, .section-heading h2, .film-credit--title, .film-title, .want-heading, .circles-heading { color: var(--foreground); }
 
 /* Hero: three editorial runway looks moving beneath the fixed masthead */
 .cover-slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; animation: cover-slide-cycle 18s cubic-bezier(.65,0,.35,1) infinite; }
