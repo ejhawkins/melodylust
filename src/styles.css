@@ -560,6 +560,8 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .iconic .moments-head { margin-bottom: 40px; }
 /* "Runway report" sits on the Zine's top border, which underlines it like the film rule. */
 .runway-head { margin-bottom: 23px; }
+/* "Reader looks" opens white space between the two dark chapters, the Want List and Styling Notes. */
+.notes-head { margin-top: clamp(72px, 10vw, 136px); margin-bottom: clamp(40px, 5vw, 64px); }
 .iconic-title { font-family: var(--font-iconic); font-weight: 300; text-transform: uppercase; font-size: clamp(15px, 1.4vw, 20px); letter-spacing: .22em; color: var(--foreground); margin: 0 0 34px; }
 .iconic-title span { display: block; }
 .iconic-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: auto; gap: 26px; grid-auto-flow: dense; }

@@ -566,6 +566,7 @@ function Index() {
       </section>
       <ShopSection />
       <Wishlist />
+      <MoodHeading text="Reader looks" className="notes-head" stacked />
       <StylingNotes />
       <GuidedStory />
       <section className="manifesto"><h2>GOOD STYLE.<br />GREAT MUSIC. YOUR RULES.</h2><p>For the clothes you live in. The records you return to. And the moments when the two come together.</p></section>
