@@ -21,7 +21,8 @@ const tabs = [
 // The story from look to cart; the closing card offers one way in for each step.
 const features = [
   { title: "Featured looks", body: "The outfits that defined a song's moment, from runway to red carpet to street, each one sourced.", image: runway },
-  { title: "Opinions", body: "A stylist's read on why the look works, and readers' notes on how they'd wear it.", image: street },
+  { title: "Opinions", body: "A stylist's read on why the look works, and readers' notes on how they'd wear it.", image: street,
+    note: { quote: "Leather like you're late for soundcheck, straight denim, one gold detail. Let the bassline finish the look.", by: "Melody Lust stylist, on the street in Paris" } },
   { title: "Products", body: "Live pieces with real prices, sizes and store links, picked to rebuild the look.", image: boot },
 ];
 const ctas = [
@@ -124,7 +125,10 @@ export function GuidedStory() {
     {/* PATTERN 4 — feature stack with sticky visual */}
     <section className="gs-card gs-paper gs-features">
       <div className="gs-feature-list">{features.map((f, i) => <div key={f.title} data-feature={i} data-active={i === feature} className="gs-feature"><span>0{i + 1}</span><h3>{f.title}</h3><p>{f.body}</p></div>)}</div>
-      <div className="gs-feature-visual">{features.map((f, i) => <img key={f.title} src={f.image} alt="" data-active={i === feature} loading="lazy" />)}</div>
+      <div className="gs-feature-visual">{features.map((f, i) => f.note
+        // Opinions shows its look as a style note: the photo behind, the stylist's words on top.
+        ? <figure key={f.title} className="gs-note" data-active={i === feature}><img src={f.image} alt="" loading="lazy" /><div className="gs-note-copy"><span>Style note</span><blockquote>“{f.note.quote}”</blockquote><figcaption>— {f.note.by}</figcaption></div></figure>
+        : <img key={f.title} src={f.image} alt="" data-active={i === feature} loading="lazy" />)}</div>
     </section>
 
     {/* PATTERN 6 — FAQ accordion (grid-rows height animation) */}
