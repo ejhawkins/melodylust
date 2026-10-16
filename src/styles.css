@@ -1424,6 +1424,8 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .gs-tablist { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 40px; }
 .gs-tablist button { min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid currentColor; text-transform: uppercase; font-size: 13px; letter-spacing: .08em; transition: background .3s, color .3s; }
 .gs-tablist button[aria-selected="true"] { background: var(--stylus-accent); border-color: var(--stylus-accent); color: var(--stylus-ink); }
+/* "Three moods" opens under a thin white rule, like the Styling Notes chapter above it. */
+.gs-tabs::before { content: ""; display: block; height: 1px; background: oklch(1 0 0); margin-bottom: 14px; }
 .gs-tabwindow { overflow: hidden; }
 .gs-tabtrack { display: flex; transition: transform .8s var(--gs-ease); }
 .gs-tabpanel { flex: 0 0 100%; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px,5vw,80px); align-items: center; }
