@@ -79,6 +79,9 @@ const tumblrQueryOptions = queryOptions({
   staleTime: 5 * 60 * 1000,
 });
 
+const TUMBLR_MIN = 4;
+const TUMBLR_MAX = 8;
+
 const tumblrTypeLabel: Record<string, string> = {
   text: "Note", photo: "Photo", quote: "Quote", link: "Link",
   video: "Film", chat: "Chat", audio: "Track", answer: "Answer",
@@ -273,6 +276,8 @@ const soundExamples = [
 
 function Index() {
   const tumblr = useSuspenseQuery(tumblrQueryOptions);
+  // Two rows of the blog's photo posts; under four, the journal's own stories stand in.
+  const tumblrImages = tumblr.data.posts.filter(p => p.image).slice(0, TUMBLR_MAX);
   const photo = useRef<HTMLImageElement>(null);
   const coverRef = useRef<HTMLElement>(null);
   const filmRef = useRef<HTMLElement>(null);
@@ -537,7 +542,7 @@ function Index() {
         <h2 className="iconic-title"><span>+ From Tumblr</span></h2>
         <p className="tumblr-note">Straight from the blog — <a className="tumblr-follow" href={`https://${TUMBLR_BLOG}`} target="_blank" rel="noreferrer">follow along</a></p>
         <div className="tumblr-grid">
-          {tumblr.data.posts.length > 0 ? tumblr.data.posts.map(p => <article className="tumblr-card" key={p.id} data-type={p.type}>
+          {tumblrImages.length >= TUMBLR_MIN ? tumblrImages.map(p => <article className="tumblr-card" key={p.id} data-type={p.type}>
             <a href={p.url} target="_blank" rel="noreferrer" aria-label="Open this post on Tumblr">{p.image ? <img src={p.image} alt={p.alt} loading="lazy" /> : <span className="tumblr-blank" aria-hidden>{tumblrTypeLabel[p.type] ?? "Post"}</span>}</a>
             {p.type === "quote" && p.excerpt ? <blockquote className="tumblr-quote">“{p.excerpt}”</blockquote> : <><h3>{p.title}</h3>{p.excerpt && <p>{p.excerpt}</p>}</>}
             <span className="tumblr-date">{formatDay(p.timestamp)}</span>
