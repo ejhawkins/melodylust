@@ -1780,3 +1780,12 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .song-collage-cover::before { content: ""; position: absolute; top: -10px; left: 50%; width: 38%; height: 20px; transform: translateX(-50%) rotate(-3deg); background: color-mix(in oklab, var(--background) 65%, transparent); box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 15%, transparent); }
 .song-collage-cover > span { font-family: var(--font-cover); font-weight: 900; font-size: 15px; text-transform: uppercase; color: oklch(0.2 0 0); padding: 10px 2px 12px; }
 .song-collage-cover:hover { transform: rotate(0deg) scale(1.03); z-index: 5; }
+
+/* Section headings sit on the page's center line, like STYLIST AI. */
+.iconic-title { text-align: center; }
+.iconic-head { justify-content: center; }
+.song-collage-heading { display: grid; grid-template-columns: 1fr auto 1fr; }
+.song-collage-heading h2 { grid-column: 2; text-align: center; }
+.song-collage-meta { grid-column: 3; justify-self: end; }
+.circles-section .circles-head { text-align: center; }
+.styling-notes-head .styling-kicker, .styling-notes-head h2 { text-align: center; }
