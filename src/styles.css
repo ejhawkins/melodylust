@@ -1504,7 +1504,7 @@ main .iconic-card.fu.fu-in .iconic-cover { transform: scale(1.08) translate(var(
 main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opacity: 1; transform: none; }
 
 /* Black headings on light sections */
-.zine-header h2, .zine-cover-copy h3, .section-heading h2, .film-credit--title, .film-title, .want-heading, .circles-heading { color: var(--foreground); }
+.zine-header h2, .zine-cover-copy h3, .section-heading h2, .film-credit--title, .film-title, .want-heading, .circles-heading, .stylus-heading { color: var(--foreground); }
 
 /* Hero: three editorial runway looks moving beneath the fixed masthead */
 .cover-slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; animation: cover-slide-cycle 18s cubic-bezier(.65,0,.35,1) infinite; }
