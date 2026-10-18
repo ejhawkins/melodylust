@@ -10,7 +10,8 @@ export function ScrollFadeUp() {
       for (const e of entries) if (e.isIntersecting) { e.target.classList.add("fu-in"); io.unobserve(e.target); }
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
     const scan = () => document.querySelectorAll<HTMLElement>(SEL).forEach((el) => {
-      if (el.classList.contains("fu") || el.classList.contains("m-reveal") || el.closest("#cover, .song-collage-track, .fu")) return;
+      // The guided story's picture frame crossfades its own photos by step; a forced reveal would stack them.
+      if (el.classList.contains("fu") || el.classList.contains("m-reveal") || el.closest("#cover, .song-collage-track, .gs-feature-visual, .fu")) return;
       const r = el.getBoundingClientRect();
       if (r.top < window.innerHeight) return; // already visible: leave alone
       el.classList.add("fu"); io.observe(el);

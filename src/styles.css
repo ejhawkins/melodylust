@@ -1454,6 +1454,8 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 /* The Opinions step: a style note in the Styling Notes black and white, over its darkened look. */
 .gs-note { position: absolute; inset: 0; margin: 0; display: flex; align-items: flex-end; background: oklch(0.13 0 0); color: oklch(1 0 0); opacity: 0; transform: translateY(6%); transition: opacity .9s var(--gs-ease), transform .9s var(--gs-ease); }
 .gs-note[data-active="true"] { opacity: 1; transform: none; }
+/* Faded-out photos stay stacked in the frame; let taps reach the one on show (the note's link). */
+.gs-feature-visual > img:not([data-active="true"]), .gs-note:not([data-active="true"]) { pointer-events: none; }
 .gs-feature-visual .gs-note img { opacity: 1; transform: none; filter: brightness(.42) saturate(.85); }
 .gs-note-copy { position: relative; padding: clamp(20px, 4vw, 44px); }
 .gs-note-copy > span { display: block; border-top: 1px solid currentColor; padding-top: 12px; font-family: var(--font-iconic); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
