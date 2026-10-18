@@ -1452,6 +1452,8 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .gs-note-copy > span { display: block; border-top: 1px solid currentColor; padding-top: 12px; font-family: var(--font-iconic); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
 .gs-note blockquote { margin: 14px 0 12px; font-family: var(--font-editorial); font-size: clamp(22px, 2.6vw, 36px); font-style: italic; line-height: 1.15; }
 .gs-note figcaption { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
+.gs-note-song { display: block; margin-top: 4px; }
+.gs-note-link { display: inline-block; margin-top: 12px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: inherit; text-decoration: underline; text-underline-offset: .4em; }
 /* faq */
 .gs-faq h2 { font-size: clamp(48px,8vw,120px); margin: 0 0 48px; }
 .gs-faq-item { border-top: 1px solid var(--stylus-ink); max-width: 900px; }
@@ -1481,7 +1483,8 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
   .gs-feature { min-height: 45vh; }
   .gs-note-copy { padding: 16px; }
   .gs-note-copy > span { padding-top: 8px; }
-  .gs-note blockquote { margin: 8px 0; font-size: 18px; }
+  .gs-note blockquote { margin: 8px 0; font-size: 18px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+  .gs-note-link { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .rise-line, .gs-cta { animation: none; }

@@ -5,6 +5,8 @@ import boot from "@/assets/editorial-pick-2.jpg";
 import nicole from "@/assets/nicole-kidman.jpg";
 import charli from "@/assets/charli-rock-music.webp";
 import slayyyter from "@/assets/slayyyter-dance.jpg";
+import { featuredNote, HOUSE_NOTE } from "@/lib/featured-note";
+import { listApprovedStylingNotes } from "@/lib/styling-notes.functions";
 
 /*
  * Guided story — calm, scroll-led chapters (askmidnight-style rhythm).
@@ -21,8 +23,8 @@ const tabs = [
 // The story from look to cart; the closing card offers one way in for each step.
 const features = [
   { title: "Featured looks", body: "The outfits that defined a song's moment, from runway to red carpet to street, each one sourced.", image: runway },
-  { title: "Opinions", body: "A stylist's read on why the look works, and readers' notes on how they'd wear it.", image: street,
-    note: { quote: "Leather like you're late for soundcheck, straight denim, one gold detail. Let the bassline finish the look.", by: "Melody Lust stylist, on the street in Paris" } },
+  // Opinions shows the featured Styling Note (see featured-note.ts); the street look is its photo until a note brings one.
+  { title: "Opinions", body: "A stylist's read on why the look works, and readers' notes on how they'd wear it.", image: street, opinion: true },
   { title: "Products", body: "Live pieces with sizes, store links and a fall look for each, picked to rebuild the outfit.", image: boot },
 ];
 const ctas = [
@@ -78,6 +80,14 @@ export function GuidedStory() {
   const [tab, setTab] = useState(0);
   const [feature, setFeature] = useState(0);
   const [open, setOpen] = useState<number | null>(0);
+  const [note, setNote] = useState(HOUSE_NOTE);
+
+  // The newest approved Styling Note becomes the Opinions step; if none loads, the house note stays.
+  useEffect(() => {
+    let live = true;
+    listApprovedStylingNotes().then(r => { if (live) setNote(featuredNote(r.notes)); }).catch(() => {});
+    return () => { live = false; };
+  }, []);
 
   useEffect(() => {
     const el = root.current; if (!el) return;
@@ -125,9 +135,16 @@ export function GuidedStory() {
     {/* PATTERN 4 — feature stack with sticky visual */}
     <section className="gs-card gs-paper gs-features">
       <div className="gs-feature-list">{features.map((f, i) => <div key={f.title} data-feature={i} data-active={i === feature} className="gs-feature"><span>0{i + 1}</span><h3>{f.title}</h3><p>{f.body}</p></div>)}</div>
-      <div className="gs-feature-visual">{features.map((f, i) => f.note
-        // Opinions shows its look as a style note: the photo behind, the stylist's words on top.
-        ? <figure key={f.title} className="gs-note" data-active={i === feature}><img src={f.image} alt="" loading="lazy" /><div className="gs-note-copy"><span>Style note</span><blockquote>“{f.note.quote}”</blockquote><figcaption>— {f.note.by}</figcaption></div></figure>
+      <div className="gs-feature-visual">{features.map((f, i) => f.opinion
+        ? <figure key={f.title} className="gs-note" data-active={i === feature} data-readers={note.fromReaders || undefined}>
+            <img src={note.image ?? f.image} alt={note.image ? note.alt : ""} loading="lazy" />
+            <div className="gs-note-copy">
+              <span>{note.kicker}</span>
+              <blockquote>“{note.quote}”</blockquote>
+              <figcaption>— {note.by}{note.song && <span className="gs-note-song">On repeat: {note.song}</span>}</figcaption>
+              {note.fromReaders && <a href="#styling-notes" className="gs-note-link">Read more Styling Notes</a>}
+            </div>
+          </figure>
         : <img key={f.title} src={f.image} alt="" data-active={i === feature} loading="lazy" />)}</div>
     </section>
 
