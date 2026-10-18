@@ -1083,7 +1083,9 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .mlshop-card-text { display: block; width: 100%; text-align: left; padding: 8px 0 0; border: 0; background: transparent; color: inherit; cursor: pointer; }
 .mlshop-name { display: block; font-size: 12.5px; line-height: 1.3; }
 .mlshop-brand { display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted-foreground); margin-top: 3px; }
-.mlshop-price { display: block; font-size: 11px; margin-top: 4px; color: var(--muted-foreground); }
+/* Where the price was: a fall styling line, Bodoni italic under a small label. */
+.mlshop-look { display: block; margin-top: 6px; font-family: var(--font-editorial); font-size: 13px; font-style: italic; line-height: 1.35; color: var(--foreground); }
+.mlshop-look > span, .mlshop-modal-look > span { display: block; margin-bottom: 2px; font-family: var(--font-iconic); font-size: 9px; font-style: normal; letter-spacing: .16em; text-transform: uppercase; color: var(--muted-foreground); }
 .mlshop-empty { margin: 26px 0 0; padding: 26px; border: 1px dashed var(--border); text-align: center; font-size: 13px; color: var(--muted-foreground); }
 .mlshop-loading { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .mlshop-loading svg { width: 15px; height: 15px; animation: mlshop-spin 1s linear infinite; }
@@ -1101,7 +1103,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .mlshop-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mlshop-modal-kicker { margin: 0; font-size: 9.5px; text-transform: uppercase; letter-spacing: .18em; color: var(--muted-foreground); }
 .mlshop-modal-title { font-family: var(--font-iconic); font-weight: 300; text-transform: uppercase; letter-spacing: .14em; font-size: clamp(18px, 2.2vw, 26px); line-height: 1.1; margin: 8px 0 0; }
-.mlshop-modal-price { margin: 10px 0 0; font-size: 15px; }
+.mlshop-modal-look { margin: 12px 0 0; font-family: var(--font-editorial); font-size: 18px; font-style: italic; line-height: 1.3; }
 .mlshop-modal-avail { margin: 3px 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
 .mlshop-modal-desc { margin: 14px 0 0; font-size: 13px; line-height: 1.7; color: var(--muted-foreground); }
 .mlshop-modal-spec { margin: 8px 0 0; font-size: 12px; color: var(--muted-foreground); }

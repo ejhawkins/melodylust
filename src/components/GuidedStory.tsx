@@ -23,7 +23,7 @@ const features = [
   { title: "Featured looks", body: "The outfits that defined a song's moment, from runway to red carpet to street, each one sourced.", image: runway },
   { title: "Opinions", body: "A stylist's read on why the look works, and readers' notes on how they'd wear it.", image: street,
     note: { quote: "Leather like you're late for soundcheck, straight denim, one gold detail. Let the bassline finish the look.", by: "Melody Lust stylist, on the street in Paris" } },
-  { title: "Products", body: "Live pieces with real prices, sizes and store links, picked to rebuild the look.", image: boot },
+  { title: "Products", body: "Live pieces with sizes, store links and a fall look for each, picked to rebuild the outfit.", image: boot },
 ];
 const ctas = [
   { label: "Find your look", href: "#search" },

@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Heart, LoaderCircle, X } from "lucide-react";
 import { lookupShopCatalog } from "@/lib/products.functions";
-import { formatPrice, type CatalogProduct } from "@/lib/farfetch";
+import { type CatalogProduct } from "@/lib/farfetch";
+import { fallLook } from "@/lib/fall-looks";
 import { addWish, removeWish, updateWish, useWishlist } from "@/lib/wishlist";
 
 const PICKKEY = "ml-shop-song-picks";
@@ -37,7 +38,6 @@ export function ShopSection() {
   const [brand, setBrand] = useState("");
   const [size, setSize] = useState("");
   const [avail, setAvail] = useState("");
-  const [max, setMax] = useState("");
   const [onlySaved, setOnlySaved] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const wishes = useWishlist();
@@ -46,7 +46,7 @@ export function ShopSection() {
   const toggleWish = (p: CatalogProduct) => {
     const w = wishFor(p);
     if (w) removeWish(w.id);
-    else addWish({ kind: "piece", name: `${p.brand} ${p.name}`, detail: formatPrice(p.price, p.currency), link: p.link, note: readPick(p.id), from: "Shop", image: p.image });
+    else addWish({ kind: "piece", name: `${p.brand} ${p.name}`, detail: `Fall look: ${fallLook(p)}`, link: p.link, note: readPick(p.id), from: "Shop", image: p.image });
   };
   const shopCount = wishes.filter(i => i.from === "Shop").length;
 
@@ -65,24 +65,22 @@ export function ShopSection() {
   const brands = useMemo(() => uniq(products.map(p => p.brand)), [products]);
   const sizes = useMemo(() => uniq(products.flatMap(p => p.sizes)), [products]);
 
-  const clear = () => { setQ(""); setCat(""); setBrand(""); setSize(""); setAvail(""); setMax(""); };
-  const dirty = !!(q || cat || brand || size || avail || max);
+  const clear = () => { setQ(""); setCat(""); setBrand(""); setSize(""); setAvail(""); };
+  const dirty = !!(q || cat || brand || size || avail);
 
   const results = useMemo(() => {
     const needle = q.toLowerCase().trim();
-    const cap = max ? Number(max) : 0;
     return products.filter(p =>
       (!needle || [p.name, p.brand, p.category, p.description, ...p.tags].join(" ").toLowerCase().includes(needle)) &&
       (!cat || p.category === cat) && (!brand || p.brand === brand) &&
-      (!size || p.sizes.includes(size)) && (!avail || p.availability === avail) && (!cap || p.price <= cap) &&
+      (!size || p.sizes.includes(size)) && (!avail || p.availability === avail) &&
       (!onlySaved || wishes.some(i => i.kind === "piece" && i.from === "Shop" && i.name === `${p.brand} ${p.name}`)));
-  }, [products, q, cat, brand, size, avail, max, onlySaved, wishes]);
+  }, [products, q, cat, brand, size, avail, onlySaved, wishes]);
 
   const chips = ([
     ["q", `“${q}”`], ["cat", cat], ["brand", brand],
     ["size", `Size ${size}`], ["avail", avail && AVAILABILITY_LABEL[avail as keyof typeof AVAILABILITY_LABEL]],
-    ["max", max && `Under $${max}`],
-  ] as const).filter(([k]) => ({ q, cat, brand, size, avail, max })[k] !== "");
+  ] as const).filter(([k]) => ({ q, cat, brand, size, avail })[k] !== "");
 
   const open = openId ? products.find(p => p.id === openId) : undefined;
 
@@ -96,7 +94,6 @@ export function ShopSection() {
         <select className="genre-select" aria-label="Designer or brand" value={brand} onChange={e => setBrand(e.target.value)}><option value="">All brands</option>{brands.map(c => <option key={c}>{c}</option>)}</select>
         <select className="genre-select" aria-label="Size" value={size} onChange={e => setSize(e.target.value)}><option value="">Any size</option>{sizes.map(c => <option key={c}>{c}</option>)}</select>
         <select className="genre-select" aria-label="Availability" value={avail} onChange={e => setAvail(e.target.value)}><option value="">Any availability</option>{Object.entries(AVAILABILITY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
-        <select className="genre-select" aria-label="Maximum price" value={max} onChange={e => setMax(e.target.value)}><option value="">Any price</option>{[100, 200, 500, 1000].map(v => <option key={v} value={v}>Under ${v}</option>)}</select>
         <button type="button" onClick={() => setOnlySaved(v => !v)} aria-pressed={onlySaved} className="mlshop-saved">
           <Heart aria-hidden className="h-3 w-3" fill={onlySaved ? "currentColor" : "none"} />Wishlist ({shopCount})
         </button>
@@ -105,7 +102,7 @@ export function ShopSection() {
       <div className="mlshop-meta" aria-live="polite">
         <span className="mlshop-count">{results.length} {results.length === 1 ? "piece" : "pieces"}</span>
         {chips.map(([k, label]) => (
-          <button key={k} type="button" onClick={() => ({ q: setQ, cat: setCat, brand: setBrand, size: setSize, avail: setAvail, max: setMax })[k]("")} aria-label={`Remove filter ${label}`} className="mlshop-chip">{label}<X aria-hidden className="h-2.5 w-2.5" /></button>
+          <button key={k} type="button" onClick={() => ({ q: setQ, cat: setCat, brand: setBrand, size: setSize, avail: setAvail })[k]("")} aria-label={`Remove filter ${label}`} className="mlshop-chip">{label}<X aria-hidden className="h-2.5 w-2.5" /></button>
         ))}
         {dirty && <button type="button" onClick={clear} className="mlshop-clear">Clear all</button>}
       </div>
@@ -134,7 +131,7 @@ export function ShopSection() {
                  <button type="button" className="mlshop-card-text" onClick={() => setOpenId(p.id)}>
                   <span className="mlshop-name">{p.name}</span>
                   <span className="mlshop-brand">{p.brand}</span>
-                   <span className="mlshop-price">{formatPrice(p.price, p.currency)}</span>
+                   <span className="mlshop-look"><span>Fall look</span>{fallLook(p)}</span>
                 </button>
                 <SongPick productId={p.id} compact onChoose={name => { const w = wishFor(p); if (w) updateWish(w.id, { note: name }); }} />
               </li>
@@ -143,7 +140,7 @@ export function ShopSection() {
         </ul>
       )}
 
-      {!loading && !catalogError && <p className="mlshop-note">Live products via Farfetch · prices, sizes and availability can change at the retailer.</p>}
+      {!loading && !catalogError && <p className="mlshop-note">Live products via Farfetch · sizes and availability can change at the retailer.</p>}
 
       {open && <ShopDetail p={open} saved={!!wishFor(open)} onSave={() => toggleWish(open)} onClose={() => setOpenId(null)} />}
     </section>
@@ -253,7 +250,7 @@ function ShopDetail({ p, saved, onSave, onClose }: { p: CatalogProduct; saved: b
           <div>
             <p className="mlshop-modal-kicker">{p.brand} · {p.category}</p>
             <h3 className="mlshop-modal-title">{p.name}</h3>
-            <p className="mlshop-modal-price">{formatPrice(p.price, p.currency)}</p>
+            <p className="mlshop-modal-look"><span>Fall look</span>{fallLook(p)}</p>
             <p className="mlshop-modal-avail">{AVAILABILITY_LABEL[p.availability]}</p>
             <p className="mlshop-modal-desc">{p.description}</p>
             <p className="mlshop-modal-spec"><strong>Sizes currently listed: </strong>{p.sizes.length ? p.sizes.join(", ") : "Not listed by retailer"}</p>
