@@ -97,6 +97,8 @@ export function GuidedStory() {
     const tick = () => {
       frame = 0;
       const vh = window.innerHeight;
+      // A card taller than the screen pins by its bottom edge rather than its top.
+      cards.forEach(c => c.style.setProperty("--gs-stick", `${Math.min(0, vh - c.offsetHeight)}px`));
       if (!reduced()) cards.forEach((c, i) => {
         const next = cards[i + 1]; if (!next) return;
         const p = Math.min(1, Math.max(0, 1 - next.getBoundingClientRect().top / vh));
@@ -133,7 +135,7 @@ export function GuidedStory() {
     </section>
 
     {/* PATTERN 4 — feature stack with sticky visual */}
-    <section className="gs-card gs-paper gs-features">
+    <section className="gs-card gs-paper gs-features" data-step={feature}>
       <div className="gs-feature-list">{features.map((f, i) => <div key={f.title} data-feature={i} data-active={i === feature} className="gs-feature"><span>0{i + 1}</span><h3>{f.title}</h3><p>{f.body}</p></div>)}</div>
       <div className="gs-feature-visual">{features.map((f, i) => f.opinion
         ? <figure key={f.title} className="gs-note" data-active={i === feature} data-readers={note.fromReaders || undefined}>

@@ -1437,11 +1437,18 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .gs-tabpanel q { display: block; font-family: "Bodoni Moda", serif; font-style: italic; font-size: 24px; margin-bottom: 16px; color: var(--stylus-accent); }
 /* features */
 .gs-features { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(24px,5vw,80px); position: relative; }
-.gs-features:not(.gs-pin) { position: relative; }
+/* Taller than the screen, so it pins once its bottom reaches the viewport (--gs-stick is set in
+   GuidedStory) and keeps covering the cards beneath it until Questions slides over. */
+.gs-features:not(.gs-pin) { position: sticky; top: var(--gs-stick, 0px); }
 .gs-feature { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; opacity: .3; transition: opacity .6s var(--gs-ease); }
 .gs-feature[data-active="true"] { opacity: 1; }
 .gs-feature h3 { font-size: clamp(36px,5vw,72px); margin: 8px 0; }
 .gs-feature p { max-height: 0; overflow: hidden; margin: 0; transition: max-height .8s var(--gs-ease); max-width: 36ch; }
+/* The story changes ground with each step: Want List plum for Featured looks and Products,
+   white for Opinions, with the type flipping to match. */
+.gs-features { transition: background-color .7s var(--gs-ease), color .7s var(--gs-ease), border-color .7s var(--gs-ease); }
+.gs-features[data-step="0"], .gs-features[data-step="2"] { background: #221A20; color: #E4E2DD; border-top-color: #221A20; }
+.gs-features[data-step="1"] { background: oklch(1 0 0); color: var(--foreground); }
 .gs-feature[data-active="true"] p { max-height: 6em; }
 .gs-feature-visual { position: sticky; top: 15vh; align-self: start; }
 /* The Opinions step: a style note in the Styling Notes black and white, over its darkened look. */
