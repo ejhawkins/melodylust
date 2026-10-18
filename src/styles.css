@@ -1473,6 +1473,8 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .gs-faq-item[data-open="true"] .gs-faq-body { grid-template-rows: 1fr; }
 .gs-faq-body p { overflow: hidden; margin: 0; padding-bottom: 0; max-width: 60ch; }
 .gs-faq-item[data-open="true"] .gs-faq-body p { padding-bottom: 24px; }
+/* Questions sits on white, like the Opinions step. */
+.gs-faq { background: oklch(1 0 0); color: var(--foreground); }
 /* cta */
 .gs-cta { display: grid; place-content: center; text-align: center; color: var(--stylus-paper); background: linear-gradient(120deg, var(--stylus-ink), color-mix(in oklab, var(--stylus-accent) 35%, var(--stylus-ink)), var(--stylus-ink)); background-size: 220% 220%; animation: gs-drift 18s ease-in-out infinite alternate; }
 @keyframes gs-drift { to { background-position: 100% 100%; } }
