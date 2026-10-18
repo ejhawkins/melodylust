@@ -20,6 +20,9 @@ const buttonVariants = cva(
         railCta: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase text-[9.5px] font-normal tracking-[0.14em] h-7 px-3.5 whitespace-nowrap",
         stylePill: "rounded-full border border-foreground bg-transparent text-foreground hover:bg-foreground/10 aria-pressed:bg-foreground aria-pressed:text-background uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5 whitespace-nowrap",
         soundCta: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase text-[11px] font-normal tracking-[0.22em] h-11 px-8 mt-2 transition-all hover:-translate-y-0.5",
+        dossier: "rounded-none border border-current bg-transparent text-current hover:bg-current/10 uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5",
+        dossierSolid: "rounded-none bg-foreground text-background hover:bg-[#221A20] uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5",
+        dossierTab: "rounded-none bg-transparent text-muted-foreground hover:text-foreground aria-selected:text-foreground border-b-2 border-transparent aria-selected:border-foreground uppercase text-[11px] font-normal tracking-[0.16em] h-auto px-0 py-3",
         default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:

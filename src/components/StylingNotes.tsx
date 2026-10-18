@@ -146,7 +146,7 @@ function NoteCard({ note, index }: { note: StylingNoteView; index: number }) {
   </article>;
 }
 
-function AuthDialog({ open, onOpenChange, onSignedIn }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void> }) {
+export function AuthDialog({ open, onOpenChange, onSignedIn }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void> }) {
   const [mode, setMode] = useState<AuthMode>("signin"); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [displayName, setDisplayName] = useState(""); const [status, setStatus] = useState(""); const [busy, setBusy] = useState(false);
   const submit = async (event: React.FormEvent) => { event.preventDefault(); setBusy(true); setStatus(""); try {
     if (mode === "forgot") { const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/#styling-notes` }); if (error) throw error; setStatus("Check your email for the recovery link."); }

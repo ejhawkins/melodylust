@@ -58,7 +58,7 @@ import { Button } from "@/components/ui/button";
 import { Wishlist } from "@/components/Wishlist";
 import { StyleSearch } from "@/components/StyleSearch";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
-import { emptyStyleProfile, STYLE_PROFILE_KEY, styleProfileSchema, type StyleProfile } from "@/lib/style-profile";
+import { useStyleProfile } from "@/lib/use-style-profile";
 import { addWish } from "@/lib/wishlist";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -291,21 +291,7 @@ function Index() {
   const [query, setQuery] = useState("");
   const [article, setArticle] = useState<Story | null>(null);
   const [quiz, setQuiz] = useState(false);
-  const [styleProfile, setStyleProfile] = useState<StyleProfile>(emptyStyleProfile);
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STYLE_PROFILE_KEY);
-      if (saved) { const parsed = styleProfileSchema.safeParse(JSON.parse(saved)); if (parsed.success) setStyleProfile(parsed.data); }
-    } catch { /* Unavailable storage leaves the profile empty. */ }
-  }, []);
-  const saveStyleProfile = (profile: StyleProfile) => {
-    try { const validated = styleProfileSchema.parse(profile); localStorage.setItem(STYLE_PROFILE_KEY, JSON.stringify(validated)); setStyleProfile(validated); return true; }
-    catch { return false; }
-  };
-  const clearStyleProfile = () => {
-    try { localStorage.removeItem(STYLE_PROFILE_KEY); setStyleProfile(emptyStyleProfile()); return true; }
-    catch { return false; }
-  };
+  const { profile: styleProfile, save: saveStyleProfile, clear: clearStyleProfile } = useStyleProfile();
   const [genre, setGenre] = useState("Pop");
   const [musicGenre, setMusicGenre] = useState("All genres");
   const [showTop, setShowTop] = useState(false);

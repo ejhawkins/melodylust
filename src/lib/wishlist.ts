@@ -34,6 +34,8 @@ export function onWishAdded(listener: (event: WishAdded) => void) {
 }
 export function updateWish(id: string, patch: Partial<WishItem>) { write(read().map(i => (i.id === id ? { ...i, ...patch } : i))); }
 export function removeWish(id: string) { write(read().filter(i => i.id !== id)); }
+/** Empties the Want List on this device. */
+export function clearWishlist() { write([]); }
 
 export function useWishlist() {
   const [items, setItems] = useState<WishItem[]>([]);
