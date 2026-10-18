@@ -58,3 +58,19 @@ describe('password recovery', () => {
     expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('reader@example.com', { redirectTo: `${window.location.origin}/` });
   });
 });
+
+describe('messages', () => {
+  it('explains an email limit plainly and leaves it behind when going back to sign in', async () => {
+    availableGoogleFlow.mockResolvedValue(null);
+    auth.resetPasswordForEmail.mockResolvedValue({ error: Object.assign(new Error('email rate limit exceeded'), { code: 'over_email_send_rate_limit' }) });
+    open();
+    fireEvent.click(await screen.findByRole('button', { name: 'Forgot password?' }));
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'reader@example.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send recovery link' }));
+    expect(await screen.findByText(/^Too many emails have gone out in the last hour/)).toBeInTheDocument();
+    expect(screen.queryByText('email rate limit exceeded')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Back to sign in' }));
+    expect(screen.getByRole('heading', { name: 'Sign in to contribute' })).toBeInTheDocument();
+    expect(screen.queryByText(/Too many emails/)).toBeNull();
+  });
+});

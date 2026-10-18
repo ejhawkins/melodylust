@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { availableGoogleFlow, signInWithGoogle, type GoogleFlow } from "@/lib/google-sign-in";
+import { authMessage } from "@/lib/auth-messages";
 import {
   deleteStylingNote, getStylingNotesWorkspace, listApprovedStylingNotes,
   reviewStylingNote, saveStylingNote, type StylingNoteView,
@@ -152,7 +153,7 @@ function NoteCard({ note, index }: { note: StylingNoteView; index: number }) {
 export function AuthDialog({ open, onOpenChange, onSignedIn, initialMode = "signin", onPasswordUpdated }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void>; initialMode?: AuthMode; onPasswordUpdated?: () => void }) {
   const [mode, setMode] = useState<AuthMode>(initialMode); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [displayName, setDisplayName] = useState(""); const [status, setStatus] = useState(""); const [busy, setBusy] = useState(false);
   // Each time it opens, start where the visit needs it: a reset link goes straight to a new password.
-  useEffect(() => { if (open) setMode(initialMode); }, [open, initialMode]);
+  useEffect(() => { if (open) { setMode(initialMode); setStatus(""); } }, [open, initialMode]);
   // Google only shows where it can work: Lovable's hosting, or once the Supabase provider is on.
   const [google, setGoogle] = useState<GoogleFlow>(null);
   useEffect(() => { if (open) void availableGoogleFlow().then(setGoogle); }, [open]);
@@ -161,12 +162,14 @@ export function AuthDialog({ open, onOpenChange, onSignedIn, initialMode = "sign
     else if (mode === "reset") { const { error } = await supabase.auth.updateUser({ password }); if (error) throw error; setStatus("Your password is updated."); setMode("signin"); onPasswordUpdated?.(); }
     else if (mode === "signup") { const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName }, emailRedirectTo: `${window.location.origin}/` } }); if (error) throw error; if (!data.session) setStatus("Check your email to confirm your account."); else { await onSignedIn(); onOpenChange(false); } }
     else { const { error } = await supabase.auth.signInWithPassword({ email, password }); if (error) throw error; await onSignedIn(); onOpenChange(false); }
-  } catch (error) { setStatus(error instanceof Error ? error.message : "Sign-in was unavailable."); } finally { setBusy(false); } };
+  } catch (error) { setStatus(authMessage(error)); } finally { setBusy(false); } };
+  // A message belongs to the screen it came from; switching screens starts clean.
+  const go = (next: AuthMode) => { setMode(next); setStatus(""); };
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="styling-auth"><DialogTitle>{mode === "signup" ? "Join Styling Notes" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : "Sign in to contribute"}</DialogTitle><DialogDescription>Browse freely. Sign in only when you want to submit or manage your notes.</DialogDescription><form onSubmit={submit}>
     {mode === "signup" && <label>Display name<input required maxLength={60} value={displayName} onChange={e => setDisplayName(e.target.value)} /></label>}
     {mode !== "reset" && <label>Email<input required type="email" value={email} onChange={e => setEmail(e.target.value)} /></label>}
     {mode !== "forgot" && <label>Password<input required minLength={8} type="password" value={password} onChange={e => setPassword(e.target.value)} /></label>}
     {status && <p role="status">{status}</p>}<Button type="submit" disabled={busy}>{busy ? <LoaderCircle className="motion-safe:animate-spin" /> : <LogIn />}{mode === "signup" ? "Create account" : mode === "forgot" ? "Send recovery link" : mode === "reset" ? "Update password" : "Sign in"}</Button>
-  </form>{mode !== "reset" && google && <><div className="styling-auth-or"><span>or</span></div><Button variant="outline" onClick={async () => { setBusy(true); const error = await signInWithGoogle(google); setBusy(false); if (error) setStatus(error); }}>Continue with Google</Button></>}
-  <div className="styling-auth-links">{mode === "signin" ? <><button onClick={() => setMode("signup")}>Create account</button><button onClick={() => setMode("forgot")}>Forgot password?</button></> : mode !== "reset" && <button onClick={() => setMode("signin")}>Back to sign in</button>}</div></DialogContent></Dialog>;
+  </form>{mode !== "reset" && google && <><div className="styling-auth-or"><span>or</span></div><Button variant="outline" onClick={async () => { setBusy(true); const error = await signInWithGoogle(google); setBusy(false); if (error) setStatus(authMessage(error)); }}>Continue with Google</Button></>}
+  <div className="styling-auth-links">{mode === "signin" ? <><button onClick={() => go("signup")}>Create account</button><button onClick={() => go("forgot")}>Forgot password?</button></> : mode !== "reset" && <button onClick={() => go("signin")}>Back to sign in</button>}</div></DialogContent></Dialog>;
 }
