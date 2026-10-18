@@ -37,8 +37,11 @@ export function StylingNotes() {
     try { setWorkspace(await getWorkspace()); }
     catch { setWorkspace(null); }
   };
+  // A password-reset link lands here with "type=recovery" in the address; Supabase clears it once read.
+  const [recovering, setRecovering] = useState(false);
   useEffect(() => {
     let live = true;
+    if (/[#&]type=recovery\b/.test(window.location.hash)) { setRecovering(true); setAuthOpen(true); }
     void Promise.all([listPublic(), supabase.auth.getSession()]).then(async ([publicResult, authResult]) => {
       if (!live) return;
       setNotes(publicResult.notes);
@@ -48,7 +51,7 @@ export function StylingNotes() {
     }).catch(() => setMessage("Styling Notes are taking a moment to load.")).finally(() => setLoading(false));
     const { data } = supabase.auth.onAuthStateChange(event => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED" && event !== "PASSWORD_RECOVERY") return;
-      if (event === "PASSWORD_RECOVERY") { setAuthOpen(true); return; }
+      if (event === "PASSWORD_RECOVERY") { setRecovering(true); setAuthOpen(true); return; }
       const signedIn = event !== "SIGNED_OUT";
       setSession(signedIn);
       if (signedIn) void refreshWorkspace(); else setWorkspace(null);
@@ -118,7 +121,7 @@ export function StylingNotes() {
 
     {workspace?.canModerate && <section className="styling-workspace" aria-labelledby="review-queue"><div className="styling-section-label"><h3 id="review-queue">Review queue</h3><span>{workspace.queue.length}</span></div>{workspace.queue.map(note => <article className="styling-review-row" key={note.id}><NoteCard note={note} index={0} /><div><Button onClick={async () => { await reviewNote({ data: { id: note.id, decision: "approved" } }); await refreshWorkspace(); await refreshPublic(); }}><Check />Approve</Button><Button variant="outline" onClick={async () => { const reason = window.prompt("Reason for the author?"); if (!reason) return; await reviewNote({ data: { id: note.id, decision: "rejected", reason } }); await refreshWorkspace(); }}><X />Reject</Button></div></article>)}</section>}
 
-    <AuthDialog open={authOpen} onOpenChange={setAuthOpen} onSignedIn={refreshWorkspace} />
+    <AuthDialog open={authOpen} onOpenChange={setAuthOpen} initialMode={recovering ? "reset" : "signin"} onPasswordUpdated={() => setRecovering(false)} onSignedIn={refreshWorkspace} />
     <Dialog open={compose} onOpenChange={setCompose}><DialogContent className="styling-compose"><DialogTitle>{editing ? "Edit your Styling Note" : "Share a Styling Note"}</DialogTitle><DialogDescription>Pair a real styling idea with the track you hear in it. Submissions are reviewed before publication.</DialogDescription><form onSubmit={submit}>
       <label>Public display name<input required minLength={1} maxLength={60} value={form.displayName} onChange={e => setForm({ ...form, displayName: e.target.value })} /></label>
       <label>Title<input required minLength={3} maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></label>
@@ -146,15 +149,17 @@ function NoteCard({ note, index }: { note: StylingNoteView; index: number }) {
   </article>;
 }
 
-export function AuthDialog({ open, onOpenChange, onSignedIn }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void> }) {
-  const [mode, setMode] = useState<AuthMode>("signin"); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [displayName, setDisplayName] = useState(""); const [status, setStatus] = useState(""); const [busy, setBusy] = useState(false);
+export function AuthDialog({ open, onOpenChange, onSignedIn, initialMode = "signin", onPasswordUpdated }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void>; initialMode?: AuthMode; onPasswordUpdated?: () => void }) {
+  const [mode, setMode] = useState<AuthMode>(initialMode); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [displayName, setDisplayName] = useState(""); const [status, setStatus] = useState(""); const [busy, setBusy] = useState(false);
+  // Each time it opens, start where the visit needs it: a reset link goes straight to a new password.
+  useEffect(() => { if (open) setMode(initialMode); }, [open, initialMode]);
   // Google only shows where it can work: Lovable's hosting, or once the Supabase provider is on.
   const [google, setGoogle] = useState<GoogleFlow>(null);
   useEffect(() => { if (open) void availableGoogleFlow().then(setGoogle); }, [open]);
   const submit = async (event: React.FormEvent) => { event.preventDefault(); setBusy(true); setStatus(""); try {
-    if (mode === "forgot") { const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/#styling-notes` }); if (error) throw error; setStatus("Check your email for the recovery link."); }
-    else if (mode === "reset") { const { error } = await supabase.auth.updateUser({ password }); if (error) throw error; setStatus("Your password is updated."); setMode("signin"); }
-    else if (mode === "signup") { const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName }, emailRedirectTo: `${window.location.origin}/#styling-notes` } }); if (error) throw error; if (!data.session) setStatus("Check your email to confirm your account."); else { await onSignedIn(); onOpenChange(false); } }
+    if (mode === "forgot") { const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/` }); if (error) throw error; setStatus("Check your email for the recovery link."); }
+    else if (mode === "reset") { const { error } = await supabase.auth.updateUser({ password }); if (error) throw error; setStatus("Your password is updated."); setMode("signin"); onPasswordUpdated?.(); }
+    else if (mode === "signup") { const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName }, emailRedirectTo: `${window.location.origin}/` } }); if (error) throw error; if (!data.session) setStatus("Check your email to confirm your account."); else { await onSignedIn(); onOpenChange(false); } }
     else { const { error } = await supabase.auth.signInWithPassword({ email, password }); if (error) throw error; await onSignedIn(); onOpenChange(false); }
   } catch (error) { setStatus(error instanceof Error ? error.message : "Sign-in was unavailable."); } finally { setBusy(false); } };
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="styling-auth"><DialogTitle>{mode === "signup" ? "Join Styling Notes" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : "Sign in to contribute"}</DialogTitle><DialogDescription>Browse freely. Sign in only when you want to submit or manage your notes.</DialogDescription><form onSubmit={submit}>
