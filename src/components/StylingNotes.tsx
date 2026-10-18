@@ -4,7 +4,7 @@ import { Camera, Check, LoaderCircle, LogIn, Music2, PenLine, Plus, Trash2, X } 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { availableGoogleFlow, signInWithGoogle, type GoogleFlow } from "@/lib/google-sign-in";
 import {
   deleteStylingNote, getStylingNotesWorkspace, listApprovedStylingNotes,
   reviewStylingNote, saveStylingNote, type StylingNoteView,
@@ -148,6 +148,9 @@ function NoteCard({ note, index }: { note: StylingNoteView; index: number }) {
 
 export function AuthDialog({ open, onOpenChange, onSignedIn }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void> }) {
   const [mode, setMode] = useState<AuthMode>("signin"); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [displayName, setDisplayName] = useState(""); const [status, setStatus] = useState(""); const [busy, setBusy] = useState(false);
+  // Google only shows where it can work: Lovable's hosting, or once the Supabase provider is on.
+  const [google, setGoogle] = useState<GoogleFlow>(null);
+  useEffect(() => { if (open) void availableGoogleFlow().then(setGoogle); }, [open]);
   const submit = async (event: React.FormEvent) => { event.preventDefault(); setBusy(true); setStatus(""); try {
     if (mode === "forgot") { const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/#styling-notes` }); if (error) throw error; setStatus("Check your email for the recovery link."); }
     else if (mode === "reset") { const { error } = await supabase.auth.updateUser({ password }); if (error) throw error; setStatus("Your password is updated."); setMode("signin"); }
@@ -159,6 +162,6 @@ export function AuthDialog({ open, onOpenChange, onSignedIn }: { open: boolean; 
     {mode !== "reset" && <label>Email<input required type="email" value={email} onChange={e => setEmail(e.target.value)} /></label>}
     {mode !== "forgot" && <label>Password<input required minLength={8} type="password" value={password} onChange={e => setPassword(e.target.value)} /></label>}
     {status && <p role="status">{status}</p>}<Button type="submit" disabled={busy}>{busy ? <LoaderCircle className="motion-safe:animate-spin" /> : <LogIn />}{mode === "signup" ? "Create account" : mode === "forgot" ? "Send recovery link" : mode === "reset" ? "Update password" : "Sign in"}</Button>
-  </form>{mode !== "reset" && <><div className="styling-auth-or"><span>or</span></div><Button variant="outline" onClick={async () => { setBusy(true); const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin, extraParams: { prompt: "select_account" } }); setBusy(false); if (result.error) setStatus(result.error.message); }}>Continue with Google</Button></>}
+  </form>{mode !== "reset" && google && <><div className="styling-auth-or"><span>or</span></div><Button variant="outline" onClick={async () => { setBusy(true); const error = await signInWithGoogle(google); setBusy(false); if (error) setStatus(error); }}>Continue with Google</Button></>}
   <div className="styling-auth-links">{mode === "signin" ? <><button onClick={() => setMode("signup")}>Create account</button><button onClick={() => setMode("forgot")}>Forgot password?</button></> : mode !== "reset" && <button onClick={() => setMode("signin")}>Back to sign in</button>}</div></DialogContent></Dialog>;
 }
