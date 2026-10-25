@@ -62,7 +62,7 @@ describe('Curator Dossier, signed out', () => {
 
   it('switches tabs by click and arrow keys', async () => {
     const { onTabChange } = renderDossier();
-    fireEvent.click(await screen.findByRole('tab', { name: '03. Style DNA' }));
+    fireEvent.click(await screen.findByRole('tab', { name: '04. Style DNA' }));
     expect(onTabChange).toHaveBeenLastCalledWith('dna');
     fireEvent.keyDown(screen.getByRole('tab', { name: '01. Want list & edits' }), { key: 'ArrowLeft' });
     expect(onTabChange).toHaveBeenLastCalledWith('account');
@@ -73,6 +73,17 @@ describe('Curator Dossier, signed out', () => {
     expect(await screen.findByRole('heading', { name: 'Bring your library in.' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Google Takeout' })).toHaveAttribute('href', 'https://takeout.google.com/');
     expect(screen.getByRole('button', { name: /Import Takeout file/ })).toBeInTheDocument();
+  });
+
+  it('shows the AI playlist area as a preview that sends nothing', async () => {
+    renderDossier('playlist');
+    const create = await screen.findByRole('button', { name: /Create playlist/ });
+    expect(screen.getByText(/not connected yet/)).toBeInTheDocument();
+    expect(create).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'A Sunday thrift run' }));
+    expect(screen.getByRole('textbox', { name: 'Describe the playlist' })).toHaveValue('A Sunday thrift run');
+    fireEvent.click(create);
+    expect(screen.getByRole('status', { name: '' })).toHaveTextContent(/nothing was sent anywhere/);
   });
 
   it('reads the Style DNA as chips and swatches, with a way to recalibrate', async () => {

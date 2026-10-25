@@ -2076,3 +2076,28 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .dossier-library-song strong { font-family: var(--font-editorial); font-weight: 400; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
 .dossier-library-song small { font-size: 12px; letter-spacing: .04em; color: var(--muted-foreground); overflow-wrap: anywhere; }
 .dossier-library-more { margin-top: 20px; }
+
+/* The dossier's AI playlist area: a preview, not connected to any AI or music service yet. */
+.dossier-preview { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px dashed currentColor; border-radius: 999px; font-family: var(--font-iconic); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+.dossier-preview svg { width: 13px; height: 13px; }
+.dossier-playlist-form { max-width: 720px; margin-top: 28px; }
+.dossier-field textarea { min-height: 110px; padding: 12px; border: 1px solid var(--foreground); background: transparent; color: inherit; font-family: var(--font-editorial); font-size: 18px; letter-spacing: 0; text-transform: none; resize: vertical; }
+.dossier-field textarea:focus-visible { outline: 2px solid var(--foreground); outline-offset: 2px; }
+.dossier-playlist-examples { display: flex; flex-wrap: wrap; gap: 8px; margin: -6px 0 26px; }
+.dossier-playlist-examples .dossier-chip { background: transparent; color: inherit; cursor: pointer; }
+.dossier-playlist-examples .dossier-chip:hover { background: color-mix(in oklab, var(--foreground) 8%, transparent); }
+.dossier-playlist-options { margin: 0 0 24px; padding: 0; border: 0; }
+.dossier-playlist-options legend { margin-bottom: 10px; font-family: var(--font-iconic); font-weight: 300; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+.dossier-playlist-option { display: flex; align-items: flex-start; gap: 12px; min-height: 52px; padding: 10px 0; border-top: 1px solid var(--dossier-rule); cursor: pointer; }
+.dossier-playlist-option:last-of-type { border-bottom: 1px solid var(--dossier-rule); }
+.dossier-playlist-option input, .dossier-playlist-length input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--foreground); }
+.dossier-playlist-option span { display: flex; flex-direction: column; gap: 2px; }
+.dossier-playlist-option strong { font-family: var(--font-editorial); font-weight: 400; font-size: 18px; }
+.dossier-playlist-option small { font-size: 12px; color: var(--muted-foreground); }
+.dossier-playlist-option[data-empty] strong { color: var(--muted-foreground); }
+.dossier-playlist-lengths { display: flex; flex-wrap: wrap; gap: 10px; }
+.dossier-playlist-length { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--dossier-rule); cursor: pointer; font-size: 14px; }
+.dossier-playlist-length:has(input:checked) { border-color: var(--foreground); }
+.dossier-playlist-result { max-width: 720px; margin-top: 36px; }
+.dossier-playlist-empty { margin: 0; padding: 28px 20px; border: 1px dashed var(--dossier-rule); font-family: var(--font-editorial); font-style: italic; font-size: 18px; text-align: center; color: var(--muted-foreground); }
+.dossier-playlist-promises { margin: 18px 0 0; padding-left: 1.2em; list-style: disc; font-size: 14px; line-height: 1.6; }

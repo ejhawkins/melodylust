@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { ArrowLeft, Check, Download, Link2, LogOut, Music2, Pencil, Trash2, X } from "lucide-react";
 import logoImage from "@/assets/melody-lust-logo.png";
 import { Button } from "@/components/ui/button";
+import { AiPlaylistPanel } from "@/components/AiPlaylistPanel";
 import { MusicLibraryPanel } from "@/components/MusicLibraryPanel";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { AuthDialog } from "@/components/StylingNotes";
@@ -16,6 +17,7 @@ import { addWish, clearWishlist, exportWishlist, removeWish, useWishlist, type W
 export const DOSSIER_TABS = [
   { id: "edits", label: "Want list & edits" },
   { id: "library", label: "Music library" },
+  { id: "playlist", label: "AI playlist" },
   { id: "dna", label: "Style DNA" },
   { id: "notes", label: "My styling notes" },
   { id: "account", label: "Account" },
@@ -92,6 +94,7 @@ export function CuratorDossier({ tab, onTabChange }: { tab: DossierTab; onTabCha
     <section className="dossier-panel" role="tabpanel" id={`dossier-panel-${tab}`} aria-labelledby={`dossier-tab-${tab}`}>
       {tab === "edits" && <EditsPanel wishes={wishes} />}
       {tab === "library" && <MusicLibraryPanel />}
+      {tab === "playlist" && <AiPlaylistPanel genres={styleDna(profile).genres} />}
       {tab === "dna" && <DnaPanel dna={styleDna(profile)} onRecalibrate={() => setQuizOpen(true)} />}
       {tab === "notes" && <NotesPanel signedIn={!!session} state={notesState} notes={workspace?.own ?? []} onSignIn={() => setAuthOpen(true)} onRetry={loadWorkspace} />}
       {tab === "account" && <AccountPanel session={session} displayName={workspace?.displayName ?? ""} canRename={!!workspace} onRename={rename}
