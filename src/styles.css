@@ -2101,3 +2101,11 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .dossier-playlist-result { max-width: 720px; margin-top: 36px; }
 .dossier-playlist-empty { margin: 0; padding: 28px 20px; border: 1px dashed var(--dossier-rule); font-family: var(--font-editorial); font-style: italic; font-size: 18px; text-align: center; color: var(--muted-foreground); }
 .dossier-playlist-promises { margin: 18px 0 0; padding-left: 1.2em; list-style: disc; font-size: 14px; line-height: 1.6; }
+.dossier-taste { max-width: 720px; margin-top: 28px; }
+.dossier-taste .dossier-section { margin-top: 0; }
+.dossier-taste-lede { margin: 0 0 18px; font-family: var(--font-editorial); font-style: italic; font-size: 17px; }
+.dossier-taste-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; align-items: end; }
+.dossier-taste-form .dossier-taste-note { grid-column: 1 / -1; }
+.dossier-taste-form > button { justify-self: start; margin-bottom: 18px; }
+.dossier-taste-songs { margin-top: 8px; }
+@media (max-width: 600px) { .dossier-taste-form { grid-template-columns: minmax(0, 1fr); } }

@@ -83,7 +83,19 @@ describe('Curator Dossier, signed out', () => {
     fireEvent.click(screen.getByRole('button', { name: 'A Sunday thrift run' }));
     expect(screen.getByRole('textbox', { name: 'Describe the playlist' })).toHaveValue('A Sunday thrift run');
     fireEvent.click(create);
-    expect(screen.getByRole('status', { name: '' })).toHaveTextContent(/nothing was sent anywhere/);
+    expect(screen.getByText(/nothing was sent anywhere/)).toBeInTheDocument();
+  });
+
+  it('adds songs to the taste profile and offers them to the playlist', async () => {
+    renderDossier('playlist');
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Song' }), { target: { value: 'Dracula' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Artist' }), { target: { value: 'Tame Impala' } });
+    fireEvent.click(screen.getByRole('button', { name: /Add song/ }));
+    expect(await screen.findByText('Added to your taste profile.')).toBeInTheDocument();
+    expect(screen.getByText('Dracula')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /Songs I've added/ })).toBeChecked();
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Dracula by Tame Impala' }));
+    expect(screen.queryByText('Dracula')).not.toBeInTheDocument();
   });
 
   it('reads the Style DNA as chips and swatches, with a way to recalibrate', async () => {
