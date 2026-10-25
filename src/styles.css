@@ -2059,3 +2059,20 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .genre-heading-menu { border: 1px solid var(--foreground); border-radius: 0; background: var(--background); box-shadow: 0 26px 60px -32px oklch(0.1 0.02 320 / 50%); }
 .genre-heading-option { padding: 10px 44px 10px 16px; border-radius: 0; cursor: pointer; font-family: var(--font-editorial); font-size: clamp(20px, 2.4vw, 28px); line-height: 1.1; letter-spacing: -.01em; text-transform: uppercase; }
 @media (max-width: 600px) { .genre-heading { gap: 10px; margin-bottom: 21px; } }
+
+/* The dossier's music library: a reader's YouTube Music library from Google Takeout. */
+.dossier-library { position: relative; }
+.dossier-library[data-dragging]::after { content: ""; position: absolute; inset: -12px; border: 1px dashed var(--foreground); pointer-events: none; }
+.dossier-library-empty { max-width: 640px; }
+.dossier-steps { margin: 0 0 18px; padding-left: 1.4em; list-style: decimal; font-family: var(--font-editorial); font-size: 18px; line-height: 1.4; }
+.dossier-steps li + li { margin-top: 8px; }
+.dossier-steps a { color: inherit; text-decoration: underline; text-underline-offset: .2em; }
+.dossier-library-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin: 32px 0 14px; }
+.dossier-library-head .dossier-section { margin: 0; }
+.dossier-library-search input { width: min(320px, 100%); min-height: 44px; padding: 8px 2px; border: 0; border-bottom: 1px solid var(--foreground); border-radius: 0; background: transparent; font-family: var(--font-editorial); font-style: italic; font-size: 17px; }
+.dossier-library-search input:focus-visible { outline: none; border-bottom-width: 2px; }
+.dossier-library-search { flex: 0 1 320px; }
+.dossier-library-song { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 10px 0; }
+.dossier-library-song strong { font-family: var(--font-editorial); font-weight: 400; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+.dossier-library-song small { font-size: 12px; letter-spacing: .04em; color: var(--muted-foreground); overflow-wrap: anywhere; }
+.dossier-library-more { margin-top: 20px; }

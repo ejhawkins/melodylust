@@ -61,10 +61,17 @@ describe('Curator Dossier, signed out', () => {
 
   it('switches tabs by click and arrow keys', async () => {
     const { onTabChange } = renderDossier();
-    fireEvent.click(await screen.findByRole('tab', { name: '02. Style DNA' }));
+    fireEvent.click(await screen.findByRole('tab', { name: '03. Style DNA' }));
     expect(onTabChange).toHaveBeenLastCalledWith('dna');
     fireEvent.keyDown(screen.getByRole('tab', { name: '01. Want list & edits' }), { key: 'ArrowLeft' });
     expect(onTabChange).toHaveBeenLastCalledWith('account');
+  });
+
+  it('opens the music library with the steps to bring one in from Google Takeout', async () => {
+    renderDossier('library');
+    expect(await screen.findByRole('heading', { name: 'Bring your library in.' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Google Takeout' })).toHaveAttribute('href', 'https://takeout.google.com/');
+    expect(screen.getByRole('button', { name: /Import Takeout file/ })).toBeInTheDocument();
   });
 
   it('reads the Style DNA as chips and swatches, with a way to recalibrate', async () => {

@@ -3,6 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { ArrowLeft, Check, Download, Link2, LogOut, Music2, Pencil, Trash2, X } from "lucide-react";
 import logoImage from "@/assets/melody-lust-logo.png";
 import { Button } from "@/components/ui/button";
+import { MusicLibraryPanel } from "@/components/MusicLibraryPanel";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { AuthDialog } from "@/components/StylingNotes";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ import { addWish, clearWishlist, exportWishlist, removeWish, useWishlist, type W
 
 export const DOSSIER_TABS = [
   { id: "edits", label: "Want list & edits" },
+  { id: "library", label: "Music library" },
   { id: "dna", label: "Style DNA" },
   { id: "notes", label: "My styling notes" },
   { id: "account", label: "Account" },
@@ -24,8 +26,8 @@ type Workspace = Awaited<ReturnType<typeof getStylingNotesWorkspace>>;
 
 /**
  * The Curator Dossier (/profile): who the reader is, what they've saved and how they dress,
- * and what they've sent to Styling Notes. The Want List and Style DNA live on this device and
- * work signed out; notes and the account need a sign-in.
+ * and what they've sent to Styling Notes. The Want List, music library and Style DNA live on this
+ * device and work signed out; notes and the account need a sign-in.
  */
 export function CuratorDossier({ tab, onTabChange }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void }) {
   const wishes = useWishlist();
@@ -89,6 +91,7 @@ export function CuratorDossier({ tab, onTabChange }: { tab: DossierTab; onTabCha
 
     <section className="dossier-panel" role="tabpanel" id={`dossier-panel-${tab}`} aria-labelledby={`dossier-tab-${tab}`}>
       {tab === "edits" && <EditsPanel wishes={wishes} />}
+      {tab === "library" && <MusicLibraryPanel />}
       {tab === "dna" && <DnaPanel dna={styleDna(profile)} onRecalibrate={() => setQuizOpen(true)} />}
       {tab === "notes" && <NotesPanel signedIn={!!session} state={notesState} notes={workspace?.own ?? []} onSignIn={() => setAuthOpen(true)} onRetry={loadWorkspace} />}
       {tab === "account" && <AccountPanel session={session} displayName={workspace?.displayName ?? ""} canRename={!!workspace} onRename={rename}
@@ -295,7 +298,7 @@ function AccountPanel({ session, displayName, canRename, onRename, wishCount, on
     </div>
     <div className="dossier-account-block">
       <h2 className="dossier-section">On this device</h2>
-      <p>Your Want List and Style DNA are kept in this browser, not your account.</p>
+      <p>Your Want List, music library and Style DNA are kept in this browser, not your account.</p>
       <div className="dossier-actions">
         <Button variant="dossier" disabled={!wishCount} onClick={() => reset("wishes")}>{confirm === "wishes" ? `Tap again to clear ${wishCount} ${wishCount === 1 ? "save" : "saves"}` : "Clear Want List"}</Button>
         <Button variant="dossier" onClick={() => reset("dna")}>{confirm === "dna" ? "Tap again to clear Style DNA" : "Clear Style DNA"}</Button>
