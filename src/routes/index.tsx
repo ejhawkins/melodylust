@@ -25,6 +25,7 @@ import { StyleMatrix } from "@/components/StyleMatrix";
 import { ShopSection } from "@/components/ShopSection";
 import { DigitalZine } from "@/components/DigitalZine";
 import { MusicianCircles } from "@/components/MusicianCircles";
+import { GenreHeadingSelect } from "@/components/GenreHeadingSelect";
 import { StylingNotes } from "@/components/StylingNotes";
 import { SongStyleNotes } from "@/components/SongStyleNotes";
 import { GuidedStory, GuidedStoryQuote } from "@/components/GuidedStory";
@@ -487,6 +488,7 @@ function Index() {
       <section className="circles-section" id="circles" aria-label="Musician Circles">
         <MusicianCircles />
       </section>
+      <GenreHeadingSelect genres={genres.map(g => g.name)} />
       <section className="journal" ref={journal} id="journal">
         <div className="section-heading"><h2>The latest notes</h2><span className="text-xs uppercase">Fashion. Music. A point of view.</span></div>
         <div className="filter-row">
