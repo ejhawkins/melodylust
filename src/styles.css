@@ -252,9 +252,25 @@
   --color-cover-ink: var(--cover-ink);
   --color-editorial-accent: var(--editorial-accent);
   --color-cover-accent: var(--cover-accent);
+  --font-press: "Source Serif 4", Georgia, serif;
+  --color-press-paper: var(--press-paper);
+  --color-press-ink: var(--press-ink);
+  --color-press-cyan: var(--press-cyan);
+  --color-press-cyan-600: var(--press-cyan-600);
+  --color-press-cyan-700: var(--press-cyan-700);
 }
 :root {
   --cover-ink: oklch(0.99 0.005 80);
+  /* The broadsheet chart's process inks (after the Melodylust Playlist design): paper, ink,
+     cyan and magenta as interface colors, yellow only for the plate-printed type. */
+  --press-paper: #f3f2f2;
+  --press-ink: #201e1d;
+  --press-cyan: #0088b0;
+  --press-cyan-600: #1186ac;
+  --press-cyan-700: #006786;
+  --press-magenta: #d6006c;
+  --press-magenta-700: #aa0b56;
+  --press-yellow: #edbb00;
   --head-h: clamp(72px, 5.8vw, 98px);
   --mark-h: clamp(40px, 3.9vw, 68px);
   --head-pad: clamp(16px, 1.7vw, 30px);
@@ -1939,4 +1955,95 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
   .dossier-stats div + div { padding-left: 10px; }
   .dossier-dna-row { grid-template-columns: 1fr; gap: 10px; }
   .dossier-account { grid-template-columns: 1fr; }
+}
+
+/* The week's twenty: the Billboard Hot 100 top twenty as a broadsheet front page, after the
+   Melodylust Playlist design. Its own sheet of paper, full bleed, set in Source Serif 4. */
+.bb { --bb-soft: color-mix(in srgb, var(--press-ink) 70%, transparent); width: 100vw; margin-left: calc(50% - 50vw); padding: clamp(64px, 8vw, 96px) max(clamp(20px, 5vw, 72px), calc(50vw - 600px)) 0; margin-bottom: 64px; background: var(--press-paper); color: var(--press-ink); font-family: var(--font-press); font-size: 15px; line-height: 1.55; text-wrap: pretty; scroll-margin-top: calc(var(--head-h) + 16px); }
+.bb h2, .bb h3 { font-family: var(--font-press); font-weight: 600; color: var(--press-ink); }
+.bb-kicker { display: block; margin-bottom: 24px; font-size: 13px; line-height: 1.4; letter-spacing: .08em; text-transform: uppercase; color: var(--bb-soft); }
+.bb-title { max-width: 14ch; margin: 0 0 0 -.035em; font-size: clamp(44px, 7vw, 96px); line-height: 1.06; letter-spacing: -.025em; }
+.bb-deck { max-width: 56ch; margin: 36px 0 0; font-size: 19px; line-height: 30px; color: color-mix(in srgb, var(--press-ink) 82%, transparent); }
+.bb-head { padding-bottom: clamp(48px, 6vw, 64px); }
+
+/* Type printed as three misregistered process plates; the C×M×Y overlap makes the black. */
+.bb-plates, .bb-num { position: relative; display: block; }
+.bb-plates .bb-paper, .bb-num .bb-paper { color: var(--press-paper); }
+.bb-plates .bb-paper { text-shadow: .027em .0185em 0 var(--press-paper), -.0245em -.0175em 0 var(--press-paper); }
+.bb-plate { position: absolute; inset: 0; mix-blend-mode: multiply; pointer-events: none; user-select: none; }
+.bb-plate-c { color: var(--press-cyan); }
+.bb-plate-m { color: var(--press-magenta); }
+.bb-plate-y { color: var(--press-yellow); }
+.bb-plates .bb-plate-m { translate: .018em .0125em; }
+.bb-plates .bb-plate-y { translate: -.0155em -.0115em; }
+.bb-num { width: fit-content; padding: .12em; margin: -.12em; background: var(--press-paper); font-family: var(--font-press); font-weight: 600; line-height: .9; font-feature-settings: "pnum" 1; }
+.bb-num .bb-paper { text-shadow: .036em .025em 0 var(--press-paper), -.031em -.023em 0 var(--press-paper); }
+.bb-num .bb-plate { inset: .12em; }
+.bb-num .bb-plate-m { translate: .036em .025em; }
+.bb-num .bb-plate-y { translate: -.031em -.023em; }
+.bb-num-lead { font-size: clamp(140px, 16vw, 220px); }
+.bb-num-note { font-size: 88px; margin-bottom: 16px; }
+
+.bb-edition { position: relative; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px 28px; padding: 19px 0 14px; border-bottom: 1px solid var(--press-ink); font-size: 13px; line-height: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--bb-soft); }
+.bb-edition::before { content: ""; position: absolute; inset: 0 0 auto; height: 5px; border-top: 2px solid var(--press-ink); border-bottom: 1px solid var(--press-ink); }
+
+.bb-lead { display: flex; flex-wrap: wrap; align-items: center; gap: 48px clamp(32px, 6vw, 112px); padding: clamp(64px, 8vw, 96px) 0 clamp(72px, 9vw, 112px); }
+.bb-cover { flex: 1 1 340px; max-width: 520px; margin: 0; }
+.bb-cover a { position: relative; display: block; background: var(--press-paper); }
+/* The cover printed through the four-plate separation; hover brings it into register. */
+.bb-print { display: block; filter: url(#bb-sep-all); }
+.bb-cover a:hover .bb-print, .bb-cover a:focus-visible .bb-print { filter: none; }
+.bb-print img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
+.bb-cover a::after { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(circle, rgb(0 0 0 / 22%) 30%, transparent 32%); background-size: 3px 3px; mix-blend-mode: multiply; }
+.bb-cover figcaption { margin-top: 8px; font-size: 11px; color: color-mix(in srgb, var(--press-ink) 55%, transparent); }
+.bb-lead-copy { flex: 1 1 420px; min-width: 0; }
+.bb-lead-mark { display: flex; align-items: flex-end; gap: 28px; margin-bottom: 28px; }
+.bb-label { max-width: 12ch; padding-bottom: 10px; font-size: 13px; line-height: 1.4; letter-spacing: .08em; text-transform: uppercase; color: var(--bb-soft); }
+.bb-lead-title { margin: 0; font-size: clamp(36px, 4vw, 52px); line-height: 1.08; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.bb-lead-artist { margin: 8px 0 0; font-size: 20px; font-style: italic; }
+.bb-stats { display: flex; flex-wrap: wrap; gap: 32px; margin: 28px 0 0; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--bb-soft); }
+.bb-stats div { display: flex; align-items: baseline; gap: .45em; }
+.bb-stats dd { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: 0; color: var(--press-ink); font-feature-settings: "tnum" 1; }
+.bb-listen { margin-top: 32px; }
+
+.bb-body { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 64px clamp(40px, 6vw, 112px); }
+.bb-index { flex: 1 1 560px; min-width: 0; }
+.bb-index .bb-kicker, .bb-notes .bb-kicker { margin-bottom: 20px; }
+.bb-rows { list-style: none; margin: 0; padding: 0; }
+.bb-row { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr) auto 40px; align-items: baseline; gap: 4px 20px; padding: 18px 12px; margin: 0 -12px; border-radius: 2px; }
+.bb-row:hover { background: color-mix(in srgb, var(--press-ink) 5%, transparent); }
+.bb-row-pos { font-weight: 600; font-size: 34px; line-height: 1; font-feature-settings: "pnum" 1; }
+.bb-row-song { display: flex; flex-direction: column; min-width: 0; }
+.bb-row-title { font-weight: 600; font-size: 23px; line-height: 1.15; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.bb-row-artist { margin-top: 4px; font-size: 16px; color: color-mix(in srgb, var(--press-ink) 72%, transparent); }
+.bb-row-note { max-width: 50ch; margin-top: 10px; font-size: 15.5px; line-height: 25px; font-style: italic; color: color-mix(in srgb, var(--press-ink) 78%, transparent); }
+.bb-row-meta { display: flex; gap: 20px; font-size: 13px; letter-spacing: .04em; white-space: nowrap; font-feature-settings: "tnum" 1; color: var(--bb-soft); }
+.bb-row-meta > span { min-width: 44px; text-align: right; }
+.bb-move[data-move="up"] { color: var(--press-cyan-700); }
+.bb-move[data-move="down"] { color: var(--press-magenta-700); }
+.bb-move[data-move="new"], .bb-move[data-move="re-entry"] { color: var(--press-ink); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 11px; }
+.bb-row-listen { align-self: center; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--press-cyan); }
+.bb-row-listen svg { width: 15px; height: 15px; fill: currentColor; }
+.bb-row-listen:hover { background: color-mix(in srgb, var(--press-cyan) 10%, transparent); }
+/* The whole row opens the song; the play mark stays the one real link. */
+.bb-row-listen::after { content: ""; position: absolute; inset: 0; }
+.bb-row-listen:focus-visible, .bb-listen:focus-visible, .bb-cover a:focus-visible, .bb-foot a:focus-visible { outline: 2px solid var(--press-cyan); outline-offset: 2px; }
+
+.bb-notes { flex: 0 1 320px; min-width: 260px; padding-top: 4px; display: flex; flex-direction: column; }
+.bb-note + .bb-note { margin-top: 44px; }
+.bb-note h3 { margin: 0; font-size: 22px; line-height: 1.12; letter-spacing: -.015em; }
+.bb-note p { margin: 10px 0 0; font-size: 15.5px; line-height: 25px; color: color-mix(in srgb, var(--press-ink) 78%, transparent); }
+
+.bb-foot { padding: 48px 0 32px; font-size: 13px; line-height: 22px; color: var(--bb-soft); }
+.bb-foot a { color: var(--press-cyan-700); text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 600px) {
+  .bb-row { grid-template-columns: 44px minmax(0, 1fr) 36px; gap: 4px 14px; padding: 16px 12px; }
+  .bb-row-pos { font-size: 28px; }
+  .bb-row-title { font-size: 20px; }
+  .bb-row-meta { grid-column: 2; grid-row: 2; gap: 14px; }
+  .bb-row-meta > span { min-width: 0; text-align: left; }
+  .bb-row-listen { grid-column: 3; grid-row: 1 / span 2; }
+  .bb-notes { min-width: 0; flex-basis: 100%; }
+  .bb-lead-mark { gap: 20px; }
 }

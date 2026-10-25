@@ -22,6 +22,7 @@ const buttonVariants = cva(
         soundCta: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase text-[11px] font-normal tracking-[0.22em] h-11 px-8 mt-2 transition-all hover:-translate-y-0.5",
         dossier: "rounded-none border border-current bg-transparent text-current hover:bg-current/10 uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5",
         dossierSolid: "rounded-none bg-foreground text-background hover:bg-[#221A20] uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5",
+        broadsheet: "rounded-[2px] bg-press-cyan text-press-paper hover:bg-press-cyan-600 active:bg-press-cyan-700 font-press font-semibold text-sm leading-[1.2] h-auto px-[18px] py-2.5 [&_svg]:size-3.5 [&_svg]:fill-current",
         dossierTab: "rounded-none bg-transparent text-muted-foreground hover:text-foreground aria-selected:text-foreground border-b-2 border-transparent aria-selected:border-foreground uppercase text-[11px] font-normal tracking-[0.16em] h-auto px-0 py-3",
         default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",

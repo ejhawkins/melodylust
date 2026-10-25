@@ -69,6 +69,7 @@ import { formatDay } from "@/lib/tumblr";
 import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 import { WantListPop } from "@/components/WantListPop";
 import { MoodHeading } from "@/components/MoodHeading";
+import { BillboardBroadsheet, hot100QueryOptions } from "@/components/BillboardBroadsheet";
 import { analyticsEnabled, denyGoogleAnalytics, loadGoogleAnalytics, readAnalyticsConsent, saveAnalyticsConsent, type AnalyticsConsent as AnalyticsChoice } from "@/lib/analytics";
 
 const FILM_CONSENT_KEY = "ml-cover-story-film";
@@ -96,7 +97,10 @@ export const Route = createFileRoute("/")({
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ] }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(tumblrQueryOptions),
+  loader: ({ context }) => Promise.all([
+    context.queryClient.ensureQueryData(tumblrQueryOptions),
+    context.queryClient.ensureQueryData(hot100QueryOptions),
+  ]),
   component: Index,
 });
 
@@ -511,6 +515,7 @@ function Index() {
         <h2 className="iconic-title"><span>+ Playlist</span></h2>
         <PlaylistBoard pick={playlistPick} setPick={setPlaylistPick} />
       </section>
+      <BillboardBroadsheet />
       <MoodHeading text="Fashion music" className="music-head" />
       <section className="leaderboard" id="leaderboard" aria-label="Featured banner">
         <div className="leaderboard-band">
