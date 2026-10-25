@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { DossierTab } from './CuratorDossier';
 
 const auth = {
   getSession: vi.fn(),
@@ -28,7 +29,7 @@ const note = (status: string, title: string) => ({
 });
 const signedIn = { user: { id: 'u1', email: 'maya@example.com', created_at: '2026-10-15T16:03:30Z' } };
 
-const renderDossier = (tab: 'edits' | 'dna' | 'notes' | 'account' = 'edits', onTabChange = vi.fn()) => ({ onTabChange, ...render(<CuratorDossier tab={tab} onTabChange={onTabChange} />) });
+const renderDossier = (tab: DossierTab = 'edits', onTabChange = vi.fn()) => ({ onTabChange, ...render(<CuratorDossier tab={tab} onTabChange={onTabChange} />) });
 
 beforeEach(() => {
   window.localStorage.clear();
