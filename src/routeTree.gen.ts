@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RadioRouteImport } from './routes/radio'
+import { Route as RunwaySamplerRouteImport } from './routes/runway-sampler'
+import { Route as RunwaySongsRouteImport } from './routes/runway-songs'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RadioRoute = RadioRouteImport.update({
+  id: '/radio',
+  path: '/radio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RunwaySamplerRoute = RunwaySamplerRouteImport.update({
+  id: '/runway-sampler',
+  path: '/runway-sampler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RunwaySongsRoute = RunwaySongsRouteImport.update({
+  id: '/runway-songs',
+  path: '/runway-songs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/radio': typeof RadioRoute
+  '/runway-sampler': typeof RunwaySamplerRoute
+  '/runway-songs': typeof RunwaySongsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/radio': typeof RadioRoute
+  '/runway-sampler': typeof RunwaySamplerRoute
+  '/runway-songs': typeof RunwaySongsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/radio': typeof RadioRoute
+  '/runway-sampler': typeof RunwaySamplerRoute
+  '/runway-songs': typeof RunwaySongsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/radio' | '/runway-sampler' | '/runway-songs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/radio' | '/runway-sampler' | '/runway-songs'
+  id: '__root__' | '/' | '/radio' | '/runway-sampler' | '/runway-songs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RadioRoute: typeof RadioRoute
+  RunwaySamplerRoute: typeof RunwaySamplerRoute
+  RunwaySongsRoute: typeof RunwaySongsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/radio': {
+      id: '/radio'
+      path: '/radio'
+      fullPath: '/radio'
+      preLoaderRoute: typeof RadioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/runway-sampler': {
+      id: '/runway-sampler'
+      path: '/runway-sampler'
+      fullPath: '/runway-sampler'
+      preLoaderRoute: typeof RunwaySamplerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/runway-songs': {
+      id: '/runway-songs'
+      path: '/runway-songs'
+      fullPath: '/runway-songs'
+      preLoaderRoute: typeof RunwaySongsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RadioRoute: RadioRoute,
+  RunwaySamplerRoute: RunwaySamplerRoute,
+  RunwaySongsRoute: RunwaySongsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
