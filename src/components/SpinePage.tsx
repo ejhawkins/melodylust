@@ -12,8 +12,9 @@ const SECTIONS: { id: SpineSection; label: string; href: string; column: string;
 
 /** Hairline between the panel's cells. */
 export const rule = 'border-stylus-paper/70';
-// A desktop spine's left hairline, stopping just short of the panel's foot.
-const spineLine = 'absolute bottom-2.5 left-0 top-0 hidden w-px bg-stylus-paper/70 xl:block';
+// A desktop spine's left hairline, from under the wordmark's row (so it never runs through the letters) to just short
+// of the panel's foot.
+const spineLine = 'absolute bottom-2.5 left-0 top-[168px] hidden w-px bg-stylus-paper/70 xl:block';
 
 /**
  * The listening room: an ink panel on the ground colour with the wordmark on top and a spine per section.
@@ -23,8 +24,9 @@ const spineLine = 'absolute bottom-2.5 left-0 top-0 hidden w-px bg-stylus-paper/
 export function SpinePage({ active, children }: { active: SpineSection; children: ReactNode }) {
   return <div className="spine-page min-h-dvh bg-stylus-accent px-3 pb-3 pt-10 font-grotesk text-stylus-paper xl:grid xl:place-items-center xl:py-[84px]">
     <main className="relative mx-auto flex min-h-[calc(100dvh-52px)] max-w-[480px] flex-col bg-stylus-ink xl:mx-0 xl:grid xl:h-[956px] xl:min-h-0 xl:w-full xl:max-w-[1256px] xl:grid-cols-[372px_92px_85px_minmax(0,1fr)_140px_164px] xl:grid-rows-[168px_138px_130px_minmax(0,1fr)]">
-      <div aria-hidden="true" className={cn('hidden border-b xl:col-[1] xl:row-[1] xl:block', rule)} />
-      <div className={cn('flex h-24 shrink-0 items-center justify-center border-b xl:col-[2/5] xl:row-[1] xl:h-auto xl:border-l', rule)}>
+      {/* On desktop the wordmark centres on the whole panel; the rule under it stops where the spines begin. */}
+      <div aria-hidden="true" className={cn('hidden border-b xl:col-[1/5] xl:row-[1] xl:block', rule)} />
+      <div className={cn('flex h-24 shrink-0 items-center justify-center border-b xl:col-[1/-1] xl:row-[1] xl:h-auto xl:border-b-0', rule)}>
         <Wordmark />
       </div>
       {children}
