@@ -1730,6 +1730,48 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 @keyframes show-ticker-y { to { transform: translateY(-50%); } }
 @media (prefers-reduced-motion: reduce) { .show-ticker-track { animation: none; } }
 
+/* Runway Songs portrait: each genre has a shape and a motion. On every song the portrait comes in from its genre's
+   shape and settles into the circle, then keeps moving the genre's way, in time with the middle of its tempo band
+   (--beat, set by DesignerPortrait). The shape is the button's; the motion and the rings are its frame's. */
+.portrait-motion::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; }
+
+/* Industrial: stamps round out of a square in hard steps, then presses on the third beat of every bar. */
+.portrait-motion[data-motion="stamp"] { animation: portrait-stamp calc(var(--beat) * 4) steps(1, end) .6s infinite; }
+.portrait-motion[data-motion="stamp"] > button { animation: portrait-square-in .6s steps(3, end) both, portrait-stamp-corners calc(var(--beat) * 4) steps(1, end) .6s infinite; }
+@keyframes portrait-square-in { from { border-radius: 4%; } to { border-radius: 50%; } }
+@keyframes portrait-stamp { 0%, 75%, 100% { transform: none; } 50% { transform: translateY(3px) scale(.94); } 62.5% { transform: translateY(1px) scale(.97); } }
+@keyframes portrait-stamp-corners { 0%, 75%, 100% { border-radius: 50%; } 50% { border-radius: 6%; } 62.5% { border-radius: 24%; } }
+
+/* Electro-pulse: swells out of a rounded square, then thumps on every kick with a ring rippling out. */
+.portrait-motion[data-motion="pulse"] { animation: portrait-pulse var(--beat) cubic-bezier(.2,.7,.2,1) infinite; }
+.portrait-motion[data-motion="pulse"] > button { animation: portrait-squircle-in calc(var(--beat) * 2) ease-out both, portrait-pulse-corners var(--beat) cubic-bezier(.2,.7,.2,1) calc(var(--beat) * 2) infinite; }
+.portrait-motion[data-motion="pulse"]::after { inset: 0; border: 1.5px solid var(--stylus-paper); animation: portrait-ripple var(--beat) ease-out infinite; }
+@keyframes portrait-pulse { from { transform: scale(1.05); } 40%, to { transform: none; } }
+@keyframes portrait-squircle-in { from { border-radius: 28%; } to { border-radius: 50%; } }
+@keyframes portrait-pulse-corners { from { border-radius: 40%; } 40%, to { border-radius: 50%; } }
+@keyframes portrait-ripple { from { opacity: .6; transform: none; } to { opacity: 0; transform: scale(1.22); } }
+
+/* Post-punk: jerks through torn shapes into the circle, then twitches off the grid now and then. */
+.portrait-motion[data-motion="twitch"] { animation: portrait-twitch calc(var(--beat) * 4) steps(1, end) .6s infinite; }
+.portrait-motion[data-motion="twitch"] > button { animation: portrait-torn-in .6s steps(1, end) both, portrait-torn calc(var(--beat) * 4) steps(1, end) .6s infinite; }
+@keyframes portrait-torn-in { 0% { clip-path: polygon(55% 0%, 71% 15%, 91% 23%, 94% 45%, 97% 66%, 78% 77%, 66% 95%, 46% 93%, 24% 93%, 16% 72%, 3% 56%, 10% 37%, 14% 15%, 35% 9%); } 50% { clip-path: polygon(66% 6%, 86% 15%, 90% 37%, 99% 56%, 82% 71%, 76% 93%, 54% 95%, 33% 97%, 21% 78%, 4% 65%, 6% 44%, 8% 23%, 30% 17%, 45% 1%); } 100% { clip-path: none; } }
+@keyframes portrait-twitch { 0%, 14%, 49%, 82%, 100% { transform: none; } 11% { transform: translate(-3px, 1px) rotate(-1.5deg); } 46% { transform: translate(2px, -2px) rotate(1deg) skewX(-2deg); } 77% { transform: translate(-1px, 2px) rotate(-.5deg); } 79% { transform: translate(2px, 0) rotate(.75deg); } }
+@keyframes portrait-torn { 0%, 14%, 49%, 82%, 100% { clip-path: none; } 11% { clip-path: polygon(66% 6%, 86% 15%, 90% 37%, 99% 56%, 82% 71%, 76% 93%, 54% 95%, 33% 97%, 21% 78%, 4% 65%, 6% 44%, 8% 23%, 30% 17%, 45% 1%); } 46% { clip-path: polygon(55% 0%, 71% 15%, 91% 23%, 94% 45%, 97% 66%, 78% 77%, 66% 95%, 46% 93%, 24% 93%, 16% 72%, 3% 56%, 10% 37%, 14% 15%, 35% 9%); } 77% { clip-path: polygon(78% 9%, 87% 29%, 100% 46%, 85% 64%, 81% 84%, 65% 98%, 44% 91%, 22% 90%, 7% 75%, 8% 53%, 5% 32%, 25% 23%, 35% 2%, 57% 6%); } 79% { clip-path: polygon(66% 6%, 86% 15%, 90% 37%, 99% 56%, 82% 71%, 76% 93%, 54% 95%, 33% 97%, 21% 78%, 4% 65%, 6% 44%, 8% 23%, 30% 17%, 45% 1%); } }
+
+/* Spatial: drifts out of a soft blob into the circle, then floats and breathes with a ring circling it. */
+.portrait-motion[data-motion="drift"] { animation: portrait-drift 9s ease-in-out infinite; }
+.portrait-motion[data-motion="drift"] > button { animation: portrait-blob-in 1.6s cubic-bezier(.2,.7,.2,1) both, portrait-blob 12s ease-in-out 1.6s infinite; }
+.portrait-motion[data-motion="drift"]::after { inset: -10px; opacity: .8; background: conic-gradient(transparent 0 70%, var(--stylus-paper)); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px)); mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px)); animation: portrait-orbit 14s linear infinite; }
+@keyframes portrait-drift { 0%, 100% { transform: none; } 50% { transform: translateY(-6px) scale(1.03); } }
+@keyframes portrait-blob-in { from { border-radius: 38% 62% 66% 34% / 46% 38% 62% 54%; } to { border-radius: 50%; } }
+@keyframes portrait-blob { 0%, 30%, 100% { border-radius: 50%; } 55% { border-radius: 44% 56% 60% 40% / 52% 42% 58% 48%; } 80% { border-radius: 54% 46% 42% 58% / 46% 56% 44% 54%; } }
+@keyframes portrait-orbit { to { rotate: 1turn; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-motion, .portrait-motion > button { animation: none !important; }
+  .portrait-motion::after { display: none; }
+}
+
 /* Radio: the dial's fine scale, one tick every 8px (10px on desktop). */
 .radio-scale { background: repeating-linear-gradient(90deg, color-mix(in oklab, var(--stylus-paper) 40%, transparent) 0 1px, transparent 1px 8px); }
 @media (min-width: 80rem) { .radio-scale { background: repeating-linear-gradient(90deg, color-mix(in oklab, var(--stylus-paper) 40%, transparent) 0 1px, transparent 1px 10px); } }

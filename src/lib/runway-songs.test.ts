@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { emptySamplerEdits, resolveSampler, SAMPLER_TRACKS, withManualTrack, withTrackEdit } from './runway-sampler';
-import { clock, nextIndex, previousIndex, runwaySongs, SHOWS, splitTitle, titleStep } from './runway-songs';
+import { clock, genreBeatSeconds, nextIndex, previousIndex, runwaySongs, SHOWS, splitTitle, titleStep } from './runway-songs';
 
 describe('Runway Songs queue', () => {
   it('gives every sourced track a season, year and designer', () => {
@@ -48,5 +48,12 @@ describe('Runway Songs queue', () => {
   it('formats playback time', () => {
     expect(clock(0)).toBe('0:00');
     expect(clock(272_400)).toBe('4:32');
+  });
+
+  it('keeps time with the middle of each genre’s tempo band; Spatial has none', () => {
+    expect(genreBeatSeconds('A')).toBeCloseTo(60 / 134); // Industrial, 128–140 BPM
+    expect(genreBeatSeconds('B')).toBeCloseTo(60 / 123); // Electro-pulse, 120–126 BPM
+    expect(genreBeatSeconds('C')).toBeCloseTo(60 / 122.5); // Post-punk, 115–130 BPM
+    expect(genreBeatSeconds('D')).toBeNull();
   });
 });

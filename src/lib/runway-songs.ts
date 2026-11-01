@@ -1,7 +1,7 @@
 // Runway Songs: the sampler's sourced tracks as a player queue, with each show's season, year and
 // designer for the player's headline rows. Pure and browser-safe so the queue moves are unit-tested.
 
-import { SAMPLER_TRACKS, type CategoryId, type SamplerRow } from './runway-sampler';
+import { RUNWAY_CATEGORIES, SAMPLER_TRACKS, type CategoryId, type SamplerRow } from './runway-sampler';
 
 export type Designer = {
   name: string;
@@ -60,6 +60,12 @@ export const SHOWS: Record<string, { season: string; year: number; designers: De
 
 /** Pill labels: the one word that tells the four catwalk energies apart. */
 export const CATEGORY_LABELS: Record<CategoryId, string> = { A: 'Industrial', B: 'Electro-pulse', C: 'Post-punk', D: 'Spatial' };
+
+/** One beat at the middle of a genre's tempo band, in seconds, so motion can keep its time; Spatial has no tempo. */
+export function genreBeatSeconds(category: CategoryId) {
+  const band = RUNWAY_CATEGORIES[category].band;
+  return band ? 60 / ((band.min + band.max) / 2) : null;
+}
 
 export type RunwaySong = {
   id: string;

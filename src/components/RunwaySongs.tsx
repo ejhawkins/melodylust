@@ -94,7 +94,7 @@ export function RunwaySongs({ archive = noArchive, showNotes = noNotes }: { arch
     <div className="flex shrink-0 flex-col xl:col-[1/3] xl:row-[4]">
       <div className={cn('flex h-[140px] items-start justify-between gap-3 border-b px-[14px] py-4 xl:h-[127px] xl:px-8 xl:pb-0 xl:pt-[22px]', rule)}>
         <h3 className={cn(longHouse ? 'text-[24px] font-stretch-75% xl:text-[44px]' : 'text-[27px] font-stretch-125% xl:text-[50px]', 'font-bold uppercase leading-[0.88] tracking-[-0.01em] xl:leading-[0.86]')}>{song.house}</h3>
-        <DesignerPortrait key={song.id} designers={song.designers} house={song.house}
+        <DesignerPortrait key={song.id} designers={song.designers} house={song.house} genre={song.category}
           className="size-[108px] shrink-0 xl:absolute xl:left-[296px] xl:top-[356px] xl:z-10 xl:size-[220px]" />
       </div>
       <section aria-label="About Melody Lust" className={cn('hidden flex-col gap-3.5 border-b pb-[18px] pl-[27px] pr-8 pt-11 xl:flex', rule)}>

@@ -115,6 +115,19 @@ describe('Runway Songs player', () => {
     expect(screen.queryByRole('region', { name: /Show notes/ })).toBeNull();
   });
 
+  it('moves the portrait in its song’s genre, in time with the genre’s tempo, whether or not it plays', () => {
+    const { container } = render(<RunwaySongs />);
+    const motion = () => container.querySelector<HTMLElement>('.portrait-motion')!;
+    expect(screen.getByText(/· Spatial/)).toBeInTheDocument();
+    expect(motion()).toHaveAttribute('data-motion', 'drift');
+    expect(motion().style.getPropertyValue('--beat')).toBe('');
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText(/· Industrial/)).toBeInTheDocument();
+    expect(motion()).toHaveAttribute('data-motion', 'stamp');
+    expect(motion().style.getPropertyValue('--beat')).toBe('0.448s');
+    expect(within(motion()).getByRole('button', { name: /creative director/ })).toBeInTheDocument();
+  });
+
   it('names a director Commons has no portrait of without crediting a photo', () => {
     render(<RunwaySongs />);
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
