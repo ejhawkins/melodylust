@@ -24,7 +24,7 @@ const reply = {
   },
 };
 
-describe('Runway Music Archive', () => {
+describe('Runway Songs archive', () => {
   it('reads a Spotify track from a link, a URI or the bare id', () => {
     expect(spotifyTrackId('https://open.spotify.com/intl-fr/track/4FHSuYWyoH9EsFalVIEaOC?si=x')).toBe('4FHSuYWyoH9EsFalVIEaOC');
     expect(spotifyTrackId('spotify:track:4FHSuYWyoH9EsFalVIEaOC')).toBe('4FHSuYWyoH9EsFalVIEaOC');
@@ -61,5 +61,7 @@ describe('Runway Music Archive', () => {
     expect(withArchive(queued, archive).map(s => [s.id, s.spotifyUri, s.looks.length])).toEqual([
       ['sin-thetik', 'spotify:track:1', 1], ['runway', 'spotify:track:2', 0], ['archive-b', 'spotify:track:3', 0],
     ]);
+    // Hidden in the sampler, so gone from the queue; the archive doesn't bring it back.
+    expect(withArchive([queued[1]!], archive, new Set(['spotify:track:1'])).map(s => s.id)).toEqual(['runway', 'archive-b']);
   });
 });

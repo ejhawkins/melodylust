@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react';
 import { ArrowUpRight, Check, Pause, Play, Plus, Repeat, Shuffle, SkipBack, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DesignerPortrait } from '@/components/DesignerPortrait';
+import { ShowTicker } from '@/components/ShowTicker';
 import { rule, SpinePage } from '@/components/SpinePage';
 import { resolveSampler } from '@/lib/runway-sampler';
 import { useSamplerEdits } from '@/lib/runway-sampler-store';
 import { withArchive } from '@/lib/runway-archive';
-import { CATEGORY_LABELS, clock, nextIndex, previousIndex, RESTART_AFTER_MS, runwaySongs, textWidthEm, titleStep, type RunwaySong } from '@/lib/runway-songs';
+import { CATEGORY_LABELS, clock, hiddenTracks, nextIndex, previousIndex, RESTART_AFTER_MS, runwaySongs, textWidthEm, titleStep, type RunwaySong } from '@/lib/runway-songs';
 import { useSavedSongs } from '@/lib/runway-songs-store';
+import { showKey, type ShowNotes } from '@/lib/show-notes';
 import { useSpotifyEmbed } from '@/lib/spotify-embed';
 import { cn } from '@/lib/utils';
 
@@ -20,15 +22,19 @@ const titleSizes = ['text-[48px] xl:text-[84px]', 'text-[40px] xl:text-[68px]', 
 const looks = Array.from({ length: 5 }, (_, index) => `LOOK ${String(index + 1).padStart(2, '0')}`);
 const lookCard = 'flex size-full flex-col items-center justify-end gap-1 rounded-[10px] bg-stylus-paper/10 pb-2 text-[10px] font-medium tracking-[0.16em] text-stylus-paper/70';
 const noArchive: RunwaySong[] = [];
+const noNotes: Record<string, ShowNotes> = {};
 const manifesto = [
   'Every styling app solves the same problem: what should I buy. They measure you, match you, optimize you, and hand back a grid of products with nothing behind it. Nothing you’d save. Nothing you’d feel. Just fit.',
   'Music has been fashion’s muse for sixty years – every subculture worth naming got its uniform from a sound. Melody Lust puts that back in the machine. We start with what you listen to, because it’s the only data about you that’s actually about you.',
 ];
 
-/** Runway Songs: the sampler's sourced show soundtracks and the archive's, one at a time, played through Spotify. */
-export function RunwaySongs({ archive = noArchive }: { archive?: RunwaySong[] }) {
+/** Runway Songs: the sampler's sourced show soundtracks and the archive's, one at a time, played through Spotify, with AI notes on each show. */
+export function RunwaySongs({ archive = noArchive, showNotes = noNotes }: { archive?: RunwaySong[]; showNotes?: Record<string, ShowNotes> }) {
   const [edits] = useSamplerEdits();
-  const songs = useMemo(() => withArchive(runwaySongs(resolveSampler(edits)), archive), [edits, archive]);
+  const songs = useMemo(() => {
+    const rows = resolveSampler(edits);
+    return withArchive(runwaySongs(rows), archive, hiddenTracks(rows));
+  }, [edits, archive]);
   const [index, setIndex] = useState(0);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState(false);
@@ -117,10 +123,14 @@ export function RunwaySongs({ archive = noArchive }: { archive?: RunwaySong[] })
         </Button>
       </div>
 
-      <div aria-hidden="true" className="relative mt-2 h-3.5 xl:mt-3">
-        <div className="absolute inset-x-0 top-1.5 h-px bg-stylus-paper/45" />
-        <div className="absolute left-0 top-1.5 h-px bg-stylus-paper" style={{ width: progress }} />
-        <div className="absolute top-[3px] -ml-[3px] size-[7px] rounded-full bg-stylus-paper" style={{ left: progress }} />
+      {/* The drawn bar stays as it was; a transparent range input over it takes clicks, drags and arrow keys. */}
+      <div className="group/seek relative mt-2 h-3.5 xl:mt-3">
+        <div aria-hidden="true" className="absolute inset-x-0 top-1.5 h-px bg-stylus-paper/45" />
+        <div aria-hidden="true" className="absolute left-0 top-1.5 h-px bg-stylus-paper" style={{ width: progress }} />
+        <div aria-hidden="true" className="absolute top-[3px] -ml-[3px] size-[7px] rounded-full bg-stylus-paper transition-transform group-hover/seek:scale-150 group-has-[:focus-visible]/seek:scale-150" style={{ left: progress }} />
+        <input type="range" aria-label="Seek" min={0} max={durationMs || 0} step={1000} value={Math.min(positionMs, durationMs || 0)} disabled={!durationMs}
+          aria-valuetext={`${clock(positionMs)} of ${clock(durationMs)}`} onChange={event => embed.seek(Number(event.target.value))}
+          className="absolute -inset-y-2 inset-x-0 m-0 w-full cursor-pointer appearance-none opacity-0 disabled:cursor-default" />
       </div>
       <div className="mt-1.5 flex justify-between text-xs font-medium tabular-nums tracking-[0.14em] text-stylus-paper/70 xl:mt-2 xl:text-[13px]">
         <span>{clock(positionMs)}</span>
@@ -150,5 +160,7 @@ export function RunwaySongs({ archive = noArchive }: { archive?: RunwaySong[] })
       {/* The embed that makes the sound; the controls above drive it. */}
       <div ref={embed.host} aria-hidden="true" inert className="pointer-events-none absolute size-px overflow-hidden opacity-0" />
     </section>
+
+    <ShowTicker key={showKey(song)} notes={showNotes[showKey(song)] ?? null} show={`${song.house} ${song.season} ${song.year}`} />
   </SpinePage>;
 }

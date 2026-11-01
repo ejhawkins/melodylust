@@ -3,6 +3,7 @@
 // Returns null when Supabase isn't configured, and callers fall back to local files.
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createSupabaseFetch } from './supabase-fetch';
 
 let client: SupabaseClient | null | undefined;
 
@@ -22,6 +23,9 @@ export function getDb(): SupabaseClient | null {
   if (!isHttpUrl(url)) {
     throw new SupabaseConfigError('SUPABASE_URL is not a valid https:// address. Fix it in .env and restart the server: a running server keeps the first value it saw.');
   }
-  client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  client = createClient(url, key, {
+    global: { fetch: createSupabaseFetch(key) },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
   return client;
 }

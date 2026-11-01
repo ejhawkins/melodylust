@@ -128,5 +128,14 @@ export function useSpotifyEmbed(uri: string | null, onEnded: () => void) {
     if (play) embed.play();
   }, []);
 
-  return { host, playback, toggle, restart };
+  /** Moves the playhead to `ms`; shown at once rather than on the embed's next update. */
+  const seek = useCallback((ms: number) => {
+    const embed = controller.current;
+    if (!embed) return;
+    embed.seek(ms / 1000);
+    last.current = { ...last.current, positionMs: ms };
+    setPlayback(current => ({ ...current, positionMs: ms }));
+  }, []);
+
+  return { host, playback, toggle, restart, seek };
 }

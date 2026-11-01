@@ -1,4 +1,4 @@
-// Runway Music Archive: songs entered in Contentful (scripts/contentful/runway-music-archive.cjs is the model),
+// Runway Songs archive: songs entered in Contentful (scripts/contentful/runway-music-archive.cjs is the model),
 // turned into player songs and merged with the sampler's. Pure and browser-safe so it's tested without a space.
 
 import type { CategoryId } from './runway-sampler';
@@ -75,11 +75,12 @@ export function archiveSongs(payload: unknown): RunwaySong[] {
 
 /**
  * The sampler's running order with the archive's songs. An archive song for a track already queued takes its place
- * (keeping the queued id, so saves stay); the rest follow in the archive's order, each track once.
+ * (keeping the queued id, so saves stay); the rest follow in the archive's order, each track once. A track the reader
+ * hid in the sampler (`hidden`, Spotify URIs) stays hidden even when the archive has it.
  */
-export function withArchive(songs: RunwaySong[], archive: RunwaySong[]): RunwaySong[] {
+export function withArchive(songs: RunwaySong[], archive: RunwaySong[], hidden: ReadonlySet<string> = new Set()): RunwaySong[] {
   const archived = new Map<string, RunwaySong>();
-  for (const song of archive) if (!archived.has(song.spotifyUri)) archived.set(song.spotifyUri, song);
+  for (const song of archive) if (!archived.has(song.spotifyUri) && !hidden.has(song.spotifyUri)) archived.set(song.spotifyUri, song);
   const queued = new Set(songs.map(song => song.spotifyUri));
   return [
     ...songs.map(song => { const entry = archived.get(song.spotifyUri); return entry ? { ...entry, id: song.id } : song; }),

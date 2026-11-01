@@ -99,6 +99,14 @@ export function runwaySongs(rows: SamplerRow[]): RunwaySong[] {
   });
 }
 
+/** Spotify URIs of the sourced tracks the reader hid in the sampler, so the archive doesn't queue them again. */
+export function hiddenTracks(rows: SamplerRow[]) {
+  return new Set(rows.flatMap(row => {
+    const track = row.hidden ? SAMPLER_TRACKS.find(sourced => sourced.id === row.id) : undefined;
+    return track ? [`spotify:track:${track.spotifyId}`] : [];
+  }));
+}
+
 /** Headline sizes in px at desktop width, largest first. The player's type classes follow this order. */
 export const TITLE_STEPS = [84, 68, 56, 46] as const;
 const COLUMN_PX = 360; // the desktop now-playing column inside its padding, at its narrowest (1280px window)

@@ -1,5 +1,5 @@
 ---
-description: Build a Gemini song scout that finds more runway show songs by designer, for the Runway Music Archive
+description: Build a Gemini song scout that finds more runway show songs by designer, for Runway Songs
 ---
 
 # Runway song scout: more runway songs, found with Gemini
@@ -8,7 +8,7 @@ Read `AGENTS.md` first and follow it. Work on a new branch and open a pull reque
 
 ## Where things stand
 
-The Runway Music Archive (`/runway-songs`) plays the songs that runway shows used. Each song has a show (house, season, year), the show's creative directors and up to five Tagwalk look links.
+Runway Songs (`/runway-songs`) plays the songs that runway shows used. Each song has a show (house, season, year), the show's creative directors and up to five Tagwalk look links.
 
 - **Built-in songs.** `src/lib/runway-sampler.ts` holds `SAMPLER_TRACKS`, and every track there cites a source (`SAMPLER_SOURCES`). `src/lib/runway-songs.ts` holds `SHOWS` and `DESIGNERS`. The categories and their tempo ranges are `RUNWAY_CATEGORIES`, and `bandFit` checks a BPM against them. In one line each:
   - A: Industrial

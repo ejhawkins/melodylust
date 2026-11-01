@@ -44,3 +44,6 @@ dist-ssr
 
 # Local product cache (recent Farfetch searches)
 .cache
+
+# Supabase CLI cache
+supabase/.temp/

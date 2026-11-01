@@ -22,7 +22,11 @@
     "tracker:import": "node scripts/import-tracker.ts",
     "db:check": "node --env-file-if-exists=.env scripts/db-check.ts",
     "db:seed": "node --env-file-if-exists=.env scripts/db-seed.ts",
-    "db:articles": "node --env-file-if-exists=.env scripts/db-articles.ts"
+    "db:articles": "node --env-file-if-exists=.env scripts/db-articles.ts",
+    "designers:import": "node --env-file-if-exists=.env scripts/import-vogue-designers.ts",
+    "designers:scout-songs": "node --env-file-if-exists=.env scripts/scout-runway-songs.ts",
+    "designers:review-songs": "node --env-file-if-exists=.env scripts/review-runway-songs.ts",
+    "designers:show-notes": "tsx --env-file-if-exists=.env scripts/show-notes.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

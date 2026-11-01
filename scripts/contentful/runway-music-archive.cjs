@@ -1,4 +1,4 @@
-// Runway Music Archive content model: designers, the shows they made, and the songs those shows played.
+// Runway Songs content model: designers, the shows they made, and the songs those shows played.
 // Run once against a new space (it creates the three content types; it doesn't touch entries):
 //   npx contentful-cli login
 //   npx contentful-cli space migration --space-id <space id> scripts/contentful/runway-music-archive.cjs

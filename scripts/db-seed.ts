@@ -9,12 +9,16 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
+import { createSupabaseFetch } from '../src/lib/supabase-fetch.ts';
 import { parseSheetCsv } from '../src/lib/tracker-import.ts';
 
 const url = process.env['SUPABASE_URL'];
 const key = process.env['SUPABASE_SECRET_KEY'] || process.env['SUPABASE_SERVICE_ROLE_KEY'];
 if (!url || !key) { console.error('Missing SUPABASE_URL or SUPABASE_SECRET_KEY in .env.'); process.exit(1); }
-const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+const db = createClient(url, key, {
+  global: { fetch: createSupabaseFetch(key) },
+  auth: { persistSession: false, autoRefreshToken: false },
+});
 
 const toArticle = (row: ReturnType<typeof parseSheetCsv>['rows'][number], status: 'approved' | 'candidate', source: 'sheet' | 'scout') => ({
   tracker_id: status === 'approved' ? row.id : null,

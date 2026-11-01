@@ -902,6 +902,14 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 @keyframes runway-looks { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .runway-looks-track { animation: none; } }
 
+/* Show notes ticker: across on phones, up the spine column on desktop (its frame is turned, so -50% runs downward). */
+.show-ticker-track { animation: show-ticker-x 60s linear infinite; }
+@media (min-width: 80rem) { .show-ticker-track { animation-name: show-ticker-y; } }
+.show-ticker:hover .show-ticker-track { animation-play-state: paused; }
+@keyframes show-ticker-x { to { transform: translateX(-50%); } }
+@keyframes show-ticker-y { to { transform: translateY(-50%); } }
+@media (prefers-reduced-motion: reduce) { .show-ticker-track { animation: none; } }
+
 /* Radio: the dial's fine scale, one tick every 8px (10px on desktop). */
 .radio-scale { background: repeating-linear-gradient(90deg, color-mix(in oklab, var(--stylus-paper) 40%, transparent) 0 1px, transparent 1px 8px); }
 @media (min-width: 80rem) { .radio-scale { background: repeating-linear-gradient(90deg, color-mix(in oklab, var(--stylus-paper) 40%, transparent) 0 1px, transparent 1px 10px); } }

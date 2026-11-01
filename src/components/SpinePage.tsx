@@ -24,7 +24,7 @@ export function SpinePage({ active, children }: { active: SpineSection; children
   return <div className="spine-page min-h-dvh bg-stylus-accent px-3 pb-3 pt-10 font-grotesk text-stylus-paper xl:grid xl:place-items-center xl:py-[84px]">
     <main className="relative mx-auto flex min-h-[calc(100dvh-52px)] max-w-[480px] flex-col bg-stylus-ink xl:mx-0 xl:grid xl:h-[956px] xl:min-h-0 xl:w-full xl:max-w-[1256px] xl:grid-cols-[372px_92px_85px_minmax(0,1fr)_140px_164px] xl:grid-rows-[168px_138px_130px_minmax(0,1fr)]">
       <div aria-hidden="true" className={cn('hidden border-b xl:col-[1] xl:row-[1] xl:block', rule)} />
-      <div className={cn('flex h-[112px] shrink-0 items-start justify-center border-b xl:col-[2/5] xl:row-[1] xl:h-auto xl:border-l', rule)}>
+      <div className={cn('flex h-24 shrink-0 items-center justify-center border-b xl:col-[2/5] xl:row-[1] xl:h-auto xl:border-l', rule)}>
         <Wordmark />
       </div>
       {children}
@@ -38,7 +38,6 @@ export function SpinePage({ active, children }: { active: SpineSection; children
             className={cn('group relative flex items-center justify-center whitespace-nowrap text-[clamp(16px,5.1vw,20px)] font-semibold tracking-[-0.01em] text-stylus-paper font-stretch-125% focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-stylus-paper xl:row-[1/-1] xl:flex-col xl:justify-end xl:pb-[104px] xl:text-[78px] xl:leading-none', section.column)}>
             <span aria-hidden="true" className={spineLine} />
             <span className="transition-opacity duration-200 group-hover:opacity-70 xl:rotate-180 xl:[writing-mode:vertical-rl]">{section.label}</span>
-            {current && <span aria-hidden="true" className="absolute left-1/2 top-3 size-1.5 -translate-x-1/2 rounded-full bg-stylus-paper xl:bottom-[58px] xl:top-auto xl:size-2" />}
           </a>;
         })}
       </nav>
@@ -46,16 +45,9 @@ export function SpinePage({ active, children }: { active: SpineSection; children
   </div>;
 }
 
-/** "Runway Music Archive" with the stylus standing in for the i of Music: its head, the dot, rises above the panel. */
+/** Tight-tracked and centred in its box; on desktop it's set at 265px and lifted 105px so it rises out of the panel. */
 function Wordmark() {
-  return <h1 className="m-0 mt-4 font-editorial text-[clamp(40px,14.5vw,64px)] font-normal leading-[0.8] tracking-[-0.04em] xl:mt-5 xl:text-[90px]">
-    <span className="sr-only">Runway Music Archive</span>
-    <span aria-hidden="true" className="block whitespace-nowrap">
-      Runway Mus<svg viewBox="0 0 20 192" fill="currentColor" className="mx-[0.02em] -mt-[1.5em] inline-block h-[1.5em] w-[0.2em] align-baseline">
-        <circle cx="10" cy="10" r="9" />
-        <path d="M7.5 17h5v155l-2.5 20-2.5-20z" />
-      </svg>c
-    </span>
-    <span aria-hidden="true" className="block">Archive</span>
+  return <h1 className="m-0 whitespace-nowrap font-editorial text-[clamp(40px,14.5vw,64px)] font-normal leading-[0.8] tracking-[-0.1945em] xl:-mt-[105px] xl:text-[265px] xl:tracking-[-44px]">
+    Runway Songs
   </h1>;
 }

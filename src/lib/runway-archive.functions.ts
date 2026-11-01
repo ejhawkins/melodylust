@@ -10,7 +10,7 @@ export type RunwayArchive = { songs: RunwaySong[]; connected: boolean };
 let cache: { at: number; songs: RunwaySong[] } | null = null;
 
 /**
- * Published Runway Music Archive songs from Contentful's Content Delivery API, with their shows, designers and
+ * Published Runway Songs archive songs from Contentful's Content Delivery API, with their shows, designers and
  * designer photos (include=3). The delivery token is read inside the handler and never reaches the browser.
  * Without a space configured the player plays the sampler's songs alone.
  */
