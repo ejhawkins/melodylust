@@ -48,4 +48,3 @@ export function createResponsesCall(
       withLovableAiGatewayRunIdHeader(result.toUIMessageStreamResponse({ sendReasoning: true }), runIdFetch),
   };
 }
-

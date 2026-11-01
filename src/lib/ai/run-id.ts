@@ -131,4 +131,3 @@ export async function withLovableAiGatewayRunIdHeader(
     headers: getLovableAiGatewayResponseHeaders(undefined, headers),
   });
 }
-

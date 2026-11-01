@@ -39,7 +39,7 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
 
     function readResult(payload: unknown): AIStyleResponse {
       const suggestions = readAIStyle(payload, data);
-      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, elapsedMs: Date.now() - started });
+      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, coverage: data.coverage.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, inspired: suggestions.filter(s => s.inspiration).length, brands: suggestions.flatMap(s => s.pieces.flatMap(p => p.brand ? [`${p.brand} ${p.item}`] : [])), elapsedMs: Date.now() - started });
       return suggestions.length ? { status: 'ok', suggestions, provider } : { status: 'unavailable', suggestions: [], provider };
     }
   });

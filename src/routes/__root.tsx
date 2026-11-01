@@ -78,20 +78,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Melody Lust — Fashion & Culture" },
-      { name: "description", content: "An independent journal of fashion, music, and personal style." },
-      { property: "og:title", content: "Melody Lust — Fashion & Culture" },
-      { property: "og:description", content: "An independent journal of fashion, music, and personal style." },
+      { title: "Melody Lust — Fashion, Music, Your Point of View" },
+      { name: "description", content: "An independent fashion and music journal for editorials, live finds, and community Styling Notes." },
+      { name: "author", content: "Melody Lust" },
+      { property: "og:title", content: "Melody Lust — Fashion, Music, Your Point of View" },
+      { property: "og:description", content: "An independent fashion and music journal for editorials, live finds, and community Styling Notes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Archivo+Black&family=Big+Shoulders+Display:wght@700..900&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Archivo+Black&family=BBH+Hegarty&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=DM+Sans:wght@400;500;600&display=swap" },
+      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,
@@ -124,4 +130,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-

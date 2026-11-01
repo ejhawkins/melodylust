@@ -2,7 +2,7 @@ vi.mock('./db.server', () => ({ getDb: () => null }));
 import { describe, it, expect, vi } from 'vitest';
 import { articleAnalysisInputSchema, editorialCorpusInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, parseEditorialCsv, readStyleResult, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
 import { evidenceStrength, parseEvidenceCorpus } from './melodylust-evidence';
-import { createMemoryEvidenceStore, createTrackerLoader, readTrackedEvidence } from './article-tracker.server';
+import { createMemoryEvidenceStore, createTrackerLoader, readTrackedEvidence, TRACKER_BATCH_SIZE } from './article-tracker.server';
 
 const corpus = parseEvidenceCorpus({
   version: 1,
@@ -57,7 +57,8 @@ describe('backend article tracker', () => {
       };
     };
     const corpus = await createTrackerLoader()(bigCsv, linkingReader);
-    expect(batchSizes.sort()).toEqual([2, 5, 5]);
+    // TRACKER_BATCH_SIZE is 3, so 12 articles are read in four batches.
+    expect(batchSizes.sort()).toEqual([3, 3, 3, 3]);
     expect(corpus.documents).toHaveLength(12);
     expect(corpus.entities).toHaveLength(2);
     expect(new Set(corpus.observations.map(observation => observation.id)).size).toBe(12);
@@ -253,6 +254,8 @@ describe('ranking designer connections by how directly the articles state them',
 });
 
 describe('first search after new articles are added', () => {
+  // Article IDs of the second reading batch, whatever the batch size.
+  const secondBatch = Array.from({ length: TRACKER_BATCH_SIZE }, (_, i) => String(TRACKER_BATCH_SIZE + i + 1));
   const header = 'ID,URL,Publication,Published At,Title,Summary,Categories';
   const rows = (n: number) => [header, ...Array.from({ length: n }, (_, i) => `${i + 1},https://example.com/${i + 1},Test,2024-01-01,Usher story ${i + 1},,Fashion`)].join('\n');
   const reader = async (input: ReturnType<typeof parseEditorialCsv>) => ({ version: 1, entities: [], documents: input.documents.map(document => ({ ...document, entity_ids: [] })), observations: [] });
@@ -262,29 +265,29 @@ describe('first search after new articles are added', () => {
     let release!: () => void;
     const gate = new Promise<void>(resolve => { release = resolve; });
     // The first batch is quick; the second waits until released, like a slow AI call.
-    const slow = async (input: ReturnType<typeof parseEditorialCsv>) => { if (input.documents[0]!.id === '6') await gate; return reader(input); };
+    const slow = async (input: ReturnType<typeof parseEditorialCsv>) => { if (input.documents[0]!.id === secondBatch[0]) await gate; return reader(input); };
     const load = createTrackerLoader(store, 'v1', 50);
-    const first = await load(rows(10), slow);
-    expect(first.documents).toHaveLength(5);
-    expect(load.stats).toMatchObject({ pending: 5 });
-    expect(load.unread().map(document => document.id)).toEqual(['6', '7', '8', '9', '10']);
+    const first = await load(rows(2 * TRACKER_BATCH_SIZE), slow);
+    expect(first.documents).toHaveLength(TRACKER_BATCH_SIZE);
+    expect(load.stats).toMatchObject({ pending: TRACKER_BATCH_SIZE });
+    expect(load.unread().map(document => document.id)).toEqual(secondBatch);
     release();
     await new Promise(resolve => setTimeout(resolve, 20));
-    expect((await load(rows(10), slow)).documents).toHaveLength(10);
+    expect((await load(rows(2 * TRACKER_BATCH_SIZE), slow)).documents).toHaveLength(2 * TRACKER_BATCH_SIZE);
     expect(load.stats).toMatchObject({ pending: 0 });
   });
 
   it('keeps everything that worked when one article fails, and retries only that article next time', async () => {
     const store = createMemoryEvidenceStore();
     let failSecond = true;
-    const flaky = async (input: ReturnType<typeof parseEditorialCsv>) => (input.documents[0]!.id === '6' && failSecond ? { version: 1, entities: [], documents: [], observations: [] } : reader(input));
+    const flaky = async (input: ReturnType<typeof parseEditorialCsv>) => (input.documents[0]!.id === secondBatch[0] && failSecond ? { version: 1, entities: [], documents: [], observations: [] } : reader(input));
     const load = createTrackerLoader(store, 'v1');
-    // Article 6 breaks its batch; read one by one, its four batch-mates still get through.
-    expect((await load(rows(10), flaky)).documents).toHaveLength(9);
+    // The second batch's first article breaks it; read one by one, its batch-mates still get through.
+    expect((await load(rows(2 * TRACKER_BATCH_SIZE), flaky)).documents).toHaveLength(2 * TRACKER_BATCH_SIZE - 1);
     expect(load.stats).toMatchObject({ failed: 1 });
-    expect(load.unread().map(document => document.id)).toEqual(['6']);
+    expect(load.unread().map(document => document.id)).toEqual([secondBatch[0]]);
     failSecond = false;
-    expect((await load(rows(10), flaky)).documents).toHaveLength(10);
+    expect((await load(rows(2 * TRACKER_BATCH_SIZE), flaky)).documents).toHaveLength(2 * TRACKER_BATCH_SIZE);
   });
 });
 

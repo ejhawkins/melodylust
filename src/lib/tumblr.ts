@@ -253,6 +253,69 @@ export const mapTumblrPosts = (payload: unknown): TumblrPost[] => {
     .filter((post): post is TumblrPost => post !== null);
 };
 
+/** RSS carries each post's HTML either XML-escaped or inside CDATA. */
+const unescapeXml = (text: string) => {
+  const cdata = /^\s*<!\[CDATA\[([\s\S]*)\]\]>\s*$/.exec(text);
+  if (cdata) return cdata[1] ?? "";
+  return text
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;|&#39;/g, "'")
+    .replace(/&amp;/g, "&");
+};
+
+const element = (xml: string, name: string) =>
+  new RegExp(`<${name}>([\\s\\S]*?)</${name}>`, "i").exec(xml)?.[1] ?? "";
+
+/** Comments, video embeds and hidden "visit the post" notes never belong on a card. */
+const cleanBody = (html: string) =>
+  html
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<iframe\b[\s\S]*?<\/iframe>/gi, "")
+    .replace(/<(p|div|span)\b[^>]*display\s*:\s*none[^>]*>[\s\S]*?<\/\1>/gi, "");
+
+/** Keeps one credit per line ("Publication: …", "Photographer: …") so splitDigest can read them.
+ *  Some posts carry a heading tag split up by Tumblr's editor ("<p><</p><p>h3>"): a "<" that
+ *  starts no tag is kept as text, and the decoded fragment is dropped with the other tags. */
+const toLines = (html: string) =>
+  decodeEntities(
+    html
+      .replace(/<(?![a-z!/?])/gi, "&lt;")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(p|h[1-6]|div|li)>/gi, "\n")
+      .replace(/<[^>]+>/g, ""),
+  )
+    .replace(/<\s*\/?\s*[a-z][a-z0-9]*\b[^>]*>/gi, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n\s*\n+/g, "\n")
+    .trim();
+
+/** The blog's public RSS feed, used when no API key is set: same card shape as the API. */
+export const mapTumblrRss = (xml: string): TumblrPost[] =>
+  xml
+    .split(/<item>/i)
+    .slice(1)
+    .map((chunk) => {
+      const item = chunk.split(/<\/item>/i)[0] ?? "";
+      const url = unescapeXml(element(item, "link")).trim();
+      const html = cleanBody(unescapeXml(element(item, "description")));
+      const date = Date.parse(unescapeXml(element(item, "pubDate")).trim());
+      const tags = [...item.matchAll(/<category>([\s\S]*?)<\/category>/gi)]
+        .map((m) => unescapeXml(m[1] ?? "").trim())
+        .filter(Boolean);
+      return mapPost({
+        id: /\/post\/(\d+)/.exec(url)?.[1] ?? url,
+        post_url: url,
+        type: /<img\b/i.test(html) ? "photo" : "text",
+        timestamp: Number.isFinite(date) ? Math.floor(date / 1000) : 0,
+        tags,
+        body: html,
+        summary: toLines(html),
+      });
+    })
+    .filter((post): post is TumblrPost => post !== null);
+
 /** Deterministic so server and client render the same string. */
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

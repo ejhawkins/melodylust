@@ -11,21 +11,32 @@ type ShopState = { status: 'loading' | 'ready' | 'none' | 'unavailable'; product
 /** Real Farfetch listings for a look: a house's signature pieces, or one match per item. Product
  *  photos are the provider's own; a card whose photo fails to load is hidden, never replaced.
  *  With `showStatus`, loading / no-match / unavailable are spelled out instead of rendering nothing. */
-export function ShopProducts({ designer, items, from, title, showStatus = false, note, seed, genres = [] }: {
+export function ShopProducts({ designer, items, brands, from, title, showStatus = false, note, seed, genres = [] }: {
   designer: string | null; items?: string[]; from: string; title?: string; showStatus?: boolean; note?: string;
+  /** A brand per item, aligned with `items` ("Ralph Lauren" for "polo shirt"); null searches all brands. */
+  brands?: (string | null)[];
   /** With a seed, each piece fetches several candidates and one is picked per artist and outfit (see product-pick). */
   seed?: string; genres?: string[];
 }) {
   const [state, setState] = useState<ShopState>({ status: 'loading', products: [] });
   const [broken, setBroken] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>([]);
-  const query = `${designer ?? ''}|${items?.join('|') ?? ''}|${seed ?? ''}|${genres.join(',')}`;
+  const query = `${designer ?? ''}|${items?.join('|') ?? ''}|${brands?.join('|') ?? ''}|${seed ?? ''}|${genres.join(',')}`;
   useEffect(() => {
     setState({ status: 'loading', products: [] }); setBroken([]);
     let current = true; // a newer artist/outfit replaces this one's answer
     const pieces = [...new Set(items ?? [])].slice(0, 4);
+    const limit = seed ? CANDIDATE_POOL : 1;
+    // A piece with an article's brand searches that brand first, then any brand if it has no match.
+    const lookup = (item: string) => {
+      const brand = designer ? null : brands?.[items?.indexOf(item) ?? -1] ?? null;
+      const anyBrand = () => lookupProducts({ data: { ...(designer ? { designer } : {}), item, limit } });
+      return brand
+        ? lookupProducts({ data: { brand, item, limit } }).then(response => response.products.length ? response : anyBrand())
+        : anyBrand();
+    };
     const searches = pieces.length
-      ? pieces.map(item => lookupProducts({ data: { ...(designer ? { designer } : {}), item, limit: seed ? CANDIDATE_POOL : 1 } }))
+      ? pieces.map(lookup)
       : designer ? [lookupProducts({ data: { designer, limit: 3 } })] : [];
     if (!searches.length) { setState({ status: 'none', products: [] }); return; }
     Promise.all(searches).then(responses => {
@@ -55,7 +66,7 @@ export function ShopProducts({ designer, items, from, title, showStatus = false,
       <span className="stylus-shop-price">{formatPrice(product.price, product.currency)}</span>
       <span className="stylus-shop-actions">
         <Button variant="stylusTool" size="sm" asChild><a href={product.link} target="_blank" rel="noopener noreferrer" aria-label={`Search Farfetch for ${product.brand} ${product.name}`}>Farfetch <ExternalLink aria-hidden="true" /></a></Button>
-        <Button variant="stylusTool" size="icon" aria-label={`Save ${product.brand} ${product.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: `${product.brand} ${product.name}`, detail: formatPrice(product.price, product.currency), link: product.link, note: '', from }); setSaved(s => [...s, product.id]); }}>{saved.includes(product.id) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
+        <Button variant="stylusTool" size="icon" aria-label={`Save ${product.brand} ${product.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: `${product.brand} ${product.name}`, detail: formatPrice(product.price, product.currency), link: product.link, note: '', from, image: product.image }); setSaved(s => [...s, product.id]); }}>{saved.includes(product.id) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
       </span>
     </li>)}</ul>}
     <p className="stylus-evidence-note">{note ?? 'Products via Farfetch search; prices and stock change. Not tracker evidence.'}</p>

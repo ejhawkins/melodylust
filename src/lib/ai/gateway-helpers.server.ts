@@ -31,4 +31,3 @@ export function createLovableAiGatewayProvider(
     waitForRunId: runIdFetch.waitForRunId,
   });
 }
-

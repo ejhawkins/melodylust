@@ -3,7 +3,7 @@ import type { LookupAddress } from 'node:dns';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import ipaddr from 'ipaddr.js';
-import { JSDOM } from 'jsdom';
+import { parseHTML } from 'linkedom';
 import { Readability } from '@mozilla/readability';
 import { articleAnalysisInputSchema } from './style-search';
 
@@ -36,14 +36,14 @@ export async function resolveArticleURL(value: string, signal = AbortSignal.time
 
 export function extractArticleText(html: Buffer | string, sourceURL: string) {
   if (Buffer.byteLength(html) > maxHTMLBytes) throw new ArticleReadError('The page exceeds the 2 MB reader limit.');
-  const dom = new JSDOM(html, { url: sourceURL });
-  try {
-    const readable = new Readability(dom.window.document, { charThreshold: 100 }).parse();
+  const { document } = parseHTML(html.toString());
+  {
+    const readable = new Readability(document as unknown as Document, { charThreshold: 100 }).parse();
     if (!readable?.textContent) throw new ArticleReadError('No readable article text was found.');
-    const result = articleAnalysisInputSchema.safeParse({ title: readable.title || dom.window.document.title || new URL(sourceURL).hostname, url: sourceURL, text: readable.textContent });
+    const result = articleAnalysisInputSchema.safeParse({ title: readable.title || document.title || new URL(sourceURL).hostname, url: sourceURL, text: readable.textContent });
     if (!result.success) throw new ArticleReadError('The page did not provide a usable article within the reader limits.');
     return result.data;
-  } finally { dom.window.close(); }
+  }
 }
 
 function fetchPage(source: Awaited<ReturnType<typeof resolveArticleURL>>, signal: AbortSignal) {

@@ -53,8 +53,9 @@ describe('QA: the same products should not appear for every artist', () => {
   });
 
   it('never repeats a product inside one outfit, even when searches return the same listing', () => {
-    const shared: ShopProduct = { ...catalog('top')[0]!, id: 'same-listing', name: 'satin shirt top' };
-    const picks = pickOutfitProducts([{ item: 'shirt', products: [shared] }, { item: 'top', products: [shared, ...catalog('top')] }], 'seed');
+    // Two pieces of the same garment ("shirt" and "silk shirt") can both be offered one listing.
+    const shared: ShopProduct = { ...catalog('shirt')[0]!, id: 'same-listing', name: 'satin silk shirt' };
+    const picks = pickOutfitProducts([{ item: 'shirt', products: [shared] }, { item: 'silk shirt', products: [shared, ...catalog('silk shirt')] }], 'seed');
     expect(duplicateIds(picks)).toEqual([]);
     expect(picks.map(p => p.id)[0]).toBe('same-listing');
   });

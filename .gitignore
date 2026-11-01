@@ -22,8 +22,6 @@ dist-ssr
 
 # Editor directories and files
 .vscode/*
-!.vscode/tasks.json
-!.vscode/launch.json
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -33,17 +31,11 @@ dist-ssr
 *.sln
 *.sw?
 
-
-.env
-.env.*
-!.env.example
-
-# Vercel CLI link and build output
-.vercel
-.env*.local
-
-# Local product cache (recent Farfetch searches)
+# Local evidence and product caches (rebuilt from the tracker and Farfetch)
 .cache
+
+# Vercel build output and local project link
+.vercel
 
 # Supabase CLI cache
 supabase/.temp/

@@ -7,8 +7,25 @@ import { foldName } from './song-recommendations';
 
 export type ShopProduct = { id: string; brand: string; name: string; price: number; currency: string; image: string; link: string };
 
-type FarfetchImage = { size?: unknown; url?: unknown };
-type FarfetchEntry = { id?: unknown; shortDescription?: unknown; brand?: { name?: unknown }; price?: unknown; currencyIsoCode?: unknown; images?: unknown; gender?: unknown };
+/** A brand an article names, matched loosely: "Ralph Lauren" covers the "Polo Ralph Lauren" and
+ *  "Ralph Lauren Purple Label" labels, as whole words only ("Lauren" never matches "Laurence"). */
+export function brandMatches(productBrand: string, brand: string) {
+  const words = (value: string) => value.split(/[\s/&+-]+/).map(foldName).filter(Boolean);
+  const label = words(productBrand), wanted = words(brand);
+  return wanted.length > 0 && label.some((_, start) => wanted.every((word, offset) => label[start + offset] === word));
+}
+
+export type CatalogProduct = ShopProduct & {
+  category: string;
+  sizes: string[];
+  images: string[];
+  availability: 'in_stock' | 'low_stock' | 'unknown';
+  tags: string[];
+  description: string;
+};
+
+type FarfetchImage = { order?: unknown; size?: unknown; url?: unknown };
+type FarfetchEntry = { id?: unknown; shortDescription?: unknown; brand?: { name?: unknown }; price?: unknown; currencyIsoCode?: unknown; images?: unknown; availableSizes?: unknown; quantity?: unknown; attributes?: unknown; gender?: unknown };
 
 /** Children's lines ("adidas Kids", gender "Kid") don't belong in an adult editorial edit. */
 const CHILDRENS = /\b(kids?|baby|babies|junior|teens?|children|girls?|boys?)\b/i;
@@ -35,6 +52,15 @@ const stems = (text: string) => text.toLowerCase().match(/[a-z]+/g)?.map(word =>
 export function itemMatchScore(item: string, productName: string) {
   const name = new Set(stems(productName));
   return [...new Set(stems(item))].filter(stem => name.has(stem)).length;
+}
+
+/** The item's garment word (its last word: "shoes" in "dress shoes") is the product's own garment
+ *  word (the last word before "with …"), so a shared word never matches a different object:
+ *  "dress shoes" ≠ "tank dress", "fedora" ≠ "Fedora mug", but "trousers" = "poplin trousers with embroidery". */
+export function garmentMatches(item: string, productName: string) {
+  const garment = stems(item).at(-1);
+  const product = stems(productName.split(/\s(?:with|in|and|featuring)\s/i)[0] ?? '').at(-1);
+  return Boolean(garment) && garment === product;
 }
 
 /** Search payload → up to `limit` priced, pictured products — from the requested house only,
@@ -68,12 +94,64 @@ export function readFarfetchSearch(payload: unknown, designer: string | null, li
     .map(entry => entry.product);
 }
 
+const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+function gallery(images: unknown) {
+  const usable = (Array.isArray(images) ? images as FarfetchImage[] : [])
+    .flatMap(image => typeof image.url === 'string' && image.url.startsWith('https://')
+      ? [{ order: Number(image.order) || 1, width: Number(image.size) || 0, url: image.url }]
+      : []);
+  const orders = [...new Set(usable.map(image => image.order))].sort((a, b) => a - b);
+  return orders.slice(0, 4).flatMap(order => {
+    const versions = usable.filter(image => image.order === order).sort((a, b) => a.width - b.width);
+    const image = versions.find(version => version.width >= 600) ?? versions.at(-1);
+    return image ? [image.url] : [];
+  });
+}
+
+/** A Farfetch search response mapped to the richer cards used by the main Shop. */
+export function readFarfetchCatalog(payload: unknown, category: string, limit = 3): CatalogProduct[] {
+  const entries = payload && typeof payload === 'object' && 'products' in payload && payload.products && typeof payload.products === 'object' && 'entries' in payload.products && Array.isArray(payload.products.entries)
+    ? payload.products.entries as FarfetchEntry[] : [];
+  const products: CatalogProduct[] = [];
+  for (const entry of entries) {
+    const id = typeof entry.id === 'number' || typeof entry.id === 'string' ? String(entry.id) : '';
+    const brand = typeof entry.brand?.name === 'string' ? entry.brand.name.trim() : '';
+    const name = typeof entry.shortDescription === 'string' ? entry.shortDescription.trim() : '';
+    const images = gallery(entry.images);
+    const image = images[0];
+    if (!id || !brand || !name || !image || typeof entry.price !== 'number' || entry.price <= 0) continue;
+    const sizes = (Array.isArray(entry.availableSizes) ? entry.availableSizes : []).flatMap(size =>
+      size && typeof size === 'object' && 'size' in size && typeof size.size === 'string' ? [size.size.trim()] : []).filter(Boolean);
+    const tags = (Array.isArray(entry.attributes) ? entry.attributes : []).flatMap(attribute =>
+      attribute && typeof attribute === 'object' && 'values' in attribute && Array.isArray(attribute.values)
+        ? attribute.values.flatMap((value: unknown) => value && typeof value === 'object' && 'value' in value && typeof value.value === 'string' ? [value.value] : [])
+        : []);
+    const quantity = typeof entry.quantity === 'number' ? entry.quantity : null;
+    products.push({
+      id, brand, name, price: entry.price,
+      currency: typeof entry.currencyIsoCode === 'string' ? entry.currencyIsoCode : 'USD',
+      image, images, category, sizes: [...new Set(sizes)],
+      availability: quantity === null ? 'unknown' : quantity <= 2 ? 'low_stock' : 'in_stock',
+      tags: [...new Set([category, ...tags])],
+      description: `${brand} ${name}, currently listed on Farfetch. Prices, sizes and availability may change at the retailer.`,
+      link: `https://www.farfetch.com/shopping/women/${slug(name)}-item-${id}.aspx`,
+    });
+    if (products.length >= limit) break;
+  }
+  return products;
+}
+
 const TRAILING_NOISE = new Set(['stack', 'set', 'look', 'layer', 'layers', 'pair', 'combo', 'moment']);
 
 /** "Crystal-encrusted biker jacket" → "jacket"; "Layered metallic choker stack" → "choker". */
 export function pieceKeyword(piece: string) {
   const words = piece.toLowerCase().replace(/[^a-z\s-]/g, ' ').split(/\s+/).filter(Boolean);
-  while (words.length > 1 && TRAILING_NOISE.has(words.at(-1)!)) words.pop();
+  while (words.length > 1) {
+    const last = words.at(-1);
+    if (!last || !TRAILING_NOISE.has(last)) break;
+    words.pop();
+  }
   return words.at(-1) ?? '';
 }
 

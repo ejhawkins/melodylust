@@ -41,8 +41,8 @@ function splitByArticle(corpus: EvidenceCorpus): Record<string, ArticleEvidence>
 
 // One AI request per small batch keeps each answer well inside the model's output limit
 // and timeout as the tracker grows; a few batches run at once to keep first search quick.
-export const TRACKER_BATCH_SIZE = 5;
-const TRACKER_CONCURRENCY = 3;
+export const TRACKER_BATCH_SIZE = 3;
+const TRACKER_CONCURRENCY = 5;
 
 /** Joins per-article evidence into one corpus: shared entities once, every article and observation. */
 export function assembleCorpus(articles: ArticleEvidence[]): EvidenceCorpus {

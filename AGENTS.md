@@ -9,10 +9,11 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep this editorial journal on the index route; category filtering and article reading stay browser-only, while the quiz persists its validated taste profile only in device storage to personalize search without accounts.
-- Keep the style-profile schema, vocabulary, and verified editorial metadata in a client-safe module shared by quiz and server validation; explicit search attributes override profile defaults to preserve reader intent.
-- Keep editorial style-search presentation in its own component on the index route; use a validated public server function for one-shot AI recommendations and request-local server-only Responses helpers so credentials never reach the browser.
-- Define editorial styles and semantic color roles in src/styles.css and expose interactive visual variants through the shared Button component for consistent theming.
-- Build animated headings as word groups of letter spans (never a literal space as its own flex item), and gate the reveal on an IntersectionObserver flag so motion only runs once the block is in view — a space glyph sized as a flex item blows the heading wider than its column.
-- Read third-party services through a createServerFn in src/lib/*.functions.ts with the credential read inside the handler, and keep the payload-to-UI conversion in a plain sibling module that is unit-tested without credentials — this keeps keys out of the browser bundle and lets the mapping be verified before any key exists.
-
+- Keep the digital zine in a dedicated component with page-flip loaded after hydration; isolate its mutable booklet DOM from React to preserve SSR and safe cleanup.
+- Source the home Shop catalogue through the server-side Farfetch RapidAPI adapter; never expose its key or restore demo product rows when the provider is unavailable.
+- Keep Styling Notes on the home page; store submissions and moderation in Lovable Cloud, with signed-photo delivery and server-verified ownership and roles.
+- Keep song-panel inspiration bookmarks separate from community submissions and persist them on the visitor's device, so saving a reference never publishes an unreviewed note.
+- Ship code to github.com/ejhawkins/melodylust through the GitHub connector's git API (blobs → tree with base_tree → commit → PATCH ref), never by rewriting Lovable's own git history; Lovable's Git sync only creates new repos.
+- When uploading a file through that connector, send its content as raw text — the connector encodes it for GitHub; pre-encoding to base64 stores the base64 text itself.
+- Keep every column the app writes present in the database schema, including columns the code adds itself (an article's source, a scouted link's uniqueness) — a missing column only surfaces when that write path runs.
+- Keep featured-song collage motion in its dedicated component with a scoped scroll controller and separate sample metrics, so search logic and sourced song data remain untouched.

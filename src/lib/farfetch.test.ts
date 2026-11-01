@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { farfetchLink, formatPrice, itemMatchScore, pieceKeyword, readFarfetchSearch } from './farfetch';
+import { brandMatches, farfetchLink, garmentMatches, formatPrice, itemMatchScore, pieceKeyword, readFarfetchSearch } from './farfetch';
 
 // Shape of a live farfetch-data search.php response (trimmed).
 const images = (id: number) => [54, 250, 400, 800].map(size => ({ order: 1, size: String(size), url: `https://cdn-images.farfetch-contents.com/${id}_${size}.jpg` }));
@@ -10,6 +10,22 @@ const entry = (id: number, overrides: Record<string, unknown> = {}) => ({
 const payload = (entries: unknown[]) => ({ products: { number: 1, totalPages: 1, totalItems: entries.length, entries }, facets: [] });
 
 describe('Farfetch products', () => {
+  it('only matches a product of the same garment', () => {
+    expect(garmentMatches('dress shoes', 'perforated tank dress')).toBe(false);
+    expect(garmentMatches('dress shoes', 'leather Derby shoes')).toBe(true);
+    expect(garmentMatches('tuxedo jacket', 'zip quilted puffer jacket')).toBe(true);
+    expect(garmentMatches('fedora', 'Hybrid Fedora mug')).toBe(false);
+    expect(garmentMatches('tailored trousers', 'poplin trousers with crystal flower embroidery')).toBe(true);
+    expect(garmentMatches('polo shirt', 'Polo Pony polo shirt')).toBe(true);
+  });
+
+  it('matches an article\'s brand across a house\'s labels, as whole words', () => {
+    expect(brandMatches('Polo Ralph Lauren', 'Ralph Lauren')).toBe(true);
+    expect(brandMatches('Ralph Lauren Purple Label', 'ralph lauren')).toBe(true);
+    expect(brandMatches('Laurence Dacade', 'Lauren')).toBe(false);
+    expect(brandMatches('Saint Laurent', 'Ralph Lauren')).toBe(false);
+  });
+
   it('maps entries into product cards with a 400px image and a Farfetch link', () => {
     expect(readFarfetchSearch(payload([entry(1)]), 'Off-White')).toEqual([{
       id: '1', brand: 'Off-White', name: 'patch-detail bomber jacket', price: 5180, currency: 'USD',

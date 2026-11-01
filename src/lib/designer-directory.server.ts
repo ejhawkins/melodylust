@@ -1,4 +1,4 @@
-import { JSDOM, VirtualConsole } from 'jsdom';
+import { parseHTML } from 'linkedom';
 
 const VOGUE_ORIGIN = 'https://www.vogue.com';
 const DESIGNER_PATH = /^\/fashion-shows\/designer\/([a-z0-9][a-z0-9-]*)\/?$/;
@@ -17,11 +17,11 @@ export function normalizeDesignerName(name: string) {
 }
 
 export function parseVogueDesignerDirectory(html: string): DesignerDirectoryRecord[] {
-  const document = new JSDOM(html, { url: VOGUE_ORIGIN, virtualConsole: new VirtualConsole() }).window.document;
+  const { document } = parseHTML(html);
   const records = new Map<string, DesignerDirectoryRecord>();
 
-  for (const anchor of document.querySelectorAll<HTMLAnchorElement>('a[href]')) {
-    const url = new URL(anchor.href, VOGUE_ORIGIN);
+  for (const anchor of document.querySelectorAll('a[href]')) {
+    const url = new URL(anchor.getAttribute('href') ?? '', VOGUE_ORIGIN);
     if (url.origin !== VOGUE_ORIGIN) continue;
     const match = DESIGNER_PATH.exec(url.pathname);
     const name = anchor.textContent?.replace(/\s+/g, ' ').trim();

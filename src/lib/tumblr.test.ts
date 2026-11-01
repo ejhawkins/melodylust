@@ -1,261 +1,65 @@
-import { describe, expect, it } from "vitest";
-import { formatDay, mapTumblrPosts } from "./tumblr";
+import { describe, expect, it } from 'vitest';
+import { mapTumblrRss } from './tumblr';
 
-// One Oct 2026, 00:00 UTC
-const T0 = 1790812800;
+const esc = (html: string) => html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-const payload = {
-  meta: { status: 200, msg: "OK" },
-  response: {
-    posts: [
-      {
-        id: 1,
-        post_url: "https://melodylust.tumblr.com/post/1",
-        type: "photo",
-        timestamp: T0,
-        tags: ["outfit", "belts"],
-        content: [
-          {
-            type: "image",
-            alt: "Navy argyle knit and a tartan skirt",
-            media: [
-              { url: "https://64.media/2048.jpg", width: 2048, height: 2560 },
-              { url: "https://64.media/1280.jpg", width: 1280, height: 1600 },
-              { url: "https://64.media/640.jpg", width: 640, height: 800 },
-            ],
-          },
-          { type: "text", text: "Three belts, *one* opinion. [see it](https://example.com)" },
-        ],
-        summary: "Three belts, one opinion.",
-      },
-      {
-        id: 2,
-        post_url: "https://melodylust.tumblr.com/post/2",
-        type: "text",
-        timestamp: T0 - 86400,
-        title: "The art of not trying too hard",
-        body: "<p>A leather jacket. Your favourite jeans. &amp; a little attitude.</p>",
-      },
-      {
-        id: 3,
-        post_url: "https://melodylust.tumblr.com/post/3",
-        type: "quote",
-        timestamp: T0 - 172800,
-        quote: "<p>Style is a way to say hello without speaking.</p>",
-        source: '<a href="https://example.com">Apparel Arts</a>',
-      },
-      {
-        id: 4,
-        post_url: "https://melodylust.tumblr.com/post/4",
-        type: "link",
-        timestamp: T0 - 259200,
-        link_url: "https://example.com",
-        link_text: "Thrift finds",
-        link_description: "<p>Six coats, one rail.</p>",
-      },
-      {
-        id: 5,
-        post_url: "https://melodylust.tumblr.com/post/5",
-        type: "video",
-        timestamp: T0 - 345600,
-        video_thumbnail_url: "https://64.media/thumb.jpg",
-        content: [{ type: "video" }],
-      },
-      { id: 6, type: "text", title: "A post with no address" },
-    ],
-  },
-};
+// Shaped like turnto-pg28.tumblr.com/rss: escaped HTML, several photos, then credits and a note.
+const editorial = `<item><title>Publication: Dior MagazinePhotographer: Paolo RoversiModel: Iza...</title><description>${esc(
+  '<img src="https://64.media.tumblr.com/a/tumblr_one_500.jpg"/><br/> <br/><img src="https://64.media.tumblr.com/b/tumblr_two_500.jpg"/><br/> <br/>' +
+    '<h3 style="text-align: center;"><b>Publication:</b> Dior Magazine<br/><b>Photographer:</b> Paolo Roversi<br/><b><b>Model:</b> Iza Michalska </b></h3>\n\n' +
+    '<p><!-- more --></p>\n\n<p>Pensive. I really like the oxford blood lip &amp; statement brows.</p>\n\n' +
+    '<iframe width="500" height="315" src="https://www.youtube.com/embed/x" frameborder="0"></iframe>\n\n' +
+    '<p style="display:none;">Can’t see the content? Visit the actual post!</p>',
+)}</description><link>https://turnto-pg28.tumblr.com/post/614215563078729728</link><guid>https://turnto-pg28.tumblr.com/post/614215563078729728</guid><pubDate>Wed, 01 Apr 2020 13:20:07 -0400</pubDate><category>fashion</category><category>dior</category></item>`;
 
-describe("mapTumblrPosts", () => {
-  const posts = mapTumblrPosts(payload);
+const cdata = `<item><title>Spring</title><description><![CDATA[<img src="https://64.media.tumblr.com/c/tumblr_three_500.jpg"/><h3><b>Publication:</b> Vogue Paris<br/><b>Stylist:</b> Emmanuelle Alt</h3>]]></description><link>https://turnto-pg28.tumblr.com/post/42/spring-issue</link><pubDate>Mon, 30 Mar 2020 12:20:04 -0400</pubDate></item>`;
 
-  it("drops entries without a link and keeps the rest in order", () => {
-    expect(posts).toHaveLength(5);
-    expect(posts.map((p) => p.id)).toEqual(["1", "2", "3", "4", "5"]);
-  });
+const textOnly = `<item><title>Notes</title><description>${esc('<p>Words only, no picture.</p>')}</description><link>https://turnto-pg28.tumblr.com/post/7</link><pubDate>Fri, 06 Mar 2020 12:20:58 -0500</pubDate></item>`;
 
-  it("picks a sensible image size and keeps the alt text", () => {
-    const photo = posts[0];
-    expect(photo?.image).toBe("https://64.media/640.jpg");
-    expect(photo?.alt).toBe("Navy argyle knit and a tartan skirt");
-    expect(photo?.type).toBe("photo");
-  });
+const feed = (...items: string[]) =>
+  `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>pg28</title><link>https://turnto-pg28.tumblr.com/</link>${items.join('')}</channel></rss>`;
 
-  it("strips formatting markers and link syntax from text", () => {
-    const photo = posts[0];
-    expect(photo?.excerpt).toContain("Three belts, one opinion");
-    expect(photo?.excerpt).not.toMatch(/[*_[]/);
-  });
-
-  it("reads legacy HTML fields", () => {
-    const text = posts[1];
-    expect(text?.title).toBe("The art of not trying too hard");
-    expect(text?.excerpt).toBe("A leather jacket. Your favourite jeans. & a little attitude.");
-  });
-
-  it("shows a quote in full", () => {
-    expect(posts[2]?.excerpt).toBe("Style is a way to say hello without speaking.");
-  });
-
-  it("uses the link label as the title", () => {
-    expect(posts[3]?.title).toBe("Thrift finds");
-    expect(posts[3]?.excerpt).toBe("Six coats, one rail.");
-  });
-
-  it("falls back to the video thumbnail for an image", () => {
-    expect(posts[4]?.image).toBe("https://64.media/thumb.jpg");
-  });
-
-  it("handles an empty or unexpected payload", () => {
-    expect(mapTumblrPosts(null)).toEqual([]);
-    expect(mapTumblrPosts({})).toEqual([]);
-    expect(mapTumblrPosts({ response: { posts: "not an array" } })).toEqual([]);
-  });
-});
-
-describe("formatDay", () => {
-  it("renders a stable date regardless of the machine's timezone", () => {
-    expect(formatDay(T0)).toBe("01 Oct 2026");
-    expect(formatDay(T0 - 86400)).toBe("30 Sep 2026");
-    expect(formatDay(0)).toBe("");
-  });
-});
-
-describe("legacy HTML bodies", () => {
-  const posts = mapTumblrPosts({
-    response: {
-      posts: [
-        {
-          id: 7,
-          post_url: "https://melodylust.tumblr.com/post/7",
-          type: "text",
-          timestamp: T0,
-          title: "",
-          summary:
-            '"Autumn is a second spring when every leaf is a flower."\nSept. 22 is the fall equinox.',
-          body: '<div class="npf_row"><figure class="tmblr-full"><img src="https://64.media.tumblr.com/leaf.jpg" alt="Maple leaves on wet pavement"/><span class="tmblr-alt-text-helper">ALT</span></figure></div><p>&ldquo;Autumn is a second spring when every leaf is a flower.&rdquo;</p>',
-        },
-      ],
-    },
-  });
-
-  it("keeps Tumblr's hidden ALT label out of the heading", () => {
-    expect(posts[0]?.title).not.toContain("ALT");
-    expect(posts[0]?.title).toContain("Autumn is a second spring");
-  });
-
-  it("never leaks raw entity codes into card text", () => {
-    expect(posts[0]?.excerpt).not.toContain("&ldquo;");
-    expect(posts[0]?.excerpt).toContain("fall equinox");
-  });
-
-  it("decodes the curly quotes inside the body markup", () => {
-    const decoded = mapTumblrPosts({
-      response: {
-        posts: [
-          {
-            id: 71,
-            post_url: "https://melodylust.tumblr.com/post/71",
-            type: "text",
-            timestamp: T0,
-            body: "<p>&ldquo;Autumn is a second spring.&rdquo;</p>",
-          },
-        ],
-      },
+describe('mapTumblrRss', () => {
+  it('turns an editorial post into a card: first photo, publication as title, credits and note as excerpt', () => {
+    const [post] = mapTumblrRss(feed(editorial));
+    expect(post).toMatchObject({
+      id: '614215563078729728',
+      url: 'https://turnto-pg28.tumblr.com/post/614215563078729728',
+      type: 'photo',
+      title: 'Dior Magazine',
+      image: 'https://64.media.tumblr.com/a/tumblr_one_500.jpg',
+      timestamp: Date.parse('Wed, 01 Apr 2020 13:20:07 -0400') / 1000,
+      tags: ['fashion', 'dior'],
     });
-    expect(decoded[0]?.title).toBe("\u201CAutumn is a second spring.\u201D");
+    expect(post?.excerpt).toContain('Photographer: Paolo Roversi');
+    expect(post?.excerpt).toContain('oxford blood lip & statement brows');
   });
 
-  it("finds the photo kept inline in the body", () => {
-    expect(posts[0]?.image).toBe("https://64.media.tumblr.com/leaf.jpg");
-    expect(posts[0]?.alt).toBe("Maple leaves on wet pavement");
-  });
-});
-
-describe("entity decoding", () => {
-  const posts = mapTumblrPosts({
-    response: {
-      posts: [
-        {
-          id: 8,
-          post_url: "https://melodylust.tumblr.com/post/8",
-          type: "text",
-          timestamp: T0,
-          title: "Caf&#233; au lait &amp; cr&ecirc;me",
-          body: "<p>10&#8217;000 &mdash; sold out</p>",
-        },
-      ],
-    },
+  it('leaves out comments, video embeds and hidden notes', () => {
+    const [post] = mapTumblrRss(feed(editorial));
+    expect(post?.excerpt).not.toMatch(/Can’t see the content|youtube|more/);
   });
 
-  it("decodes numeric and named entities", () => {
-    expect(posts[0]?.title).toBe("Café au lait & crême");
-    expect(posts[0]?.excerpt).toBe("10’000 — sold out");
+  it('reads CDATA descriptions and post links that carry a slug', () => {
+    const [post] = mapTumblrRss(feed(cdata));
+    expect(post).toMatchObject({ id: '42', title: 'Vogue Paris', image: 'https://64.media.tumblr.com/c/tumblr_three_500.jpg' });
+    expect(post?.excerpt).toBe('Stylist: Emmanuelle Alt');
   });
 
-  it("leaves an unknown entity alone rather than losing text", () => {
-    expect(mapTumblrPosts({ response: { posts: [{ id: 9, url: "https://x.tumblr.com/post/9", title: "&notreal;", body: "<p>ok</p>" }] } })[0]?.title).toBe("&notreal;");
+  it('keeps text posts without a photo, so the page can choose to show only images', () => {
+    const posts = mapTumblrRss(feed(editorial, textOnly, cdata));
+    expect(posts.map(p => p.id)).toEqual(['614215563078729728', '7', '42']);
+    expect(posts[1]).toMatchObject({ type: 'text', image: null });
+  });
+
+  it('reads a heading that Tumblr\'s editor split into pieces', () => {
+    const broken = `<item><description>${esc('<img src="https://64.media.tumblr.com/d/tumblr_four_500.jpg"/><br/> <br/><p><</p>\n\n<p>h3><b>Publication:</b> Elle\n<br/><b>Photographer:</b> Jason Kibbler')}</description><link>https://turnto-pg28.tumblr.com/post/9</link></item>`;
+    const [post] = mapTumblrRss(feed(broken));
+    expect(post).toMatchObject({ title: 'Elle', excerpt: 'Photographer: Jason Kibbler' });
+  });
+
+  it('returns nothing for an empty or unreadable feed', () => {
+    expect(mapTumblrRss('')).toEqual([]);
+    expect(mapTumblrRss('<html>Not found</html>')).toEqual([]);
   });
 });
-
-describe("credit-style summaries", () => {
-  const posts = mapTumblrPosts({
-    response: {
-      posts: [
-        {
-          id: 10,
-          post_url: "https://turnto-pg28.tumblr.com/post/10",
-          type: "photo",
-          timestamp: T0,
-          summary:
-            "Publication: Dior Magazine Photographer: Paolo Roversi Model: Iza Michalska and Estee Rammant",
-          photos: [{ orig_size: { url: "https://64.media.tumblr.com/dior.jpg", width: 640, height: 800 } }],
-        },
-        {
-          id: 11,
-          post_url: "https://turnto-pg28.tumblr.com/post/11",
-          type: "text",
-          timestamp: T0,
-          summary: "Three belts, one opinion. Wear the colour.",
-        },
-        { id: 12, post_url: "https://turnto-pg28.tumblr.com/post/12", type: "photo", timestamp: T0 },
-      ],
-    },
-  });
-
-  it("pulls a short heading out of a credit block", () => {
-    expect(posts[0]?.title).toBe("Dior Magazine");
-    expect(posts[0]?.excerpt).toContain("Photographer: Paolo Roversi");
-    expect(posts[0]?.excerpt).not.toContain("Dior Magazine");
-  });
-
-  it("leaves an ordinary sentence as the heading", () => {
-    expect(posts[1]?.title).toBe("Three belts, one opinion. Wear the colour.");
-    expect(posts[1]?.excerpt).toBe("");
-  });
-
-  it("still names a captionless photo", () => {
-    expect(posts[2]?.title).toBe("Photo");
-  });
-
-  it("keeps a one-letter magazine name as the heading", () => {
-    const one = mapTumblrPosts({
-      response: {
-        posts: [
-          {
-            id: 13,
-            post_url: "https://turnto-pg28.tumblr.com/post/13",
-            type: "photo",
-            timestamp: T0,
-            summary:
-              "Publication: V\nPhotographer: Ben Toms stylist: Robbie Spencer Model: Gemma Ward\nWho knew there were so many ways.",
-          },
-        ],
-      },
-    });
-    expect(one[0]?.title).toBe("V");
-    expect(one[0]?.excerpt).toContain("Photographer: Ben Toms");
-    expect(one[0]?.excerpt).not.toContain("Publication");
-  });
-});
-

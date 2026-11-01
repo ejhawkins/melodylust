@@ -101,4 +101,3 @@ export async function shareOrDownload(blob: Blob, format: ShareFormat) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   return "downloaded";
 }
-

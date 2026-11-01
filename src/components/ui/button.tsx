@@ -15,14 +15,18 @@ const buttonVariants = cva(
         player: "rounded-none bg-transparent p-0 text-stylus-paper hover:opacity-70 focus-visible:ring-2 focus-visible:ring-stylus-paper",
         playerPlay: "rounded-full border-[1.5px] border-stylus-paper bg-transparent p-0 text-stylus-paper hover:bg-stylus-paper/10 focus-visible:ring-2 focus-visible:ring-stylus-paper focus-visible:ring-offset-4 focus-visible:ring-offset-stylus-ink",
         tunerStation: "rounded-none bg-transparent text-stylus-paper hover:bg-stylus-paper/10 aria-pressed:bg-stylus-paper aria-pressed:text-stylus-ink focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-stylus-accent",
-        coverNav: "rounded-none bg-transparent text-cover-ink hover:text-primary uppercase text-[11px] font-normal",
+        coverNav: "rounded-none bg-transparent text-foreground hover:text-foreground/70 uppercase text-[11px] font-normal",
         editorial: "rounded-none bg-transparent text-foreground hover:text-editorial-accent p-0 h-auto font-normal",
-        coverLink: "rounded-none bg-transparent text-primary hover:text-cover-ink font-editorial uppercase text-2xl font-normal p-0 h-auto",
-        coverStart: "rounded-none bg-transparent text-cover-accent hover:text-cover-ink font-editorial uppercase text-2xl font-normal p-0 h-auto",
+        coverLink: "rounded-none bg-transparent text-foreground hover:text-foreground/70 font-editorial uppercase text-2xl font-normal p-0 h-auto tracking-[-0.02em]",
+        coverStart: "rounded-none bg-transparent text-foreground hover:text-foreground/70 font-editorial uppercase text-2xl font-normal p-0 h-auto tracking-[-0.02em]",
         category: "rounded-none bg-transparent text-muted-foreground hover:text-foreground text-[11px] uppercase h-auto p-0 data-[active=true]:text-foreground data-[active=true]:underline underline-offset-4",
         railCta: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase text-[9.5px] font-normal tracking-[0.14em] h-7 px-3.5 whitespace-nowrap",
         stylePill: "rounded-full border border-foreground bg-transparent text-foreground hover:bg-foreground/10 aria-pressed:bg-foreground aria-pressed:text-background uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5 whitespace-nowrap",
         soundCta: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase text-[11px] font-normal tracking-[0.22em] h-11 px-8 mt-2 transition-all hover:-translate-y-0.5",
+        dossier: "rounded-none border border-current bg-transparent text-current hover:bg-current/10 uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5",
+        dossierSolid: "rounded-none bg-foreground text-background hover:bg-[#221A20] uppercase text-[11px] font-normal tracking-[0.14em] h-11 px-5",
+        broadsheet: "rounded-[2px] bg-press-cyan text-press-paper hover:bg-press-cyan-600 active:bg-press-cyan-700 font-press font-semibold text-sm leading-[1.2] h-auto px-[18px] py-2.5 [&_svg]:size-3.5 [&_svg]:fill-current",
+        dossierTab: "rounded-none bg-transparent text-muted-foreground hover:text-foreground aria-selected:text-foreground border-b-2 border-transparent aria-selected:border-foreground uppercase text-[11px] font-normal tracking-[0.16em] h-auto px-0 py-3",
         default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
@@ -61,4 +65,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
-

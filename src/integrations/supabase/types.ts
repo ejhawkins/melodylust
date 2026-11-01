@@ -14,16 +14,204 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      articles: {
+        Row: {
+          categories: string[]
+          id: number
+          publication: string
+          published_at: string
+          source: string
+          status: string
+          summary: string
+          title: string
+          tracker_id: string | null
+          url: string
+        }
+        Insert: {
+          categories?: string[]
+          id?: never
+          publication: string
+          published_at: string
+          source?: string
+          status?: string
+          summary?: string
+          title: string
+          tracker_id?: string | null
+          url: string
+        }
+        Update: {
+          categories?: string[]
+          id?: never
+          publication?: string
+          published_at?: string
+          source?: string
+          status?: string
+          summary?: string
+          title?: string
+          tracker_id?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      artists: {
+        Row: {
+          disambiguation: string | null
+          genres: string[]
+          id: string
+          image_url: string | null
+          name: string
+          normalized_name: string
+          source: string
+          source_id: string | null
+          status: string
+        }
+        Insert: {
+          disambiguation?: string | null
+          genres?: string[]
+          id?: string
+          image_url?: string | null
+          name: string
+          normalized_name: string
+          source?: string
+          source_id?: string | null
+          status?: string
+        }
+        Update: {
+          disambiguation?: string | null
+          genres?: string[]
+          id?: string
+          image_url?: string | null
+          name?: string
+          normalized_name?: string
+          source?: string
+          source_id?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      styling_notes: {
+        Row: {
+          author_display_name: string
+          created_at: string
+          id: string
+          owner_id: string
+          photo_alts: string[]
+          photo_paths: string[]
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          song_artist: string
+          song_reason: string
+          song_track: string
+          status: Database["public"]["Enums"]["styling_note_status"]
+          styling_idea: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_display_name: string
+          created_at?: string
+          id?: string
+          owner_id: string
+          photo_alts: string[]
+          photo_paths: string[]
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          song_artist: string
+          song_reason: string
+          song_track: string
+          status?: Database["public"]["Enums"]["styling_note_status"]
+          styling_idea: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_display_name?: string
+          created_at?: string
+          id?: string
+          owner_id?: string
+          photo_alts?: string[]
+          photo_paths?: string[]
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          song_artist?: string
+          song_reason?: string
+          song_track?: string
+          status?: Database["public"]["Enums"]["styling_note_status"]
+          styling_idea?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "styling_notes_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      styling_note_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,7 +338,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      styling_note_status: ["pending", "approved", "rejected"],
+    },
   },
 } as const
-
