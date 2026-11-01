@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { parseVogueDesignerDirectory } from '../src/lib/designer-directory.server.ts';
+import { RADIO_PRIORITIES } from '../src/lib/designer-radio-priority.ts';
 import { createSupabaseFetch } from '../src/lib/supabase-fetch.ts';
 
 const DIRECTORY_URL = 'https://www.vogue.com/fashion-shows/designers';
@@ -46,3 +47,14 @@ for (let start = 0; start < designers.length; start += 500) {
 }
 
 console.log(`Imported ${designers.length} designer records into Supabase.`);
+
+// The daily scout only claims designers with a radio priority. Set the listed ones that have none yet (a database
+// migrated before its first import), leaving any priority already set, by a migration or by hand, as it is.
+let prioritised = 0;
+for (const [sourceId, priority] of Object.entries(RADIO_PRIORITIES)) {
+  const { data, error } = await db.from('designers').update({ radio_priority: priority })
+    .eq('source', 'vogue-runway').eq('source_id', sourceId).is('radio_priority', null).select('id');
+  if (error) throw new Error(`Could not set the radio priority for ${sourceId}: ${error.message}`);
+  prioritised += data.length;
+}
+console.log(`Gave ${prioritised} designers a radio priority (${Object.keys(RADIO_PRIORITIES).length} listed).`);
