@@ -11,12 +11,16 @@ type TrackerReader = (input: { documents: TrackerDocuments }) => Promise<unknown
 /** One article's validated evidence: the article, the entities it names, its observations. */
 export type ArticleEvidence = { document: EvidenceDocument; entities: Entity[]; observations: Observation[] };
 /** Where read articles are kept between runs. Keys are article fingerprints (see `articleFingerprint`). */
-export type EvidenceStore = { read(): Promise<Record<string, ArticleEvidence>>; write(entries: Record<string, ArticleEvidence>): Promise<void> };
+export type EvidenceStore = {
+  read(): Promise<Record<string, ArticleEvidence>>;
+  /** Adds or replaces these entries; never removes others (switching sources must not lose paid reads). */
+  save(entries: Record<string, ArticleEvidence>): Promise<void>;
+};
 
 /** A store that only lasts for this process — used by tests and when no disk store is given. */
 export function createMemoryEvidenceStore(initial: Record<string, ArticleEvidence> = {}): EvidenceStore {
   let entries = initial;
-  return { read: async () => entries, write: async next => { entries = next; } };
+  return { read: async () => entries, save: async added => { entries = { ...entries, ...added }; } };
 }
 
 /** Same article text read the same way → same fingerprint. Editing any field, or changing the
@@ -70,68 +74,91 @@ async function readBatch(batch: TrackerDocuments, reader: TrackerReader) {
   }
 }
 
-async function readInBatches(documents: TrackerDocuments, reader: TrackerReader) {
-  const batches: TrackerDocuments[] = [];
-  for (let start = 0; start < documents.length; start += TRACKER_BATCH_SIZE) batches.push(documents.slice(start, start + TRACKER_BATCH_SIZE));
-  const read: Record<string, ArticleEvidence> = {};
-  let next = 0;
-  await Promise.all(Array.from({ length: Math.min(TRACKER_CONCURRENCY, batches.length) }, async () => {
-    while (next < batches.length) {
-      const batch = batches[next++]!;
-      Object.assign(read, splitByArticle(await readBatch(batch, reader)));
-    }
-  }));
-  return read;
-}
+export type TrackerLoadStats = { reused: number; read: number; pending: number; failed: number };
+type Indexing = { csv: string; done: boolean; error: unknown; read: number; failed: number; promise: Promise<void> };
 
-export type TrackerLoadStats = { reused: number; read: number };
-
-/** Reads only articles the store hasn't seen with this exact text and reader, then saves them all. */
-async function loadArticles(documents: TrackerDocuments, reader: TrackerReader, store: EvidenceStore, readerVersion: string, stats: TrackerLoadStats) {
-  const keys = documents.map(document => articleFingerprint(document, readerVersion));
-  const saved = await store.read();
-  const unread = documents.filter((_, index) => !saved[keys[index]!]);
-  const fresh = unread.length ? await readInBatches(unread, reader) : {};
-  const articles = documents.map((document, index) => saved[keys[index]!] ?? fresh[document.id]!);
-  // Add to the notebook rather than replace it: switching sources (CSV ↔ Supabase) or
-  // temporarily removing articles must not throw away evidence that cost an AI read.
-  if (unread.length) await store.write({ ...saved, ...Object.fromEntries(keys.map((key, index) => [key, articles[index]!])) });
-  stats.reused = documents.length - unread.length;
-  stats.read = unread.length;
-  return assembleCorpus(articles);
-}
-
-export function createTrackerLoader(store: EvidenceStore = createMemoryEvidenceStore(), readerVersion = 'default') {
-  let cachedCsv = '';
-  let pending: Promise<EvidenceCorpus> | undefined;
-  const stats: TrackerLoadStats = { reused: 0, read: 0 };
-  const load = async (csv: string, reader: TrackerReader) => {
-    if (pending && cachedCsv === csv) return pending;
-    const input = parseEditorialCsv(csv);
-    cachedCsv = csv;
-    const next = Promise.resolve().then(() => loadArticles(input.documents, reader, store, readerVersion, stats));
-    pending = next;
-    try { return await next; }
+/** Reads the articles the store hasn't seen, a few batches at a time. Each batch is saved as soon as
+ *  it passes validation, so progress survives a timeout, a failed batch or a restart. */
+function startIndexing(csv: string, documents: TrackerDocuments, reader: TrackerReader, store: EvidenceStore, readerVersion: string): Indexing {
+  const state: Indexing = { csv, done: false, error: null, read: 0, failed: 0, promise: Promise.resolve() };
+  type Part = { documents: TrackerDocuments; read: Record<string, ArticleEvidence> } | { documents: TrackerDocuments; failure: unknown };
+  const readOrSplit = async (batch: TrackerDocuments): Promise<Part[]> => {
+    try { return [{ documents: batch, read: splitByArticle(await readBatch(batch, reader)) }]; }
     catch (failure) {
-      if (pending === next) pending = undefined;
-      throw failure;
+      if (batch.length === 1) return [{ documents: batch, failure }];
+      return (await Promise.all(batch.map(document => readOrSplit([document])))).flat();
     }
   };
-  return Object.assign(load, { stats });
+  state.promise = (async () => {
+    const saved = await store.read();
+    const unread = documents.filter(document => !saved[articleFingerprint(document, readerVersion)]);
+    const batches: TrackerDocuments[] = [];
+    for (let start = 0; start < unread.length; start += TRACKER_BATCH_SIZE) batches.push(unread.slice(start, start + TRACKER_BATCH_SIZE));
+    let next = 0;
+    await Promise.all(Array.from({ length: Math.min(TRACKER_CONCURRENCY, batches.length) }, async () => {
+      while (next < batches.length) {
+        const batch = batches[next++]!;
+        // A batch that fails twice is read one article at a time, so one bad article can't hold back the rest.
+        for (const part of await readOrSplit(batch)) {
+          if ('failure' in part) {
+            // Never sinks the others; these articles are tried again on a later search.
+            state.failed += part.documents.length;
+            state.error = part.failure;
+            console.warn('[MelodyLust] could not be indexed', { documents: part.documents.map(document => document.id), reason: part.failure instanceof Error ? part.failure.message : String(part.failure) });
+            continue;
+          }
+          await store.save(Object.fromEntries(part.documents.map(document => [articleFingerprint(document, readerVersion), part.read[document.id]!])));
+          state.read += part.documents.length;
+        }
+      }
+    }));
+  })().catch(failure => { state.error = failure; }).finally(() => { state.done = true; });
+  return state;
+}
+
+/** `budgetMs` caps how long a search waits for new articles to be read; reading carries on in the
+ *  background and the next search picks up whatever has been saved. Infinity waits for everything. */
+export function createTrackerLoader(store: EvidenceStore = createMemoryEvidenceStore(), readerVersion = 'default', budgetMs = Infinity) {
+  let indexing: Indexing | undefined;
+  const stats: TrackerLoadStats = { reused: 0, read: 0, pending: 0, failed: 0 };
+  let unread: TrackerDocuments = [];
+  const load = async (csv: string, reader: TrackerReader): Promise<EvidenceCorpus> => {
+    const { documents } = parseEditorialCsv(csv);
+    // One reading pass per source at a time; a finished pass (even a failed one) is retried next time.
+    if (!indexing || indexing.csv !== csv || indexing.done) indexing = startIndexing(csv, documents, reader, store, readerVersion);
+    const current = indexing;
+    if (Number.isFinite(budgetMs)) await Promise.race([current.promise, new Promise(resolve => setTimeout(resolve, budgetMs))]);
+    else await current.promise;
+    const saved = await store.read();
+    const available = documents.filter(document => saved[articleFingerprint(document, readerVersion)]);
+    unread = documents.filter(document => !saved[articleFingerprint(document, readerVersion)]);
+    Object.assign(stats, { read: current.read, reused: available.length - current.read, pending: current.done ? 0 : unread.length, failed: current.failed });
+    // Nothing usable and nothing still on its way: say why, rather than returning an empty collection.
+    if (current.done && unread.length && !available.length) throw current.error instanceof Error ? current.error : new Error('The article tracker could not be indexed.');
+    return assembleCorpus(available.map(document => saved[articleFingerprint(document, readerVersion)]!));
+  };
+  return Object.assign(load, { stats, unread: () => unread });
 }
 
 // One loader per reader version, each saving to the evidence notebook on disk.
 const loaders = new Map<string, ReturnType<typeof createTrackerLoader>>();
 
-/** `readerVersion` names how articles are read (provider, model, instructions); changing it re-reads them. */
-export async function readTrackedEvidence(reader: TrackerReader, readerVersion = 'default') {
-  if (!loaders.has(readerVersion)) {
-    const { diskEvidenceStore } = await import('./evidence-cache.server');
-    loaders.set(readerVersion, createTrackerLoader(diskEvidenceStore(readerVersion), readerVersion));
-  }
-  const loadTracker = loaders.get(readerVersion)!;
-  let csv = trackerCsv;
+/** How long a search waits for newly added articles to be read before answering with what is ready. */
+const SEARCH_BUDGET_MS = Number(process.env['MELODYLUST_INDEX_BUDGET_MS']) || 6_000;
+
+export type TrackedEvidence = { corpus: EvidenceCorpus; pending: number; failed: number; unread: TrackerDocuments };
+
+/** `readerVersion` names how articles are read (the reader's instructions); changing it re-reads them. */
+export async function readTrackedEvidenceWithStatus(reader: TrackerReader, readerVersion = 'default', budgetMs = SEARCH_BUDGET_MS): Promise<TrackedEvidence> {
   const db = getDb();
+  const loaderKey = `${readerVersion}|${budgetMs}`;
+  if (!loaders.has(loaderKey)) {
+    // Supabase keeps read articles across deploys and cold starts; the disk notebook is the local fallback.
+    const store = db ? (await import('./evidence-cache.server')).supabaseEvidenceStore(db, readerVersion) : (await import('./evidence-cache.server')).diskEvidenceStore(readerVersion);
+    loaders.set(loaderKey, createTrackerLoader(store, readerVersion, budgetMs));
+  }
+  const loadTracker = loaders.get(loaderKey)!;
+  let csv = trackerCsv;
   const source = db ? 'supabase' : 'csv';
   const path = process.env['MELODYLUST_TRACKER_CSV'];
   if (db) {
@@ -143,8 +170,13 @@ export async function readTrackedEvidence(reader: TrackerReader, readerVersion =
   }
   const started = Date.now();
   const corpus = await loadTracker(csv, reader);
+  const { pending, failed } = loadTracker.stats;
   if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
-    console.info('[MelodyLust] tracker', { source, documents: corpus.documents.length, readNow: loadTracker.stats.read, reusedFromCache: loadTracker.stats.reused, entities: corpus.entities.length, observations: corpus.observations.length, elapsedMs: Date.now() - started });
+    console.info('[MelodyLust] tracker', { source, documents: corpus.documents.length, readNow: loadTracker.stats.read, reusedFromCache: loadTracker.stats.reused, stillReading: pending, failed, entities: corpus.entities.length, observations: corpus.observations.length, elapsedMs: Date.now() - started });
   }
-  return corpus;
+  return { corpus, pending, failed, unread: loadTracker.unread() };
+}
+
+export async function readTrackedEvidence(reader: TrackerReader, readerVersion = 'default') {
+  return (await readTrackedEvidenceWithStatus(reader, readerVersion, Infinity)).corpus;
 }

@@ -73,7 +73,7 @@ describe("Want List worksheet", () => {
     expect(screen.getByRole('button', { name: 'Add an artist' })).toBeDisabled();
     for (let index = 10; index > 1; index -= 1) fireEvent.click(screen.getByRole('button', { name: 'Remove artist 1' }));
     expect(screen.getByRole('button', { name: 'Remove artist 1' })).toBeDisabled();
-  });
+  }, 20_000); // renders ten artist rows; slow when the whole suite runs in parallel
 
   it("restores rotation drafts and shows Spotify search links without invented audio metrics", () => {
     const first = render(<Wishlist />);
@@ -163,7 +163,7 @@ describe("Automatic tracker search", () => {
     render(<StyleSearch profile={emptyStyleProfile()} onEditProfile={() => {}} />);
     submit('  Usher  ');
     expect(await screen.findByText('2.00× lift')).toBeInTheDocument();
-    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Usher', profile: emptyStyleProfile() } });
+    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Usher', profile: emptyStyleProfile() }, signal: expect.any(AbortSignal) });
     expect(screen.getByRole('link', { name: 'Synthetic scenario: Usher wears Designer A' })).toHaveAttribute('href', 'https://example.org/synthetic-001');
     expect(screen.getByText(/not song-specific/)).toBeInTheDocument();
   });
@@ -199,7 +199,7 @@ describe("Automatic tracker search", () => {
     submit('Jazz');
     expect(await screen.findByRole('heading', { name: 'No fashion matches for Jazz yet.' })).toBeInTheDocument();
     expect(screen.getByText(/matching coverage for this genre yet/)).toBeInTheDocument();
-    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Jazz', profile: emptyStyleProfile() } });
+    expect(searchTrackedEditorialEvidence).toHaveBeenCalledExactlyOnceWith({ data: { query: 'Jazz', profile: emptyStyleProfile() }, signal: expect.any(AbortSignal) });
   });
 
   it("clears stale results when the query changes", async () => {

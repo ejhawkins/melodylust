@@ -34,6 +34,12 @@ function option<T extends string>(value: unknown, choices: readonly T[]): T {
 const entityKinds: EntityKind[] = ['designer', 'product', 'collection', 'look', 'artist', 'song', 'genre', 'subculture', 'stylist', 'material', 'color'];
 const sections: ArticleSection[] = ['headline', 'dek', 'lede', 'nut_graf', 'body', 'product_reference', 'caption', 'credits', 'summary', 'category', 'unknown'];
 const levels = ['song', 'artist', 'genre', 'subculture'] as const;
+/** Typography only: curly vs straight quotes, dash styles, non-breaking and repeated spaces.
+ *  A quote still has to match the source word for word. */
+export const quoteText = (value: string) => value.normalize('NFKC')
+  .replace(/[\u2018\u2019\u201A\u201B\u2032]/g, "'").replace(/[\u201C\u201D\u201E\u201F\u2033]/g, '"')
+  .replace(/[\u2010-\u2015]/g, '-').replace(/\s+/g, ' ').trim();
+
 function containsName(source: string, name: string) {
   const escape = name.normalize('NFKC').toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`(^|[^\\p{L}\\p{N}])${escape}($|[^\\p{L}\\p{N}])`, 'u').test(source.normalize('NFKC').toLowerCase());
@@ -72,7 +78,7 @@ export function parseEvidenceCorpus(value: unknown): EvidenceCorpus {
     const field = option(o['field'], ['title', 'summary', 'categories'] as const);
     const quote = text(o['quote']);
     const source = field === 'categories' ? document.categories : [document[field]];
-    if (!source.some(s => s.includes(quote)) || !containsName(quote, entityMap.get(left_id)!.name) || !containsName(quote, entityMap.get(right_id)!.name)) throw new Error('Observation must quote both entities verbatim from its source field.');
+    if (!source.some(s => quoteText(s).includes(quoteText(quote))) || !containsName(quote, entityMap.get(left_id)!.name) || !containsName(quote, entityMap.get(right_id)!.name)) throw new Error('Observation must quote both entities verbatim from its source field.');
     const evidence_level = option(o['evidence_level'], levels);
     const musicEntity = [entityMap.get(left_id)!, entityMap.get(right_id)!].find(entity => entity.kind === evidence_level);
     if (!musicEntity || musicEntity.kind !== evidence_level || o['song_specific'] !== (evidence_level === 'song')) throw new Error('Evidence level must match the actual music entity.');

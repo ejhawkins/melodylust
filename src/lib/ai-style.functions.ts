@@ -19,22 +19,27 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
     const key = aiStyleCacheKey(data);
     const saved = answers.get(key);
     if (saved && Date.now() - saved.at < DAY_MS) return saved.answer;
-    const { clientKey } = await import('./client-key.server');
-    if (!limiter.allow(await clientKey())) return { status: 'rate_limited', suggestions: [], provider };
-    const { getRequest } = await import('@tanstack/react-start/server');
+    // Registered before any await, so a request arriving a moment later shares this answer instead of paying again.
     const started = Date.now();
-    const answer = readAIJSON(AI_STYLE_PROMPT, data, getRequest()).then((payload): AIStyleResponse => {
-      const suggestions = readAIStyle(payload, data);
-      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, elapsedMs: Date.now() - started });
-      return suggestions.length ? { status: 'ok', suggestions, provider } : { status: 'unavailable', suggestions: [], provider };
-    }).catch(failure => {
+    const answer = (async (): Promise<AIStyleResponse> => {
+      const { clientKey } = await import('./client-key.server');
+      if (!limiter.allow(await clientKey())) return { status: 'rate_limited', suggestions: [], provider };
+      const { getRequest } = await import('@tanstack/react-start/server');
+      return readAIJSON(AI_STYLE_PROMPT, data, getRequest()).then(payload => readResult(payload));
+    })().catch(failure => {
       // Server log only; never a key.
       console.error('[AI style] failed', failure instanceof Error ? failure.message : failure);
       return { status: 'unavailable', suggestions: [], provider } satisfies AIStyleResponse;
     });
     answers.set(key, { at: Date.now(), answer });
     const result = await answer;
-    // Only usable answers are remembered; a failure is retried on the next search.
+    // Only usable answers are remembered; a failure or rate limit is retried on the next search.
     if (result.status !== 'ok') answers.delete(key);
     return result;
+
+    function readResult(payload: unknown): AIStyleResponse {
+      const suggestions = readAIStyle(payload, data);
+      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, elapsedMs: Date.now() - started });
+      return suggestions.length ? { status: 'ok', suggestions, provider } : { status: 'unavailable', suggestions: [], provider };
+    }
   });

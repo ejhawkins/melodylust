@@ -62,8 +62,8 @@ export const scoutArtistArticles = createServerFn({ method: 'POST' })
     const key = scoutKey(data.name);
     const saved = answers.get(key);
     if (saved && Date.now() - saved.at < WEEK_MS) return saved.answer;
-    const { clientKey } = await import('./client-key.server');
-    const answer = scout(data.name, await clientKey()).catch(failure => {
+    // Registered before any await, so a request arriving a moment later shares this search instead of paying again.
+    const answer = import('./client-key.server').then(async ({ clientKey }) => scout(data.name, await clientKey())).catch(failure => {
       // Server log only; never a key.
       console.error('[Scout] live search failed', failure instanceof Error ? failure.message : failure);
       return { status: 'unavailable', articles: [], searched: false } satisfies LiveScoutResponse;

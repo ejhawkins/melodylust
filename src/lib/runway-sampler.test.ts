@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  bandFit, bandFitLabel, emptySamplerEdits, parseBpm, readSamplerEdits, resolveSampler, samplerCsv,
+  bandFit, bandFitLabel, emptySamplerEdits, MAX_PICKS, parseBpm, readSamplerEdits, resolveSampler, samplerCsv,
   SAMPLER_SOURCES, SAMPLER_TRACKS, withManualTrack, withManualTrackUpdate, withoutManualTrack, withoutTrackEdit, withTrackEdit,
 } from './runway-sampler';
 
@@ -75,6 +75,13 @@ describe('manual edits', () => {
     expect(rows.at(-1)).toMatchObject({ category: 'C', bpm: 140, fit: { kind: 'over', by: 10 } });
     edits = withTrackEdit(edits, 'manual-1', { hidden: true });
     expect(withoutManualTrack(edits, 'manual-1')).toEqual(emptySamplerEdits());
+  });
+
+  it('stops at MAX_PICKS rather than storing edits that would no longer read back', () => {
+    let edits = emptySamplerEdits();
+    for (let k = 0; k < MAX_PICKS; k += 1) edits = withManualTrack(edits, pick, `manual-${k}`);
+    expect(withManualTrack(edits, pick, 'manual-extra')).toBe(edits);
+    expect(readSamplerEdits(JSON.parse(JSON.stringify(edits))).added).toHaveLength(MAX_PICKS);
   });
 
   it('only accepts https source links on a manual pick', () => {

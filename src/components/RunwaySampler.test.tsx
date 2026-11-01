@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const lookupTrackDetails = vi.fn();
 vi.mock('@/lib/freqblog.functions', () => ({ lookupTrackDetails: (...args: unknown[]) => lookupTrackDetails(...args) }));
 const { RunwaySampler } = await import('./RunwaySampler');
+const { MAX_PICKS } = await import('@/lib/runway-sampler');
 
 const editForm = (title: string) => screen.getByRole('form', { name: `Edit ${title}` });
 const row = (title: string) => screen.getByRole('heading', { level: 3, name: title }).closest('li')!;
@@ -77,6 +78,18 @@ describe('Runway Sound Sampler page', () => {
     expect(within(pick).getByText('Unsourced')).toBeInTheDocument();
     expect(within(pick).getByText('In band')).toBeInTheDocument();
   });
+
+  it('says so at the pick limit instead of losing the running order', () => {
+    const added = Array.from({ length: MAX_PICKS }, (_, k) => ({ id: `manual-${k}`, title: `Pick ${k}`, artist: 'Someone', show: '', category: 'B', bpm: null, sourceUrl: null, note: '' }));
+    window.localStorage.setItem('ml-runway-sampler', JSON.stringify({ edits: {}, added }));
+    render(<RunwaySampler />);
+    const form = screen.getByRole('heading', { name: 'Add your own pick' }).closest('section')!;
+    fireEvent.change(within(form).getByLabelText('Track'), { target: { value: 'Cotton' } });
+    fireEvent.change(within(form).getByLabelText('Artist'), { target: { value: 'Some Band' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Add to running order' }));
+    expect(within(form).getByRole('alert')).toHaveTextContent(`You have ${MAX_PICKS} picks`);
+    expect(JSON.parse(window.localStorage.getItem('ml-runway-sampler')!).added).toHaveLength(MAX_PICKS);
+  }, 20_000); // renders sixty-two rows
 
   it('won’t add a pick with a non-https source', () => {
     render(<RunwaySampler />);

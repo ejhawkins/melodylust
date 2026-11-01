@@ -39,7 +39,7 @@ it('selects an artist suggestion without submitting until the next Enter or clic
   expect(container.querySelector('input[name=artist_id]')).toHaveValue('freqblog:Bruno');
   expect(mocks.search).not.toHaveBeenCalled();
   fireEvent.submit(screen.getByRole('search'));
-  await waitFor(() => expect(mocks.search).toHaveBeenCalledWith({ data: { query: 'Bruno Mars', artist: { id: 'freqblog:Bruno', name: 'Bruno Mars', source: 'freqblog' }, profile: emptyStyleProfile() } }));
+  await waitFor(() => expect(mocks.search).toHaveBeenCalledWith({ data: { query: 'Bruno Mars', artist: { id: 'freqblog:Bruno', name: 'Bruno Mars', source: 'freqblog' }, profile: emptyStyleProfile() }, signal: expect.any(AbortSignal) }));
   await waitFor(() => expect(input).toBeEnabled());
   fireEvent.change(input, { target: { value: 'funk' } });
   expect(container.querySelector('input[name=artist_id]')).toHaveValue('');

@@ -165,6 +165,7 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
   const [error, setError] = useState('');
   const [look, setLook] = useState(0);
   const [recommendation, setRecommendation] = useState<ArtistStyleRecommendation | null>(null);
+  const [stillReading, setStillReading] = useState(0);
   const [searchWarning, setSearchWarning] = useState('');
   const suggestionId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -193,15 +194,16 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
     <form className="stylus-search stylus-search-visible" role="search" aria-label="Music and fashion evidence" onSubmit={async event => {
       event.preventDefault();
       if (busy || !query.trim()) return;
-      setError(''); setResult(null); setArticles([]); setRecommendation(null); setSearchWarning(''); setLook(0); setBusy(true); setSuggestionsOpen(false); onArtist?.(null);
+      setError(''); setResult(null); setArticles([]); setRecommendation(null); setSearchWarning(''); setStillReading(0); setLook(0); setBusy(true); setSuggestionsOpen(false); onArtist?.(null);
       try {
-        const response = await searchTrackedEditorialEvidence({ data: { query: query.trim(), profile, ...(chosenArtist ? { artist: chosenArtist } : {}) } });
+        // The server answers within seconds even while new articles are read; this cap only guards a hung connection.
+        const response = await searchTrackedEditorialEvidence({ data: { query: query.trim(), profile, ...(chosenArtist ? { artist: chosenArtist } : {}) }, signal: AbortSignal.timeout(30_000) });
         if (response.error && !response.recommendation) throw new Error(response.error);
         setRecommendation(response.recommendation ?? null); setSearchWarning(response.warning ?? '');
-        setResult(response.result); setArticles(response.articles);
+        setResult(response.result); setArticles(response.articles); setStillReading(response.indexing?.pending ?? 0);
         onArtist?.(response.recommendation?.artist.name ?? (response.result?.music?.kind === 'artist' ? response.result.music.name : null));
       } catch (failure) {
-        setError(failure instanceof Error ? failure.message : 'Evidence search is unavailable. Please try again.');
+        setError(failure instanceof Error && failure.name === 'TimeoutError' ? 'The search took too long to answer. Please try again.' : failure instanceof Error ? failure.message : 'Evidence search is unavailable. Please try again.');
       } finally { setBusy(false); }
     }}>
       <label htmlFor="stylus-query" className="stylus-eyebrow font-editorial">Music &<br />fashion evidence</label>
@@ -244,6 +246,7 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
     {busy && <p role="status" className="stylus-status">Searching articles...</p>}
     {error && <p role="alert" className="stylus-status">{error}</p>}
     {searchWarning && <p role="status" className="stylus-status">{searchWarning}</p>}
+    {stillReading > 0 && <p role="status" className="stylus-status">Still reading {stillReading} newly added {stillReading === 1 ? 'article' : 'articles'}. Search again in a minute for the full results.</p>}
     {result && <div className="stylus-results" aria-live="polite">
       {!result.music && !recommendation && <section className="stylus-empty" role="status">
         <span className="stylus-eyebrow">No matching coverage</span>

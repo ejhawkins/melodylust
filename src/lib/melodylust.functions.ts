@@ -98,29 +98,35 @@ export const analyzeEditorialArticle = createServerFn({ method: 'POST' })
     }
   });
 
+// Bump to re-read every article (e.g. after improving the reader). Evidence that passed validation
+// is kept whichever provider or model produced it, so switching models doesn't discard paid reads.
+const READER_VERSION = process.env['MELODYLUST_READER_VERSION'] || 'reader-v1';
+
 async function readTrackedQuery(query: string, artistName?: string, selected = false): Promise<TrackedStyleSearchResponse> {
     try {
-      const { readTrackedEvidence } = await import('./article-tracker.server');
+      const { readTrackedEvidenceWithStatus } = await import('./article-tracker.server');
       const prompt = READER_PROMPT.replace('Extract one editorial metadata record only.', 'Extract every supplied editorial metadata record.').replace('exactly one object', 'exactly one object per supplied document');
-      const { getAIProvider } = await import('./ai/read-json.server');
-      // Changing the AI provider, model or instructions re-reads every article.
-      const readerVersion = `${getAIProvider() ?? 'none'}|${process.env['MELODYLUST_AI_MODEL'] ?? 'default-model'}|${prompt}`;
-      const corpus = await readTrackedEvidence(input => readWithAI(prompt, input), readerVersion);
+      const readerVersion = `${READER_VERSION}|${prompt}`;
+      const { corpus, pending, unread } = await readTrackedEvidenceWithStatus(input => readWithAI(prompt, input), readerVersion);
       const literal = literalEvidenceIntent(query, corpus);
       const response = artistName && (selected || !literal || literal.music_kind === 'artist')
         ? { result: searchEvidence(corpus, { music_name: artistName, music_kind: 'artist', designer_name: null }), interpretation: 'directory', error: '' }
         : await searchEditorialEvidence({ data: { query, corpus } });
       const music = response.result?.music;
-      const articles = music ? corpus.documents.filter(document => document.entity_ids.includes(music.id)) : [];
+      const read = music ? corpus.documents.filter(document => document.entity_ids.includes(music.id)) : [];
+      // Articles not read yet that name the artist are still listed (as plain articles, never evidence).
+      const name = (music?.name ?? artistName ?? '').toLowerCase();
+      const mentions = name && pending ? unread.filter(document => `${document.title} ${document.summary}`.toLowerCase().includes(name)).map(document => ({ ...document, entity_ids: [] })) : [];
+      const articles = [...read, ...mentions];
       if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
-        console.info('[MelodyLust] search', { music: music?.name ?? null, kind: response.result?.intent.music_kind ?? null, articles: articles.length, associations: response.result?.associations.map(association => ({ designer: association.designer.name, eligibleDocuments: association.corpusSize, observed: association.observed, expected: association.expected, lift: association.lift })) ?? [], interpretation: response.interpretation, failed: Boolean(response.error) });
+        console.info('[MelodyLust] search', { music: music?.name ?? null, kind: response.result?.intent.music_kind ?? null, articles: articles.length, stillReading: pending, associations: response.result?.associations.map(association => ({ designer: association.designer.name, eligibleDocuments: association.corpusSize, observed: association.observed, expected: association.expected, lift: association.lift })) ?? [], interpretation: response.interpretation, failed: Boolean(response.error) });
       }
-      return { ...response, articles };
+      return { ...response, articles, ...(pending ? { indexing: { pending } } : {}) };
     } catch (failure) {
       if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
         console.warn('[MelodyLust] tracker indexing failed', failure instanceof Error ? failure.message : failure);
       }
-      return { result: null, articles: [], interpretation: 'ai', error: await aiFailureMessage(failure, 'The article tracker could not be indexed. No partial evidence was used. Please try again.') };
+      return { result: null, articles: [], interpretation: 'ai', error: await aiFailureMessage(failure, 'The article collection could not be read. No partial evidence was used. Please try again.') };
     }
   }
 

@@ -5,7 +5,7 @@ import { lookupTrackDetails } from '@/lib/freqblog.functions';
 import { trackStats } from '@/lib/freqblog';
 import { FREQBLOG_ATTRIBUTION } from '@/lib/artist-provider';
 import {
-  bandFitLabel, categoryIds, parseBpm, resolveSampler, RUNWAY_CATEGORIES, SAMPLER_OPEN_QUESTIONS, SAMPLER_PLAYLIST, SAMPLER_SOURCES, samplerCsv,
+  bandFitLabel, categoryIds, MAX_PICKS, parseBpm, resolveSampler, RUNWAY_CATEGORIES, SAMPLER_OPEN_QUESTIONS, SAMPLER_PLAYLIST, SAMPLER_SOURCES, samplerCsv,
   withManualTrack, withManualTrackUpdate, withoutManualTrack, withoutTrackEdit, withTrackEdit,
   type CategoryId, type SamplerEdits, type SamplerRow,
 } from '@/lib/runway-sampler';
@@ -85,7 +85,7 @@ export function RunwaySampler() {
           </ol>}
       </section>
 
-      <AddTrack update={update} />
+      <AddTrack update={update} picks={edits.added.length} />
 
       <footer className="mt-12 grid gap-8 border-t border-stylus-paper/25 pt-8 sm:grid-cols-2">
         <section aria-labelledby="progression">
@@ -190,7 +190,7 @@ function TrackEditor({ row, update, onClose }: { row: SamplerRow; update: Update
 
 const blankPick = { title: '', artist: '', show: '', category: 'B' as CategoryId, bpm: '', sourceUrl: '', note: '' };
 
-function AddTrack({ update }: { update: Update }) {
+function AddTrack({ update, picks }: { update: Update; picks: number }) {
   const [pick, setPick] = useState(blankPick);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
@@ -215,6 +215,7 @@ function AddTrack({ update }: { update: Update }) {
     event.preventDefault();
     const title = pick.title.trim(), artist = pick.artist.trim(), sourceUrl = pick.sourceUrl.trim();
     if (!title || !artist) { setError('A pick needs a track and an artist.'); return; }
+    if (picks >= MAX_PICKS) { setError(`You have ${MAX_PICKS} picks, the most this device keeps. Remove one to add another.`); return; }
     const bpm = parseBpm(pick.bpm);
     if (bpm === 'invalid') { setError('Type a tempo between 30 and 250, or leave it blank for free time.'); return; }
     if (sourceUrl && !/^https:\/\/\S+\.\S+/.test(sourceUrl)) { setError('A source link must start with https://.'); return; }

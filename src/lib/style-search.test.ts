@@ -35,7 +35,7 @@ describe('backend article tracker', () => {
     let calls = 0;
     const countedReader = async (input: ReturnType<typeof parseEditorialCsv>) => { calls += 1; return reader(input); };
     const [first, second] = await Promise.all([load(csv, countedReader), load(csv, countedReader)]);
-    expect(first).toBe(second);
+    expect(first).toEqual(second);
     await load(csv, countedReader);
     expect(calls).toBe(1);
     await load(csv.replace('Usher', 'Gwen Stefani'), countedReader);
@@ -87,7 +87,7 @@ describe('backend article tracker', () => {
     const restarted = createTrackerLoader(store, 'gemini');
     expect((await restarted(twoRows, tracking)).documents).toHaveLength(2);
     expect(seen).toHaveLength(1);
-    expect(restarted.stats).toEqual({ reused: 2, read: 0 });
+    expect(restarted.stats).toEqual({ reused: 2, read: 0, pending: 0, failed: 0 });
 
     // Editing one article's title re-reads only that article.
     await createTrackerLoader(store, 'gemini')(twoRows.replace('Gwen Stefani', 'Gwen Stefani at Coachella'), tracking);
@@ -249,5 +249,53 @@ describe('ranking designer connections by how directly the articles state them',
     // Lift alone would have put Westwood first.
     const lift = (name: string) => associations.find(a => a.designer.name === name)!.lift!;
     expect(lift('Vivienne Westwood')).toBeGreaterThan(lift('Alexander McQueen'));
+  });
+});
+
+describe('first search after new articles are added', () => {
+  const header = 'ID,URL,Publication,Published At,Title,Summary,Categories';
+  const rows = (n: number) => [header, ...Array.from({ length: n }, (_, i) => `${i + 1},https://example.com/${i + 1},Test,2024-01-01,Usher story ${i + 1},,Fashion`)].join('\n');
+  const reader = async (input: ReturnType<typeof parseEditorialCsv>) => ({ version: 1, entities: [], documents: input.documents.map(document => ({ ...document, entity_ids: [] })), observations: [] });
+
+  it('answers within the time budget with what is ready, keeps reading, and has everything by the next search', async () => {
+    const store = createMemoryEvidenceStore();
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    // The first batch is quick; the second waits until released, like a slow AI call.
+    const slow = async (input: ReturnType<typeof parseEditorialCsv>) => { if (input.documents[0]!.id === '6') await gate; return reader(input); };
+    const load = createTrackerLoader(store, 'v1', 50);
+    const first = await load(rows(10), slow);
+    expect(first.documents).toHaveLength(5);
+    expect(load.stats).toMatchObject({ pending: 5 });
+    expect(load.unread().map(document => document.id)).toEqual(['6', '7', '8', '9', '10']);
+    release();
+    await new Promise(resolve => setTimeout(resolve, 20));
+    expect((await load(rows(10), slow)).documents).toHaveLength(10);
+    expect(load.stats).toMatchObject({ pending: 0 });
+  });
+
+  it('keeps everything that worked when one article fails, and retries only that article next time', async () => {
+    const store = createMemoryEvidenceStore();
+    let failSecond = true;
+    const flaky = async (input: ReturnType<typeof parseEditorialCsv>) => (input.documents[0]!.id === '6' && failSecond ? { version: 1, entities: [], documents: [], observations: [] } : reader(input));
+    const load = createTrackerLoader(store, 'v1');
+    // Article 6 breaks its batch; read one by one, its four batch-mates still get through.
+    expect((await load(rows(10), flaky)).documents).toHaveLength(9);
+    expect(load.stats).toMatchObject({ failed: 1 });
+    expect(load.unread().map(document => document.id)).toEqual(['6']);
+    failSecond = false;
+    expect((await load(rows(10), flaky)).documents).toHaveLength(10);
+  });
+});
+
+describe('exact quotes', () => {
+  it('ignores typography (curly quotes, dashes, spacing) but still requires every word', () => {
+    const doc = { id: 'a', url: 'https://example.com/a', publication: 'ELLE', published_at: '2024-08-21', title: 'Charli XCX’s Audacious Style — Beyond Brat', summary: '', categories: [], entity_ids: ['artist:charli', 'designer:sl'] };
+    const corpus = (quote: string) => parseEvidenceCorpus({ version: 1,
+      entities: [{ id: 'artist:charli', kind: 'artist', name: 'Charli XCX' }, { id: 'designer:sl', kind: 'designer', name: 'Saint Laurent' }],
+      documents: [{ ...doc, title: 'Charli XCX’s Audacious Style — Beyond Brat in Saint Laurent' }],
+      observations: [{ id: 'o', article_id: 'a', left_id: 'artist:charli', right_id: 'designer:sl', relationship: 'co_occurs_with', quote, field: 'title', section: 'headline', proximity: 'same_sentence', evidence_level: 'artist', song_specific: false }] });
+    expect(() => corpus("Charli XCX's Audacious Style - Beyond  Brat in Saint Laurent")).not.toThrow();
+    expect(() => corpus("Charli XCX's Bold Style - Beyond Brat in Saint Laurent")).toThrow('verbatim');
   });
 });

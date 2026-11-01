@@ -9,7 +9,11 @@ export const styleLook = createServerFn({ method: 'POST' })
   .inputValidator((input: unknown) => styleLookInputSchema.parse(input))
   .handler(async ({ data }): Promise<{ notes: StyleNotes | null; error: string }> => {
     const apiKey = process.env['OPENAI_API_KEY'];
-    if (!apiKey) return { notes: null, error: 'Style notes need OPENAI_API_KEY in the server .env file.' };
+    if (!apiKey) {
+      // The reader sees a plain message; the missing setting is named in the server log only.
+      console.warn('[Style notes] OPENAI_API_KEY is not set');
+      return { notes: null, error: 'Style notes aren’t available right now.' };
+    }
     const id = JSON.stringify(data);
     const cached = cache.get(id);
     if (cached) return { notes: cached, error: '' };

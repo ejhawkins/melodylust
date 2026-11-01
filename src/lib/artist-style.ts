@@ -23,6 +23,8 @@ export type TrackedStyleSearchResponse = {
   recommendation?: ArtistStyleRecommendation | null;
   artistResolution?: ArtistResolution;
   warning?: string;
+  /** Newly added articles still being read: results may grow on the next search. */
+  indexing?: { pending: number };
 };
 
 type LookRule = { id: string; title: string; direction: string; genres: string[]; tags: string[]; pieces: [string, string][] };

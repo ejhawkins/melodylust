@@ -97,9 +97,11 @@ const manualTrackSchema = z.object({
   sourceUrl: z.string().url().refine(url => url.startsWith('https://')).nullable(),
   note: z.string().max(280),
 });
+/** The most own picks this device keeps; past it the stored edits would no longer read back. */
+export const MAX_PICKS = 50;
 export const samplerEditsSchema = z.object({
   edits: z.record(z.string(), trackEditSchema),
-  added: z.array(manualTrackSchema).max(50),
+  added: z.array(manualTrackSchema).max(MAX_PICKS),
 });
 
 export type TrackEdit = z.infer<typeof trackEditSchema>;
@@ -205,7 +207,9 @@ export function withTrackEdit(edits: SamplerEdits, id: string, patch: TrackEdit)
 export const withoutTrackEdit = (edits: SamplerEdits, id: string): SamplerEdits =>
   ({ ...edits, edits: Object.fromEntries(Object.entries(edits.edits).filter(([key]) => key !== id)) });
 
+/** Appends an own pick; at MAX_PICKS the edits come back unchanged, so storing them never wipes the rest. */
 export function withManualTrack(edits: SamplerEdits, track: Omit<ManualTrack, 'id'>, id = `manual-${Date.now().toString(36)}`): SamplerEdits {
+  if (edits.added.length >= MAX_PICKS) return edits;
   return { ...edits, added: [...edits.added, manualTrackSchema.parse({ ...track, id })] };
 }
 
