@@ -2,7 +2,7 @@ vi.mock('./db.server', () => ({ getDb: () => null }));
 import { describe, it, expect, vi } from 'vitest';
 import { articleAnalysisInputSchema, editorialCorpusInputSchema, evidenceSearchIntentSchema, literalEvidenceIntent, parseEditorialCsv, readStyleResult, searchEvidence, validateArticleAnalysis, validateEvidenceExtraction } from './style-search';
 import { evidenceStrength, parseEvidenceCorpus } from './melodylust-evidence';
-import { createMemoryEvidenceStore, createTrackerLoader, readTrackedEvidence, TRACKER_BATCH_SIZE } from './article-tracker.server';
+import { createMemoryEvidenceStore, createTrackerLoader, keepRunning, readTrackedEvidence, TRACKER_BATCH_SIZE } from './article-tracker.server';
 
 const corpus = parseEvidenceCorpus({
   version: 1,
@@ -275,6 +275,27 @@ describe('first search after new articles are added', () => {
     await new Promise(resolve => setTimeout(resolve, 20));
     expect((await load(rows(2 * TRACKER_BATCH_SIZE), slow)).documents).toHaveLength(2 * TRACKER_BATCH_SIZE);
     expect(load.stats).toMatchObject({ pending: 0 });
+  });
+
+  it('hands the reading still under way to the host, so it can finish after the search has answered', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    const slow = async (input: ReturnType<typeof parseEditorialCsv>) => { if (input.documents[0]!.id === secondBatch[0]) await gate; return reader(input); };
+    const load = createTrackerLoader(createMemoryEvidenceStore(), 'v1', 50);
+    await load(rows(2 * TRACKER_BATCH_SIZE), slow);
+    const reading = load.reading();
+    expect(reading).toBeInstanceOf(Promise);
+
+    const waitUntil = vi.fn();
+    const key = Symbol.for('@vercel/request-context');
+    (globalThis as Record<symbol, unknown>)[key] = { get: () => ({ waitUntil }) };
+    try { await keepRunning(reading!); } finally { delete (globalThis as Record<symbol, unknown>)[key]; }
+    expect(waitUntil).toHaveBeenCalledExactlyOnceWith(reading);
+
+    release();
+    await reading;
+    expect(load.reading()).toBeNull();
+    await expect(keepRunning(Promise.resolve())).resolves.toBeUndefined(); // outside a request: nothing to register
   });
 
   it('keeps everything that worked when one article fails, and retries only that article next time', async () => {

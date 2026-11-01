@@ -137,7 +137,26 @@ export function createTrackerLoader(store: EvidenceStore = createMemoryEvidenceS
     if (current.done && unread.length && !available.length) throw current.error instanceof Error ? current.error : new Error('The article tracker could not be indexed.');
     return assembleCorpus(available.map(document => saved[articleFingerprint(document, readerVersion)]!));
   };
-  return Object.assign(load, { stats, unread: () => unread });
+  // The reading pass still running after a search answered, so the host can be asked to let it finish.
+  return Object.assign(load, { stats, unread: () => unread, reading: () => indexing && !indexing.done ? indexing.promise : null });
+}
+
+type WaitUntil = (work: Promise<unknown>) => void;
+
+/** Asks the host to keep running `work` after the response is sent. Vercel stops a function once it has answered
+ *  unless the work is registered with its waitUntil; Cloudflare passes one on the request. The Node dev server just
+ *  carries on, so there is nothing to register there. */
+export async function keepRunning(work: Promise<unknown>) {
+  const vercel = (globalThis as { [key: symbol]: { get?: () => { waitUntil?: WaitUntil } } | undefined })[Symbol.for('@vercel/request-context')];
+  let waitUntil = vercel?.get?.()?.waitUntil;
+  if (!waitUntil) {
+    try {
+      const { getRequest } = await import('@tanstack/react-start/server');
+      const request = getRequest() as Request & { waitUntil?: WaitUntil };
+      waitUntil = request.waitUntil?.bind(request);
+    } catch { /* Not inside a request (tests, scripts). */ }
+  }
+  waitUntil?.(work);
 }
 
 // One loader per reader version, each saving to the evidence notebook on disk.
@@ -171,6 +190,9 @@ export async function readTrackedEvidenceWithStatus(reader: TrackerReader, reade
   const started = Date.now();
   const corpus = await loadTracker(csv, reader);
   const { pending, failed } = loadTracker.stats;
+  // Answered before every new article was read: keep reading after the response so the evidence gets saved.
+  const reading = loadTracker.reading();
+  if (reading) await keepRunning(reading);
   if (process.env['NODE_ENV'] !== 'production' || process.env['MELODYLUST_DEBUG'] === '1') {
     console.info('[MelodyLust] tracker', { source, documents: corpus.documents.length, readNow: loadTracker.stats.read, reusedFromCache: loadTracker.stats.reused, stillReading: pending, failed, entities: corpus.entities.length, observations: corpus.observations.length, elapsedMs: Date.now() - started });
   }
