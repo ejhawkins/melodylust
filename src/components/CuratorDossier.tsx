@@ -29,9 +29,10 @@ type Workspace = Awaited<ReturnType<typeof getStylingNotesWorkspace>>;
 /**
  * The Curator Dossier (/profile): who the reader is, what they've saved and how they dress,
  * and what they've sent to Styling Notes. The Want List, music library and Style DNA live on this
- * device and work signed out; notes and the account need a sign-in.
+ * device and work signed out; notes and the account need a sign-in. `embedded` sets it inside
+ * another page (the listening room) as a section under that page's header, without the masthead.
  */
-export function CuratorDossier({ tab, onTabChange }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void }) {
+export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void; embedded?: boolean }) {
   const wishes = useWishlist();
   const { profile, save, clear } = useStyleProfile();
   const [session, setSession] = useState<Session | null>(null);
@@ -65,12 +66,13 @@ export function CuratorDossier({ tab, onTabChange }: { tab: DossierTab; onTabCha
     setWorkspace(w => (w ? { ...w, displayName: saved } : w));
   };
 
-  return <main className="dossier">
-    <header className="dossier-masthead">
+  const Root = embedded ? "section" : "main";
+  return <Root className="dossier" aria-labelledby={embedded ? "dossier-title" : undefined}>
+    {!embedded && <header className="dossier-masthead">
       <a href="/" className="dossier-back"><ArrowLeft aria-hidden /> Back to the journal</a>
       <a href="/" aria-label="Melody Lust home" className="brand"><img src={logoImage} alt="" className="brand-mark" width={448} height={209} /></a>
       <span className="edition">An independent<br />fashion journal<br />Vol. 01 — Autumn 2026</span>
-    </header>
+    </header>}
 
     <section className="dossier-head" aria-labelledby="dossier-title">
       <p className="dossier-kicker">Melody Lust · Editorial identity</p>
@@ -103,7 +105,7 @@ export function CuratorDossier({ tab, onTabChange }: { tab: DossierTab; onTabCha
 
     <AuthDialog open={authOpen} onOpenChange={setAuthOpen} onSignedIn={async () => { await loadWorkspace(); }} />
     <StyleProfileQuiz open={quizOpen} onOpenChange={setQuizOpen} profile={profile} onSave={save} onClear={clear} onRead={() => { window.location.href = "/#journal"; }} />
-  </main>;
+  </Root>;
 }
 
 function Tabs({ tab, onTabChange }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void }) {

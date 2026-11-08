@@ -15,4 +15,9 @@ export default defineConfig({
   nitro: {
     preset: process.env['VERCEL'] ? "vercel" : "cloudflare_module",
   },
+  // Dev only: let a phone on the Wi-Fi open the dev server by the Mac's Bonjour name (http://<name>.local:5173). YouTube
+  // refuses the hero's Thom Browne film (error 150) on a page served from a bare IP address, so the LAN IP can't show it.
+  vite: {
+    server: { allowedHosts: [".local"] },
+  },
 });

@@ -4,22 +4,11 @@ import { MobileParallax } from "@/components/MobileParallax";
 import { ScrollFadeUp } from "@/components/ScrollFadeUp";
 import cover from "@/assets/grunge-cover.jpg";
 import coverWide from "@/assets/grunge-cover-wide.jpg";
-
 import heroRunway from "@/assets/hero-runway-2.jpg";
 import heroRunway3 from "@/assets/hero-runway-3.jpg";
 import heroRunway4 from "@/assets/hero-runway-4.jpg";
+
 import street from "@/assets/street-style.jpg";
-import kidCudi from "@/assets/day-n-nite.jpg";
-import sleeveChihiro from "@/assets/sleeve-chihiro.jpg";
-import sleeveBanks from "@/assets/sleeve-banks.jpg";
-import sleeveSolange from "@/assets/sleeve-solange.jpg";
-import sleeveWeeknd from "@/assets/sleeve-weeknd.jpg";
-import songA from "@/assets/song-a.jpg";
-import songB from "@/assets/song-b.jpg";
-import songC from "@/assets/song-c.jpg";
-import songD from "@/assets/song-d.jpg";
-import songE from "@/assets/song-e.jpg";
-import songF from "@/assets/song-f.jpg";
 import matrixShoeImage from "@/assets/style-matrix-shoe.png";
 import { StyleMatrix } from "@/components/StyleMatrix";
 import { ShopSection } from "@/components/ShopSection";
@@ -30,14 +19,13 @@ import { StylingNotes } from "@/components/StylingNotes";
 import { SongStyleNotes } from "@/components/SongStyleNotes";
 import { GuidedStory, GuidedStoryQuote } from "@/components/GuidedStory";
 import { HowItWorks } from "@/components/HowItWorks";
+import { DesignerMusing } from "@/components/DesignerMusing";
+import { DuotoneFilter } from "@/components/DuotoneFilter";
+import { StoryDialog } from "@/components/StoryDialog";
+import { categories, iconicSongs, moodPool, playlist, songLooks, stories, type PhotoCredit, type Story } from "@/data/home";
 import glorillaMetaImage from "@/assets/glorilla-meta.jpg";
 import charliRockImage from "@/assets/charli-rock-music.webp";
 import skuzlandImage from "@/assets/skuzland.jpg";
-import slayyyterDanceImage from "@/assets/slayyyter-dance.jpg";
-import biaWeOnGoImage from "@/assets/bia-we-on-go.jpg";
-import nicoleKidmanImage from "@/assets/nicole-kidman.jpg";
-import iKnowWhatYouWantImage from "@/assets/i-know-what-you-want.jpg";
-import fashionWeekImage from "@/assets/fashion-week.jpg";
 import coverStoryImage from "@/assets/cover-story.jpg";
 import logoImage from "@/assets/melody-lust-logo.png";
 const logo = { url: logoImage };
@@ -45,11 +33,6 @@ const matrixShoe = { url: matrixShoeImage };
 const glorillaMeta = { url: glorillaMetaImage };
 const charliRock = { url: charliRockImage };
 const skuzland = { url: skuzlandImage };
-const slayyyterDance = { url: slayyyterDanceImage };
-const biaWeOnGo = { url: biaWeOnGoImage };
-const nicoleKidman = { url: nicoleKidmanImage };
-const iKnowWhatYouWant = { url: iKnowWhatYouWantImage };
-const fashionWeek = { url: fashionWeekImage };
 const coverStory = { url: coverStoryImage };
 const coverStoryFilm = { url: "" };
 import { createFileRoute } from "@tanstack/react-router";
@@ -58,10 +41,10 @@ import { ArrowUpRight, Search, ArrowDown, ArrowRight, Play, ArrowUp, ShoppingBag
 import { Button } from "@/components/ui/button";
 import { Wishlist } from "@/components/Wishlist";
 import { StyleSearch } from "@/components/StyleSearch";
+import { FashionMusicSearch } from "@/components/FashionMusicSearch";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { useStyleProfile } from "@/lib/use-style-profile";
 import { addWish } from "@/lib/wishlist";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
@@ -105,71 +88,16 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const stories = [
-  { id: 12, category: "Music", genre: "Hip-Hop", title: "GloRilla talks tea, hands-free", image: glorillaMeta.url, date: "October 09, 2026", intro: "Advice is free, but you better be ready to hear the truth. GloRilla handles business in the new Ray-Ban Meta Audio glasses.", body: "GloRilla has never needed a microphone to be heard, but her latest accessory does the talking anyway. In a new post, she handles business hands-free in the Ray-Ban Meta Audio glasses — designed without a camera, so she can talk tea all day.\n\nThe smart glasses moment is having a fashion moment, too. Worn like any good pair of frames, they sit somewhere between statement accessory and everyday tool. If the front row was the place to be seen, the group chat is the place to be heard — and Glo is dressed for both." },
-
-  { id: 1, category: "Music", genre: "Rock", title: "Rock music, not actually rock", image: charliRock.url, date: "October 09, 2026", intro: "“I think the dance floor is dead, so now we're making rock music.” Charli XCX opens her eighth album with a blazing guitar riff and a joke that is entirely hers.", body: "“I think the dance floor is dead, so now we're making rock music,” Charli XCX declares over a blazing guitar riff on ‘Rock Music’, the lead single from Music, Fashion, Film, her eighth studio album. She released it on 8 May 2026, having recorded it the previous October at Rue Boyer Studios in Paris with A. G. Cook and Finn Keane, who wrote and produced it with her. It runs one minute and fifty-five seconds and reached 36 in the UK.\n\nThe joke belongs to her. She posted studio footage captioned as a video of herself making a song called ‘rock music’ that is not actually rock music, then told British Vogue she enjoyed flipping the form — and that keeping the result from feeling too macho mattered. The video is shot in hard black and white: Charli roaming city streets, smoking beside enormous piles of cigarettes.\n\nThe album's title puts fashion in the room with music and film, and the styling follows. A shaggy faux-fur zip, an unbuttoned shirt, lace underneath, hair slicked back, an eye smoked to the bone. It is the rock uniform worn by someone who read the handbook and doodled in the margins — no leather jacket required. If the dance floor really is dead, she has at least dressed us for the wake." },
-  { id: 3, category: "Music", genre: "Rock", title: "Who is Skuzland?", image: skuzland.url, date: "October 09, 2026", intro: "Jazzelle and Robot Moonjuice built a world out of New York nightlife — and now it makes a noise.", body: "Skuzland is two people: Jazzelle, the model and artist the internet knows as Ugly Worldwide, and Robot Moonjuice, the Harlem-born creative director, songwriter and performance artist. They met at Berlin nightclub in Chicago — Robot in town for his first out-of-state gig, Jazzelle hosting in crutches with a broken foot and, as Robot put it, fully committed to the look.\n\nJazzelle's path runs straight through fashion. A Chicago club kid discovered by photographer Nick Knight, she went on to star in campaigns for Savage X Fenty and Fenty Skin, fronted her own Fenty Beauty collection with Rihanna's brand, and shot for Fendi, Nike and the covers of i-D and Interview — all while insisting beauty stays undefined. Robot made his name in New York's 2010s nightlife, turning fine art and theatre training into fearless, flamboyant performance.\n\nTogether they call the sound experimental techno pop-punk, and they refuse to be referential — as Robot has it, everyone is reheating everyone else's nachos. The debut EP, OTW, arrived on September 18 via Republic Records: seven tracks written entirely by the pair, from the siren howl of POOR CHOICES to the political fury of GiRL AMERiCA. In Skuzland, they say, everyone is welcome — arrive dressed however you like." },
-  { id: 2, category: "Fashion", genre: "Indie", title: "The thrift-store uniform", image: cover, date: "October 07, 2026", intro: "Argyle, tartan and three belts at once. The grunge wardrobe is back, and it never really left.", body: "There is a reason a thrifted sweater, a pleated skirt and an armful of belts still work. Grunge was never about looking rough. It was about wearing what you actually want, in whatever order it comes to you.\n\nStart with one soft piece and one hard piece. Let the knit go a little loose. Stack the belts until they feel like yours. The scuffs and the fraying hem are the point — they say you wore it, not that you saved it." },
-  { id: 4, category: "Runway", genre: "Electronic", title: "Beyond the front row", image: songF, date: "October 02, 2026", intro: "The details that stay with us long after the last look leaves the runway.", body: "The best runway moments aren't always the loudest. A change in proportion, a new approach to layering, a familiar fabric seen in an unfamiliar light: these are the ideas that follow us home.\n\nOur notes this season are simple. Embrace texture. Give volume some space. Keep the pieces you love, and try wearing them differently. The runway is a starting point, not a rulebook." },
-  { id: 5, category: "Music", genre: "Rock", title: "Leather, eyeliner and the last encore", image: songA, date: "September 30, 2026", intro: "The jacket that outlived the tour. How rock's uniform keeps turning up on the street.", body: "Rock dressing survives because it is mostly attitude and very little rule. A black jacket, a worn band tee, boots that have been broken in on purpose.\n\nWear it the way it was meant to be worn: slightly too loud, slightly too early, and with the collar up if the weather allows." },
-  { id: 6, category: "Music", genre: "Hip-Hop", title: "Oversized fits and open decks", image: songB, date: "September 28, 2026", intro: "Baggy denim, fresh laces and the confidence that made hip-hop the best-dressed room in the building.", body: "Hip-hop changed fashion by changing the fit. Shoulders dropped, legs widened, and sneakers moved from the gym to the front row.\n\nThe trick is proportion. Let one piece run large and keep the rest quiet. Then look after the shoes — they are the signature." },
-  { id: 7, category: "Music", genre: "R&B", title: "Slow jams and soft knits", image: songC, date: "September 26, 2026", intro: "Satin, cashmere and a little shine after dark — the R&B approach to getting dressed.", body: "R&B dressing is about how a fabric moves. Satin catches the light, a soft knit holds a shape, and everything sits a little lower and a little looser.\n\nBuild an outfit from texture rather than colour. One shiny piece, two matte ones, and a scent you save for the evening." },
-  { id: 8, category: "Music", genre: "Indie", title: "Charity-shop chords", image: songE, date: "September 24, 2026", intro: "Thrifted layers, mismatched prints and the joy of owning the only one.", body: "Indie style was never a look so much as a method: dig until you find something nobody else has, then wear it without apology.\n\nMix a formal piece with a casual one. Let the prints clash. The best find in the room should be the cheapest." },
-  { id: 9, category: "Music", genre: "Electronic", title: "Technical fabrics, after hours", image: songF, date: "September 21, 2026", intro: "Nylon, mesh and reflective detail — what the club learned from the laboratory.", body: "Electronic music dressed itself in function: fabrics that hold their shape in the heat, lines cut sharp, and a surface that glows under a strobe.\n\nYou don't need the whole uniform. One technical piece — a shell, a mesh top, sunglasses at two in the morning — is enough to change the signal." },
-  { id: 10, category: "Music", genre: "Jazz", title: "Loafers, late sets and a good lapel", image: songD, date: "September 19, 2026", intro: "The easy polish of a player who has done this a thousand times.", body: "Jazz style is quiet confidence. A well-cut jacket, a soft collar, loafers worn without socks or with the best socks in the building.\n\nFit does all the work. Have one thing tailored properly and let the rest of the outfit breathe." },
-  { id: 11, category: "Music", genre: "Country", title: "Boots, denim and a well-loved jacket", image: cover, date: "September 17, 2026", intro: "Western hardware has been on every runway for three seasons. Here is how to wear it honestly.", body: "Country dressing is built on things that last: boots you can walk in, denim that fades honestly, a jacket with a story on the lining.\n\nWear one western piece at a time — the boots, the belt buckle, the pearl-snap shirt — and keep everything else plain. It reads as a choice rather than a costume." },
+// The rotating word under YOU KNOW, one line each. `em` is "YOUR <word>"'s measured width in em of WTF Hammer XXX
+// Compressed, so the stylesheet can size every word to run exactly as wide as YOU KNOW.
+const coverWords = [
+  { word: "MUSIC", em: 2.219 },
+  { word: "STYLE", em: 2.039 },
+  { word: "FASHION", em: 2.557 },
+  { word: "RUNWAYS", em: 2.807 },
+  { word: "PLAYLIST", em: 2.602 },
 ];
-type Story = typeof stories[number];
-const categories = ["All", "Style", "Music", "Fashion", "Runway"];
-const coverWords = ["MUSIC", "STYLE", "\nFASHION", "\nRUNWAYS", "\nPLAYLIST"];
-const iconicSongs = [
-  { image: kidCudi, alt: "Day 'N' Nite (Crookers Remix) album art by Kid Cudi", caption: "Day 'N' Nite — Kid Cudi", link: "https://open.spotify.com/track/6ouTGbETM7ZdID1eMXZJde" },
-  { image: slayyyterDance.url, alt: "DANCE... album art by Slayyyter", caption: "DANCE... — Slayyyter", link: "https://open.spotify.com/track/5rfOARz6QO73wPATyMtQQZ" },
-  { image: biaWeOnGo.url, alt: "WE ON GO II album art by BIA", caption: "WE ON GO II — BIA", link: "https://open.spotify.com/track/3LtqBgvHGsaSjYw9NmLkky" },
-  { image: nicoleKidman.url, alt: "Nicole Kidman album art by ADÉLA", caption: "Nicole Kidman — ADÉLA", link: "https://open.spotify.com/track/3fuCoVxqdBRd0xBeEivlR4" },
-  { image: coverStory.url, alt: "Figure sinking underwater beneath a floating door", caption: "The cover story", tall: true, film: true },
-  { image: iKnowWhatYouWant.url, alt: "I Know What You Want album art by Busta Rhymes", caption: "I Know What You Want — Busta Rhymes", link: "https://open.spotify.com/track/0xDxS2g775ttrfrwDQl9f8" },
-  { image: fashionWeek.url, alt: "Fashion Week album art by Wale featuring G-Eazy", caption: "Fashion Week — Wale", link: "https://open.spotify.com/track/0Vtvich3vkhne7Pzum3tXF" },
-];
-type Look = { name: string; note: string; price: string };
-const songLooks: Record<string, Look[]> = {
-  "Day 'N' Nite — Kid Cudi": [
-    { name: "Moon-wash denim jacket", note: "Faded indigo, boxy cut", price: "$148" },
-    { name: "Glow-stitch hoodie", note: "Heavyweight fleece, night print", price: "$96" },
-    { name: "High-top canvas sneakers", note: "Black, white sole", price: "$70" },
-  ],
-  "DANCE... — Slayyyter": [
-    { name: "Liquid satin slip dress", note: "Cherry red, bias cut", price: "$128" },
-    { name: "Patent platform heels", note: "4-inch lift", price: "$115" },
-    { name: "Rhinestone hoop set", note: "Three sizes", price: "$42" },
-  ],
-  "WE ON GO II — BIA": [
-    { name: "Cropped leather bomber", note: "Chocolate brown", price: "$210" },
-    { name: "Low-rise cargo pants", note: "Stone, tie hem", price: "$88" },
-    { name: "Gold chain choker", note: "Chunky curb link", price: "$54" },
-  ],
-  "Nicole Kidman — ADÉLA": [
-    { name: "Ivory column gown", note: "Old-Hollywood drape", price: "$240" },
-    { name: "Opera gloves", note: "Satin, elbow length", price: "$48" },
-    { name: "Pearl drop earrings", note: "Freshwater pearls", price: "$66" },
-  ],
-  "The cover story": [
-    { name: "Sheer layered tunic", note: "Sea-glass blue", price: "$110" },
-    { name: "Oversized knit cardigan", note: "Washed grey", price: "$134" },
-    { name: "Silver ear cuff", note: "Hand-hammered", price: "$38" },
-  ],
-  "I Know What You Want — Busta Rhymes": [
-    { name: "Shearling-trim parka", note: "Black nylon", price: "$265" },
-    { name: "Velour track set", note: "Burgundy, two-piece", price: "$140" },
-    { name: "Wheat work boots", note: "Waterproof leather", price: "$180" },
-  ],
-  "Fashion Week — Wale": [
-    { name: "Double-breasted blazer", note: "Charcoal wool", price: "$295" },
-    { name: "Silk camp-collar shirt", note: "Abstract print", price: "$120" },
-    { name: "Tinted aviators", note: "Amber lens", price: "$85" },
-  ],
-};
+const tallestEm = Math.min(...coverWords.map(w => w.em));
 const genres = [
   { name: "Pop", note: "Bright hooks, glossy finishes. Wear the colour, own the chorus." },
   { name: "Rock", note: "Leather, worn denim and boots that have seen a few stages." },
@@ -180,42 +108,6 @@ const genres = [
   { name: "Jazz", note: "Tailoring, loafers and an easy, late-night polish." },
   { name: "Country", note: "Western boots, faded denim and a well-loved jacket." },
 ];
-type PhotoCredit = { author: string; source: string; license: string; licenseUrl: string };
-type PlaylistPhoto = { image: string; alt: string; width: number; height: number; credit: PhotoCredit };
-// Wikimedia Commons photos under CC licences — each one's credit line is required by its licence.
-const commons = (file: string, author: string, license: "CC BY 2.0" | "CC BY 4.0" | "CC BY-SA 2.0") => ({
-  author,
-  source: `https://commons.wikimedia.org/wiki/File:${file}`,
-  license,
-  licenseUrl: `https://creativecommons.org/licenses/${license.replace("CC ", "").replace(" ", "/").toLowerCase()}/`,
-});
-const playlist: { feature: PlaylistPhoto & { caption: string }; tracks: { title: string; artist: string; image: string; musician?: PlaylistPhoto }[] } = {
-  feature: {
-    image: "https://upload.wikimedia.org/wikipedia/commons/c/c7/BillieEilishO2140725-39_-_54665577407_%28cropped%29.jpg",
-    alt: "Billie Eilish performing at The O2, London, July 2025", width: 779, height: 1039,
-    caption: "The October Mix",
-    credit: commons("BillieEilishO2140725-39_-_54665577407_(cropped).jpg", "Raph_PH", "CC BY 4.0"),
-  },
-  tracks: [
-    { title: "Day 'N' Nite", artist: "Kid Cudi", image: kidCudi, musician: {
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Kid_Cudi_2010_2_%28crop%29.jpg/960px-Kid_Cudi_2010_2_%28crop%29.jpg",
-      alt: "Kid Cudi in New York City, April 2010", width: 960, height: 1511, credit: commons("Kid_Cudi_2010_2_(crop).jpg", "brinsknaps", "CC BY-SA 2.0") } },
-    { title: "DANCE...", artist: "Slayyyter", image: slayyyterDance.url, musician: {
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Slayyyter_%40_Greek_Theatre_10_09_2024_%2854229625185%29_%28cropped%29.jpg/960px-Slayyyter_%40_Greek_Theatre_10_09_2024_%2854229625185%29_%28cropped%29.jpg",
-      alt: "Slayyyter performing at the Greek Theatre, October 2024", width: 960, height: 1282, credit: commons("Slayyyter_@_Greek_Theatre_10_09_2024_(54229625185)_(cropped).jpg", "Justin Higuchi", "CC BY 2.0") } },
-    { title: "WE ON GO II", artist: "BIA", image: biaWeOnGo.url, musician: {
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Bia_rapper_%28cropped%29.jpg/960px-Bia_rapper_%28cropped%29.jpg",
-      alt: "BIA performing on the Dangerous Woman Tour, February 2017", width: 960, height: 1198, credit: commons("Bia_rapper_(cropped).jpg", "Emma", "CC BY-SA 2.0") } },
-    { title: "Nicole Kidman", artist: "ADÉLA", image: nicoleKidman.url, musician: {
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/ADELAINNYC.jpg/960px-ADELAINNYC.jpg",
-      alt: "ADÉLA performing at Brooklyn Steel, New York, September 2026", width: 960, height: 1280, credit: commons("ADELAINNYC.jpg", "Saturnmondays", "CC BY 4.0") } },
-    { title: "CHIHIRO", artist: "Billie Eilish", image: sleeveChihiro },
-    { title: "This Is What It Feels Like", artist: "BANKS", image: sleeveBanks },
-    { title: "Cranes in the Sky", artist: "Solange", image: sleeveSolange },
-    { title: "Blinding Lights", artist: "The Weeknd", image: sleeveWeeknd },
-    { title: "360", artist: "Charli XCX", image: charliRockImage },
-  ],
-};
 function PlaylistBoard({ pick, setPick }: { pick: number | null; setPick: React.Dispatch<React.SetStateAction<number | null>> }) {
   const [flipped, setFlipped] = useState(false);
   const [leaving, setLeaving] = useState<number | null>(null);
@@ -283,17 +175,13 @@ function Index() {
   const tumblr = useSuspenseQuery(tumblrQueryOptions);
   // Two rows of the blog's photo posts; under four, the journal's own stories stand in.
   const tumblrImages = tumblr.data.posts.filter(p => p.image).slice(0, TUMBLR_MAX);
-  const photo = useRef<HTMLImageElement>(null);
   const coverRef = useRef<HTMLElement>(null);
   const filmRef = useRef<HTMLElement>(null);
   const journal = useRef<HTMLElement>(null);
-  const searchInput = useRef<HTMLInputElement>(null);
   const [category, setCategory] = useState("All");
   const [solid, setSolid] = useState(false);
   const [filmIn, setFilmIn] = useState(false);
   const [filmOnScreen, setFilmOnScreen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const [article, setArticle] = useState<Story | null>(null);
   const [quiz, setQuiz] = useState(false);
   const { profile: styleProfile, save: saveStyleProfile, clear: clearStyleProfile } = useStyleProfile();
@@ -321,12 +209,15 @@ function Index() {
       if (reduce) return;
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        if (photo.current) photo.current.style.transform = `translateY(${Math.min(y * .18, 170)}px)`;
-        // Scroll-linked hero -> film handoff: hero scales back + dims as the film approaches.
-        const film = filmRef.current;
-        if (film) {
-          const p = Math.min(1, Math.max(0, 1 - film.getBoundingClientRect().top / window.innerHeight));
-          coverRef.current?.style.setProperty("--cover-out", p.toFixed(3));
+        // Scroll-linked hero handoff: the cover scales back + dims as the next section comes up.
+        // --cover-out is the share of the cover scrolled away (0 at rest on every screen); --cover-scroll is the same in px,
+        // which drives the photo and headline parallax.
+        const cover = coverRef.current;
+        if (cover) {
+          const rect = cover.getBoundingClientRect();
+          const p = Math.min(1, Math.max(0, -rect.top / rect.height));
+          cover.style.setProperty("--cover-out", p.toFixed(3));
+          cover.style.setProperty("--cover-scroll", `${Math.round(Math.min(cover.offsetHeight, Math.max(0, -rect.top)))}px`);
         }
       });
     };
@@ -398,59 +289,32 @@ function Index() {
     setAskFilm(false);
     try { window.localStorage.setItem(FILM_CONSENT_KEY, value); } catch { /* storage unavailable */ }
   };
-  const [active, setActive] = useState("cover");
-  useEffect(() => {
-    const els = ["cover", "film", "iconic", "circles", "journal", "shop", "styling-notes"].map(id => document.getElementById(id)).filter((el): el is HTMLElement => el !== null);
-    if (els.length === 0 || !("IntersectionObserver" in window)) return;
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e?.isIntersecting) setActive(e.target.id); });
-    }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
-    els.forEach(el => io.observe(el));
-    return () => io.disconnect();
-  }, []);
+  const [findOpen, setFindOpen] = useState(false);
   const goJournal = (next = "All") => {
     setCategory(next);
     journal.current?.scrollIntoView({ behavior: "smooth" });
   };
-  const filtered = stories.filter(s => (category === "All" || s.category === category) && (category !== "Music" || musicGenre === "All genres" || s.genre === musicGenre) && `${s.title} ${s.category} ${s.intro}`.toLowerCase().includes(query.toLowerCase()));
+  const filtered = stories.filter(s => (category === "All" || s.category === category) && (category !== "Music" || musicGenre === "All genres" || s.genre === musicGenre));
 
   return (
     <main className="site-frame">
       <header className="masthead" data-solid={solid}>
         <a href="/" aria-label="Melody Lust home" className="brand"><img src={logo.url} alt="" className="brand-mark" width={448} height={209} /></a>
-        <span className="edition">An independent<br />fashion journal<br />Vol. 01 — Autumn 2026</span>
       </header>
-      <nav className="side-rail" aria-label="Page sections" data-tone={active === "cover" ? "light" : "dark"}>
-        <a className="rail-item" href="#cover" data-active={active === "cover"}><span className="rail-rule" /><span className="rail-label">Cover</span></a>
-        <Button variant="railCta" asChild className="rail-cta" data-active={active === "film"}><a href="#film"><Play aria-hidden /><span className="rail-label">Music Video</span></a></Button>
-        <a className="rail-item" href="#iconic" data-active={active === "iconic"}><span className="rail-rule" /><span className="rail-label">Songs</span></a>
-        <a className="rail-item" href="#journal" data-active={active === "journal"}><span className="rail-rule" /><span className="rail-label">Journal</span></a>
-        <a className="rail-item" href="#shop" data-active={active === "shop"}><span className="rail-rule" /><span className="rail-label">Shop</span></a>
-        <a className="rail-item" href="#circles" data-active={active === "circles"}><span className="rail-rule" /><span className="rail-label">Circles</span></a>
-        <a className="rail-item" href="#styling-notes" data-active={active === "styling-notes"}><span className="rail-rule" /><span className="rail-label">Notes</span></a>
-
-      </nav>
+      <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} />
       <MobileParallax />
       <ScrollFadeUp />
       <section className="cover" id="cover" ref={coverRef} aria-label="Fashion meets music">
-        <a className="cover-anchor" href="#search" aria-label="Open Stylist AI, the music and fashion evidence search engine">
-          <span className="cover-slide cover-slide-1">
-            <img ref={photo} className="cover-photo cover-photo-runway" src={heroRunway3} alt="Model walking a dim museum runway in a charcoal grey tailored overcoat over a striped sweater vest, a pleated skirt and cropped trousers" width={1200} height={1600} fetchPriority="high" />
-          </span>
-          <span className="cover-slide cover-slide-2">
-            <img className="cover-photo cover-photo-runway" src={heroRunway} alt="Model walking a dark runway in a black-and-white houndstooth tailored overcoat" width={1200} height={1600} loading="lazy" />
-          </span>
-          <span className="cover-slide cover-slide-3">
-            <img className="cover-photo cover-photo-runway" src={heroRunway4} alt="Model walking a dim museum runway in a navy hooded coat with white sleeve stripes over a burgundy sweater vest and a grey pleated skirt" width={1200} height={1600} loading="lazy" />
-          </span>
-          <span className="cover-gradient" aria-hidden="true" />
-        </a>
-        <div className="cover-content">
+        <div className="cover-backdrop" aria-hidden="true">
+          <DuotoneFilter id="cover-duotone" />
+          {[heroRunway3, heroRunway, heroRunway4, heroRunway].map((src, i) => <span key={i} className={`cover-slide cover-slide-${i + 1}`}><img className="cover-photo" src={src} alt="" width={1200} height={1600} fetchPriority={i === 0 ? "high" : undefined} loading={i === 0 ? undefined : "lazy"} /></span>)}
+        </div>
+        <div className="cover-content" style={{ "--slot-em": coverWords[coverWord]?.em, "--tallest-em": tallestEm } as React.CSSProperties}>
           <nav className="cover-nav" aria-label="Journal categories">
             {categories.slice(1).map(c => <Button key={c} variant="coverNav" className="px-1 h-7" onClick={() => goJournal(c)}>{c}</Button>)}
-            <Button variant="coverNav" className="px-1 h-7" onClick={() => { setSearchOpen(true); goJournal(); setTimeout(() => searchInput.current?.focus(), 400); }}><span className="hidden sm:inline">Stylist AI</span><Search className="sm:hidden" aria-label="Stylist AI" /></Button>
+            <Button variant="coverNav" className="px-1 h-7" aria-haspopup="dialog" aria-expanded={findOpen} aria-controls={findOpen ? "fashion-music-search" : undefined} onClick={() => setFindOpen(o => !o)}><span className="hidden sm:inline">Fashion &amp; Music Search</span><Search className="sm:hidden" aria-label="Fashion and music search" /></Button>
           </nav>
-          <h1 className="cover-title"><span className="rise-line">YOU KNOW</span><span className="rise-line" style={{ animationDelay: "120ms" }}><span className="cover-word-slot" aria-hidden="true" data-lines={coverWords[coverWord]?.includes("\n") ? 2 : 1}>{coverWords.map((w, i) => { const [a, b] = w.split("\n"); return <span key={w} className="cover-word" data-active={i === coverWord}>YOUR {a}{b ? <><br />{b}</> : null}</span>; })}</span></span><span className="sr-only">YOU KNOW YOUR MUSIC</span></h1>
+          <h1 className="cover-title"><span className="rise-line cover-know">YOU KNOW</span><span className="rise-line" style={{ animationDelay: "120ms" }}><span className="cover-word-slot" aria-hidden="true">{coverWords.map((w, i) => <span key={w.word} className="cover-word" data-active={i === coverWord} style={{ "--word-em": w.em } as React.CSSProperties}>YOUR <em className="cover-em">{w.word}</em></span>)}</span></span><span className="sr-only">YOU KNOW YOUR MUSIC</span></h1>
           <div className="cover-subtitle"><span>EXPERIENCE</span><span>GET READY</span></div>
           <div className="cover-bottom">
             <Button variant="coverStart" onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}>START HERE <ArrowDown /></Button>
@@ -472,6 +336,7 @@ function Index() {
         </div>
         <RecordStack />
       </section>
+      <DesignerMusing />
       <HowItWorks />
       <GuidedStoryQuote />
       <section className="iconic" id="iconic" aria-label="Featured iconic songs of today">
@@ -498,11 +363,11 @@ function Index() {
               <SelectTrigger className="genre-select" aria-label="Filter by genre"><SelectValue placeholder="All genres" /></SelectTrigger>
               <SelectContent>{["All genres", ...genres.map(g => g.name)].map(g => <SelectItem className="genre-option" key={g} value={g}>{g}</SelectItem>)}</SelectContent>
             </Select>}
-            {searchOpen ? <input ref={searchInput} className="search-input" aria-label="Search stories" placeholder="Search the journal…" value={query} onChange={e => setQuery(e.target.value)} /> : <span className="text-[10px] uppercase text-muted-foreground">The autumn edit / 2026</span>}
+            <span className="text-[10px] uppercase text-muted-foreground">The autumn edit / 2026</span>
           </div>
         </div>
         {category === "Music" && musicGenre !== "All genres" && <p className="genre-pick" key={musicGenre}>{genres.find(g => g.name === musicGenre)?.note}</p>}
-        <div className="story-grid">{filtered.slice(0, category === "All" && !query ? 3 : 4).map(s => <article className="story" key={s.id}>
+        <div className="story-grid">{filtered.slice(0, category === "All" ? 3 : 4).map(s => <article className="story" key={s.id}>
           <a href="#" onClick={e => { e.preventDefault(); setArticle(s); }} aria-label={`Read ${s.title}`}><div className="story-image-wrap"><img className="story-image" src={s.image} style={{ objectPosition: s.image === skuzland.url ? "center 35%" : undefined }} alt={s.image === glorillaMeta.url ? "GloRilla in a pink blazer and blue tie, wearing Ray-Ban glasses, against a warm terracotta studio backdrop" : s.image === charliRock.url ? "Charli XCX in black and white: a shaggy faux-fur jacket over an unbuttoned shirt, hair slicked back and a smoked eye" : s.image === skuzland.url ? "Robot Moonjuice and Jazzelle in a flash-lit portrait: he wears gold sunglasses on his head and a pink fishnet top, she wears a fur-trimmed cap and a Black Flag t-shirt" : s.image === street ? "Paris street style with an oversized leather jacket and vintage denim" : "Grunge outfit: a navy argyle sweater, a red tartan pleated skirt and three layered silver belts"} width={1024} height={1280} loading="lazy" /></div></a>
           <div className="story-meta"><span>{s.category}{s.category === "Music" ? ` · ${s.genre}` : ""}</span><span>{s.date}</span></div>
           <h3>{s.title}</h3><Button variant="editorial" onClick={() => setArticle(s)}>Read the story <ArrowUpRight /></Button>
@@ -588,7 +453,7 @@ function Index() {
         <SheetContent className="shop-panel">
           {shopSong && (() => {
             const song = iconicSongs.find(x => x.caption === shopSong);
-            const pool = [cover, street, songA, songB, songC, songD, songE, songF, coverWide];
+            const pool = moodPool;
             const k = iconicSongs.findIndex(x => x.caption === shopSong);
             const looks = songLooks[shopSong] ?? [];
             const referenceImages = [pool[(k * 2) % pool.length], pool[(k * 2 + 1) % pool.length]];
@@ -615,7 +480,7 @@ function Index() {
           })()}
         </SheetContent>
       </Sheet>
-      <Dialog open={article !== null} onOpenChange={open => { if (!open) setArticle(null); }}><DialogContent className="article-dialog">{article && <><span className="text-xs uppercase text-muted-foreground">{article.category} · {article.genre} / {article.date}</span><DialogTitle className="font-editorial text-4xl font-normal">{article.title}</DialogTitle><DialogDescription>{article.intro}</DialogDescription><img src={article.image} alt={article.title} className="w-full aspect-[4/3] object-cover" width={1024} height={768} />{article.body.split("\n\n").map(p => <p className="article-copy" key={p}>{p}</p>)}</>}</DialogContent></Dialog>
+      <StoryDialog story={article} onClose={() => setArticle(null)} />
       <StyleProfileQuiz open={quiz} onOpenChange={setQuiz} profile={styleProfile} onSave={saveStyleProfile} onClear={clearStyleProfile} onRead={id => { setQuiz(false); setArticle(stories.find(story => story.id === id) ?? null); }} />
     </main>
   );

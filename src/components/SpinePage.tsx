@@ -22,7 +22,7 @@ const spineLine = 'absolute bottom-2.5 left-0 top-[168px] hidden w-px bg-stylus-
  * below it every cell stacks.
  */
 export function SpinePage({ active, children }: { active: SpineSection; children: ReactNode }) {
-  return <div className="spine-page min-h-dvh bg-stylus-accent px-3 pb-3 pt-10 font-grotesk text-stylus-paper xl:grid xl:place-items-center xl:py-[84px]">
+  return <div className="spine-page min-h-dvh bg-stylus-ground px-3 pb-3 pt-10 font-grotesk text-stylus-paper xl:grid xl:place-items-center xl:py-[84px]">
     <main className="relative mx-auto flex min-h-[calc(100dvh-52px)] max-w-[480px] flex-col bg-stylus-ink xl:mx-0 xl:grid xl:h-[956px] xl:min-h-0 xl:w-full xl:max-w-[1256px] xl:grid-cols-[372px_92px_85px_minmax(0,1fr)_140px_164px] xl:grid-rows-[168px_138px_130px_minmax(0,1fr)]">
       {/* On desktop the wordmark centres on the whole panel; the rule under it stops where the spines begin. */}
       <div aria-hidden="true" className={cn('hidden border-b xl:col-[1/5] xl:row-[1] xl:block', rule)} />

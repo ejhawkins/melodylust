@@ -16,6 +16,9 @@ const videos: Video[] = [
   { id: "4NRXx6U8ABQ", artist: "The Weeknd", title: "Blinding Lights", credit: "After Hours · 2020", cover: coverWeeknd, url: "https://www.youtube.com/watch?v=4NRXx6U8ABQ", tags: ["Album", "2020"], theme: "Neon Rush" },
 ];
 
+/** The music videos of "This is a mood", also listed in the listening room's library. */
+export { videos as moodVideos, type Video as MoodVideo };
+
 export function RecordStack() {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState<number | null>(null);

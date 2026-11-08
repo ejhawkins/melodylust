@@ -31,6 +31,7 @@
   --color-stylus-ink: var(--stylus-ink);
   --color-stylus-paper: var(--stylus-paper);
   --color-stylus-accent: var(--stylus-accent);
+  --color-stylus-ground: var(--stylus-ground);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -141,6 +142,7 @@
   --stylus-ink: oklch(0.1 0.015 320); /* matches the hero's plum shade */
   --stylus-paper: oklch(0.91 0.006 90);
   --stylus-accent: oklch(0.68 0.22 32);
+  --stylus-ground: #281723; /* the plum ground Runway Songs and Radio stand their ink panel on */
   --radius: 0.25rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.19 0.005 35);
@@ -243,14 +245,60 @@
   font-style: normal;
   font-display: swap;
 }
+/* MyFonts Webfont Build ID 3867246: WTF Hammer Compressed and WTF Hammer XXX Compressed by W Type Foundry
+   (https://www.myfonts.com/collections/without-foundry); Couturier Poster Thin, Couturier Poster Black It and Isidora Medium
+   by Latinotype (https://www.myfonts.com/collections/latinotype-foundry). Used under the site owner's End User License Agreement; self-hosted from public/fonts. */
+@font-face {
+  font-family: "Isidora";
+  src: url("/fonts/isidora-medium.woff2") format("woff2"), url("/fonts/isidora-medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Couturier Poster";
+  src: url("/fonts/couturier-poster-thin.woff2") format("woff2"), url("/fonts/couturier-poster-thin.woff") format("woff");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Couturier Poster";
+  src: url("/fonts/couturier-poster-black-italic.woff2") format("woff2"), url("/fonts/couturier-poster-black-italic.woff") format("woff");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "WTF Hammer XXX Compressed";
+  src: url("/fonts/wtf-hammer-xxx-compressed.woff2") format("woff2"), url("/fonts/wtf-hammer-xxx-compressed.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "WTF Hammer Compressed";
+  src: url("/fonts/wtf-hammer-compressed.woff2") format("woff2"), url("/fonts/wtf-hammer-compressed.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 @theme inline {
   --font-sans: "Avenir LT Std", "DM Sans", sans-serif;
   --font-editorial: "Bodoni Moda", serif;
   --font-display: "Archivo Black", sans-serif;
   --font-cover: "Big Shoulders Display", "Archivo Black", sans-serif;
+  --font-didot: "Didot", "Bodoni Moda", serif;
   --font-iconic: "Gotham XLight", "DM Sans", sans-serif;
   --font-grotesk: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-hammer: "WTF Hammer Compressed", "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-hammer-xxx: "WTF Hammer XXX Compressed", "WTF Hammer Compressed", "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-couturier: "Couturier Poster", "Didot", "Bodoni Moda", serif; /* the cover's serif: Thin upright, Black italic */
+  --font-isidora: "Isidora", "DM Sans", sans-serif; /* the cover nav, Medium only */
   --color-cover-ink: var(--cover-ink);
+  --color-cover-type: var(--cover-type);
+  --color-hero-type: var(--hero-type);
+  --color-cover-paper: var(--cover-paper);
   --color-editorial-accent: var(--editorial-accent);
   --color-cover-accent: var(--cover-accent);
   --font-press: "Source Serif 4", Georgia, serif;
@@ -259,9 +307,28 @@
   --color-press-cyan: var(--press-cyan);
   --color-press-cyan-600: var(--press-cyan-600);
   --color-press-cyan-700: var(--press-cyan-700);
+  --color-product-paper: var(--product-paper);
+  --color-product-ink: var(--product-ink);
+  --color-product-gold: var(--product-gold);
+  --color-product-tortoise: var(--product-tortoise);
+  --color-product-amber: var(--product-amber);
+  --color-product-black: var(--product-black);
 }
 :root {
   --cover-ink: oklch(0.99 0.005 80);
+  --cover-paper: oklch(1 0 0);
+  --cover-type: oklch(0 0 0);
+  /* The hero's plum ground and wash, and its photo duotone: shadows go deep plum, highlights go orange
+     (applied by the #cover-duotone filter). */
+  --cover-plum: oklch(0.54 0.16 332);
+  --cover-plum-ink: oklch(0.22 0.09 330); /* the headline and EXPERIENCE / GET READY: a plum darker than the ground */
+  --hero-plum: oklch(0.45 0.15 332); /* the listening room hero's type over the Thom Browne film: lighter than the plum ink so it holds on the film's dark shots, dark enough for its light grey runway */
+  --hero-type: var(--hero-plum); /* set per state on .ls-hero-cover */
+  --lexicon-ground: oklch(0.8 0.17 58); /* the shape lexicon's bright ground: autumn orange, the duotone's light and BIA's glow */
+  --lexicon-line: var(--hero-plum); /* its two outline lines */
+  --lexicon-fill: var(--lexicon-ground); /* inside the shape */
+  --cover-duo-shadow: oklch(0.28 0.13 330);
+  --cover-duo-light: oklch(0.8 0.17 58);
   /* The broadsheet chart's process inks (after the Melodylust Playlist design): paper, ink,
      cyan and magenta as interface colors, yellow only for the plate-printed type. */
   --press-paper: #f3f2f2;
@@ -272,12 +339,18 @@
   --press-magenta: #d6006c;
   --press-magenta-700: #aa0b56;
   --press-yellow: #edbb00;
-  --head-h: clamp(72px, 5.8vw, 98px);
-  --mark-h: clamp(40px, 3.9vw, 68px);
+  /* The featured-product card (from gilded-verdant-harmony's hero): its paper, ink and gold, and the frame swatches. */
+  --product-paper: oklch(0.982 0.0025 106);
+  --product-ink: oklch(0.152 0 0);
+  --product-gold: oklch(0.655 0.075 82);
+  --product-tortoise: oklch(0.39 0.055 63);
+  --product-amber: oklch(0.63 0.092 72);
+  --product-black: oklch(0.18 0.004 90);
+  --head-h: clamp(80px, 7vw, 120px);
+  --mark-h: clamp(54px, 5.4vw, 92px);
   --head-pad: clamp(16px, 1.7vw, 30px);
   --editorial-accent: oklch(0.55 0.16 40);
   --cover-accent: oklch(0.78 0.14 45);
-  --cover-shade: linear-gradient(180deg, oklch(0.1 0.015 320 / 58%) 0%, transparent 30%, transparent 62%, oklch(0.1 0.015 320 / 97%) 92%);
 }
 * { letter-spacing: 0; }
 /* Runway Songs and Radio set their tracking with utilities; the reset above is unlayered, so hand it back to them. */
@@ -466,60 +539,77 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .brand { display: inline-flex; align-items: center; min-width: 0; flex: 0 0 auto; }
 .brand-mark { height: var(--mark-h); width: auto; display: block; }
 @media (min-width: 600px) and (max-width: 1100px) {
-  .masthead .brand-mark { height: 64px; }
+  :root { --head-h: 96px; }
+  .masthead .brand-mark { height: 80px; }
 }
 .brand-mark { filter: brightness(0); }
+/* White over the plum hero; back to black once the masthead turns solid below it. */
+.masthead .brand-mark { transition: filter .45s ease; }
+.masthead:not([data-solid="true"]) .brand-mark { filter: brightness(0) invert(1); }
 /* Logo reveal — wipes in from the left on load */
 .masthead .brand-mark { clip-path: inset(-8% 100% -8% 0); animation: brand-wipe-in 1.1s cubic-bezier(.16,1,.3,1) .25s both; }
 @keyframes brand-wipe-in { from { clip-path: inset(-8% 100% -8% 0); } to { clip-path: inset(-8% -8% -8% 0); } }
 @media (prefers-reduced-motion: reduce) { .masthead .brand-mark { clip-path: none; animation: none; } }
 .edition { font-size: 10px; text-transform: uppercase; }
 .cover, .iconic { scroll-margin-top: calc(var(--head-h) + 16px); }
-.side-rail { position: fixed; top: 50%; right: clamp(12px, 1.4vw, 26px); transform: translateY(-50%); z-index: 35; display: flex; flex-direction: column; align-items: flex-end; gap: 13px; padding: 14px 12px; border-radius: 20px; background: oklch(0.99 0.005 80 / 82%); -webkit-backdrop-filter: blur(10px) saturate(1.1); backdrop-filter: blur(10px) saturate(1.1); border: 1px solid oklch(0.2 0.02 320 / 12%); box-shadow: 0 20px 50px -34px oklch(0.08 0.02 320 / 60%); color: var(--foreground); transition: background-color .45s ease, color .45s ease, border-color .45s ease; }
-.side-rail[data-tone="light"] { background: oklch(0.14 0.02 320 / 55%); border-color: oklch(0.99 0.005 80 / 22%); color: var(--cover-ink); }
-.rail-item { position: relative; display: inline-flex; align-items: center; gap: 9px; font-size: 9.5px; text-transform: uppercase; letter-spacing: .14em; text-decoration: none; color: inherit; opacity: .55; transition: opacity .3s ease; }
-.rail-item:hover, .rail-item[data-active="true"] { opacity: 1; }
-.rail-rule { width: 14px; height: 1px; background: currentColor; transition: width .35s ease, background-color .35s ease; }
-.rail-item:hover .rail-rule, .rail-item[data-active="true"] .rail-rule { width: 30px; }
-.rail-item[data-active="true"] .rail-rule { background: var(--primary); }
-.rail-cta svg { width: 10px; height: 10px; }
-.rail-cta { opacity: .72; transition: opacity .3s ease, transform .3s ease; }
-.rail-cta[data-active="true"] { opacity: 1; transform: scale(1.06); }
-.side-rail[data-tone="light"] .rail-cta[data-active="true"] { box-shadow: 0 0 0 2px oklch(0.99 0.005 80 / 55%); }
-@media (max-width: 1579px) {
-  .side-rail { right: 10px; padding: 14px 8px; gap: 12px; align-items: center; border-radius: 999px; }
-  .rail-item { gap: 0; }
-  .rail-item .rail-label, .rail-cta .rail-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .rail-cta { width: 26px; height: 26px; padding: 0; gap: 0; }
+.cover { position: relative; min-height: 520px; overflow: hidden; background: var(--cover-plum); color: var(--cover-type); transform-origin: 50% 0; transform: scale(calc(1 - var(--cover-out, 0) * .05)); }
+.cover::after { content: ""; position: absolute; inset: 0; z-index: 2; background: oklch(0.08 0.01 320); opacity: calc(var(--cover-out, 0) * .45); pointer-events: none; } /* the hero sinks back and dims as it scrolls away */
+/* Hero backdrop: three runway looks crossfade under the headline, washed in plum so the black type keeps reading,
+   with an inner shadow around the edge for depth. */
+.cover-backdrop { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.cover-backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, color-mix(in oklab, var(--cover-plum) 55%, transparent), color-mix(in oklab, var(--cover-plum) 22%, transparent) 45%, color-mix(in oklab, var(--cover-plum) 62%, transparent)); box-shadow: inset 0 0 70px oklch(0 0 0 / 32%); }
+.cover-duotone { position: absolute; width: 0; height: 0; overflow: hidden; } /* holds the filter only; display: none would switch it off */
+.cover-duo-shadow { flood-color: var(--cover-duo-shadow); }
+.cover-duo-light { flood-color: var(--cover-duo-light); }
+.cover-slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; animation: cover-slide-cycle 24s cubic-bezier(.65,0,.35,1) infinite; }
+.cover-slide-2 { animation-delay: -18s; }
+.cover-slide-3 { animation-delay: -12s; }
+.cover-slide-4 { animation-delay: -6s; }
+/* Parallax: the photo lags at under half the scroll speed and eases in a little as the cover leaves, while the headline
+   runs slightly ahead of the page, so the type reads as a layer floating over the runway. */
+.cover-photo { position: absolute; top: 0; left: var(--spot); translate: calc(var(--spot) * -1) 0; width: 135%; max-width: none; height: auto; min-height: 112%; aspect-ratio: 3 / 4; object-fit: cover; object-position: center 30%; filter: contrast(1.15) url(#cover-duotone); will-change: transform; transform: translate3d(0, calc(var(--cover-scroll, 0px) * .45), 0) scale(calc(1 + var(--cover-out, 0) * .08)); }
+/* Each look fills the hero edge to edge but runs 135% wide, so it can slide sideways and set the model off centre:
+   the four slots run left, left, right, left. --spot works like background-position, so 100% shows the photo's right
+   side and puts the model left of centre, 0% the reverse. */
+.cover-slide { --spot: 100%; }
+.cover-slide-3 { --spot: 0%; }
+.cover-title, .cover-subtitle { transform: translate3d(0, calc(var(--cover-scroll, 0px) * -.12), 0); }
+@keyframes cover-slide-cycle {
+  0%, 21% { opacity: 1; transform: translateX(0); }
+  25%, 96% { opacity: 0; transform: translateX(-4%); }
+  100% { opacity: 1; transform: translateX(0); }
 }
-@media (max-width: 900px) { .side-rail { display: none; } }
-.cover-anchor { position: absolute; inset: 0; }
-.cover { position: relative; height: min(820px, 82vw); min-height: 520px; overflow: hidden; background: var(--foreground); transform-origin: 50% 0; transform: scale(calc(1 - var(--cover-out, 0) * .05)); }
-.cover::after { content: ""; position: absolute; inset: 0; z-index: 2; background: oklch(0.08 0.01 320); opacity: calc(var(--cover-out, 0) * .45); pointer-events: none; }
-.cover-photo { position: absolute; width: 100%; height: 120%; top: -10%; object-fit: cover; object-position: center 41%; will-change: transform; transform: translate3d(0, calc(var(--cover-out, 0) * 110px), 0); }
-.cover::after { content: ""; position: absolute; inset: 0; background: var(--cover-shade); pointer-events: none; }
-.cover-content { position: relative; height: 100%; z-index: 1; display: flex; flex-direction: column; padding: calc(var(--head-h) + 12px) 10% 20px; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .cover-slide { animation: none; }
+  .cover-slide-1 { opacity: 1; }
+}
+.cover-content { position: relative; height: 100%; z-index: 1; display: flex; flex-direction: column; padding: calc(var(--head-h) + 12px) max(0px, calc((100% - 1180px) / 2)) 20px; pointer-events: none; container-type: inline-size;
+  /* The headline runs the full column, margin to margin with the Musing column below (1180px). YOU KNOW and every YOUR word
+     are sized to run exactly this wide: --know-em is YOU KNOW's measured width in em of WTF Hammer Compressed; each word
+     brings its own as --word-em. --cover-lh is both Hammer cuts' cap height, so each line's box is exactly its capitals,
+     and --cover-gap is the one space between YOU KNOW, the YOUR word and EXPERIENCE. */
+  --cover-lock: 100cqi; --know-em: 3.633; --cover-fs: calc(var(--cover-lock) / var(--know-em)); --cover-lh: .704; --cover-gap: calc(var(--cover-fs) * .09); }
+.cover > .genres { display: none; }
 .cover-content :is(button, a, input) { pointer-events: auto; }
 .cover-nav { display: flex; justify-content: center; gap: 36px; align-items: center; }
-.cover-nav button { font-family: var(--font-editorial); font-size: 15px; letter-spacing: .14em; font-weight: 400; }
-.cover-title { --cover-line: .9em; font-family: var(--font-cover); font-weight: 900; font-size: clamp(157px, 14.2vw, 220px); line-height: .9; text-align: center; margin: 18px 0 0; color: var(--foreground); letter-spacing: -7px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; } /* top-anchored under the nav for every word; EXPERIENCE / GET READY follow right below as the word slot grows */
-.cover-word-slot { display: inline-grid; align-items: end; justify-items: center; letter-spacing: inherit; grid-template-rows: calc(var(--cover-line) * var(--slot-lines, 1)); transition: grid-template-rows .55s cubic-bezier(.16,1,.3,1); }
-.cover-word-slot[data-lines="2"] { --slot-lines: 2; }
-.cover-word { grid-area: 1 / 1; opacity: 0; transform: translateY(.3em); transition: opacity .3s ease, transform .5s cubic-bezier(.16,1,.3,1); letter-spacing: inherit; white-space: nowrap; }
+.cover-nav button { font-family: var(--font-isidora); font-size: 15px; letter-spacing: .14em; font-weight: 500; }
+.cover-title { font-family: var(--font-hammer-xxx); font-weight: 400; font-stretch: 62%; font-size: var(--cover-fs); line-height: var(--cover-lh); text-align: center; margin: var(--cover-gap) 0 0; color: var(--cover-plum-ink); letter-spacing: 0; display: flex; flex-direction: column; gap: var(--cover-gap); align-items: center; justify-content: flex-start; } /* top-anchored under the nav for every word; EXPERIENCE / GET READY follow right below as the word slot grows */
+.cover-word-slot { display: grid; align-items: end; justify-items: center; letter-spacing: inherit; grid-template-rows: calc(var(--cover-lh) * var(--cover-lock) / var(--slot-em, var(--know-em))); transition: grid-template-rows .55s cubic-bezier(.16,1,.3,1); }
+.cover-word { grid-area: 1 / 1; font-size: calc(var(--cover-lock) / var(--word-em)); opacity: 0; transform: translateY(.3em); transition: opacity .3s ease, transform .5s cubic-bezier(.16,1,.3,1); letter-spacing: inherit; white-space: nowrap; }
 .cover-word[data-active="true"] { opacity: 1; transform: none; transition: opacity .38s ease .2s, transform .6s cubic-bezier(.16,1,.3,1) .12s; }
-.cover-word[data-long="true"] { font-size: calc(1em * var(--cover-long-scale, .62)); }
-@media (max-width: 900px) { .cover-title { --cover-long-scale: .60; } }
-@media (max-width: 600px) { .cover-title { --cover-long-scale: .58; } }
-.cover-subtitle { display: flex; justify-content: space-between; font-family: var(--font-cover); font-weight: 900; font-size: 34px; color: var(--foreground); line-height: 1.1; margin-top: 3px; }
-.cover-bottom { margin-top: auto; display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+.cover-em { font-style: normal; } /* WTF Hammer Compressed has no italic, so the rotating word stays upright rather than take a synthesized slant */
+.cover-know { font-family: var(--font-hammer); } /* YOU KNOW in Compressed over the rotating YOUR line in the narrowest cut */
+.cover-know, .cover-word { position: relative; top: .102em; } /* in a cap-height line box the capitals top out .102em high; this drops them into it */
+.cover-subtitle { display: flex; justify-content: space-between; width: var(--cover-lock); align-self: center; font-family: var(--font-couturier); font-style: italic; font-weight: 900; letter-spacing: -.01em; font-size: 46px; color: var(--cover-plum-ink); line-height: 1.1; margin-top: var(--cover-gap); }
+/* A shorter word hands the height it doesn't use to the gap above START HERE, so the cover never changes height. */
+.cover-bottom { margin-top: calc(56px + var(--cover-lh) * (var(--cover-lock) / var(--tallest-em) - var(--cover-lock) / var(--slot-em))); transition: margin-top .55s cubic-bezier(.16,1,.3,1); display: flex; align-items: end; justify-content: space-between; gap: 20px; }
 .cover-bottom button { letter-spacing: .05em; }
-.cover-caption { font-family: var(--font-cover); font-weight: 800; color: var(--foreground); font-size: 13px; text-align: center; padding-bottom: 7px; }
+.cover-caption { font-family: var(--font-isidora); font-weight: 500; letter-spacing: .12em; color: var(--cover-type); font-size: 13px; text-align: center; padding-bottom: 7px; }
 .journal { padding: 64px 0 68px; scroll-margin-top: calc(var(--head-h) + 16px); }
 .section-heading { display: flex; flex-direction: column; align-items: center; text-align: center; border-bottom: 1px solid var(--foreground); padding: 34px 0 30px; margin-bottom: 54px; gap: 12px; }
 .section-heading h2 { font-family: var(--font-cover); font-weight: 900; font-size: clamp(52px, 7vw, 96px); line-height: .95; letter-spacing: -.02em; text-transform: uppercase; margin: 0; color: var(--primary); }
 .filter-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0 28px; }
 .filters { display: flex; gap: 14px; flex-wrap: wrap; }
-.search-input { width: min(240px, 100%); border: 0; border-bottom: 1px solid var(--foreground); padding: 8px 2px; outline: none; background: var(--background); }
 .filter-tools { display: flex; align-items: center; justify-content: flex-end; gap: 16px; flex-wrap: wrap; }
 .genre-select { width: auto; min-width: 176px; height: auto; border: 0; border-bottom: 1px solid var(--foreground); border-radius: 0; background: transparent; box-shadow: none; padding: 7px 2px; font-family: var(--font-iconic); font-weight: 300; font-size: 11px; text-transform: uppercase; letter-spacing: .18em; }
 .genre-select:focus-visible { outline: none; }
@@ -537,7 +627,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .footer { padding: 32px 0 40px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 .article-copy { font-size: 15px; line-height: 1.8; }
 .article-dialog { max-height: 85dvh; overflow-y: auto; }
-.film { width: 100vw; margin-left: calc(50% - 50vw); background: var(--background); color: var(--foreground); padding: 83px 0 0; scroll-margin-top: calc(var(--head-h) + 26px); }
+.film { width: 100vw; margin-left: calc(50% - 50vw); background: var(--background); color: var(--foreground); padding: 120px 0 0; scroll-margin-top: calc(var(--head-h) + 26px); }
 .film { position: relative; overflow: clip; }
 .film-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 13px; padding: 0 max(36px, calc(50vw - 660px)); margin-bottom: 34px; }
 .film-credit { font-family: var(--font-iconic); font-weight: 300; font-size: 10px; text-transform: uppercase; letter-spacing: .18em; text-align: center; opacity: 0; transform: translateY(12px); transition: opacity .9s ease .35s, transform .9s ease .35s; }
@@ -552,6 +642,12 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .film-link:hover { color: var(--primary); }
 .film-title { font-family: var(--font-editorial); font-weight: 400; font-size: min(171px, calc((100vw - 80px) / 7.7)); color: var(--primary); margin: 0; line-height: .95; letter-spacing: -.03em; display: flex; flex-wrap: nowrap; white-space: nowrap; justify-content: center; gap: 0 .2em; width: 100%; }
 @media (max-width: 900px) { .film-title { font-size: calc((100vw - 62px) / 7.9); letter-spacing: -.02em; gap: 0 .3em; } }
+/* "This is a mood" itself is set in WTF Hammer XXX Compressed and runs edge to edge like the cover: THIS IS A MOOD measures
+   2.49em plus three .07em word gaps, so dividing the column by 2.75 fills it with a hair to spare. Line-height .9 keeps the
+   capitals inside each word's reveal mask. Other mood headings keep the serif. */
+.film .film-title { font-family: var(--font-hammer-xxx); font-weight: 400; text-transform: uppercase; letter-spacing: 0; gap: 0 .07em; line-height: .9; font-size: min(480px, calc((100vw - 80px) / 2.75)); }
+@media (max-width: 900px) { .film .film-title { font-size: calc((100vw - 62px) / 2.75); } }
+@media (max-width: 600px) { .film .film-title { font-size: calc((100vw - 40px) / 2.75); } }
 .film-word { display: flex; flex: none; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em; }
 .film-word > span { display: inline-block; opacity: 0; transform: translateY(110%); transition: opacity .6s ease, transform .6s cubic-bezier(.22, 1, .36, 1); }
 .film[data-inview="true"] .film-word > span, .film[data-inview="true"] .film-credit, .film[data-inview="true"] .film-rule { opacity: 1; transform: none; }
@@ -611,18 +707,16 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
   .film-head { padding: 0 28px; }
 }
 @media (max-width: 600px) {
-  .film { padding-top: 52px; }
+  .film { padding-top: 76px; }
   .film-head { padding: 0 16px; gap: 10px; margin-bottom: 21px; }
   .film-play { font-size: 14px; padding: 10px 18px; gap: 8px; }
 }
 @media (max-width: 900px) {
   .site-frame { width: calc(100% - 56px); }
-  .cover-title { font-size: 88px; letter-spacing: -5px; }
-  .rise-line { letter-spacing: -6px; }
-  .cover-content { padding: calc(var(--head-h) + 8px) 5% 18px; }
+  .cover-content { padding: calc(var(--head-h) + 8px) 0 18px; }
   .cover-nav { gap: 18px; }
   .cover-nav button { font-size: 12px; letter-spacing: .084em; }
-  .cover-subtitle { font-size: 26px; }
+  .cover-subtitle { font-size: 34px; }
   .cover-caption { font-size: 9px; max-width: 160px; }
   .story-grid { gap: 20px; }
 }
@@ -630,13 +724,11 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
   .site-frame { width: calc(100% - 32px); }
   .edition { font-size: 7.5px; max-width: 92px; text-align: right; line-height: 1.5; letter-spacing: .02em; }
   .cover { height: 650px; min-height: 0; max-height: 78dvh; }
-  .cover-photo { object-position: 50% 40%; }
   .cover-content { padding: calc(var(--head-h) + 6px) 13px 19px; }
   .cover-nav { gap: 7px; justify-content: space-between; }
-  .cover-title { --cover-line: 1em; font-size: clamp(59px, 18.4vw, 88px); margin-top: 26px; line-height: 1.0; letter-spacing: -3px; }
-  .rise-line { letter-spacing: -3px; }
+  .cover-title { margin-top: 26px; }
   .cover-nav button { font-size: 10px; letter-spacing: .056em; }
-  .cover-subtitle { font-size: 17px; margin-top: 12px; }
+  .cover-subtitle { font-size: 23px; margin-top: 12px; }
   .cover-bottom { flex-wrap: wrap; gap: 8px 2px; }
   .cover-bottom button { font-size: clamp(14px, calc(6vw - 7px), 19px); letter-spacing: .02em; }
   .cover-caption { order: 3; max-width: none; width: 100%; font-size: 8px; padding: 0; }
@@ -654,7 +746,6 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .cover-photo { will-change: auto; transform: none; }
   .story-image { transition: none; }
 }
 
@@ -1541,47 +1632,18 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 /* Black headings on light sections */
 .zine-header h2, .zine-cover-copy h3, .section-heading h2, .film-credit--title, .film-title, .want-heading, .circles-heading, .stylus-heading { color: var(--foreground); }
 
-/* Hero: three editorial runway looks moving beneath the fixed masthead */
-.cover-slide { position: absolute; inset: 0; overflow: hidden; opacity: 0; animation: cover-slide-cycle 18s cubic-bezier(.65,0,.35,1) infinite; }
-.cover-slide-1 { animation-delay: 0s; }
-.cover-slide-2 { animation-delay: -12s; }
-.cover-slide-3 { animation-delay: -6s; }
-.cover-photo-runway { height: 112%; top: 0; object-position: center top; }
-@media (max-width: 600px) {
-  .cover-photo-runway { height: 100%; top: 0; object-position: center; }
-}
-@keyframes cover-slide-cycle {
-  0%, 28% { opacity: 1; transform: translateX(0); }
-  33.3%, 94% { opacity: 0; transform: translateX(-4%); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-.cover-gradient { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(120deg, color-mix(in oklab, var(--primary) 22%, transparent), transparent 40%, color-mix(in oklab, var(--foreground) 30%, transparent) 70%, transparent); background-size: 220% 220%; opacity: .55; animation: cover-gradient 14s ease-in-out infinite alternate; }
-@keyframes cover-gradient { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
-@media (prefers-reduced-motion: reduce) {
-  .cover-gradient { animation: none; }
-  .cover-slide { animation: none; opacity: 0; transform: none; }
-  .cover-slide-1 { opacity: 1; }
-}
 
-/* Hero concept: editorial gradient wash over the photo */
-.cover .cover-gradient { z-index: 1; opacity: 1; mix-blend-mode: normal; background: linear-gradient(180deg, color-mix(in oklab, var(--background) 82%, transparent) 0%, color-mix(in oklab, var(--background) 72%, transparent) 16%, transparent 34%), radial-gradient(78% 40% at 50% 36%, color-mix(in oklab, var(--background) 30%, transparent), color-mix(in oklab, var(--background) 12%, transparent) 50%, transparent 100%), linear-gradient(180deg, color-mix(in oklab, var(--background) 36%, transparent) 0%, color-mix(in oklab, var(--background) 12%, transparent) 42%, transparent 76%); background-size: 118% 118%; animation: cover-gradient 16s ease-in-out infinite alternate; }
 
-/* Hero extends to just below START HERE / TAKE A QUIZ; extra side gradients */
-.cover::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, oklch(0.16 0.02 320 / 70%), transparent 22%, transparent 78%, oklch(0.16 0.02 320 / 70%)); }
-/* Light fade along the hero's foot so the black links stay readable */
-.cover::before { content: ""; position: absolute; inset: auto 0 0 0; height: 46%; z-index: 1; pointer-events: none; background: linear-gradient(180deg, transparent, oklch(0.98 0.012 80 / 62%) 88%); }
 .masthead::before { display: none; }
 @media (min-width: 600px) {
-  .cover { height: calc(min(820px, 82vw) + 40px); }
   .cover-content { padding-bottom: 40px; }
 }
 @media (max-width: 600px) {
-  .cover { height: min(650px, 78dvh); }
-  .cover-content { padding-bottom: 24px; }
-  .cover::after { background: linear-gradient(90deg, oklch(0.16 0.02 320 / 42%), transparent 34%, transparent 66%, oklch(0.16 0.02 320 / 42%)); }
+  .cover { height: auto; max-height: none; }
+  .cover-content { padding-bottom: 28px; }
+  .cover-bottom { margin-top: calc(48px + var(--cover-lh) * (var(--cover-lock) / var(--tallest-em) - var(--cover-lock) / var(--slot-em))); }
 }
-@media (max-width: 900px) { .cover .rise-line { letter-spacing: -6px; } }
-@media (max-width: 600px) { .cover .rise-line { letter-spacing: -3px; } }
+.cover .rise-line { letter-spacing: inherit; }
 @media (prefers-reduced-motion: reduce) { .cover-word { transition: opacity .42s ease; } }
 
 /* Floating record arc (music videos) */
@@ -2178,3 +2240,432 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .dossier-taste-form > button { justify-self: start; margin-bottom: 18px; }
 .dossier-taste-songs { margin-top: 8px; }
 @media (max-width: 600px) { .dossier-taste-form { grid-template-columns: minmax(0, 1fr); } }
+
+/* Fashion & Music Search: the cover menu's toggle unveils a large search over the page, top down;
+   products and songs rise in underneath as the reader types. */
+.fms { position: fixed; inset: 0; z-index: 90; overflow-y: auto; overscroll-behavior: contain; background: var(--background); color: var(--foreground); outline: none; }
+.fms[data-state="open"] { animation: fms-unveil .8s cubic-bezier(.16,1,.3,1) both; }
+.fms[data-state="closed"] { animation: fms-veil .42s cubic-bezier(.7,0,.84,0) both; }
+@keyframes fms-unveil { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes fms-veil { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 100% 0); } }
+.fms-inner { max-width: 1320px; margin: 0 auto; padding: 22px max(16px, 4vw) 72px; }
+.fms-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.fms-kicker { margin: 0; font-family: var(--font-iconic); font-weight: 300; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; }
+.fms-form { display: flex; align-items: flex-end; gap: 16px; margin-top: clamp(36px, 10vh, 120px); border-bottom: 1px solid var(--foreground); }
+.fms-input { flex: 1; min-width: 0; padding: 0 0 8px; border: 0; background: transparent; color: inherit; outline: none; font-family: var(--font-didot); font-style: italic; font-weight: 400; font-size: clamp(42px, 8.6vw, 136px); line-height: 1.12; letter-spacing: -.02em; }
+.fms-input::placeholder { color: var(--muted-foreground); opacity: .5; }
+.fms-input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.fms-form:focus-within { border-bottom-width: 2px; }
+.fms-hint { margin: 14px 0 0; font-family: var(--font-editorial); font-style: italic; font-size: clamp(15px, 1.4vw, 18px); color: var(--muted-foreground); }
+.fms-results { display: grid; gap: 56px; margin-top: clamp(40px, 7vh, 72px); }
+.fms-group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-bottom: 12px; margin-bottom: 22px; border-bottom: 1px solid var(--foreground); }
+.fms-group-head h3, .fms-group-head span { margin: 0; font-family: var(--font-iconic); font-weight: 300; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; }
+.fms-group-head span { color: var(--muted-foreground); }
+.fms-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(160px, 40vw), 1fr)); gap: 30px 18px; margin: 0; padding: 0; list-style: none; }
+.fms-product { display: block; color: inherit; text-decoration: none; }
+.fms-product-frame { display: block; overflow: hidden; aspect-ratio: 4 / 5; background: var(--muted); }
+.fms-product-frame img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.16,1,.3,1); }
+.fms-product:hover .fms-product-frame img { transform: scale(1.04); }
+.fms-product-brand { display: block; margin-top: 12px; font-family: var(--font-iconic); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+.fms-product-name { display: block; margin-top: 4px; font-family: var(--font-editorial); font-size: 16px; line-height: 1.3; }
+.fms-product-price { display: block; margin-top: 6px; font-family: var(--font-editorial); font-size: 14px; color: var(--muted-foreground); }
+.fms-songs { margin: 0; padding: 0; list-style: none; }
+.fms-song { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 14px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.fms-song-num { font-family: var(--font-iconic); font-weight: 300; font-size: 11px; letter-spacing: .14em; color: var(--muted-foreground); }
+.fms-song-title { display: block; font-family: var(--font-didot); font-size: clamp(21px, 2.1vw, 28px); line-height: 1.15; overflow-wrap: anywhere; }
+.fms-song-artist { display: block; margin-top: 5px; font-family: var(--font-iconic); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+.fms-song-source { display: block; margin-top: 4px; font-family: var(--font-editorial); font-style: italic; font-size: 13px; color: var(--muted-foreground); }
+.fms-song-listen { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font-family: var(--font-iconic); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: inherit; text-decoration: underline; text-underline-offset: .45em; }
+.fms-song-listen svg { width: 12px; height: 12px; }
+.fms-note { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-family: var(--font-editorial); font-style: italic; font-size: 17px; color: var(--muted-foreground); }
+.fms-spin { width: 16px; height: 16px; }
+.fms-more { margin-top: 18px; font-family: var(--font-iconic); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; text-decoration: underline; text-underline-offset: .45em; }
+.fms-credit { margin: 56px 0 0; font-family: var(--font-iconic); font-weight: 300; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted-foreground); }
+.fms-rise { animation: fms-rise .6s cubic-bezier(.16,1,.3,1) both; }
+@keyframes fms-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (min-width: 1024px) { .fms-results { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 64px; align-items: start; } }
+@media (prefers-reduced-motion: reduce) { .fms[data-state], .fms-rise { animation: none; } }
+
+/* Fashion Designer Musing: the opening essay as a magazine excerpt — Didot headline, three ruled columns. */
+.musing { max-width: 1180px; margin: 0 auto; padding: clamp(72px, 9vw, 128px) 0 clamp(24px, 12vw, 176px); color: var(--foreground); } /* room below: the pinned How it works steps rise into this space on laptop-height screens */
+.musing-head { padding-bottom: clamp(22px, 3vw, 34px); margin-bottom: clamp(28px, 3.6vw, 44px); border-bottom: 1px solid var(--foreground); }
+.musing-title { margin: 0; font-family: var(--font-didot); font-weight: 400; font-size: clamp(46px, 7.4vw, 112px); line-height: .98; letter-spacing: -.025em; text-wrap: balance; }
+.musing-title em { font-style: italic; }
+.musing-columns { columns: 3; column-gap: clamp(28px, 3.4vw, 52px); column-rule: 1px solid var(--border); font-family: var(--font-editorial); font-size: clamp(17px, 1.3vw, 19px); line-height: 1.6; text-align: justify; hyphens: auto; }
+.musing-columns > p { margin: 0 0 1em; }
+.musing-lede::first-letter { float: left; margin: .06em .1em 0 0; font-family: var(--font-didot); font-size: 4.4em; line-height: .8; }
+.musing-pull { break-inside: avoid; margin: .4em 0 1.1em; padding: .7em 0; border-top: 1px solid var(--foreground); border-bottom: 1px solid var(--foreground); }
+.musing-pull p { margin: 0; font-family: var(--font-didot); font-style: italic; font-size: 1.55em; line-height: 1.18; text-align: left; hyphens: manual; }
+.musing-end { display: inline-block; width: .55em; height: .55em; margin-left: .35em; background: var(--foreground); vertical-align: .05em; }
+@media (max-width: 900px) { .musing-columns { columns: 2; } }
+@media (max-width: 600px) { .musing-columns { columns: 1; text-align: left; } }
+
+/* The listening room (/listen): the second home page as a music player, in black and white.
+   Black panels framed by hairlines around a white feed; white is the only accent. */
+.ls {
+  --ls-ink: var(--cover-type); --ls-paper: var(--cover-paper);
+  --ls-line: color-mix(in oklab, var(--ls-paper) 16%, transparent);
+  --ls-muted: color-mix(in oklab, var(--ls-paper) 64%, transparent);
+  --ls-ink-line: color-mix(in oklab, var(--ls-ink) 14%, transparent);
+  --ls-ink-muted: color-mix(in oklab, var(--ls-ink) 60%, transparent);
+  box-sizing: border-box; height: 100dvh; min-height: 640px; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 8px; padding: 8px;
+  background: var(--ls-ink); color: var(--ls-paper); font-family: var(--font-sans);
+}
+.ls :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.ls-center :focus-visible { outline-color: var(--ls-ink); }
+.ls-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 56px; padding: 0 4px; }
+.ls-logo-link { display: flex; align-items: center; padding: 0 12px 0 8px; }
+.ls-logo { height: 34px; width: auto; display: block; }
+.ls-head-center { flex: 1 1 360px; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; }
+.ls-search { flex: 0 1 480px; }
+.ls-head-end { display: flex; align-items: center; gap: 8px; padding-right: 4px; }
+.ls-body { display: flex; gap: 8px; min-height: 0; }
+.ls-panel { background: var(--ls-ink); border: 1px solid var(--ls-line); border-radius: 4px; }
+.ls-left { flex: 0 0 300px; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.ls-left[data-open="false"] { flex-basis: 76px; align-items: center; }
+.ls-center { flex: 1 1 0; min-width: 0; min-height: 0; overflow-y: auto; container-type: inline-size; background: var(--ls-paper); color: var(--ls-ink); border-radius: 4px; }
+.ls-right { flex: 0 0 340px; min-height: 0; overflow-y: auto; }
+/* Now wearing: three front-row calls to action. Headlines in WTF Hammer Compressed, white with the second beat in the
+   hero's orange; the numbered labels in the cover nav's Isidora; the copy in the page's Avenir. */
+.ls-wear { display: flex; flex-direction: column; padding: 16px 24px 12px; container-type: inline-size; }
+.ls-wear-kicker { margin: 0 0 4px; font-family: var(--font-isidora); font-weight: 500; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ls-muted); }
+.ls-wear-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px 0 14px; }
+.ls-wear-cta + .ls-wear-cta { border-top: 1px solid var(--ls-line); }
+.ls-wear-num { font-family: var(--font-isidora); font-weight: 500; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--cover-duo-light); }
+.ls-wear-title { align-self: stretch; min-width: 0; margin: 0; font-family: var(--font-hammer); font-weight: 400; font-size: min(44px, 100cqi / 7.05); line-height: .8; letter-spacing: .01em; text-transform: uppercase; color: var(--ls-paper); } /* THOM BROWNE F/W 2017, the longest line, is 7.04em: no headline line wraps at any panel width */
+.ls-wear-title em { display: block; font-style: normal; color: var(--cover-duo-light); } /* Hammer has no italic, so the accent is colour, not slant */
+.ls-wear-line { display: block; } /* a third headline line, in the headline's white: & YOUR EDITOR’S PICKS. */
+.ls-wear-xxx { font-family: var(--font-hammer-xxx); } /* F/W 2017 and the "the" in READ THE REPORT, in the XXX cut, which shares Compressed's cap height (the hero's film is this show) */
+/* NOW PLAYING: and the song, on one line at any panel width: the label keeps its size and the song's own box takes the
+   rest, where the name runs past as a ticker. Each copy is at least the box's width and the track moves one copy's width
+   per loop, so it never shows a gap; the pace is set per character. It pauses under the pointer, and holds still (trimmed
+   with an ellipsis) for reduced motion. The full name is the line's tooltip. */
+.ls-wear-title .ls-wear-now { display: flex; align-items: baseline; gap: .22em; min-width: 0; white-space: nowrap; }
+.ls-wear-now > .ls-wear-xxx { flex: none; }
+.ls-wear-song { flex: 1 1 auto; min-width: 0; overflow: hidden; padding-block: .14em; margin-block: -.14em; container-type: inline-size; -webkit-mask-image: var(--ticker-fade); mask-image: var(--ticker-fade); --ticker-fade: linear-gradient(90deg, transparent, #000 .6em, #000 calc(100% - .6em), transparent); } /* letters fade at the box's ends instead of leaving slivers */
+.ls-wear-ticker { display: flex; width: max-content; animation: ls-ticker calc((var(--ticker-chars, 12) + 6) * .42s) linear infinite; }
+.ls-wear-tick { flex: none; min-width: 100cqi; }
+.ls-wear-tick::after { content: "·"; padding: 0 .45em; }
+.ls-wear-now:hover .ls-wear-ticker { animation-play-state: paused; }
+@keyframes ls-ticker { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ls-wear-song { -webkit-mask-image: none; mask-image: none; }
+  .ls-wear-ticker { width: auto; animation: none; }
+  .ls-wear-tick { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .ls-wear-tick::after { content: none; }
+  .ls-wear-tick + .ls-wear-tick { display: none; }
+}
+.ls-wear-btn-hammer { position: relative; top: .06em; font-family: var(--font-hammer); font-size: min(24px, (100cqi - 58px) / 8.9); line-height: .86; letter-spacing: .02em; word-spacing: .06em; text-transform: uppercase; } /* the three calls (READ THE REPORT…) in WTF Hammer, dropped a hair so their capitals sit centred; LISTEN TO RUNWAY RADIO, the longest at 8.86em plus 58px of icon, gap, padding and border, fits the panel at any width */
+.ls-wear-copy { margin: 0 0 2px; font-size: 13px; line-height: 1.4; color: var(--ls-muted); }
+/* Beside the feed the panel has a set height, so its seven headline lines (5.6em at line-height .8) also size to what the
+   rest leaves (about 440px of kicker, numbers, copy, buttons and spacing): a short window shrinks the headlines rather
+   than cutting off the last button. Never below 24px; past that the panel scrolls. Stacked on phones it just grows. */
+@media (min-width: 901px) {
+  .ls-wear { container-type: size; }
+  .ls-wear-title { font-size: clamp(24px, (100cqh - 440px) / 5.6, min(44px, 100cqi / 7.05)); }
+}
+.ls-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 0 8px 8px; }
+.ls-scroll, .ls-center, .ls-right { scrollbar-width: thin; scrollbar-color: var(--ls-line) transparent; }
+.ls-center { scrollbar-color: var(--ls-ink-line) transparent; }
+
+.ls-lib-head { padding: 12px 12px 12px 8px; display: flex; flex-direction: column; gap: 12px; }
+.ls-lib-title { display: flex; align-items: center; gap: 4px; }
+.ls-lib-title h2 { margin: 0; flex: 1; font-size: 15px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-filters { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 8px; }
+.ls-rail-head { padding-top: 12px; }
+.ls-rail { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 8px; }
+.ls-thumb { width: 48px; height: 48px; flex: none; object-fit: cover; border-radius: 2px; display: block; }
+.ls-thumb[data-round="true"] { border-radius: 50%; }
+.ls-thumb-empty { display: grid; place-items: center; background: color-mix(in oklab, var(--ls-paper) 10%, transparent); }
+/* The shape lexicon's mark (GenreMark): a mix's genres blended into one shape, filled orange and outlined in two plum lines
+   on a bright ground. The gap stroke, in the ground's colour, splits the plum one into two parallel lines. */
+.genre-mark-ground { fill: var(--lexicon-ground); }
+.genre-mark-line, .genre-mark-gap { fill: none; stroke-linejoin: round; }
+.genre-mark-line { fill: var(--lexicon-fill); stroke: var(--lexicon-line); stroke-width: 9; }
+.genre-mark-gap { stroke: var(--lexicon-ground); stroke-width: 3; }
+.ls-row-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ls-row-title { font-family: var(--font-hammer-xxx); font-weight: 400; font-size: 26px; line-height: .9; letter-spacing: .1em; word-spacing: .12em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* library titles in WTF Hammer XXX Compressed, like the hero; the cut is so narrow that at this size it needs open tracking and wider word gaps to read */
+.ls-row-meta { font-size: 13px; color: var(--ls-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-lib-group > ul { list-style: none; margin: 0; padding: 0; }
+.ls-lib-kind { margin: 0; padding: 18px 8px 8px; font-family: var(--font-hammer); font-weight: 400; font-size: 34px; line-height: .86; letter-spacing: .01em; text-transform: uppercase; color: var(--ls-paper); } /* PLAYLISTS, LOOKS… over each kind in the library, in WTF Hammer Compressed */
+.ls-lib-group:first-child .ls-lib-kind { padding-top: 4px; }
+.ls-lib-group .ls-lib-hint { margin-top: 0; } /* a block's empty note sits right under its title */
+.ls-lib-new { margin: 4px 8px 8px; }
+.ls-lib-new-form { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px dashed var(--ls-line); border-radius: 2px; }
+.ls-lib-new-label { font-size: 13px; color: var(--ls-muted); }
+.ls-lib-new-input { height: 40px; padding: 0 12px; border: 1px solid var(--ls-line); border-radius: 2px; background: transparent; color: var(--ls-paper); font-size: 15px; }
+.ls-lib-new-input::placeholder { color: var(--ls-muted); }
+.ls-lib-new-input:focus-visible { outline: none; border-color: var(--ls-paper); }
+.ls-lib-new-actions { display: flex; gap: 8px; }
+.ls-lib-hint { margin: 8px; padding: 14px; border: 1px dashed var(--ls-line); border-radius: 2px; font-size: 13px; line-height: 1.5; color: var(--ls-muted); } /* the empty shelf: how liked items get here */
+.ls-kicker { margin: 0 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--ls-muted); }
+
+/* The story filters close the feed and stay pinned to the bottom of the panel while it scrolls, so they're always in reach. */
+/* Footer element: the story filter chips (All, Style, Music, Fashion, Runway) pinned to the bottom of the feed. Hidden for now;
+   set display back to flex to bring them back. */
+.ls-chips { position: sticky; bottom: 0; z-index: 2; display: none; flex-wrap: wrap; gap: 8px; margin-top: 36px; padding: 16px 24px; background: var(--ls-paper); border-top: 1px solid var(--ls-ink-line); }
+/* The featured-product card floats over the hero from outside it (the hero clips its overflow), on phones only. It is taller than
+   the phone hero, so it hangs from the hero's top edge, clear of the search bar, and runs a little past the hero's foot. */
+.ls-hero-wrap { position: relative; }
+.ls-product, .ls-product-bag { display: none; }
+.ls-product { position: absolute; z-index: 4; top: 0; left: 50%; translate: -50% 0; animation: product-reveal 600ms cubic-bezier(.16,1,.3,1) both; }
+.ls-product-close { position: absolute; z-index: 1; top: -8px; right: -8px; }
+.ls-product-card { display: flex; flex-direction: column; width: 15.5rem; height: 26rem; overflow: hidden; border: 1px solid color-mix(in oklab, var(--product-ink) 20%, transparent); border-radius: 1.5rem; background: var(--product-paper); color: var(--product-ink); box-shadow: 0 25px 50px -12px oklch(0 0 0 / .25); }
+.ls-product-photo { position: relative; flex: 1; min-height: 0; overflow: hidden; background: var(--product-paper); }
+.ls-product-photo img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; filter: brightness(1.04); animation: product-reveal 420ms cubic-bezier(.16,1,.3,1); }
+.ls-product-plate { flex-shrink: 0; padding: 12px; }
+.ls-product-head, .ls-product-pick, .ls-product-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.ls-product-head { align-items: start; }
+.ls-product-pick { align-items: center; margin-top: 10px; }
+.ls-product-actions { margin-top: 12px; }
+.ls-product-group { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ls-product-group + .ls-product-group { gap: 4px; }
+.ls-product-kicker { margin: 0; font-family: var(--font-isidora); font-weight: 500; font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in oklab, var(--product-ink) 55%, transparent); }
+.ls-product-name { margin: 2px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-didot); font-weight: 400; font-size: 18px; line-height: 1.25; }
+.ls-product-meta { margin: 2px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-isidora); font-weight: 500; font-size: 10px; color: color-mix(in oklab, var(--product-ink) 65%, transparent); }
+.ls-product-price { flex-shrink: 0; padding: 4px 10px; border: 1px solid color-mix(in oklab, var(--product-ink) 15%, transparent); border-radius: 999px; background: oklch(1 0 0); font-family: var(--font-isidora); font-weight: 500; font-size: 12px; }
+.ls-product-bag { position: absolute; z-index: 4; right: 48px; bottom: 12px; }
+@keyframes product-reveal { from { opacity: .72; transform: scale(1.045); } to { opacity: 1; transform: scale(1); } }
+.ls-hero { position: relative; margin: 24px 24px 0; background: var(--ls-ink); color: var(--ls-paper); border-radius: 2px; overflow: hidden; }
+/* The hero's top is a small copy of the home cover: the street photo in the plum/orange duotone under a plum wash and inner
+   shadow, the kicker in the cover nav's Isidora, and YOU KNOW (Hammer Compressed) over YOUR MUSIC (Hammer XXX Compressed) in
+   dark plum, each line running the block's full width. 3.633 and 2.219 are the lines' measured widths in em, as on the cover;
+   line-height .704 is the capitals' height and top .102em drops them into it. The Autumn Mix bar below keeps its own look. */
+.ls-hero-cover { position: relative; isolation: isolate; overflow: hidden; padding: 20px 24px 26px; background: var(--cover-plum); container-type: inline-size; }
+.ls-hero-cover::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, color-mix(in oklab, var(--cover-plum) 55%, transparent), color-mix(in oklab, var(--cover-plum) 22%, transparent) 45%, color-mix(in oklab, var(--cover-plum) 62%, transparent)); box-shadow: inset 0 0 70px oklch(0 0 0 / 32%); }
+/* The same four runway looks as the home cover, crossfading on the cover's 24s cycle (.cover-slide-N set the timing and
+   honour reduced motion). The slide sits under the plum wash; it needs its own z-index because the fade makes it a layer. */
+.ls-hero-slide { z-index: -2; }
+.ls-hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; filter: contrast(1.15) url(#ls-hero-duotone); }
+.ls-hero-kicker { position: relative; margin: 0; font-family: var(--font-isidora); font-weight: 500; font-size: min(13px, 100cqi / 27.5); letter-spacing: .14em; text-transform: uppercase; text-align: center; white-space: nowrap; color: var(--hero-type); } /* one line: it runs 27em, so on narrow covers it scales to the cover's width */
+.ls-hero-title { position: relative; display: flex; flex-direction: column; align-items: center; gap: calc(100cqi / 3.633 * .09); margin: calc(100cqi / 3.633 * .12) 0 calc(.704 * (100cqi / var(--ls-tallest-em) - 100cqi / var(--ls-slot-em))); transition: margin-bottom .55s cubic-bezier(.16,1,.3,1); font-family: var(--font-hammer-xxx); font-weight: 400; line-height: .704; letter-spacing: 0; text-align: center; color: var(--hero-type); } /* the whole headline in the hero's plum */
+.ls-hero-know { position: relative; top: .102em; font-family: var(--font-hammer); font-size: calc(100cqi / 3.633); white-space: nowrap; }
+/* The YOUR line rotates like the home cover's. The slot takes the active line's height, and the
+   title's bottom margin takes back what a shorter line gives up, so the Autumn Mix bar never moves. */
+.ls-hero-slot { display: grid; align-items: end; justify-items: center; grid-template-rows: calc(.704 * 100cqi / var(--ls-slot-em)); transition: grid-template-rows .55s cubic-bezier(.16,1,.3,1); }
+.ls-hero-word { grid-area: 1 / 1; position: relative; top: .102em; font-size: calc(100cqi / var(--word-em)); white-space: nowrap; opacity: 0; transform: translateY(.3em); transition: opacity .3s ease, transform .5s cubic-bezier(.16,1,.3,1); }
+.ls-hero-word[data-active="true"] { opacity: 1; transform: none; transition: opacity .38s ease .2s, transform .6s cubic-bezier(.16,1,.3,1) .12s; }
+@media (prefers-reduced-motion: reduce) { .ls-hero-word, .ls-hero-word[data-active="true"] { transform: none; transition: opacity .42s ease; } }
+/* The bar under the cover: play button, title and logo centred on the title's capitals, the playlist line under the title. */
+.ls-hero-foot { position: relative; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px 16px; padding: 22px 24px 20px; }
+.ls-hero-name { display: contents; }
+.ls-hero-play { grid-area: 1 / 1; }
+/* The show: the Thom Browne FW17 film fills the cover behind the headline in its own colours, and the plum wash steps aside
+   while it plays. The cover's type is one plum at a time (--hero-type): the lighter --hero-plum over the film, which has dark shots, and the
+   home cover's plum ink over the plum-washed photos, where a lighter plum would sink in; it changes with the film's fade. The
+   frame is sized from the cover's height at 16:9 (never narrower than the cover) and scaled a touch so YouTube's edges stay
+   out of view. */
+/* The show stays loaded once started; out of sight it is paused and faded to the photos underneath. */
+.ls-hero-show { position: absolute; inset: 0; z-index: -2; overflow: hidden; isolation: isolate; pointer-events: none; opacity: 0; transition: opacity .6s ease; }
+.ls-hero-show[data-on="true"] { opacity: 1; }
+@starting-style { .ls-hero-show[data-on="true"] { opacity: 0; } }
+.ls-hero-cover { --hero-type: var(--cover-plum-ink); }
+.ls-hero-cover:has(.ls-hero-show[data-on="true"]) { --hero-type: var(--hero-plum); }
+.ls-hero-cover::after { transition: opacity .6s ease; }
+.ls-hero-cover:has(.ls-hero-show[data-on="true"])::after { opacity: 0; }
+.ls-hero-kicker, .ls-hero-title, .ls-hero-credit, .ls-hero-show-btn { transition-property: color, border-color, background-color, margin-bottom; transition-duration: .6s, .6s, .2s, .55s; }
+.ls-hero-show iframe { position: absolute; top: 50%; left: 50%; height: 100%; width: auto; min-width: 100%; aspect-ratio: 16 / 9; translate: -50% -50%; scale: 1.18; border: 0; }
+.ls-hero-credit { position: absolute; right: 14px; bottom: 19px; font-family: var(--font-isidora); font-weight: 500; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--hero-type); text-decoration: none; opacity: .9; }
+.ls-hero-credit:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+.ls-hero-show-btn { position: absolute; left: 14px; bottom: 12px; z-index: 1; } /* Stop / Watch the show, in the cover's corner opposite the credit */
+@media (max-width: 600px) { .ls-hero-show-btn { width: 28px; padding: 0; } .ls-hero-show-label { display: none; } } /* phones: a round stop / play icon, so the credit keeps the row */
+/* "This is a mood" below the hero: the home page's music-video chapter re-measured for the feed column. Every size that
+   reads the window (100vw) on the home page reads the column (100cqi, from .ls-center) here, so it runs edge to edge. */
+.ls-film { width: auto; margin: 0; padding: 32px 0 0; background: transparent; color: var(--ls-ink); }
+.ls-film .film-head { padding: 0 24px; margin-bottom: 24px; }
+.ls-film .film-credit, .ls-film .records-credit { font-family: var(--font-isidora); font-weight: 500; } /* the credit lines in Isidora Medium, the room's UI face (its only loaded cut) */
+.ls-film .film-title { font-size: calc((100cqi - 48px) / 2.75); }
+.ls-film .records { padding: 0 24px 48px; margin-top: 24px; }
+.ls-film .records-row { font-size: clamp(22px, 6cqi, 44px); }
+.ls-film .records-theme { font-size: calc((100cqi - 48px) / 7.7); }
+/* On desktop the first screen holds the hero and all of "This is a mood". Both headlines run to one measure: the column's full
+   width when the window is tall enough, and narrower, centred, when it is not. The cover's side padding grows (its type is sized
+   to its content box, so the cover gets shorter) and the mood headline is set to the same width plus the hero's 48px. The
+   measure comes from the feed's height (100cqh): the cover runs 64px plus .571 of its headline's width, the mood headline .9em
+   (.327 of its width), and 223px goes to the hero's top margin, the Autumn Mix bar's padding, gap and meta line, the film's
+   top padding and 16px to spare, plus the taller of the bar's play button and mix line. It stops at half width. */
+@media (min-width: 901px) {
+  .ls-center {
+    container-type: size;
+    --ls-measure: clamp((100cqi - 96px) * .5, (100cqh - 223px - max(56px, .704 * clamp(36px, (100cqi - 261px) / 5.2, 112px))) / .898, 100cqi - 96px);
+  }
+  .ls-hero-cover { padding-inline: calc((100cqi - 48px - var(--ls-measure)) / 2); }
+  .ls-film .film-title { font-size: calc((var(--ls-measure) + 48px) / 2.75); }
+}
+/* Home page element: the record stack's spec (stylist, song, artist and theme rows) belongs to the home page's "This is a mood"
+   chapter. Hidden in the listening room, where each video's credits open from Your Library > Videos. */
+.ls-film .records-spec { display: none; }
+/* The Autumn Mix in WTF Hammer XXX Compressed, the headline's YOUR line, on one line as large as the bar allows: the feed column
+   less the hero's and bar's side margins, the play button and its gap, and (above 900px, where it shows) the logo. The cut's
+   space is only .07em, so the words get wider gaps; with them, and AUTUMN in the wider regular cut, the line runs about
+   5.05em, hence the 5.2. */
+.ls-hero-mix { grid-area: 1 / 2; position: relative; top: .102em; margin: 0; font-family: var(--font-hammer-xxx); font-weight: 400; font-size: clamp(36px, (100cqi - 261px) / 5.2, 112px); line-height: .704; letter-spacing: .04em; word-spacing: .12em; text-transform: uppercase; white-space: nowrap; } /* line box = cap height, glyphs dropped .102em into it (as in the hero), so the box is the capitals */
+.ls-hero-mix-word { font-family: var(--font-hammer); } /* AUTUMN in WTF Hammer Compressed among the XXX cut; the two share a cap height, so the capitals line up */
+.ls-hero-meta { grid-area: 2 / 2; margin: 0; font-size: 13px; font-weight: 500; color: var(--ls-muted); }
+/* The Melody Lust logo signs the mix in the duotone's orange: the white logo file is used as a mask over the colour. */
+.ls-hero-by { grid-area: 1 / 3; display: block; height: 36px; aspect-ratio: 448 / 209; background: var(--hero-plum); -webkit-mask: var(--logo) center / contain no-repeat; mask: var(--logo) center / contain no-repeat; }
+
+.ls-section { padding: 36px 24px 0; }
+.ls-section:last-child { padding-bottom: 40px; }
+.ls-section-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid var(--ls-ink-line); }
+.ls-section-head h2 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; }
+.ls-section-head span { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink-muted); }
+.ls-tiles { list-style: none; margin: 0 -8px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; }
+.ls-tile-art { position: relative; display: block; }
+.ls-tile-art img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; display: block; border-radius: 2px; }
+.ls-tile-play { position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--ls-ink); color: var(--ls-paper); box-shadow: 0 8px 18px rgb(0 0 0 / .35); opacity: 0; transform: translateY(6px); transition: opacity .2s, transform .2s; }
+.ls-tile-play svg { fill: currentColor; }
+.ls-tile:hover .ls-tile-play, .ls-tile:focus-visible .ls-tile-play, .ls-tile[data-active="true"] .ls-tile-play { opacity: 1; transform: none; }
+.ls-tile-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-tile-artist { font-size: 13px; color: var(--ls-ink-muted); margin-top: -4px; }
+/* The quick-like heart sits on the tile's photo, top right (the play button takes the bottom right). It is the tile's
+   sibling, not its child, since a button can't hold another. */
+.ls-tiles > li, .ls-notes > li { position: relative; }
+.ls-quick-like { position: absolute; top: 16px; right: 16px; z-index: 1; }
+.ls-notes { list-style: none; margin: 0 -8px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px 4px; }
+.ls-note img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; display: block; border-radius: 2px; }
+.ls-note-kicker { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink-muted); }
+.ls-note-title { font-family: var(--font-didot); font-size: 23px; line-height: 1.15; }
+.ls-note-intro { font-size: 13px; line-height: 1.55; color: var(--ls-ink-muted); }
+.ls-empty { margin: 0; font-family: var(--font-didot); font-size: 22px; color: var(--ls-ink-muted); }
+.ls-section-link { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink); text-decoration: underline; text-underline-offset: .4em; }
+.ls-section-link svg { width: 14px; height: 14px; }
+/* Runway Songs under the RUNWAY filter: a tracklist in type only, house in Didot. */
+.ls-runway { list-style: none; margin: 0 -8px; padding: 0; }
+.ls-runway li + li { border-top: 1px solid var(--ls-ink-line); }
+.ls-runway-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1.3fr) 40px; align-items: center; gap: 16px; padding: 12px 8px; }
+.ls-runway-row[data-active="true"] { background: color-mix(in oklab, var(--ls-ink) 6%, transparent); }
+.ls-runway-num { font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--ls-ink-muted); font-variant-numeric: tabular-nums; }
+.ls-runway-show, .ls-runway-song { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ls-runway-house { font-family: var(--font-didot); font-size: 24px; line-height: 1.05; text-transform: uppercase; overflow-wrap: anywhere; }
+.ls-runway-season, .ls-runway-artist { font-size: 12px; color: var(--ls-ink-muted); }
+.ls-runway-season { letter-spacing: .14em; text-transform: uppercase; }
+.ls-runway-name { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.ls-runway-play { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--ls-ink-line); }
+.ls-runway-play svg { width: 16px; height: 16px; fill: currentColor; }
+.ls-runway-row:hover .ls-runway-play, .ls-runway-row[data-active="true"] .ls-runway-play { background: var(--ls-ink); color: var(--ls-paper); border-color: var(--ls-ink); }
+@container (max-width: 560px) {
+  .ls-runway-row { grid-template-columns: 24px minmax(0, 1fr) 40px; gap: 6px 12px; }
+  .ls-runway-song { grid-column: 2; grid-row: 2; }
+  .ls-runway-play { grid-column: 3; grid-row: 1 / 3; }
+}
+
+.ls-board { padding: 32px 24px 40px; display: flex; flex-direction: column; gap: 28px; align-items: flex-start; }
+.ls-board-head { display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.ls-board-cover { display: block; width: 160px; height: 160px; border-radius: 50%; object-fit: cover; }
+.ls-board .ls-kicker { color: var(--ls-ink-muted); }
+.ls-board-title { margin: 0; font-family: var(--font-didot); font-weight: 400; font-size: clamp(36px, 7cqi, 64px); line-height: 1; letter-spacing: -.02em; }
+.ls-board-meta { margin: 8px 0 0; font-size: 13px; color: var(--ls-ink-muted); }
+.ls-palette { list-style: none; margin: 12px 0 0; padding: 0; display: flex; gap: 6px; }
+.ls-palette li { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--ls-ink-line); }
+.ls-board-grid { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.ls-board-photo { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; display: block; border-radius: 2px; }
+.ls-board-caption { display: block; margin-top: 6px; font-size: 12px; color: var(--ls-ink-muted); }
+.ls-look-art { display: block; width: 160px; height: 160px; object-fit: cover; border-radius: 2px; }
+.ls-look-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.ls-look-part { width: 100%; max-width: 720px; }
+/* A music video opened from the library: the record stack's poster and play label, without its scroll-in reveal. */
+.ls-video-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: oklch(0.08 0.01 320); }
+.ls-video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.ls-video .film-play { opacity: 1; transform: none; }
+.ls-video-credit { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin: 12px 0 0; font-family: var(--font-isidora); font-weight: 500; font-size: 13px; }
+.ls-pieces { list-style: none; margin: 0; padding: 0; }
+.ls-pieces li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--ls-ink-line); }
+.ls-pieces li[data-playing="true"] .ls-piece-name { text-decoration: underline; text-underline-offset: 4px; } /* the playlist song the player bar is on */
+.ls-pl-art { display: block; width: 48px; height: 48px; flex: none; object-fit: cover; border-radius: 2px; }
+.ls-piece-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ls-piece-name { font-size: 15px; font-weight: 500; }
+.ls-piece-note { font-size: 13px; color: var(--ls-ink-muted); }
+.ls-piece-price { font-size: 15px; font-variant-numeric: tabular-nums; }
+.ls-look-moods { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ls-look-moods img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; display: block; border-radius: 2px; }
+/* The home page's Want List and the profile page, loaded inside the listening room's feed. */
+.ls-want, .ls-profile { padding: 20px 24px 40px; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+/* Focus rings on their black blocks. */
+.ls-center :is(.wishlist, .dossier-head) :focus-visible { outline-color: var(--ls-paper); }
+/* The Want List: the same section re-inked black and white. */
+.ls-want .wishlist { width: 100%; box-sizing: border-box; border-radius: 2px; padding: 40px 24px 48px;
+  --want-paper: var(--ls-ink); --want-ink: var(--ls-paper); --want-green: var(--ls-paper); --want-rule: var(--ls-line); --want-muted: var(--ls-muted);
+  --foreground: var(--ls-paper); --muted-foreground: var(--ls-muted); --border: var(--ls-line); }
+.ls-want .want-heading { font-size: clamp(48px, 12cqi, 132px); }
+.ls-want :is(.want-artist input, .want-email input) { background: var(--ls-paper); color: var(--ls-ink); }
+.ls-want .want-artist input::placeholder { color: var(--ls-ink-muted); }
+.ls-want :is(.want-song-panel, .want-playlist) { background: color-mix(in oklab, var(--ls-paper) 8%, var(--ls-ink)); }
+.ls-want :is(.want-look-image, .want-look-products button) { background: color-mix(in oklab, var(--ls-paper) 88%, var(--ls-ink)); }
+.ls-want .want-primary:hover { background: color-mix(in oklab, var(--ls-paper) 85%, var(--ls-ink)); }
+.ls-want :is(.wish-export button, .want-email button):hover { background: color-mix(in oklab, var(--ls-paper) 10%, var(--ls-ink)); }
+.ls-want .want-playlist li { border-bottom-color: var(--ls-line); }
+@container (max-width: 900px) { .ls-want .want-output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ls-want .want-playlist { grid-column: 1 / -1; } }
+@container (max-width: 560px) { .ls-want .want-output-grid { grid-template-columns: minmax(0, 1fr); } .ls-want .wishlist { padding: 32px 16px 40px; } }
+/* The profile: /profile's Curator Dossier without its masthead, inked pure black and sized to the feed. */
+.ls-profile .dossier { width: 100%; max-width: none; margin: 0; padding: 0;
+  --background: var(--ls-paper); --foreground: var(--ls-ink); --muted-foreground: var(--ls-ink-muted); --dossier-ink: var(--ls-ink); --dossier-plum: var(--ls-ink); }
+.ls-profile .dossier-head { margin-top: 0; padding: clamp(24px, 6cqi, 56px); border-radius: 2px; }
+.ls-profile .dossier-head h1 { font-size: clamp(36px, 10cqi, 96px); }
+.ls-profile .dossier-stats dd { font-size: clamp(32px, 7cqi, 64px); }
+@container (max-width: 760px) {
+  .ls-profile .dossier-stats div { padding-right: 8px; }
+  .ls-profile .dossier-stats div + div { padding-left: 10px; }
+  .ls-profile .dossier-dna-row { grid-template-columns: 1fr; gap: 10px; }
+  .ls-profile .dossier-account { grid-template-columns: 1fr; }
+}
+@container (max-width: 600px) { .ls-profile .dossier-taste-form { grid-template-columns: minmax(0, 1fr); } }
+
+.ls-player { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px; min-height: 72px; padding: 4px 8px; background: var(--ls-ink); }
+.ls-player-song { flex: 1 1 220px; min-width: 0; display: flex; align-items: center; gap: 12px; }
+.ls-player-song img { width: 56px; height: 56px; flex: none; object-fit: cover; display: block; border-radius: 2px; }
+.ls-player-blank { width: 56px; height: 56px; flex: none; display: grid; place-items: center; border: 1px solid var(--ls-line); border-radius: 2px; color: var(--ls-muted); }
+.ls-player-blank svg { width: 24px; height: 24px; }
+.ls-player-title { margin: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ls-player-artist { margin: 3px 0 0; font-size: 12px; color: var(--ls-muted); }
+.ls-player-center { flex: 2 1 340px; max-width: 720px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ls-player-controls { width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.ls-spotify { flex: 1 1 auto; min-width: 0; max-width: 560px; height: 80px; border: 0; border-radius: 12px; }
+.ls-player-note { margin: 0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ls-muted); }
+/* Meta lines (what a title is, who made it, how many) in Isidora Medium, the room's UI face, like its buttons. */
+.ls-hero-meta, .ls-row-meta, .ls-tile-artist, .ls-runway-season, .ls-runway-artist, .ls-board-meta, .ls-board-caption, .ls-piece-note, .ls-player-artist { font-family: var(--font-isidora); font-weight: 500; }
+.ls-player-tools { flex: 1 1 220px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+
+@media (max-width: 1180px) { .ls-left { flex-basis: 260px; } .ls-right { flex-basis: 300px; } }
+@media (max-width: 900px) {
+  .ls { height: auto; min-height: 100dvh; grid-template-rows: auto auto auto; }
+  .ls-body { flex-direction: column; }
+  .ls-left, .ls-left[data-open="false"], .ls-right { flex-basis: auto; }
+  .ls-left { max-height: 420px; }
+  .ls-left[data-open="false"] { align-items: stretch; }
+  .ls-left[data-open="false"] .ls-rail { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 8px 8px; }
+  .ls-center { order: -1; flex: none; overflow: visible; }
+  .ls-lead { padding-bottom: 24px; } /* the feed's hero on its own card, ahead of Your Library */
+  .ls-lead ~ .ls-center { order: 0; } /* and the rest of the feed under the library */
+  .ls-chips { position: static; }
+  .ls-right { overflow: visible; }
+  .ls-player { position: sticky; bottom: 0; z-index: 5; border-top: 1px solid var(--ls-line); }
+  .ls-player-tools, .ls-hide-sm { display: none !important; }
+  .ls-hero-foot { grid-template-columns: auto minmax(0, 1fr); }
+  .ls-hero-mix { font-size: clamp(36px, (100cqi - 168px) / 5.2, 112px); } /* no logo beside it here */
+}
+@media (max-width: 600px) {
+  .ls-product { display: block; }
+  .ls-product-bag { display: inline-flex; }
+  .ls-film { display: none; padding-top: 36px; } /* hidden on phones for now; its videos are in Your Library under Videos */
+  .ls-film .film-head, .ls-film .records { padding-left: 16px; padding-right: 16px; }
+  .ls-film .film-title { font-size: calc((100cqi - 32px) / 2.75); }
+  .ls-film .records-theme { font-size: calc((100cqi - 32px) / 7.9); }
+  .ls-head { gap: 8px; }
+  .ls-head-center { order: 3; flex-basis: 100%; }
+  .ls-logo { height: 28px; }
+  .ls-head-end { margin-left: auto; }
+  .ls-player { flex-wrap: nowrap; gap: 8px; }
+  .ls-player-song { flex: 1 1 0; }
+  .ls-player-center { flex: none; }
+  .ls-player-note { display: none; }
+  /* Spotify's player names the song itself, so it takes the whole bar. */
+  .ls-player[data-listening="true"] .ls-player-song { display: none; }
+  .ls-player[data-listening="true"] .ls-player-center { flex: 1 1 auto; }
+  .ls-chips, .ls-section, .ls-board, .ls-want, .ls-profile { padding-left: 16px; padding-right: 16px; }
+  .ls-hero { margin: 16px 16px 0; }
+  .ls-notes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ls-note-title { font-size: 19px; }
+  .ls-note-intro { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ls *, .ls *::before { transition: none !important; } }
