@@ -3111,3 +3111,21 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-hero-tagline { margin: 14px 0 4px; font-family: var(--font-hammer-xxx); font-weight: 900; text-transform: uppercase; font-size: clamp(40px, 9vw, 96px); line-height: .9; letter-spacing: .01em; color: var(--color-chalk-white); }
 .ls-hero-tagline span { color: var(--color-acid-lime); }
 @media (max-width: 900px) { .ls-hero-tagline { color: var(--color-fig-black); padding: 0 16px; } .ls-hero-tagline span { color: var(--color-acid-muted); } }
+
+/* Listening Room Fashion tab */
+.ls-fashion { display: grid; gap: 20px; }
+.ls-fashion-sub { font-family: var(--font-hammer-xxx, var(--font-display)); font-weight: 900; text-transform: uppercase; font-size: clamp(32px, 6vw, 56px); line-height: .9; color: var(--foreground); }
+.ls-fashion-kicker { font-family: "Couturier Poster", serif; font-style: italic; color: var(--primary); }
+.ls-fashion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 16px; }
+.ls-fashion-card { display: grid; gap: 6px; min-width: 0; font-family: var(--font-body); }
+.ls-fashion-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; }
+.ls-fashion-num { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-foreground); }
+.ls-fashion-title { font-family: var(--font-hammer-xxx, var(--font-display)); font-weight: 900; text-transform: uppercase; font-size: 32px; line-height: .9; }
+.ls-fashion-song { font-size: 13px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ls-fashion-actions { display: flex; align-items: center; gap: 8px; }
+.ls-fashion-share { display: grid; gap: 12px; justify-items: start; padding: 20px; border-radius: 24px; background: var(--card); border: 1px solid var(--border); }
+.ls-fashion-share button, .ls-fashion-actions button { font-family: var(--font-body); }
+.ls-fashion-picks { display: flex; flex-wrap: wrap; gap: 8px; }
+.ls-fashion-grid { grid-template-columns: repeat(auto-fill, minmax(min(46%, 200px), 1fr)); }
+.ls-fashion-actions > button:first-child { background: var(--primary); color: var(--primary-foreground); border-radius: 999px; }
+.ls-fashion-actions > button:first-child:disabled { opacity: .7; }

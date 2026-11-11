@@ -26,6 +26,7 @@ import { ListenWantShelf } from "@/components/ListenWantShelf";
 import { ListenStudio } from "@/components/ListenStudio";
 import { moodboards } from "@/components/StyleMatrix";
 import { FitCompass } from "@/components/FitCompass";
+import { ListenFashion } from "@/components/ListenFashion";
 import { categories, iconicSongs, playlist, stories, type Story } from "@/data/home";
 import { fromRunway, step, toMix } from "@/lib/listening-room";
 import { usePlaylists } from "@/lib/playlists";
@@ -211,7 +212,7 @@ function ListeningRoom() {
   const [findOpen, setFindOpen] = useState(false);
   const [onRunway, setOnRunway] = useState(false);
   // The feed's note shelves stay folded until a pill opens one.
-  const [shelf, setShelf] = useState<"music" | "runway" | "style" | null>(null);
+  const [shelf, setShelf] = useState<"music" | "runway" | "style" | "fashion" | null>(null);
   const feed = useRef<HTMLElement>(null);
   const lead = useRef<HTMLDivElement>(null);
   const phone = usePhoneLayout();
@@ -263,14 +264,14 @@ function ListeningRoom() {
   const notes = stories.filter(s => category === "All" || s.category === category);
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
   const heroLeads = phone && view.kind !== "want" && view.kind !== "profile" && !look && !video && !ownList && !board && view.kind !== "contents";
-  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : undefined;
+  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : undefined;
   const pickIssue = (tab: IssueTab) => {
     if (tab === "playlists") return open({ kind: "contents" }, "mix");
     if (tab === "want") return openWant();
     if (tab === "issue") { setLibraryOpen(true); requestAnimationFrame(() => document.querySelector(".ls-left")?.scrollIntoView({ behavior: "smooth" })); return; }
     setView({ kind: "feed" });
-    setShelf(tab === "notes" ? "style" : tab === "runway" ? "runway" : "music");
-    requestAnimationFrame(() => document.querySelector(".ls-shelf-pills")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    setShelf(tab === "notes" ? "style" : tab === "runway" ? "runway" : tab === "fashion" ? "fashion" : "music");
+    requestAnimationFrame(() => document.querySelector(tab === "fashion" ? ".ls-fashion" : ".ls-shelf-pills")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
   return (
@@ -350,6 +351,8 @@ function ListeningRoom() {
           ) : <>
             {!heroLeads && <ListenHero onPlayMix={playMix} />}
 
+            {shelf === "fashion" && <ListenFashion onProfile={openProfile} />}
+
             <ListenStudio />
 
             <ListenWantShelf onOpen={openWant} />
@@ -361,7 +364,7 @@ function ListeningRoom() {
             {(category === "Runway" || shelf === "runway") && <ListenRunway songs={runway} playing={onRunway ? now : null} onPlay={playRunway} />}
 
             <div className="ls-shelf-pills" role="group" aria-label="Notes">
-              {([["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"]] as const).map(([id, label]) =>
+              {([["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
                 <Button key={id} variant="listenCategory" size="chip" aria-pressed={shelf === id} aria-expanded={shelf === id} onClick={() => setShelf(v => v === id ? null : id)}>{label}</Button>)}
             </div>
             {shelf === "music" && <section className="ls-section" aria-labelledby="ls-featured">
