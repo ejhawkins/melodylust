@@ -22,7 +22,7 @@ const buttonVariants = cva(
         // The listening room (/listen): white on the black panels, black on the white feed.
         listenIcon: "rounded-full bg-transparent text-cover-paper/65 hover:text-cover-paper hover:bg-cover-paper/10 aria-pressed:text-cover-paper shrink-0 [&_svg]:size-5",
         listenHome: "rounded-full bg-cover-paper/10 text-cover-paper hover:bg-cover-paper/20 shrink-0 [&_svg]:size-[22px]",
-        listenPlay: "rounded-full bg-cover-paper text-cover-type hover:scale-105 transition-transform shrink-0 [&_svg]:size-5 [&_svg]:fill-current",
+        listenPlay: "ls-play-btn rounded-full bg-cover-paper text-cover-type hover:scale-105 transition-transform shrink-0 [&_svg]:size-5 [&_svg]:fill-current",
         listenSearch: "rounded-[2px] border border-cover-paper/16 bg-cover-paper/8 text-cover-paper/65 hover:text-cover-paper hover:border-cover-paper/40 justify-start gap-2.5 text-[15px] min-w-0 [&_svg]:size-5",
         listenFilter: "rounded-[2px] border border-cover-paper/30 bg-transparent text-cover-paper hover:border-cover-paper aria-pressed:bg-cover-paper aria-pressed:text-cover-type aria-pressed:border-cover-paper text-[13px]",
         listenCategory: "rounded-[2px] border border-cover-type/30 bg-transparent text-cover-type hover:border-cover-type aria-pressed:bg-cover-type aria-pressed:text-cover-paper aria-pressed:border-cover-type text-xs uppercase tracking-[0.14em]",

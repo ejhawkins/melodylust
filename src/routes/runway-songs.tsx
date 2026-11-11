@@ -9,6 +9,10 @@ export const Route = createFileRoute('/runway-songs')({
     meta: [
       { title: 'Runway Songs' },
       { name: 'description', content: 'Play sourced fashion-show soundtracks and newly approved designer discoveries, one runway at a time.' },
+      { property: 'og:title', content: 'Runway Songs — Melody Lust' },
+      { property: 'og:description', content: 'Play sourced fashion-show soundtracks and newly approved designer discoveries, one runway at a time.' },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
     ],
   }),
   loader: async () => {

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Camera, Check, LoaderCircle, LogIn, Music2, PenLine, Plus, Trash2, X } from "lucide-react";
+import { Bookmark, Camera, Check, LoaderCircle, LogIn, Music2, PenLine, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { availableGoogleFlow, signInWithGoogle, type GoogleFlow } from "@/lib/google-sign-in";
 import { authMessage } from "@/lib/auth-messages";
+import { addWish } from "@/lib/wishlist";
 import {
   deleteStylingNote, getStylingNotesWorkspace, listApprovedStylingNotes,
   reviewStylingNote, saveStylingNote, type StylingNoteView,
@@ -115,7 +116,7 @@ export function StylingNotes() {
     </header>
     {message && <p className="styling-status" role="status">{message}</p>}
     {loading && !notes.length ? <p className="styling-empty"><LoaderCircle className="motion-safe:animate-spin" />Loading the community edit…</p>
-      : notes.length ? <div className="styling-notes-grid">{notes.map((note, index) => <NoteCard key={note.id} note={note} index={index} />)}</div>
+      : notes.length ? <div className="styling-notes-grid">{notes.map((note, index) => <NoteCard key={note.id} note={note} index={index} saveable />)}</div>
       : <div className="styling-empty"><span>Issue 001</span><h3>The first page is yours.</h3><p>No Styling Notes have been approved yet.</p><Button variant="outline" onClick={() => openComposer()}><Plus />Submit the first look</Button></div>}
 
     {session && workspace && <section className="styling-workspace" aria-labelledby="my-styling-notes"><div className="styling-section-label"><h3 id="my-styling-notes">My submissions</h3><span>{workspace.own.length}</span></div>{workspace.own.length ? <div className="styling-submission-list">{workspace.own.map(note => <article key={note.id}><span className="styling-state" data-status={note.status}>{note.status}</span><div><h4>{note.title}</h4>{note.rejection_reason && <p>{note.rejection_reason}</p>}</div><Button size="icon" variant="ghost" aria-label={`Edit ${note.title}`} onClick={() => openComposer(note)}><PenLine /></Button><Button size="icon" variant="ghost" aria-label={`Delete ${note.title}`} onClick={async () => { if (!window.confirm("Delete this Styling Note?")) return; await removeNote({ data: { id: note.id } }); await refreshWorkspace(); }}><Trash2 /></Button></article>)}</div> : <p className="styling-workspace-empty">Nothing submitted yet.</p>}</section>}
@@ -140,13 +141,20 @@ export function StylingNotes() {
 
 function ArrowIcon() { return <span aria-hidden="true">↗</span>; }
 
-function NoteCard({ note, index }: { note: StylingNoteView; index: number }) {
+function saveNoteToWantList(note: StylingNoteView) {
+  const from = `Styling Note · ${note.title}`;
+  addWish({ kind: "piece", name: note.title, detail: `Styling Note by ${note.author_display_name}`, link: "", note: note.styling_idea, from });
+  addWish({ kind: "song", name: note.song_track, detail: note.song_artist, link: "", note: note.song_reason, from });
+}
+
+function NoteCard({ note, index, saveable = false }: { note: StylingNoteView; index: number; saveable?: boolean }) {
   return <article className="styling-note" style={{ "--note-delay": `${Math.min(index, 8) * 70}ms` } as React.CSSProperties}>
     <div className="styling-note-images" data-count={note.photo_urls.length}>{note.photo_urls.map((url, imageIndex) => url && <img key={url} src={url} alt={note.photo_alts[imageIndex] ?? note.title} loading="lazy" />)}</div>
     <div className="styling-note-folio"><span>By {note.author_display_name}</span><span>{new Date(note.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span></div>
     <h3>{note.title}</h3><p>{note.styling_idea}</p>
     {note.tags.length > 0 && <div className="styling-tags">{note.tags.map(tag => <span key={tag}>{tag}</span>)}</div>}
     <div className="styling-song"><Music2 aria-hidden="true" /><div><strong>{note.song_track}</strong><span>{note.song_artist}</span><p>{note.song_reason}</p></div></div>
+    {saveable && <Button variant="outline" size="sm" className="styling-save" onClick={() => saveNoteToWantList(note)}><Bookmark />Save to Want List</Button>}
   </article>;
 }
 

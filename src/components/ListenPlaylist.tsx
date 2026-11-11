@@ -24,10 +24,10 @@ export function ListenPlaylist({ playlist, mix, playing, onPlay, onBack }: {
   const count = songs.length === 1 ? "1 song" : `${songs.length} songs`;
 
   return (
-    <section className="ls-board" aria-labelledby="ls-playlist-title">
-      <div className="ls-board-head">
+    <section className="ls-board ls-playlist" aria-labelledby="ls-playlist-title">
+      <div className="ls-board-head ls-playlist-head">
         <GenreMark genres={blend} className="ls-look-art" />
-        <div>
+        <div className="min-w-0">
           <p className="ls-kicker">Your playlist</p>
           <h1 id="ls-playlist-title" className="ls-board-title">{playlist.name}</h1>
           <p className="ls-board-meta">{genres ? `${count} · ${genres}` : `${count} · Its shape fills in as you add songs.`}</p>
@@ -49,8 +49,10 @@ export function ListenPlaylist({ playlist, mix, playing, onPlay, onBack }: {
               <li key={s.caption} data-playing={playing === i}>
                 <img className="ls-pl-art" src={s.art} alt="" width={48} height={48} loading="lazy" />
                 <span className="ls-piece-text"><span className="ls-piece-name">{s.title}</span><span className="ls-piece-note">{s.artist}</span></span>
-                <Button variant="listenSave" size="icon" aria-label={`Play ${s.title} by ${s.artist}`} title="Play" onClick={() => onPlay(i)}><Play className="fill-current" aria-hidden /></Button>
-                <Button variant="listenSave" size="icon" aria-label={`Take ${s.title} off ${playlist.name}`} title="Take it off" onClick={() => toggleSong(playlist.id, s.caption)}><X aria-hidden /></Button>
+                <span className="ls-playlist-row-actions">
+                  <Button variant="listenSave" size="icon" aria-label={`Play ${s.title} by ${s.artist}`} title="Play" onClick={() => onPlay(i)}><Play className="fill-current" aria-hidden /></Button>
+                  <Button variant="listenSave" size="icon" aria-label={`Take ${s.title} off ${playlist.name}`} title="Take it off" onClick={() => toggleSong(playlist.id, s.caption)}><X aria-hidden /></Button>
+                </span>
               </li>
             ))}
           </ol>

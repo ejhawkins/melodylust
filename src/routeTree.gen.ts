@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CirclesRouteImport } from './routes/circles'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as ListenRouteImport } from './routes/listen'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RadioRouteImport } from './routes/radio'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const CirclesRoute = CirclesRouteImport.update({
   id: '/circles',
   path: '/circles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListenRoute = ListenRouteImport.update({
@@ -56,6 +62,7 @@ const RunwaySongsRoute = RunwaySongsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/circles': typeof CirclesRoute
+  '/home': typeof HomeRoute
   '/listen': typeof ListenRoute
   '/profile': typeof ProfileRoute
   '/radio': typeof RadioRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/circles': typeof CirclesRoute
+  '/home': typeof HomeRoute
   '/listen': typeof ListenRoute
   '/profile': typeof ProfileRoute
   '/radio': typeof RadioRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/circles': typeof CirclesRoute
+  '/home': typeof HomeRoute
   '/listen': typeof ListenRoute
   '/profile': typeof ProfileRoute
   '/radio': typeof RadioRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/circles'
+    | '/home'
     | '/listen'
     | '/profile'
     | '/radio'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/circles'
+    | '/home'
     | '/listen'
     | '/profile'
     | '/radio'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/circles'
+    | '/home'
     | '/listen'
     | '/profile'
     | '/radio'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CirclesRoute: typeof CirclesRoute
+  HomeRoute: typeof HomeRoute
   ListenRoute: typeof ListenRoute
   ProfileRoute: typeof ProfileRoute
   RadioRoute: typeof RadioRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/circles'
       fullPath: '/circles'
       preLoaderRoute: typeof CirclesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listen': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CirclesRoute: CirclesRoute,
+  HomeRoute: HomeRoute,
   ListenRoute: ListenRoute,
   ProfileRoute: ProfileRoute,
   RadioRoute: RadioRoute,

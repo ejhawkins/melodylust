@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Bookmark, Disc3, PanelLeftClose, PanelLeftOpen, Plus, Shirt, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GenreMark } from "@/components/GenreMark";
+import { ListenContents } from "@/components/ListenContents";
 import { moodVideos } from "@/components/RecordStack";
 import { moodboards } from "@/components/StyleMatrix";
 import { stories, type Story } from "@/data/home";
@@ -32,12 +33,17 @@ const songCount = (n: number) => (n === 1 ? "1 song" : `${n} songs`);
  *  Moodboards, Videos and Stories hold only what the reader has liked (newest first), so it is their own shelf rather
  *  than the whole catalogue, and Capsule holds the pieces saved to the Want List. A block with nothing added yet says how
  *  things get there. It folds down to a rail of thumbnails. */
-export function ListenLibrary({ open, onOpenChange, mix, active, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead }: {
+export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onPlaySong, onPlayListSong, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead, onContents }: {
+  /** Playlists chosen: the contents spread opens front and center in the feed. */
+  onContents?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mix: readonly MixSong[];
   /** The row the feed or Now wearing is showing. */
   active: string;
+  nowPlaying?: string | undefined;
+  onPlaySong: (index: number) => void;
+  onPlayListSong: (id: string, index: number) => void;
   onPlayMix: () => void;
   /** Opens one of the reader's playlists in the feed (a new one opens as soon as it's made). */
   onPlaylist: (id: string) => void;
@@ -105,23 +111,25 @@ export function ListenLibrary({ open, onOpenChange, mix, active, onPlayMix, onPl
         <div className="ls-lib-head">
           <div className="ls-lib-title">
             <Button variant="listenIcon" size="round" aria-label="Collapse your library" title="Collapse your library" onClick={() => onOpenChange(false)}><PanelLeftClose /></Button>
-            <h2>Your Library</h2>
+            <h2>The Issue</h2>
           </div>
           <div className="ls-filters" role="group" aria-label="Filter your library">
-            {KINDS.map(k => <Button key={k} variant="listenFilter" size="chip" aria-pressed={kind === k} onClick={() => setKind(current => (current === k ? null : k))}>{k}</Button>)}
+            {KINDS.map(k => <Button key={k} variant="listenFilter" size="chip" aria-pressed={kind === k} onClick={() => { if (k === "Playlists" && kind !== k) onContents?.(); setKind(current => (current === k ? null : k)); }}>{k}</Button>)}
           </div>
         </div>
-        <ul className="ls-scroll">
-          {groups.map(group => (
+        <div className="ls-scroll">
+        {(!kind || kind === "Playlists") && <ListenContents mix={mix} playlists={playlists} nowPlaying={nowPlaying} onPlayMix={onPlaySong} onPlayList={onPlayListSong}
+          onRunway={() => void navigate({ to: "/runway-songs" })} onPlaylist={onPlaylist} footer={<NewPlaylist onCreated={onPlaylist} />} />}
+        <ul>
+          {groups.filter(group => group.kind !== "Playlists").map(group => (
             <li key={group.kind} className="ls-lib-group">
               <h3 className="ls-lib-kind">{group.kind}</h3>
               {group.rows.length > 0 && <ul>{group.rows.map(row => item(row, false))}</ul>}
-              {group.kind === "Playlists"
-                ? <NewPlaylist onCreated={onPlaylist} />
-                : !group.rows.some(row => row.own) && <p className="ls-lib-hint">{EMPTY[group.kind]}</p>}
+              {group.kind !== "Playlists" && !group.rows.some(row => row.own) && <p className="ls-lib-hint">{EMPTY[group.kind]}</p>}
             </li>
           ))}
         </ul>
+        </div>
       </> : <>
         <div className="ls-rail-head">
           <Button variant="listenIcon" size="round" aria-label="Expand your library" title="Expand your library" onClick={() => onOpenChange(true)}><PanelLeftOpen /></Button>

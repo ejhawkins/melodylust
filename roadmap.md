@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Refine Listening Room desktop proportions, playlist spacing, and phone layout using the three uploaded screenshots; verify controls and screen sizes
+
 - [x] Replace Featured songs with a scroll-driven collage and album spotlight; labelled sample music/social metrics and verified song actions, desktop/mobile layout and reduced motion
 
 - [x] Make the song side panel black with Add to Want List and saveable image-and-quote Style Notes; verified saves survive refresh and phone layout fits

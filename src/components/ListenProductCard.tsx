@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Heart, Plus, ShoppingBag, X } from "lucide-react";
+import { Check, ChevronRight, Heart, Plus, ShoppingBag, X } from "lucide-react";
 import amber from "@/assets/shades-amber.webp";
 import black from "@/assets/shades-black.webp";
 import tortoise from "@/assets/shades-tortoise.webp";
@@ -35,14 +35,37 @@ export const shieldAviator: FeaturedProduct = {
   ],
 };
 
+const shades = [shieldAviator.colors[0]!, shieldAviator.colors[1]!, shieldAviator.colors[2]!];
+const rotate = (n: number) => [shades[n % 3]!, shades[(n + 1) % 3]!, shades[(n + 2) % 3]!];
+const piece = (n: number, id: string, name: string, price: string, sizes: readonly string[] = ["S", "M", "L"]): FeaturedProduct =>
+  ({ id, kicker: "Fashion month edit", name, collection: "The Shades Edit", price, sizes, colors: rotate(n) });
+
+/** Up to ten pieces shown during one listening session, one at a time. Placeholder line-up until the real catalogue is wired in. */
+export const sessionProducts: readonly FeaturedProduct[] = [
+  shieldAviator,
+  piece(1, "visor-wrap", "Visor Wrap", "$385"),
+  piece(2, "cat-eye-shield", "Cat-Eye Shield", "$410"),
+  piece(0, "runway-mask", "Runway Mask", "$460"),
+  piece(1, "oval-noir", "Oval Noir", "$340"),
+  piece(2, "pilot-gilt", "Pilot Gilt", "$395"),
+  piece(0, "square-frame", "Square Frame", "$360"),
+  piece(1, "butterfly-lens", "Butterfly Lens", "$430"),
+  piece(2, "rimless-sport", "Rimless Sport", "$375"),
+  piece(0, "encore-shield", "Encore Shield", "$450"),
+];
+export const MAX_SESSION_PRODUCTS = 10;
+
 const REMINDER_AFTER_MS = 60 * 60 * 1000; // an hour
 
 /** A featured-product card, the gilded-verdant-harmony hero card brought into the listening room (shown over its hero on
- *  phones). It appears five seconds after the page loads; a swatch swaps the photo, S / M / L picks a size, Add to cart
+ *  phones). It appears five seconds after mobile song playback is requested; a swatch swaps the photo, S / M / L picks a size, Add to cart
  *  toggles and Wishlist saves the piece to the Want List. Closing it keeps it away for an hour behind a gold bag button; after
  *  that it comes back on its own as a reminder. The hidden time is stored per product, so each card keeps its own. */
-export function ListenProductCard({ product = shieldAviator }: { product?: FeaturedProduct }) {
-  const hiddenKey = `ml-hero-card-hidden-at:${product.id}`;
+export function ListenProductCard({ active, products = sessionProducts, songKey }: { active: boolean; products?: readonly FeaturedProduct[]; songKey?: string }) {
+  const lineup = products.slice(0, MAX_SESSION_PRODUCTS);
+  const [index, setIndex] = useState(0);
+  const product = lineup[Math.min(index, lineup.length - 1)] ?? shieldAviator;
+  const hiddenKey = `ml-hero-card-hidden-at:shop`;
   const [revealed, setRevealed] = useState(false);
   const [open, setOpen] = useState(true);
   const [reminder, setReminder] = useState(false);
@@ -53,10 +76,20 @@ export function ListenProductCard({ product = shieldAviator }: { product?: Featu
   const saved = findWish(items, "piece", product.name, product.collection);
   const color = product.colors[colorIndex] ?? product.colors[0];
 
+  // One piece at a time: a new song (after the first) brings the next one, until all of this session's pieces have shown.
+  const [lastSong, setLastSong] = useState(songKey);
+  if (songKey !== lastSong) {
+    setLastSong(songKey);
+    if (revealed) setIndex(i => Math.min(i + 1, lineup.length - 1));
+  }
+  useEffect(() => { setColorIndex(0); setSize(product.sizes[1] ?? product.sizes[0] ?? ""); setAdded(false); }, [product]);
+
   useEffect(() => {
+    setRevealed(false);
+    if (!active) return;
     const timer = window.setTimeout(() => setRevealed(true), 5000);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [active]);
 
   // Hidden less than an hour ago: stay hidden. Longer ago: come back as a reminder.
   useEffect(() => {
@@ -83,7 +116,7 @@ export function ListenProductCard({ product = shieldAviator }: { product?: Featu
     if (color) addWish({ kind: "piece", name: product.name, detail: product.price, link: "", note: `${color.name} · Size ${size}`, from: product.collection, image: color.image });
   };
 
-  if (!revealed || !color) return null;
+  if (!active || !revealed || !color) return null;
 
   if (!open) {
     return (
@@ -141,6 +174,14 @@ export function ListenProductCard({ product = shieldAviator }: { product?: Featu
               {saved ? "Wishlisted" : "Wishlist"}
             </Button>
           </div>
+          {lineup.length > 1 && (
+            <div className="ls-product-step">
+              <span aria-live="polite">{index + 1} / {lineup.length}</span>
+              {index < lineup.length - 1 && (
+                <Button variant="productWish" size="pill" onClick={() => setIndex(i => i + 1)}>Next piece <ChevronRight aria-hidden="true" /></Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </aside>

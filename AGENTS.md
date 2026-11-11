@@ -17,3 +17,8 @@
 - When uploading a file through that connector, send its content as raw text — the connector encodes it for GitHub; pre-encoding to base64 stores the base64 text itself.
 - Keep every column the app writes present in the database schema, including columns the code adds itself (an article's source, a scouted link's uniqueness) — a missing column only surfaces when that write path runs.
 - Keep featured-song collage motion in its dedicated component with a scoped scroll controller and separate sample metrics, so search logic and sourced song data remain untouched.
+- The Listening Room is the home page at /; the former editorial home lives at /home and /listen redirects to /, so old links keep working.
+- Keep Listening Room playlist sizing scoped to its playlist class and use shrink-safe grids for the header, song rows, and player; this preserves adjacent views while preventing narrow-screen clipping.
+- Pass mobile playback eligibility from the Listening Room into its product card; scope and cancel the reveal timer there so idle page loads and desktop playback cannot open it.
+- Apply the fig/acid-lime identity by remapping the global shadcn tokens in one site-wide block at the end of styles.css, so every page follows one palette source.
+- Keep the phone section row in ListenIssueDock (hero + pinned variants sharing one handler) so in-hero tabs and the sticky dock never drift apart.

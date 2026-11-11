@@ -9,6 +9,10 @@ export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [
     { title: "Curator Dossier — Melody Lust" },
     { name: "description", content: "Your Melody Lust dossier: the edit you've saved, your Style DNA and your Styling Notes." },
+    { property: "og:title", content: "Curator Dossier — Melody Lust" },
+    { property: "og:description", content: "Your saved edit, Style DNA, and Styling Notes in your Melody Lust dossier." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
     // A personal page: nothing here belongs in search results.
     { name: "robots", content: "noindex" },
   ] }),
