@@ -110,6 +110,30 @@ export type Database = {
         }
         Relationships: []
       }
+      style_votes: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          look_id: string
+          voter: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          look_id: string
+          voter: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          look_id?: string
+          voter?: string
+        }
+        Relationships: []
+      }
       styling_notes: {
         Row: {
           author_display_name: string

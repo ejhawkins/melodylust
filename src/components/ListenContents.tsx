@@ -1,3 +1,4 @@
+import { LikeButton } from "@/components/LikeButton";
 import { Disc3 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { MixSong } from "@/lib/listening-room";
@@ -43,6 +44,7 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
                 <p className="ls-toc-dekline">{ch.dek} · {ch.songs.length} {ch.songs.length === 1 ? "song" : "songs"}</p>
                 {ch.open ? <button type="button" className="ls-toc-name" onClick={ch.open}>{ch.title}</button> : <h3 className="ls-toc-name">{ch.title}</h3>}
               </div>
+              <LikeButton look="quick" kind="playlist" id={ch.id} name={ch.title} sub={`${ch.songs.length} songs`} {...(ch.songs[0]?.art ? { image: ch.songs[0].art } : {})} className="ls-toc-like" />
             </div>
             {ch.songs.length > 0 ? <>
               <div className="ls-toc-strip">

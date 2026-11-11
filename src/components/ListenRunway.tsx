@@ -1,3 +1,4 @@
+import { LikeButton } from "@/components/LikeButton";
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
@@ -49,6 +50,7 @@ export function ListenRunway({ songs, playing, onPlay }: { songs: readonly Runwa
               <span className="ls-runway-song"><span className="ls-runway-name">{s.name}</span><span className="ls-runway-artist">{s.artist}</span></span>
               <span className="ls-runway-play" aria-hidden><Play /></span>
             </Button>
+            <LikeButton look="quick" kind="runway" id={s.id} name={`${s.name} — ${s.house}`} sub={`${s.artist} · ${s.season} ${s.year}`} className="ls-quick-like" />
           </li>)}
         </ol>
       )}

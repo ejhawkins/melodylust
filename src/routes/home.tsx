@@ -10,7 +10,7 @@ import heroRunway4 from "@/assets/hero-runway-4.jpg";
 
 import street from "@/assets/street-style.jpg";
 import matrixShoeImage from "@/assets/style-matrix-shoe.png";
-import { StyleMatrix } from "@/components/StyleMatrix";
+import { FitCompass } from "@/components/FitCompass";
 import { ShopSection } from "@/components/ShopSection";
 import { DigitalZine } from "@/components/DigitalZine";
 import { MusicianCircles } from "@/components/MusicianCircles";
@@ -412,8 +412,8 @@ function Index() {
         </div>
       </section>
       <section className="matrix" id="matrix" aria-label="Style matrix">
-        <p className="matrix-intro"><strong>One statement piece, five ways.</strong> The same coat runs through every board below — the common denominator — styled a different way each time.</p>
-        <StyleMatrix />
+        <p className="matrix-intro"><strong>One statement piece, four ways.</strong> Tap a corner of the compass to see the same coat worn polished or undone, by day or after dark. Then vote for your way to wear it.</p>
+        <FitCompass />
       </section>
 
       <MoodHeading text="Style matrix" className="matrix-head" stacked />

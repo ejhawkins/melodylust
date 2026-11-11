@@ -8,6 +8,7 @@ import { DuotoneFilter } from "@/components/DuotoneFilter";
 import { FashionMusicSearch } from "@/components/FashionMusicSearch";
 import { ListenLibrary, PhotoOr } from "@/components/ListenLibrary";
 import { ListenContents } from "@/components/ListenContents";
+import { ListenFavorites } from "@/components/ListenFavorites";
 import { ListenIssueDock, type IssueTab } from "@/components/ListenIssueDock";
 import { ListenLook } from "@/components/ListenLook";
 import { ListenMood } from "@/components/ListenMood";
@@ -22,7 +23,9 @@ import { NowWearing } from "@/components/NowWearing";
 import { StoryDialog } from "@/components/StoryDialog";
 import { Wishlist } from "@/components/Wishlist";
 import { ListenWantShelf } from "@/components/ListenWantShelf";
+import { ListenStudio } from "@/components/ListenStudio";
 import { moodboards } from "@/components/StyleMatrix";
+import { FitCompass } from "@/components/FitCompass";
 import { categories, iconicSongs, playlist, stories, type Story } from "@/data/home";
 import { fromRunway, step, toMix } from "@/lib/listening-room";
 import { usePlaylists } from "@/lib/playlists";
@@ -172,6 +175,7 @@ function ListenHero({ onPlayMix, children }: { onPlayMix: () => void; children?:
           <span className="ls-hero-by ls-hide-sm" role="img" aria-label="Melody Lust" style={{ "--logo": `url(${logo})` } as CSSProperties} />
         </div>
       </section>
+      <p className="ls-hero-tagline">Autumn Mix <span aria-hidden>·</span> This is a mood</p>
       {children}
     </div>
   );
@@ -293,6 +297,7 @@ function ListeningRoom() {
           onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)}
           onWant={openWant}
           onContents={() => open({ kind: "contents" }, "mix")}
+          contentsShown={view.kind === "contents"}
           onProfile={openProfile}
           onLook={index => open({ kind: "look", index }, `look-${index}`)}
           onVideo={index => open({ kind: "video", index }, `video-${index}`)}
@@ -308,6 +313,7 @@ function ListeningRoom() {
             </div>
           ) : view.kind === "contents" ? (
             <div className="ls-contents-stage">
+              <ListenStudio />
               <ListenContents mix={mix} playlists={playlists} nowPlaying={listening ? song.caption : undefined} onPlayMix={play} onPlayList={playList}
                 onRunway={() => setCategory("Runway")} onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
@@ -344,9 +350,13 @@ function ListeningRoom() {
           ) : <>
             {!heroLeads && <ListenHero onPlayMix={playMix} />}
 
+            <ListenStudio />
+
             <ListenWantShelf onOpen={openWant} />
 
             <ListenMood />
+
+            <ListenFavorites onStory={s => { setActive(`story-${s.id}`); setArticle(s); }} />
 
             {(category === "Runway" || shelf === "runway") && <ListenRunway songs={runway} playing={onRunway ? now : null} onPlay={playRunway} />}
 
@@ -364,13 +374,14 @@ function ListeningRoom() {
                     <span className="ls-tile-artist">{s.artist}</span>
                   </Button>
                   {/* A quick like for the song's look, beside the tile (a button can't sit inside another). */}
-                  <LikeButton look="quick" kind="look" id={s.caption} name={`The ${s.title} look`} className="ls-quick-like" />
+                  <LikeButton look="quick" kind="look" id={s.caption} name={`The ${s.title} look`} sub={s.artist} image={s.art} className="ls-quick-like" />
                 </li>)}
               </ul>
             </section>}
 
             {shelf === "style" && <section className="ls-section" aria-labelledby="ls-notes">
               <div className="ls-section-head"><h2 id="ls-notes">+ Style matrix notes</h2><span>Fashion. Music. A point of view.</span></div>
+              <FitCompass compact />
               {notes.length === 0 ? <p className="ls-empty">Nothing filed under {category} yet.</p> : (
                 <ul className="ls-notes">
                   {notes.map(s => <li key={s.id}>
@@ -380,7 +391,7 @@ function ListeningRoom() {
                       <span className="ls-note-title">{s.title}</span>
                       <span className="ls-note-intro">{s.intro}</span>
                     </Button>
-                    <LikeButton look="quick" kind="story" id={String(s.id)} name={s.title} className="ls-quick-like" />
+                    <LikeButton look="quick" kind="story" id={String(s.id)} name={s.title} sub={`${s.category} · ${s.date}`} image={s.image} className="ls-quick-like" />
                   </li>)}
                 </ul>
               )}
@@ -395,7 +406,7 @@ function ListeningRoom() {
         {wearingOpen && <NowWearing onProfile={openProfile} nowPlaying={runway[0]} />}
       </div>
 
-      {phone && <ListenIssueDock variant="dock" docked={docked} current={issueTab} onPick={pickIssue} />}
+      {/* The sticky issue dock was retired: the in-hero buttons are the only issue nav. */}
 
       <ListenPlayer song={song} listening={listening} onListen={() => (onRunway ? playRunway(now) : onList && listId ? playList(listId, now) : play(now))}
         onPrev={() => go(step(queue.length, now, -1))} onNext={() => go(step(queue.length, now, 1))}

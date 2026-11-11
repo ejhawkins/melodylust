@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 /** A quick favourite: a look, music video, moodboard or story the reader hearted, so it sits in the listening room's
  *  library. Kept on this device, like the Want List; the key is the item's own stable id (a song caption, a YouTube id,
  *  a moodboard id or a story id), never its position in a list. */
-export type LikeKind = "look" | "video" | "board" | "story";
-export type Like = { kind: LikeKind; key: string; at: number };
+export type LikeKind = "look" | "video" | "board" | "story" | "playlist" | "runway" | "fashion";
+/** title/sub/image: a snapshot so the Favourites shelf can show the item without looking it up again. */
+export type LikeMeta = { title?: string; sub?: string; image?: string };
+export type Like = { kind: LikeKind; key: string; at: number } & LikeMeta;
 
 const KEY = "ml-likes";
 const EVT = "ml-likes-change";
-const KINDS: readonly LikeKind[] = ["look", "video", "board", "story"];
+const KINDS: readonly LikeKind[] = ["look", "video", "board", "story", "playlist", "runway", "fashion"];
 
 const isLike = (value: unknown): value is Like => {
   const v = value as Partial<Like> | null;
@@ -29,10 +31,10 @@ function write(likes: Like[]) {
 export const isLiked = (likes: readonly Like[], kind: LikeKind, key: string) => likes.some(l => l.kind === kind && l.key === key);
 
 /** Hearts or un-hearts an item; returns whether it is liked now. */
-export function toggleLike(kind: LikeKind, key: string) {
+export function toggleLike(kind: LikeKind, key: string, meta: LikeMeta = {}) {
   const likes = readLikes();
   if (isLiked(likes, kind, key)) { write(likes.filter(l => !(l.kind === kind && l.key === key))); return false; }
-  write([...likes, { kind, key, at: Date.now() }]);
+  write([...likes, { ...meta, kind, key, at: Date.now() }]);
   return true;
 }
 

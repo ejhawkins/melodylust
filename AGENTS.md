@@ -20,5 +20,7 @@
 - The Listening Room is the home page at /; the former editorial home lives at /home and /listen redirects to /, so old links keep working.
 - Keep Listening Room playlist sizing scoped to its playlist class and use shrink-safe grids for the header, song rows, and player; this preserves adjacent views while preventing narrow-screen clipping.
 - Pass mobile playback eligibility from the Listening Room into its product card; scope and cancel the reveal timer there so idle page loads and desktop playback cannot open it.
-- Apply the fig/acid-lime identity by remapping the global shadcn tokens in one site-wide block at the end of styles.css, so every page follows one palette source.
+- Apply the fig/acid-lime identity by remapping the global shadcn tokens in one site-wide block near the end of styles.css, so every page follows one palette source.
 - Keep the phone section row in ListenIssueDock (hero + pinned variants sharing one handler) so in-hero tabs and the sticky dock never drift apart.
+- Keep the Listening Room Studio (library, add-to-playlist, Spotify embed previews, share card, importer) in ListenStudio with its own device-stored catalogue in lib/studio, so it never alters the existing caption-based playlists.
+- Keep the Style Matrix as the FitCompass component fed by lib/fit-compass (one item, four quadrant looks); votes go only through server functions that return aggregate counts, so voter ids never reach the browser.

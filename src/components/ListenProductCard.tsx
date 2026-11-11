@@ -1,3 +1,4 @@
+import { LikeButton } from "@/components/LikeButton";
 import { useEffect, useState } from "react";
 import { Check, ChevronRight, Heart, Plus, ShoppingBag, X } from "lucide-react";
 import amber from "@/assets/shades-amber.webp";
@@ -146,6 +147,7 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
               <p className="ls-product-meta">{product.collection} · {color.name}</p>
             </div>
             <span className="ls-product-price">{product.price}</span>
+            <LikeButton look="quick" kind="fashion" id={`product-${product.name}`} name={product.name} sub={product.price} image={color.image} />
           </div>
 
           <div className="ls-product-pick">

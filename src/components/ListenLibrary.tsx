@@ -33,7 +33,9 @@ const songCount = (n: number) => (n === 1 ? "1 song" : `${n} songs`);
  *  Moodboards, Videos and Stories hold only what the reader has liked (newest first), so it is their own shelf rather
  *  than the whole catalogue, and Capsule holds the pieces saved to the Want List. A block with nothing added yet says how
  *  things get there. It folds down to a rail of thumbnails. */
-export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onPlaySong, onPlayListSong, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead, onContents }: {
+export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onPlaySong, onPlayListSong, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead, onContents, contentsShown }: {
+  /** The feed already shows the contents spread, so the library skips its own copy. */
+  contentsShown?: boolean;
   /** Playlists chosen: the contents spread opens front and center in the feed. */
   onContents?: () => void;
   open: boolean;
@@ -118,7 +120,7 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
           </div>
         </div>
         <div className="ls-scroll">
-        {(!kind || kind === "Playlists") && <ListenContents mix={mix} playlists={playlists} nowPlaying={nowPlaying} onPlayMix={onPlaySong} onPlayList={onPlayListSong}
+        {!contentsShown && (!kind || kind === "Playlists") && <ListenContents mix={mix} playlists={playlists} nowPlaying={nowPlaying} onPlayMix={onPlaySong} onPlayList={onPlayListSong}
           onRunway={() => void navigate({ to: "/runway-songs" })} onPlaylist={onPlaylist} footer={<NewPlaylist onCreated={onPlaylist} />} />}
         <ul>
           {groups.filter(group => group.kind !== "Playlists").map(group => (

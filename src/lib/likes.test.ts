@@ -23,4 +23,14 @@ describe("likes", () => {
     window.localStorage.setItem("ml-likes", JSON.stringify([{ kind: "song", key: "x", at: 1 }, { kind: "video", key: "BY_XwvKogC8", at: 2 }]));
     expect(readLikes()).toEqual([{ kind: "video", key: "BY_XwvKogC8", at: 2 }]);
   });
+
+  it("favourites playlists, runway and fashion with a title snapshot for the shelf", () => {
+    toggleLike("playlist", "mix", { title: "The Autumn Mix", sub: "12 songs" });
+    toggleLike("runway", "r1", { title: "Stop the show" });
+    toggleLike("fashion", "product-Shield Aviator", { title: "Shield Aviator", image: "a.jpg" });
+    const likes = readLikes();
+    expect(likes.map(l => l.kind)).toEqual(["playlist", "runway", "fashion"]);
+    expect(likes[0]?.title).toBe("The Autumn Mix");
+    expect(likes[2]?.image).toBe("a.jpg");
+  });
 });
