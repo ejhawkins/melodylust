@@ -39,7 +39,7 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
         {chapters.map((ch, n) => (
           <li key={ch.id} className="ls-toc-chapter">
             <div className="ls-toc-head">
-              <span className="ls-toc-num" aria-hidden>{String(n + 1).padStart(2, "0")}</span>
+              <span className="ls-toc-num" aria-hidden>Wtf hammer</span>
               <div className="min-w-0">
                 <p className="ls-toc-dekline">{ch.dek} · {ch.songs.length} {ch.songs.length === 1 ? "song" : "songs"}</p>
                 {ch.open ? <button type="button" className="ls-toc-name" onClick={ch.open}>{ch.title}</button> : <h3 className="ls-toc-name">{ch.title}</h3>}
@@ -70,7 +70,7 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
         ))}
         <li className="ls-toc-chapter">
           <button type="button" className="ls-toc-head ls-toc-runway" onClick={onRunway}>
-            <span className="ls-toc-num" aria-hidden>{String(chapters.length + 1).padStart(2, "0")}</span>
+            <span className="ls-toc-num" aria-hidden>Wtf hammer</span>
             <span className="min-w-0 text-left">
               <span className="ls-toc-dekline">Special report</span>
               <span className="ls-toc-name">Runway Songs</span>
