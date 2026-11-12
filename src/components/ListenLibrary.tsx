@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState, type ImgHTMLAttributes, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bookmark, Disc3, PanelLeftClose, PanelLeftOpen, Plus, Shirt, SlidersHorizontal } from "lucide-react";
+import { Bookmark, Disc3, GitFork, Heart, Sunrise, PanelLeftClose, PanelLeftOpen, Plus, Shirt, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GenreMark } from "@/components/GenreMark";
 import { ListenContents } from "@/components/ListenContents";
@@ -32,8 +32,9 @@ const songCount = (n: number) => (n === 1 ? "1 song" : `${n} songs`);
  *  the reader's own playlists, with New playlist under them. Looks: the Want List, the style profile and liked looks.
  *  Moodboards, Videos and Stories hold only what the reader has liked (newest first), so it is their own shelf rather
  *  than the whole catalogue, and Capsule holds the pieces saved to the Want List. A block with nothing added yet says how
- *  things get there. It folds down to a rail of thumbnails. */
-export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onPlaySong, onPlayListSong, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead, onContents, contentsShown }: {
+ *  things get there. It folds down to a rail of
+ *  the reader's favourites as thumbnails: everything they have hearted, newest first. */
+export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onPlaySong, onPlayListSong, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead, onContents, contentsShown, onCapsule, onDay }: {
   /** The feed already shows the contents spread, so the library skips its own copy. */
   contentsShown?: boolean;
   /** Playlists chosen: the contents spread opens front and center in the feed. */
@@ -50,6 +51,10 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
   /** Opens one of the reader's playlists in the feed (a new one opens as soon as it's made). */
   onPlaylist: (id: string) => void;
   onWant: () => void;
+  /** Opens the Capsule tree in the feed: sounds, the pieces they dressed and songs to play next. */
+  onCapsule: () => void;
+  /** Opens Build a day: a one-day playlist from the reader's taste profile. */
+  onDay: () => void;
   onProfile: () => void;
   onLook: (index: number) => void;
   onVideo: (index: number) => void;
@@ -71,8 +76,22 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
     ...playlists.map((p): Row => ({ id: `playlist-${p.id}`, kind: "Playlists", title: p.name, meta: `Your playlist · ${songCount(p.songs.length)}`, blend: blends.get(p.id) ?? {}, own: true, act: () => onPlaylist(p.id) })),
     { id: "want", kind: "Looks", title: "Want List", meta: `Saved pieces and songs · ${saved.length}`, ...(latest ? { art: latest } : {}), act: onWant },
     { id: "profile", kind: "Looks", title: "Style profile", meta: "Curator dossier · Style DNA", icon: <SlidersHorizontal />, act: onProfile },
+    { id: "day", kind: "Looks", title: "Build a day", meta: "Playlist · From your taste profile", icon: <Sunrise />, act: onDay },
     // The liked items, newest first. A like whose item is gone (a song left the mix, a story was retired) is skipped.
-    ...likes.flatMap((like): Row[] => {
+    ...likes.flatMap(l => likeRow(l)),
+    // The capsule: its tree first, then every piece saved to the Want List, newest first. A piece opens the tree too.
+    { id: "capsule", kind: "Capsule", title: "The Capsule map", meta: "Sound · Style · Play next", icon: <GitFork />, act: onCapsule },
+    ...[...saved].reverse().filter(item => item.kind === "piece").map((item): Row => ({ id: `piece-${item.id}`, kind: "Capsule", title: item.name, meta: item.detail ? `Piece · ${item.detail}` : "Piece", ...(item.image ? { art: item.image } : {}), icon: <Shirt />, own: true, act: onCapsule })),
+  ];
+  // Folded, the library is the reader's favourites. A playlist, runway or fashion like has no page in the library, so its
+  // thumbnail goes to the feed's Your favourites shelf, where it sits.
+  const toFavourites = () => document.getElementById("ls-favs")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const favourites = likes.flatMap((like): Row[] => {
+    const row = likeRow(like);
+    if (row.length || like.kind === "look" || like.kind === "video" || like.kind === "board" || like.kind === "story") return row;
+    return [{ id: `fav-${like.kind}-${like.key}`, kind: "Looks", title: like.title ?? like.key, meta: like.sub ?? "", ...(like.image ? { art: like.image } : {}), icon: <Heart />, own: true, act: toFavourites }];
+  });
+  function likeRow(like: (typeof likes)[number]): Row[] {
       if (like.kind === "look") {
         const i = mix.findIndex(song => song.caption === like.key);
         const song = mix[i];
@@ -89,10 +108,7 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
       }
       const story = stories.find(st => String(st.id) === like.key);
       return story ? [{ id: `story-${story.id}`, kind: "Stories", title: story.title, meta: `Story · ${story.category}`, art: story.image, own: true, act: () => onRead(story) }] : [];
-    }),
-    // The capsule: every piece saved to the Want List, newest first. They live on the Want List, so a row opens it.
-    ...[...saved].reverse().filter(item => item.kind === "piece").map((item): Row => ({ id: `piece-${item.id}`, kind: "Capsule", title: item.name, meta: item.detail ? `Piece · ${item.detail}` : "Piece", ...(item.image ? { art: item.image } : {}), icon: <Shirt />, own: true, act: onWant })),
-  ];
+  }
   // Every block in the filters' order (or just the one chosen), each under its own title, even before it holds anything.
   const groups = KINDS.filter(k => !kind || k === kind).map(k => ({ kind: k, rows: rows.filter(row => row.kind === k) }));
 
@@ -135,8 +151,11 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
       </> : <>
         <div className="ls-rail-head">
           <Button variant="listenIcon" size="round" aria-label="Expand your library" title="Expand your library" onClick={() => onOpenChange(true)}><PanelLeftOpen /></Button>
+          <button type="button" className="ls-rail-label" tabIndex={-1} aria-hidden="true" onClick={() => onOpenChange(true)}>The Issue</button>
         </div>
-        <ul className="ls-scroll ls-rail">{groups.flatMap(group => group.rows).map(row => item(row, true))}</ul>
+        {favourites.length > 0
+          ? <ul className="ls-scroll ls-rail" aria-label="Your favourites">{favourites.map(row => item(row, true))}</ul>
+          : <p className="ls-rail-empty" title="Tap a heart and your favourites show here"><Heart aria-hidden /><span className="sr-only">Tap a heart and your favourites show here.</span></p>}
       </>}
     </nav>
   );

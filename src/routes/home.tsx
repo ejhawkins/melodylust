@@ -177,6 +177,9 @@ function Index() {
   const tumblrImages = tumblr.data.posts.filter(p => p.image).slice(0, TUMBLR_MAX);
   const coverRef = useRef<HTMLElement>(null);
   const filmRef = useRef<HTMLElement>(null);
+  // "This is a mood" stands in its own section above How it works, so its letters reveal on their own flag.
+  const moodRef = useRef<HTMLElement>(null);
+  const [moodIn, setMoodIn] = useState(false);
   const journal = useRef<HTMLElement>(null);
   const [category, setCategory] = useState("All");
   const [solid, setSolid] = useState(false);
@@ -224,6 +227,13 @@ function Index() {
     window.addEventListener("scroll", update, { passive: true });
     update();
     return () => { window.removeEventListener("scroll", update); cancelAnimationFrame(frame); };
+  }, []);
+  useEffect(() => {
+    const el = moodRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") { setMoodIn(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { setMoodIn(true); io.disconnect(); } }, { threshold: .2 });
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
   useEffect(() => {
     const el = filmRef.current;
@@ -328,16 +338,19 @@ function Index() {
           <p className="genre-note" role="tabpanel" key={genre}>{genres.find(g => g.name === genre)?.note}</p>
         </div>
       </section>
-      <section className="film" id="film" ref={filmRef} data-inview={filmIn} aria-label="This is a mood">
+      {/* The chapter opens on "This is a mood", How it works runs under it, then the record stack plays the films. */}
+      <section className="film film-intro" id="film" ref={moodRef} data-inview={moodIn} aria-label="This is a mood">
         <div className="film-head">
           <h2 className="film-title" aria-label="This is a mood">{filmLetters.map(({ word, letters }) => <span className="film-word" key={word} aria-hidden>{letters.map(({ ch, delay }, i) => <span key={i} style={{ transitionDelay: `${delay}ms` }}>{ch}</span>)}</span>)}</h2>
           <span className="film-credit">I do not own any of the vibes below</span>
           <span className="film-rule" aria-hidden="true" />
         </div>
+      </section>
+      <HowItWorks />
+      <section className="film film-records" ref={filmRef} data-inview={filmIn} aria-label="This is a mood: the music videos">
         <RecordStack />
       </section>
       <DesignerMusing />
-      <HowItWorks />
       <GuidedStoryQuote />
       <section className="iconic" id="iconic" aria-label="Featured iconic songs of today">
         <MoodHeading text="Fashion moments" className="moments-head" />

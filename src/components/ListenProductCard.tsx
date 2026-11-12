@@ -60,7 +60,7 @@ const REMINDER_AFTER_MS = 60 * 60 * 1000; // an hour
 
 /** A featured-product card, the gilded-verdant-harmony hero card brought into the listening room (shown over its hero on
  *  phones). It appears five seconds after mobile song playback is requested; a swatch swaps the photo, S / M / L picks a size, Add to cart
- *  toggles and Wishlist saves the piece to the Want List. Closing it keeps it away for an hour behind a gold bag button; after
+ *  toggles, Wishlist saves the piece to the Want List and the heart saves it to Favourites and the Want List together. Closing it keeps it away for an hour behind a gold bag button; after
  *  that it comes back on its own as a reminder. The hidden time is stored per product, so each card keeps its own. */
 export function ListenProductCard({ active, products = sessionProducts, songKey }: { active: boolean; products?: readonly FeaturedProduct[]; songKey?: string }) {
   const lineup = products.slice(0, MAX_SESSION_PRODUCTS);
@@ -112,9 +112,11 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
     setReminder(false);
     try { window.localStorage.removeItem(hiddenKey); } catch { /* ignore */ }
   };
+  // The piece as the Want List keeps it, in the colour and size picked on the card.
+  const saveWish = () => { if (color) addWish({ kind: "piece", name: product.name, detail: product.price, link: "", note: `${color.name} · Size ${size}`, from: product.collection, image: color.image }); };
   const toggleWish = () => {
     if (saved) { removeWish(saved.id); return; }
-    if (color) addWish({ kind: "piece", name: product.name, detail: product.price, link: "", note: `${color.name} · Size ${size}`, from: product.collection, image: color.image });
+    saveWish();
   };
 
   if (!active || !revealed || !color) return null;
@@ -147,7 +149,10 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
               <p className="ls-product-meta">{product.collection} · {color.name}</p>
             </div>
             <span className="ls-product-price">{product.price}</span>
-            <LikeButton look="quick" kind="fashion" id={`product-${product.name}`} name={product.name} sub={product.price} image={color.image} />
+            {/* A favourite from the bag is also wanted: hearting files the piece in the Want List too. Taking the heart off
+                leaves the Want List alone; the Wishlist button below is what removes it. */}
+            <LikeButton look="quick" kind="fashion" id={`product-${product.name}`} name={product.name} sub={product.price} image={color.image}
+              into="your favourites and Want List" onLike={liked => { if (liked && !saved) saveWish(); }} />
           </div>
 
           <div className="ls-product-pick">

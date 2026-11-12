@@ -224,27 +224,6 @@
   }
 }
 
-@font-face {
-  font-family: "Avenir LT Std";
-  src: url("/__l5e/assets-v1/2234aa11-85c6-4f61-839c-1369033c4eb2/AvenirLTStd-Light.otf") format("opentype");
-  font-weight: 100 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Avenir LT Std";
-  src: url("/__l5e/assets-v1/569a7f6e-6b44-43cb-bdf7-abc8cc79ee83/AvenirLTStd-Book.otf") format("opentype");
-  font-weight: 400 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Avenir LT Std";
-  src: url("/__l5e/assets-v1/ad2f1cdb-d59d-4b80-aa68-44e43dfef1bf/AvenirLTStd-Black.otf") format("opentype");
-  font-weight: 600 900;
-  font-style: normal;
-  font-display: swap;
-}
 /* MyFonts Webfont Build ID 3867246: WTF Hammer Compressed and WTF Hammer XXX Compressed by W Type Foundry
    (https://www.myfonts.com/collections/without-foundry); Couturier Poster Thin, Couturier Poster Black It and Isidora Medium
    by Latinotype (https://www.myfonts.com/collections/latinotype-foundry). Used under the site owner's End User License Agreement; self-hosted from public/fonts. */
@@ -298,7 +277,7 @@
   --font-accent: "Couturier Poster", "Didot", serif;
 }
 @theme inline {
-  --font-sans: "Avenir LT Std", "DM Sans", sans-serif;
+  --font-sans: "DM Sans", sans-serif; /* the Listening Room's copy and the page default (Avenir retired Nov 2026) */
   --font-editorial: "Bodoni Moda", serif;
   --font-display: "Archivo Black", sans-serif;
   --font-cover: "Big Shoulders Display", "Archivo Black", sans-serif;
@@ -643,8 +622,9 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .article-dialog { max-height: 85dvh; overflow-y: auto; }
 .film { width: 100vw; margin-left: calc(50% - 50vw); background: var(--background); color: var(--foreground); padding: 120px 0 0; scroll-margin-top: calc(var(--head-h) + 26px); }
 .film { position: relative; overflow: clip; }
+.film.film-records { padding-top: 0; } /* the record stack follows How it works, which already leaves room above it */
 .film-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 13px; padding: 0 max(36px, calc(50vw - 660px)); margin-bottom: 34px; }
-.film-credit { font-family: var(--font-iconic); font-weight: 300; font-size: 10px; text-transform: uppercase; letter-spacing: .18em; text-align: center; opacity: 0; transform: translateY(12px); transition: opacity .9s ease .35s, transform .9s ease .35s; }
+.film-credit { font-family: var(--font-isidora); font-weight: 500; font-size: 10px; text-transform: uppercase; letter-spacing: .18em; text-align: center; opacity: 0; transform: translateY(12px); transition: opacity .9s ease .35s, transform .9s ease .35s; }
 .film[data-inview="true"] .film-credit:nth-of-type(1) { transition-delay: .3s; }
 .film[data-inview="true"] .film-credit--title { transition-delay: .45s; }
 .film[data-inview="true"] .film-head .film-credit:last-child { transition-delay: .6s; }
@@ -950,7 +930,11 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .shop-mood { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .shop-mood img { width: 100%; aspect-ratio: 1; min-width: 0; object-fit: cover; display: block; }
 .wishlist { padding: 80px 0 72px; }
-.wishlist { --want-paper: #221A20; --want-ink: #E4E2DD; --want-green: #F5A400; --want-rule: #E4E2DD4D; --want-muted: #E4E2DDB3; --foreground: #E4E2DD; --muted-foreground: #E4E2DDB3; --border: #E4E2DD4D; background: var(--want-paper); color: var(--want-ink); padding-left: 24px; padding-right: 24px; }
+/* The Want List's colour tokens: paper and ink, the accent and its hover, rules and muted type, the typing fields (a light
+   field with dark type and placeholder), the inset panels (song row, playlist) and the pale wells product photos sit on.
+   Every rule below reads these, so a host re-colours the whole section by setting them once (see .ls-want). */
+.wishlist { --want-paper: #221A20; --want-ink: #E4E2DD; --want-green: #F5A400; --want-green-hover: #FFB82E; --want-rule: #E4E2DD4D; --want-muted: #E4E2DDB3;
+  --want-field: #E4E2DD; --want-field-ink: #221A20; --want-field-muted: #625A60; --want-panel: #2E252B; --want-well: #e5dfd1; --foreground: #E4E2DD; --muted-foreground: #E4E2DDB3; --border: #E4E2DD4D; background: var(--want-paper); color: var(--want-ink); padding-left: 24px; padding-right: 24px; }
 .want-folio, .want-section-label, .want-look-meta, .want-look-image > span, .want-playlist-heading > span, .want-playlist-note, .want-footer, .want-promo-kicker { font-family: var(--font-iconic); font-size: 10px; text-transform: uppercase; }
 .want-masthead { border-bottom: 2px solid var(--want-ink); padding-bottom: 26px; margin-bottom: 42px; }
 .want-folio { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
@@ -965,15 +949,15 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .want-artist { min-width: 0; }
 .want-artist > span, .want-song-panel label > span { font-family: var(--font-iconic); font-size: 10px; text-transform: uppercase; display: block; margin-bottom: 4px; color: var(--want-muted); }
 .want-artist input, .want-song-panel input { border: 0; border-bottom: 1px solid var(--want-rule); border-radius: 0; width: 100%; min-width: 0; padding: 8px 0; background: transparent; color: var(--want-ink); font-size: 18px; font-family: var(--font-editorial); }
-.want-artist input { background: #E4E2DD; color: #221A20; padding: 10px 12px; min-height: 44px; border: 0; }
-.want-artist input::placeholder { color: #625A60; }
+.want-artist input { background: var(--want-field); color: var(--want-field-ink); padding: 10px 12px; min-height: 44px; border: 0; }
+.want-artist input::placeholder { color: var(--want-field-muted); }
 .want-song-panel input::placeholder { color: var(--want-muted); }
 .want-song-toggle { grid-column: 2; grid-row: 2; display: inline-flex; width: fit-content; min-height: 44px; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid var(--want-ink); border-radius: 99px; font-family: var(--font-iconic); font-size: 11px; text-transform: uppercase; }
 .want-song-toggle, .want-song-toggle[aria-expanded="true"] { background: var(--want-green); border-color: var(--want-green); color: var(--want-paper); }
 .want-icon-button { grid-column: 3; grid-row: 1; width: 44px; height: 44px; display: grid; place-items: center; }
 .want-icon-button:disabled { opacity: .3; }
 .want-icon-button svg, .want-song-toggle svg, .want-look-actions svg, .want-playlist svg, .want-footer svg, .want-song-panel svg { width: 16px; height: 16px; flex-shrink: 0; }
-.want-song-panel { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding: 16px; background: #2E252B; }
+.want-song-panel { grid-column: 2 / -1; display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding: 16px; background: var(--want-panel); }
 .want-song-panel label { flex: 1 1 160px; min-width: 0; }
 .want-song-panel a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 12px; color: var(--want-ink); text-decoration: underline; text-underline-offset: 3px; }
 .want-rotation-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; padding: 22px 0 42px; }
@@ -981,25 +965,25 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .want-primary { background: #171715; color: #F4EFE4; min-height: 44px; border-radius: 0; }
 .want-primary:hover { background: #1F4D3A; }
 .wishlist .want-primary { background: var(--want-green); color: var(--want-paper); }
-.wishlist .want-primary:hover { background: #FFB82E; }
+.wishlist .want-primary:hover { background: var(--want-green-hover); }
 .want-output { border-top: 2px solid var(--want-ink); padding-top: 26px; }
 .want-output-grid { display: grid; gap: 30px; }
 .want-look { min-width: 0; }
-.want-look-image { position: relative; display: block; width: 100%; aspect-ratio: 3 / 4; background: #e5dfd1; border: 1px solid var(--want-rule); overflow: hidden; }
+.want-look-image { position: relative; display: block; width: 100%; aspect-ratio: 3 / 4; background: var(--want-well); border: 1px solid var(--want-rule); overflow: hidden; }
 .want-look-image img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; transition: transform .35s ease; }
 .want-look-image:hover img { transform: scale(1.03); }
 .want-look-image > span { position: absolute; bottom: 12px; left: 12px; background: var(--want-paper); padding: 6px 8px; }
-.want-look-image > svg { position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; color: #221A20; }
+.want-look-image > svg { position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; color: var(--want-field-ink); }
 .want-look-meta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; margin-top: 14px; color: var(--want-muted); }
 .want-look h4 { font-family: var(--font-editorial); font-weight: 400; font-size: 28px; line-height: 1.2; margin: 10px 0; }
 .want-look > p { font-size: 14px; line-height: 1.5; margin: 0; }
 .want-look-products { display: flex; gap: 10px; margin-top: 16px; }
-.want-look-products button { width: 64px; height: 64px; border: 1px solid var(--want-rule); background: #e5dfd1; }
+.want-look-products button { width: 64px; height: 64px; border: 1px solid var(--want-rule); background: var(--want-well); }
 .want-look-products img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
 .want-look-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }
 .want-look-actions button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--want-green); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; }
 .want-look-actions button:last-child { justify-content: center; width: 44px; border: 1px solid var(--want-rule); }
-.want-playlist { border: 1px solid var(--want-rule); align-self: start; background: #2E252B; min-width: 0; }
+.want-playlist { border: 1px solid var(--want-rule); align-self: start; background: var(--want-panel); min-width: 0; }
 .want-playlist-heading { padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--want-rule); }
 .want-playlist-heading h3 { font-family: var(--font-editorial); font-size: 28px; font-weight: 400; margin: 0; }
 .want-playlist-heading > span { white-space: nowrap; }
@@ -1032,9 +1016,9 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .want-email { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 28px; }
 .want-email label { font-size: 12px; }
 .want-email input { min-width: 0; flex: 1 1 180px; border: 1px solid var(--want-rule); min-height: 44px; padding: 10px 12px; background: #fffcf7; font-size: 16px; }
-.wishlist .want-email input { background: #E4E2DD; color: #221A20; }
+.wishlist .want-email input { background: var(--want-field); color: var(--want-field-ink); }
 .wishlist .wish-export button, .wishlist .want-email button { background: transparent; color: var(--want-ink); border-color: var(--want-rule); }
-.wishlist .wish-export button:hover, .wishlist .want-email button:hover { background: #2E252B; }
+.wishlist .wish-export button:hover, .wishlist .want-email button:hover { background: var(--want-panel); }
 .want-email button { min-height: 44px; }
 .want-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; border-top: 1px solid var(--want-rule); margin-top: 40px; padding-top: 20px; }
 .want-footer button { display: flex; align-items: center; gap: 8px; min-height: 44px; color: var(--want-green); text-decoration: underline; }
@@ -1241,7 +1225,7 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .mlshop-songpick-embed { width: 100%; border: 0; border-radius: 12px; display: block; }
 .mlshop-songpick-card { margin-top: 8px; gap: 6px; padding: 8px; border: 1px solid var(--foreground); }
 .mlshop-songpick-card .mlshop-songpick-label { font-size: 10px; }
-.mlshop-songpick-card .genre-select { font-size: 11px; padding: 6px 8px; }
+.mlshop-songpick-card .genre-select { font-size: 11px; padding: 6px 8px; width: 100%; min-width: 0; } /* fills the card: the select's 176px minimum is wider than a phone's two-up product column and pushed the page sideways */
 .mlshop-songpick-card .mlshop-songpick-embed { border-radius: 8px; }
 .mlshop-songpick-thumb { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
 .mlshop-songpick-thumb img { width: 56px; height: 56px; object-fit: cover; display: block; }
@@ -1512,9 +1496,12 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .guided { --gs-reveal: .8s; --gs-ease: cubic-bezier(.16,1,.3,1); position: relative; }
 .how-it-works { scroll-margin-top: calc(var(--head-h) + 16px); }
 .how-it-works .gs-paper { background: var(--background); border-top: 0; } /* the record stack's rule above already divides the sections */
-/* Closing line after step 03: the "This is a mood" type, wrapping onto two lines because it is longer. */
-.gs-closing { background: var(--background); padding: clamp(40px,7vw,104px) max(36px, calc(50vw - 660px)) clamp(56px,9vw,140px); }
-.gs-closing .gs-closing-title { font-family: var(--font-editorial); font-weight: 400; letter-spacing: -.03em; line-height: .95; text-transform: none; flex-wrap: wrap; white-space: normal; row-gap: .05em; }
+/* Closing line after step 03, in "This is a mood"'s WTF Hammer XXX Compressed at its one real weight, on two lines:
+   BRING IT FROM / THE RUNWAY. The longer line runs 2.62em with its word gaps, so it is measured to the column (cqi) at 2.67em,
+   which lands close to "This is a mood" at every width and keeps the break after FROM. The side padding reads the frame (%),
+   not the window, so wide screens keep the full column. */
+.gs-closing { background: var(--background); padding: clamp(40px,7vw,104px) max(36px, calc(50% - 660px)) clamp(56px,9vw,140px); container-type: inline-size; }
+.gs-closing .gs-closing-title { font-family: var(--font-hammer-xxx); font-weight: 400; font-size: min(480px, 100cqi / 2.67); letter-spacing: 0; line-height: .9; text-transform: uppercase; gap: 0 .07em; flex-wrap: wrap; white-space: normal; }
 .gs-closing[data-inview="true"] .film-word > span { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .gs-closing .film-word > span { opacity: 1; transform: none; transition: none; } }
 .gs-card { position: relative; min-height: 100vh; padding: clamp(72px,12vw,160px) clamp(20px,6vw,96px); transform-origin: 50% 0; transform: scale(calc(1 - var(--gs-out,0) * .06)); filter: brightness(calc(1 - var(--gs-out,0) * .35)); }
@@ -1538,7 +1525,7 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .gs-shot { margin: 0; aspect-ratio: 9/19; overflow: hidden; border-radius: 18px; border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent); box-shadow: 0 18px 44px -18px color-mix(in srgb, var(--foreground) 35%, transparent); background: var(--background); }
 .gs-shot img { width: 100%; height: 100%; object-fit: cover; transform: translateY(4%); transition: transform .6s var(--gs-ease); }
 .gs-steps li[data-active="true"] .gs-shot img { transform: none; }
-.gs-steps h3 { font-size: clamp(32px,4vw,56px); margin: 0 0 8px; }
+.gs-steps h3 { font-size: clamp(48px,6vw,96px); font-weight: 400; margin: 0 0 10px; } /* WTF Hammer XXX Compressed is very narrow, so the step titles run large enough to lead the copy under them; it has one weight, and asking for 900 makes Safari smear a fake bold, as the cover and "This is a mood" avoid */
 .gs-steps p { max-width: 34ch; margin: 0; }
 .gs-visual, .gs-feature-visual { position: relative; aspect-ratio: 4/5; overflow: hidden; }
 .gs-visual img, .gs-feature-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: translateY(6%); transition: opacity .9s var(--gs-ease), transform .9s var(--gs-ease); }
@@ -1610,6 +1597,7 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
   .gs-steps ol { grid-template-columns: 1fr; gap: 18px; }
   .gs-steps li { flex-direction: row; align-items: center; gap: 16px; }
   .gs-steps li > span { font-size: 16px; }
+  .gs-steps h3 { font-size: clamp(42px, 13.5vw, 64px); text-wrap: balance; } /* fills the text column beside the screenshot; on the narrowest phones a long title breaks onto two lines */
   .gs-shot { width: 84px; flex: 0 0 84px; aspect-ratio: 9/16; border-radius: 12px; }
   .gs-shot img { transform: none; transition: none; }
   .gs-steps li:not([data-active="true"]) p { display: none; }
@@ -1652,10 +1640,13 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 @media (min-width: 600px) {
   .cover-content { padding-bottom: 40px; }
 }
+/* Phones: the cover sits about as tall as the Listening Room's hero, so the page below starts at the same place. */
 @media (max-width: 600px) {
   .cover { height: auto; max-height: none; }
-  .cover-content { padding-bottom: 28px; }
-  .cover-bottom { margin-top: calc(48px + var(--cover-lh) * (var(--cover-lock) / var(--tallest-em) - var(--cover-lock) / var(--slot-em))); }
+  .cover-content { padding-bottom: 18px; }
+  .cover-title { margin-top: 14px; }
+  .cover-subtitle { margin-top: 8px; }
+  .cover-bottom { margin-top: calc(24px + var(--cover-lh) * (var(--cover-lock) / var(--tallest-em) - var(--cover-lock) / var(--slot-em))); }
 }
 .cover .rise-line { letter-spacing: inherit; }
 @media (prefers-reduced-motion: reduce) { .cover-word { transition: opacity .42s ease; } }
@@ -2340,7 +2331,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-center { flex: 1 1 0; min-width: 0; min-height: 0; overflow-y: auto; container-type: inline-size; background: var(--ls-paper); color: var(--ls-ink); border-radius: 4px; }
 .ls-right { flex: 0 0 290px; min-width: 0; min-height: 0; overflow-y: auto; }
 /* Now wearing: three front-row calls to action. Headlines in WTF Hammer Compressed, white with the second beat in the
-   hero's orange; the numbered labels in the cover nav's Isidora; the copy in the page's Avenir. */
+   hero's orange; the numbered labels in the cover nav's Isidora; the copy in the page's DM Sans. */
 .ls-wear { display: flex; flex-direction: column; padding: 16px 20px 12px; container-type: inline-size; }
 .ls-wear-kicker { margin: 0 0 4px; font-family: var(--font-isidora); font-weight: 500; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ls-muted); }
 .ls-wear-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 8px 0 12px; }
@@ -2388,6 +2379,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding-left: 8px; }
 .ls-filters > button { min-width: 0; padding-inline: 4px; font-size: 12px; letter-spacing: 0; }
 .ls-rail-head { padding-top: 12px; }
+.ls-rail-label { display: none; } /* phones only: names the folded Issue bar */
 .ls-rail { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 8px; }
 .ls-thumb { width: 48px; height: 48px; flex: none; object-fit: cover; border-radius: 2px; display: block; }
 .ls-thumb[data-round="true"] { border-radius: 50%; }
@@ -2441,7 +2433,8 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-product-price { flex-shrink: 0; padding: 4px 10px; border: 1px solid color-mix(in oklab, var(--product-ink) 15%, transparent); border-radius: 999px; background: oklch(1 0 0); font-family: var(--font-isidora); font-weight: 500; font-size: 12px; }
 .ls-product-bag { position: absolute; z-index: 4; right: 48px; bottom: 12px; }
 @keyframes product-reveal { from { opacity: .72; transform: scale(1.045); } to { opacity: 1; transform: scale(1); } }
-.ls-hero { position: relative; margin: 24px 24px 0; background: var(--ls-ink); color: var(--ls-paper); border-radius: 2px; overflow: hidden; }
+/* clip, not hidden: hidden would make the hero a scroll container and pin the cover's parallax timeline to it. */
+.ls-hero { position: relative; margin: 24px 24px 0; background: var(--ls-ink); color: var(--ls-paper); border-radius: 2px; overflow: clip; }
 /* The hero's top is a small copy of the home cover: the street photo in the plum/orange duotone under a plum wash and inner
    shadow, the kicker in the cover nav's Isidora, and YOU KNOW (Hammer Compressed) over YOUR MUSIC (Hammer XXX Compressed) in
    dark plum, each line running the block's full width. 3.633 and 2.219 are the lines' measured widths in em, as on the cover;
@@ -2480,10 +2473,10 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-hero-cover:has(.ls-hero-show[data-on="true"])::after { opacity: 0; }
 .ls-hero-kicker, .ls-hero-title, .ls-hero-credit, .ls-hero-show-btn { transition-property: color, border-color, background-color, margin-bottom; transition-duration: .6s, .6s, .2s, .55s; }
 .ls-hero-show iframe { position: absolute; top: 50%; left: 50%; height: 100%; width: auto; min-width: 100%; aspect-ratio: 16 / 9; translate: -50% -50%; scale: 1.18; border: 0; }
-.ls-hero-credit { position: absolute; right: 14px; bottom: 19px; font-family: var(--font-couturier); font-weight: 900; font-style: italic; font-size: 10px; letter-spacing: 0; text-transform: uppercase; color: var(--hero-type); text-decoration: none; opacity: .9; }
+.ls-hero-credit { position: absolute; right: 14px; bottom: 18px; font-family: var(--font-couturier); font-style: italic; font-weight: 900; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--hero-type); text-decoration: none; opacity: .9; }
 .ls-hero-credit:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
 .ls-hero-show-btn { position: absolute; left: 14px; bottom: 12px; z-index: 1; } /* Stop / Watch the show, in the cover's corner opposite the credit */
-.ls-hero-show-label { font-family: var(--font-couturier); font-weight: 900; font-style: italic; letter-spacing: 0; }
+.ls-hero-show-label { font-family: var(--font-couturier); font-style: italic; font-weight: 900; font-size: 12px; letter-spacing: .06em; } /* Couturier Poster Black Italic, like the film credit opposite */
 @media (max-width: 600px) { .ls-hero-show-btn { width: 28px; padding: 0; } .ls-hero-show-label { display: none; } } /* phones: a round stop / play icon, so the credit keeps the row */
 /* "This is a mood" below the hero: the home page's music-video chapter re-measured for the feed column. Every size that
    reads the window (100vw) on the home page reads the column (100cqi, from .ls-center) here, so it runs edge to edge. */
@@ -2541,8 +2534,8 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-notes { list-style: none; margin: 0 -8px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px 4px; }
 .ls-note img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; display: block; border-radius: 2px; }
 .ls-note-kicker { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink-muted); }
-.ls-note-title { font-family: var(--font-didot); font-size: 23px; line-height: 1.15; }
-.ls-note-intro { font-size: 13px; line-height: 1.55; color: var(--ls-ink-muted); }
+.ls-note-title { font-family: var(--font-couturier); font-weight: 100; font-size: 23px; line-height: 1.15; } /* the story titles in Couturier Poster Thin, the cover's serif */
+.ls-note-intro { font-family: var(--font-isidora); font-weight: 500; font-size: 13px; line-height: 1.55; color: var(--ls-ink-muted); } /* the standfirst in Isidora Medium, its only loaded cut */
 .ls-empty { margin: 0; font-family: var(--font-didot); font-size: 22px; color: var(--ls-ink-muted); }
 .ls-section-link { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink); text-decoration: underline; text-underline-offset: .4em; }
 .ls-section-link svg { width: 14px; height: 14px; }
@@ -2596,6 +2589,10 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-video-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: oklch(0.08 0.01 320); }
 .ls-video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .ls-video .film-play { opacity: 1; transform: none; }
+/* PLAY THE FILM on the room's music videos in Couturier Poster Black Italic, the cover's EXPERIENCE / GET READY cut. */
+.ls-film .film-play, .ls-video .film-play { font-family: var(--font-couturier); font-style: italic; font-weight: 900; letter-spacing: .04em; }
+/* The record stack's "Drag a record…" line in Couturier Poster Thin; a size up and a little darker, since the thin cut is lighter than the serif it replaces. */
+.ls-film .records-stack::after { font-family: var(--font-couturier); font-style: normal; font-weight: 100; font-size: 14px; letter-spacing: .04em; opacity: .8; }
 .ls-video-credit { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin: 12px 0 0; font-family: var(--font-isidora); font-weight: 500; font-size: 13px; }
 .ls-pieces { list-style: none; margin: 0; padding: 0; }
 .ls-pieces li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--ls-ink-line); }
@@ -2611,18 +2608,18 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-want, .ls-profile { padding: 20px 24px 40px; display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
 /* Focus rings on their black blocks. */
 .ls-center :is(.wishlist, .dossier-head) :focus-visible { outline-color: var(--ls-paper); }
-/* The Want List: the same section re-inked black and white. */
+/* The Want List in the room, on the fig identity. It is coloured only by setting the section's own tokens from the palette.
+   It used to borrow the room's ink and paper, and the dark feed turns ink chalk white, which left a white panel under
+   white type. Pairs are chosen for contrast: chalk on fig 900 for type, lilac fog for muted type and for rules (they are
+   also the fields' edges, so they clear 3:1), dark type on a chalk field, and a placeholder mixed to clear 4.5:1 on it. */
 .ls-want .wishlist { width: 100%; box-sizing: border-box; border-radius: 2px; padding: 40px 24px 48px;
-  --want-paper: var(--ls-ink); --want-ink: var(--ls-paper); --want-green: var(--ls-paper); --want-rule: var(--ls-line); --want-muted: var(--ls-muted);
-  --foreground: var(--ls-paper); --muted-foreground: var(--ls-muted); --border: var(--ls-line); }
+  --want-paper: var(--color-fig-900); --want-ink: var(--color-chalk-white); --want-muted: var(--color-lilac-fog); --want-rule: var(--color-lilac-fog);
+  --want-green: var(--color-acid-lime); --want-green-hover: var(--color-acid-muted);
+  --want-field: var(--color-chalk-white); --want-field-ink: var(--color-fig-black); --want-field-muted: color-mix(in oklab, var(--color-fig-800) 70%, var(--color-chalk-white));
+  --want-panel: var(--color-fig-950); --want-well: var(--color-chalk-white);
+  --foreground: var(--want-ink); --muted-foreground: var(--want-muted); --border: var(--want-rule); }
 .ls-want .want-heading { font-size: clamp(48px, 12cqi, 132px); }
-.ls-want :is(.want-artist input, .want-email input) { background: var(--ls-paper); color: var(--ls-ink); }
-.ls-want .want-artist input::placeholder { color: var(--ls-ink-muted); }
-.ls-want :is(.want-song-panel, .want-playlist) { background: color-mix(in oklab, var(--ls-paper) 8%, var(--ls-ink)); }
-.ls-want :is(.want-look-image, .want-look-products button) { background: color-mix(in oklab, var(--ls-paper) 88%, var(--ls-ink)); }
-.ls-want .want-primary:hover { background: color-mix(in oklab, var(--ls-paper) 85%, var(--ls-ink)); }
-.ls-want :is(.wish-export button, .want-email button):hover { background: color-mix(in oklab, var(--ls-paper) 10%, var(--ls-ink)); }
-.ls-want .want-playlist li { border-bottom-color: var(--ls-line); }
+.ls-want .want-playlist li { border-bottom-color: var(--want-rule); }
 @container (max-width: 900px) { .ls-want .want-output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ls-want .want-playlist { grid-column: 1 / -1; } }
 @container (max-width: 560px) { .ls-want .want-output-grid { grid-template-columns: minmax(0, 1fr); } .ls-want .wishlist { padding: 32px 16px 40px; } }
 /* The profile: /profile's Curator Dossier without its masthead, inked pure black and sized to the feed. */
@@ -2671,12 +2668,18 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
   .ls-left, .ls-left[data-open="false"], .ls-right { flex-basis: auto; }
   .ls-left { max-height: 420px; }
   .ls-left[data-open="false"] { align-items: stretch; }
+  /* Folded on phones, The Issue is one slim row: the open button and its name, then the favourites (or the heart hint). */
+  .ls-left[data-open="false"] { flex-direction: row; align-items: center; }
+  .ls-left[data-open="false"] .ls-rail-head { display: flex; align-items: center; gap: 4px; padding: 4px 8px; flex: none; }
+  .ls-rail-label { display: block; padding: 0; border: 0; background: none; cursor: pointer; font-family: var(--font-hammer); font-size: 28px; line-height: 1; text-transform: uppercase; color: var(--ls-paper); }
+  .ls-left[data-open="false"] .ls-rail { flex: 1; min-width: 0; padding-block: 4px; }
+  .ls-left[data-open="false"] .ls-rail-empty { margin-left: auto; padding: 14px 16px; }
   .ls-left[data-open="false"] .ls-rail { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 4px 8px 8px; }
   .ls-center { order: -1; flex: none; overflow: visible; }
   .ls-lead { padding-bottom: 24px; } /* the feed's hero on its own card, ahead of Your Library */
-  .ls-lead ~ .ls-center { order: 0; } /* and the rest of the feed under the library */
+  .ls-lead ~ .ls-center { order: 1; } /* and the rest of the feed under the library and the front-row pass */
   .ls-chips { position: static; }
-  .ls-right { overflow: visible; }
+  .ls-right { overflow: visible; } /* Now wearing, the front-row pass, follows The Issue straight away (order 0, after the library in the source) */
   .ls-player { position: sticky; bottom: 0; z-index: 5; grid-template-columns: minmax(0, 1fr) auto; border-top: 1px solid var(--ls-line); padding-bottom: max(4px, env(safe-area-inset-bottom)); }
   .ls-player-tools, .ls-hide-sm { display: none !important; }
   .ls-hero-foot { grid-template-columns: auto minmax(0, 1fr); }
@@ -2841,6 +2844,15 @@ h3.ls-toc-name { cursor: default; }
 
 /* ===== Feed as a flowing magazine, Spotify-style shelves (Listening Room) ===== */
 .ls main.ls-center { background: linear-gradient(180deg, var(--color-fig-900) 0, var(--color-fig-black) 520px); color: var(--color-chalk-white); --ls-ink: var(--color-chalk-white); --ls-ink-muted: var(--color-lilac-fog); --ls-ink-line: var(--color-fig-800); }
+/* The hero is an ink panel with paper type. The column above turns ink chalk white for the dark feed, which left the
+   panel white under its white Autumn Mix title on desktop; it keeps the fig black it has on phones. */
+.ls main.ls-center .ls-hero { background: var(--color-fig-black); }
+/* Buttons take their type from --cover-type, which is still black in the room. On the dark feed that hid the Runway Songs
+   rows' house and song names; the row's play mark, a chalk disc when hovered or playing, needs a dark arrow for the same reason. */
+.ls main .ls-runway-row { color: var(--color-chalk-white); }
+.ls main .ls-runway-row:hover .ls-runway-play, .ls main .ls-runway-row[data-active="true"] .ls-runway-play { color: var(--color-fig-black); }
+/* The Fit Compass card is dark wherever it stands, so in the room it gets the cover tokens /home already gives it (its Like button was black on fig). */
+.ls .fc { --cover-type: var(--color-chalk-white); --cover-paper: var(--color-fig-black); }
 .ls .ls-shelf-pills { position: sticky; top: 0; z-index: 3; padding: 14px 20px; background: color-mix(in oklab, var(--color-fig-900) 92%, transparent); backdrop-filter: blur(10px); flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 .ls .ls-shelf-pills > button { flex: none; border-radius: 999px; border: 0; background: var(--color-fig-800); color: var(--color-chalk-white); font-family: var(--font-body); }
 .ls .ls-shelf-pills > button[aria-pressed="true"] { background: var(--color-acid-lime); color: var(--color-fig-black); }
@@ -2905,12 +2917,23 @@ body { background: var(--background); color: var(--foreground); font-family: var
   --cover-ink: var(--color-chalk-white);
   --cover-plum-ink: var(--color-acid-lime);
   --cover-accent: var(--color-acid-lime);
+  /* The cover's wash in Tailwind's purple, the violet the fig UI leans to: purple-700 over the runway, the photo toned
+     from purple-950 shadows to purple-300 highlights, so the lime headline sits on one purple instead of plum and orange. */
+  --cover-plum: oklch(0.496 0.265 301.924); /* purple-700 #7e22ce */
+  --cover-duo-shadow: oklch(0.291 0.149 302.717); /* purple-950 #3b0764 */
+  --cover-duo-light: oklch(0.827 0.119 306.383); /* purple-300 #d8b4fe */
   background: var(--color-fig-black);
   color: var(--color-chalk-white);
   font-family: var(--font-body);
 }
 .site-frame h1, .site-frame h2, .site-frame h3 { font-family: var(--font-heading); letter-spacing: .01em; }
 .site-frame em, .site-frame .iconic-title span { font-family: var(--font-accent); font-style: italic; font-weight: 900; }
+/* The cover headline is measured to the column in WTF Hammer with no tracking, so it keeps out of the two rules above:
+   with the headings' .01em YOU KNOW wraps onto two lines, and in Couturier the YOUR word runs off the cover. */
+.site-frame .cover-title { letter-spacing: 0; }
+.site-frame .cover-em { font-family: inherit; font-style: normal; font-weight: inherit; }
+/* How it works and the quote stand on the fig ground now, so their type turns chalk white instead of the paper's ink. */
+.site-frame :is(.gs-pin, .gs-quote).gs-paper { color: var(--color-chalk-white); }
 .site-frame .iconic-title span { color: var(--color-acid-lime); }
 .site-frame p, .site-frame small, .site-frame time { color: var(--color-lilac-fog); }
 .site-frame hr, .site-frame section { border-color: var(--color-fig-800); }
@@ -2986,7 +3009,7 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .site-frame .stylus :has(> input) svg, .site-frame .stylus :has(> input) button { color: var(--color-acid-lime) !important; border-color: var(--color-fig-800) !important; }
 
 /* The Studio (Listening Room playlists, import, share) */
-.ls-studio-title { font-family: var(--font-heading); font-size: clamp(2.4rem, 7vw, 4rem); line-height: .9; text-transform: uppercase; color: var(--color-acid-lime); }
+.ls-studio-title { font-family: var(--font-hammer); font-weight: 400; font-size: clamp(2.4rem, 7vw, 4rem); line-height: .9; text-transform: uppercase; color: var(--color-acid-lime); }
 .ls-studio-sub { font-family: var(--font-accent); font-style: italic; font-weight: 900; color: var(--color-acid-muted); }
 .ls-studio, .ls-studio-dialog { font-family: var(--font-body); }
 .ls-studio-list-title { font-family: var(--font-heading); font-size: 1.6rem; text-transform: uppercase; color: var(--color-chalk-white); }
@@ -3094,7 +3117,7 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-share-extra-title { font-family: var(--font-heading); font-size: 20px; line-height: 1; text-transform: uppercase; color: var(--color-chalk-white); }
 
 /* Issue buttons as one cohesive segmented pill (not sticky). */
-.ls-issue-tabs.ls-issue-hero { display: flex; flex-wrap: nowrap; gap: 2px; padding: 4px; width: max-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; border-radius: 999px; background: color-mix(in oklab, var(--color-fig-900) 85%, transparent); border: 1px solid color-mix(in oklab, var(--color-lilac-fog) 30%, transparent); }
+.ls-issue-tabs.ls-issue-hero { display: flex; flex-wrap: nowrap; gap: 2px; padding: 4px; width: max-content; max-width: 100%; margin-inline: auto; /* centred under the hero when its pills are narrower than the card */ overflow-x: auto; scrollbar-width: none; border-radius: 999px; background: color-mix(in oklab, var(--color-fig-900) 85%, transparent); border: 1px solid color-mix(in oklab, var(--color-lilac-fog) 30%, transparent); }
 .ls-issue-hero .ls-issue-tab { flex: none; height: 32px; padding: 0 14px; border-radius: 999px; font-family: var(--font-body); font-size: 13px; color: var(--color-chalk-white); background: transparent; border: 0; }
 .ls-issue-hero .ls-issue-tab[aria-pressed="true"] { background: var(--color-acid-lime); color: var(--color-fig-black); }
 
@@ -3107,10 +3130,17 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-toc-head { position: relative; }
 .ls-toc-like { margin-left: auto; flex: none; }
 
-/* Under the hero film: "Autumn Mix · This is a mood" in WTF Hammer XXX. */
-.ls-hero-tagline { margin: 14px 0 4px; font-family: var(--font-hammer-xxx); font-weight: 900; text-transform: uppercase; font-size: clamp(40px, 9vw, 96px); line-height: .9; letter-spacing: .01em; color: var(--color-chalk-white); }
-.ls-hero-tagline span { color: var(--color-acid-lime); }
-@media (max-width: 900px) { .ls-hero-tagline { color: var(--color-fig-black); padding: 0 16px; } .ls-hero-tagline span { color: var(--color-acid-muted); } }
+/* Under the hero film: THIS IS A MOOD in WTF Hammer XXX, as large as the hero is wide. The line runs 2.84em, so it is sized
+   from the column (cqi) less the hero's own side margins, with 2.86 leaving a hair of slack. The rem floor and ceiling
+   (ceiling = 2.5 x floor) keep it growing under browser zoom: the floor is the size that still fits a 320px phone, under
+   it the line wraps to two rather than overflow, and past the ceiling (a 1440px window is 96% full) it stops growing. */
+.ls-hero-tagline { --hero-inset: 24px; margin: 14px var(--hero-inset) 4px; font-family: var(--font-hammer-xxx); font-weight: 400; /* its one real weight: 900 makes Safari smear a fake bold */ text-transform: uppercase; font-size: clamp(5.9rem, (100cqi - 2 * var(--hero-inset)) / 2.86, 14.75rem); line-height: .9; letter-spacing: .01em; color: var(--color-chalk-white); }
+/* Above it, the issue's line in the home page's eyebrow style (.gs-eyebrow: 12px, tracked, uppercase, as "How it works" is
+   set), centred like that one and kept to the hero's width. It runs two lines on phones, so its breaks are balanced. */
+.ls-hero-eyebrow { --hero-inset: 24px; margin: 16px var(--hero-inset) 0; text-align: center; text-wrap: balance; color: var(--color-chalk-white); }
+.ls-hero-eyebrow + .ls-hero-tagline { margin-top: 8px; }
+@media (max-width: 900px) { .ls-hero-tagline, .ls-hero-eyebrow { color: var(--color-fig-black); } }
+@media (max-width: 600px) { .ls-hero-tagline, .ls-hero-eyebrow { --hero-inset: 16px; } } /* the hero's margins narrow here too */
 
 /* Listening Room Fashion tab */
 .ls-fashion { display: grid; gap: 20px; }
@@ -3129,3 +3159,307 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-fashion-grid { grid-template-columns: repeat(auto-fill, minmax(min(46%, 200px), 1fr)); }
 .ls-fashion-actions > button:first-child { background: var(--primary); color: var(--primary-foreground); border-radius: 999px; }
 .ls-fashion-actions > button:first-child:disabled { opacity: .7; }
+
+/* ===== Runway Notes (Listening Room): a card per show under + Runway Notes, and the note it opens in the feed ===== */
+/* Both sit on the dark feed, so the shared Button variants take chalk type and fig paper here, as the Fit Compass card does. */
+.ls-rn-card, .ls-rn { --cover-type: var(--color-chalk-white); --cover-paper: var(--color-fig-black); }
+.ls-rn-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.ls-rn-cards > li { display: flex; }
+.ls-rn-card { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 18px; border: 1px solid var(--color-fig-800); border-radius: 2px; background: var(--color-fig-950); color: var(--color-chalk-white); }
+.ls-rn-card[data-active="true"] { border-color: var(--color-acid-lime); }
+.ls-rn-card-head { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.ls-rn-avatar { flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--color-fig-800); color: var(--color-chalk-white); font-family: var(--font-didot); line-height: 1; object-fit: cover; }
+.ls-rn-card-house { margin: 0; font-family: var(--font-didot); font-weight: 400; font-size: 24px; line-height: 1.05; text-transform: uppercase; overflow-wrap: anywhere; }
+.ls-rn-card-by { margin: 4px 0 0; font-size: 13px; color: var(--color-lilac-fog); }
+.ls-rn-season { margin: 4px 0 0; font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--color-lilac-fog); }
+.ls-rn-card-song { margin: 0; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-block: 1px solid var(--color-fig-800); color: var(--color-chalk-white); }
+.ls-rn-card-track { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ls-rn-card-song:hover .ls-runway-play, .ls-rn-card-song[data-active="true"] .ls-runway-play { background: var(--color-chalk-white); color: var(--color-fig-black); border-color: var(--color-chalk-white); }
+.ls-rn-card-why { margin: 0; font-family: var(--font-isidora); font-weight: 500; font-size: 15px; line-height: 1.4; color: var(--product-gold); }
+.ls-rn-card-foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.ls-rn-card-actions { display: flex; align-items: center; gap: 10px; }
+.ls-rn-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--color-acid-lime); }
+.ls-rn-tags li + li::before { content: "·"; margin: 0 8px; color: var(--color-lilac-fog); }
+
+.ls-rn { container-type: inline-size; gap: 36px; }
+.ls-rn .ls-board-head { align-items: center; }
+.ls-rn-section { width: 100%; max-width: 65ch; display: flex; flex-direction: column; gap: 14px; }
+.ls-rn-section > h2 { margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--ls-ink-line); font-size: 13px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; }
+.ls-rn-section p { margin: 0; font-size: 16px; line-height: 1.6; text-wrap: pretty; }
+.ls-rn-facts { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 20px; }
+.ls-rn-facts dt { padding-top: 4px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink-muted); }
+.ls-rn-facts dd { margin: 0; font-size: 16px; line-height: 1.5; }
+.ls-rn-quote { margin: 0; padding-left: 18px; border-left: 2px solid var(--color-acid-lime); }
+.ls-rn-quote blockquote { margin: 0; }
+.ls-rn-section .ls-rn-quote blockquote p { font-family: var(--font-didot); font-size: clamp(22px, 5cqi, 30px); line-height: 1.2; }
+.ls-rn-quote figcaption { margin-top: 8px; font-size: 13px; color: var(--ls-ink-muted); }
+.ls-rn-section .ls-rn-aside, .ls-rn-aside { font-size: 13px; color: var(--ls-ink-muted); }
+.ls-rn-section .ls-rn-credit { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ls-ink-muted); }
+.ls-rn-tracks { list-style: none; margin: 0; padding: 0; }
+.ls-rn-tracks > li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: start; gap: 4px 14px; padding: 14px 0; border-bottom: 1px solid var(--ls-ink-line); }
+.ls-rn-track-num { padding-top: 5px; font-size: 12px; font-weight: 600; letter-spacing: .1em; color: var(--ls-ink-muted); font-variant-numeric: tabular-nums; }
+.ls-rn-track { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ls-rn-track h3 { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.ls-rn-section .ls-rn-track-by { font-size: 13px; color: var(--ls-ink-muted); }
+.ls-rn-tracks > li[data-active="true"] h3 { text-decoration: underline; text-underline-offset: 4px; } /* the track the player bar is on */
+.ls-rn-track-play { border: 1px solid var(--ls-ink-line); color: var(--color-chalk-white); }
+.ls-rn-track-play[data-active="true"], .ls-rn-track-play:hover { background: var(--color-acid-lime); border-color: var(--color-acid-lime); color: var(--color-fig-black); }
+.ls-rn-embed { width: 100%; height: 152px; border: 0; border-radius: 12px; }
+.ls-rn-style { margin: 0; padding-left: 1.2em; list-style: disc; display: flex; flex-direction: column; gap: 10px; }
+.ls-rn-style li { font-size: 16px; line-height: 1.55; }
+.ls-rn-style li::marker { color: var(--color-acid-lime); }
+.ls-rn-sources ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+@container (max-width: 460px) {
+  .ls-rn-facts { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .ls-rn-facts dd + dt { margin-top: 10px; }
+}
+
+/* The header's Want List button, set in WTF Hammer Compressed (400 is its only weight; asking for more makes Safari fake a bold). */
+.ls-want-btn > span { display: inline-block; white-space: nowrap; font-family: var(--font-hammer); font-size: 24px; font-weight: 400; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
+
+/* The library's title in WTF Hammer Compressed (400 only), and the folded rail's line for a reader with no favourites yet. */
+.ls-lib-title h2 { font-family: var(--font-hammer); font-size: 30px; font-weight: 400; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
+.ls-rail-empty { margin: 0; padding: 14px; display: grid; place-items: center; color: var(--color-lilac-fog); }
+.ls-rail-empty svg { width: 20px; height: 20px; }
+
+/* The Studio's title: "The" in WTF Hammer XXX Compressed, "Studio" in WTF Hammer Compressed. Both cuts are 400 only. */
+.ls-studio-the { font-family: var(--font-hammer-xxx); }
+
+/* The way back at the top of every opened view in the room's feed, pinned as the view scrolls. Chalk type on the dark feed. */
+.ls-back-top { --cover-type: var(--color-chalk-white); --cover-paper: var(--color-fig-black); position: sticky; top: 0; z-index: 4; padding: 12px 24px; background: var(--color-fig-900); border-bottom: 1px solid var(--color-fig-800); }
+.ls-back-top svg { width: 16px; height: 16px; }
+@media (max-width: 600px) { .ls-back-top { padding: 10px 16px; } }
+
+/* ===== Motion (Listening Room) =====
+   After umanodesign.studio: blocks rise into place with a slight skew as they scroll in, on a long ease-out, cards one
+   after another; opening a view lifts the old one away and raises the new one; buttons give under a press. Everything
+   moves on opacity and transform only, and none of it runs when the reader asks for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Hidden only once useRoomMotion has marked <html>, so the page reads in full without JavaScript. */
+  .ml-motion .ls [data-reveal] {
+    transition: opacity .9s cubic-bezier(.165, .84, .44, 1), translate 1.2s cubic-bezier(.165, .84, .44, 1), transform 1.2s cubic-bezier(.165, .84, .44, 1);
+    transition-delay: calc(var(--reveal-i, 0) * 70ms);
+  }
+  .ml-motion .ls [data-reveal="out"] { opacity: 0; translate: 0 56px; transform: skewY(2deg); transform-origin: left top; }
+
+  .ls main.ls-center.ls-view-moving { view-transition-name: ls-view; }
+  ::view-transition-old(ls-view) { animation: ls-view-out .3s cubic-bezier(.4, 0, 1, 1) both; }
+  ::view-transition-new(ls-view) { animation: ls-view-in .9s cubic-bezier(.165, .84, .44, 1) both; }
+  ::view-transition-group(ls-view) { animation-duration: .9s; animation-timing-function: cubic-bezier(.165, .84, .44, 1); }
+
+  /* The hero's film button and the contents thumbnails animate other things of their own, so they keep their transitions. */
+  .ls button:not(.ls-hero-show-btn, .ls-toc-frame) { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, scale; }
+  .ls button:not(.ls-hero-show-btn, .ls-toc-frame, :disabled):active { scale: .96; transition-duration: .12s; }
+}
+@keyframes ls-view-out { to { opacity: 0; translate: 0 -28px; } }
+@keyframes ls-view-in { from { opacity: 0; translate: 0 64px; transform: skewY(2deg); } }
+
+/* Contents: the chapter numbers and "The Autumn Mix" in the Hammer cuts (each is 400 only). These outrank the Isidora rule
+   above, which sets everything in the list. */
+.ls .ls-toc-list .ls-toc-num { font-family: var(--font-hammer); font-weight: 400; font-size: 64px; line-height: .8; letter-spacing: .01em; opacity: 1; }
+.ls .ls-toc-list .ls-toc-name .ls-toc-mix { white-space: nowrap; font-size: 34px; line-height: .95; text-transform: uppercase; letter-spacing: .01em; }
+.ls .ls-toc-list .ls-toc-name .ls-toc-mix-autumn { font-family: var(--font-hammer); font-weight: 400; }
+.ls .ls-toc-list .ls-toc-name .ls-toc-mix-mix { font-family: var(--font-hammer-xxx); font-weight: 400; }
+
+/* The Capsule tree: each sound, a spine to the pieces it dressed, and on to songs to play next. One column with a left
+   spine on a phone; once the feed is wide enough the sound sits left and its two limbs run beside it. */
+.ls-cap { container-type: inline-size; align-items: stretch; --cap-line: color-mix(in oklab, var(--color-lilac-fog) 45%, transparent); --cover-type: var(--color-chalk-white); --cover-paper: var(--color-fig-black); }
+.ls-cap-mark { width: 96px; height: 96px; flex: none; }
+.ls-cap-title { margin: 0; font-family: var(--font-hammer); font-weight: 400; font-size: clamp(2.6rem, 8vw, 4.4rem); line-height: .9; text-transform: uppercase; color: var(--color-acid-lime); }
+.ls-cap-the { font-family: var(--font-hammer-xxx); }
+.ls-cap-blend { margin: 6px 0 0; font-family: var(--font-isidora); font-weight: 500; font-size: 15px; color: var(--product-gold); }
+.ls-cap-intro { margin: 0; max-width: 60ch; font-size: 15px; line-height: 1.5; color: var(--color-lilac-fog); }
+.ls-cap-tree { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; }
+.ls-cap-branch { display: grid; gap: 22px; padding: 30px 0; border-top: 1px solid var(--color-fig-800); }
+.ls-cap-label { margin: 0 0 12px; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--color-lilac-fog); }
+.ls-cap-sound { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.ls-cap-num { font-family: var(--font-hammer); font-size: 64px; line-height: .8; color: var(--product-gold); }
+.ls-cap-art { width: 120px; height: 120px; object-fit: cover; border-radius: 2px; margin: 4px 0 8px; outline: 1px solid var(--color-fig-800); }
+.ls-cap-sound[data-active="true"] .ls-cap-art { outline: 2px solid var(--color-acid-lime); }
+.ls-cap-sound-title { margin: 0; font-family: var(--font-didot); font-weight: 400; font-size: 32px; line-height: 1; text-transform: uppercase; overflow-wrap: anywhere; color: var(--color-chalk-white); }
+.ls-cap-by { margin: 0; max-width: 32ch; font-size: 14px; line-height: 1.4; color: var(--color-lilac-fog); }
+.ls-cap-genres { list-style: none; margin: 8px 0 4px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ls-cap-genres li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border: 1px solid var(--color-fig-800); border-radius: 999px; font-size: 12px; color: var(--color-chalk-white); }
+.ls-cap-genres li span { color: var(--color-lilac-fog); }
+.ls-cap-genre-mark { width: 22px; height: 22px; border-radius: 50%; }
+.ls-cap-play { margin-top: 6px; }
+/* The limbs hang off one spine; each node meets it on a short tick ending in a lime dot. */
+.ls-cap-limbs { position: relative; margin-left: 14px; padding-left: 24px; border-left: 1px solid var(--cap-line); display: grid; gap: 24px; min-width: 0; }
+.ls-cap-limb { min-width: 0; }
+.ls-cap-limb > .ls-cap-label { position: relative; }
+.ls-cap-limb > .ls-cap-label::before { content: ""; position: absolute; left: -29px; top: 50%; width: 9px; height: 9px; margin-top: -5px; border-radius: 50%; background: var(--color-fig-black); border: 1px solid var(--color-lilac-fog); }
+.ls-cap-nodes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ls-cap-node { position: relative; display: flex; align-items: center; gap: 12px; min-width: 0; padding: 10px 12px; border: 1px solid var(--color-fig-800); border-radius: 2px; background: var(--color-fig-950); color: var(--color-chalk-white); }
+.ls-cap-node::before { content: ""; position: absolute; left: -25px; top: 50%; width: 24px; height: 1px; background: var(--cap-line); }
+.ls-cap-node::after { content: ""; position: absolute; left: -4px; top: 50%; width: 7px; height: 7px; margin-top: -3px; border-radius: 50%; background: var(--color-acid-lime); }
+.ls-cap-thumb { flex: none; width: 48px; height: 48px; display: grid; place-items: center; overflow: hidden; border-radius: 2px; background: var(--color-fig-800); color: var(--color-lilac-fog); }
+.ls-cap-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ls-cap-thumb svg { width: 20px; height: 20px; }
+.ls-cap-node-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ls-cap-node-title { font-size: 15px; font-weight: 500; line-height: 1.25; overflow-wrap: anywhere; }
+.ls-cap-node-sub { font-size: 13px; color: var(--color-lilac-fog); }
+.ls-cap-why { margin-top: 2px; font-family: var(--font-isidora); font-weight: 500; font-size: 13px; color: var(--product-gold); }
+.ls-cap-pick { padding: 0; }
+.ls-cap .ls-cap-pick-btn { flex-direction: row; align-items: center; gap: 12px; padding: 10px 12px; }
+.ls-cap-pick:has([data-active="true"]) { border-color: var(--color-acid-lime); }
+.ls-cap-pick-btn:hover .ls-runway-play, .ls-cap-pick-btn[data-active="true"] .ls-runway-play { background: var(--color-chalk-white); color: var(--color-fig-black); border-color: var(--color-chalk-white); }
+.ls-cap .ls-runway-play { flex: none; border-color: var(--color-fig-800); }
+@container (min-width: 760px) {
+  .ls-cap-branch { grid-template-columns: minmax(200px, 250px) 1fr; gap: 0; }
+  /* The sound's branch line runs out to the spine. */
+  .ls-cap-sound { padding-right: 32px; }
+  .ls-cap-sound::after { content: ""; position: absolute; right: 0; top: 168px; width: 32px; height: 1px; background: var(--cap-line); }
+  .ls-cap-limbs { margin-left: 0; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  .ls-cap-limb + .ls-cap-limb { position: relative; padding-left: 24px; border-left: 1px solid var(--cap-line); }
+  .ls-cap-limb + .ls-cap-limb > .ls-cap-label::before { left: -29px; }
+  .ls-cap-limb + .ls-cap-limb .ls-cap-node::before { left: -25px; }
+}
+
+/* The Capsule keyword map. On a phone it keeps a readable size and scrolls sideways inside its frame. */
+.ls-cap-section { margin: 0; font-family: var(--font-hammer); font-weight: 400; font-size: 30px; line-height: 1; text-transform: uppercase; letter-spacing: .01em; color: var(--color-chalk-white); }
+.ls-cap-map { margin: 0; width: 100%; display: flex; flex-direction: column; gap: 14px; }
+.ls-cap-map-scroll { overflow-x: auto; border: 1px solid var(--color-fig-800); border-radius: 2px; background: radial-gradient(circle at 50% 50%, var(--color-fig-900), var(--color-fig-black) 70%); }
+.ls-cap-map-stage { position: relative; min-width: 760px; }
+.ls-cap-map svg { display: block; width: 100%; height: auto; }
+.ls-cap-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--color-lilac-fog); }
+.ls-cap-legend li { display: inline-flex; align-items: center; gap: 8px; }
+.ls-cap-legend span { width: 8px; height: 8px; border-radius: 50%; }
+
+/* The map's words: buttons pinned on their dots, floating gently on their own clocks. A tapped word opens its card. */
+.ls-cap-map-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ls-cap-map-hint { margin: 6px 0 0; font-size: 13px; color: var(--color-lilac-fog); }
+.ls-cap-map-stage svg { pointer-events: none; }
+.ls-cap-map-stage svg path { fill: none; stroke: color-mix(in oklab, var(--color-lilac-fog) 40%, transparent); stroke-width: 1.2; transition: stroke .3s ease; }
+.ls-cap-map-stage svg path[data-kind="pick"] { stroke-dasharray: 4 5; }
+.ls-cap-map-stage svg path[data-lit="true"] { stroke: var(--color-acid-lime); stroke-width: 2; }
+.ls-cap-word { --dot: 9px; position: absolute; z-index: 1; padding: 6px; margin: 0; border: 0; background: none; cursor: pointer; font-family: var(--font-body); font-size: 14px; line-height: 1.1; white-space: nowrap; color: var(--color-lilac-fog); translate: calc(-1 * (6px + var(--dot) / 2)) -50%; }
+.ls-cap-float { display: inline-flex; align-items: center; gap: 8px; padding: 3px 8px 3px 0; border-radius: 999px; text-shadow: 0 0 6px var(--color-fig-black), 0 0 2px var(--color-fig-black); transition: color .2s ease, background-color .2s ease; }
+.ls-cap-float i { flex: none; width: var(--dot); height: var(--dot); border-radius: 50%; background: var(--color-lilac-fog); box-shadow: 0 0 0 2px var(--color-fig-black); }
+.ls-cap-word[data-side="left"] { translate: calc(-100% + 6px + var(--dot) / 2) -50%; }
+.ls-cap-word[data-side="left"] .ls-cap-float { flex-direction: row-reverse; padding: 3px 0 3px 8px; }
+.ls-cap-word[data-side="below"] { translate: -50% calc(-1 * (6px + var(--dot) / 2)); }
+.ls-cap-word[data-side="above"] { translate: -50% calc(-100% + 6px + var(--dot) / 2); }
+.ls-cap-word[data-side="below"] .ls-cap-float { flex-direction: column; gap: 4px; padding: 0; }
+.ls-cap-word[data-side="above"] .ls-cap-float { flex-direction: column-reverse; gap: 4px; padding: 0; }
+.ls-cap-word[data-side="root"] { translate: -50% -50%; font-family: var(--font-hammer); font-size: 40px; text-transform: uppercase; color: var(--color-acid-lime); }
+.ls-cap-word[data-side="root"] i { display: none; }
+.ls-cap-word[data-kind="genre"] { --dot: 11px; font-family: var(--font-isidora); font-weight: 500; font-size: 15px; color: var(--product-gold); }
+.ls-cap-word[data-kind="genre"] i { background: var(--product-gold); }
+.ls-cap-word[data-kind="sound"] { --dot: 13px; font-family: var(--font-didot); font-size: 19px; text-transform: uppercase; color: var(--color-chalk-white); }
+.ls-cap-word[data-kind="sound"] i { background: var(--color-chalk-white); }
+.ls-cap-word[data-kind="pick"] { color: var(--color-acid-lime); }
+.ls-cap-word[data-kind="pick"] i { background: var(--color-acid-lime); }
+.ls-cap-word:hover .ls-cap-float, .ls-cap-word:focus-visible .ls-cap-float { color: var(--color-chalk-white); }
+.ls-cap-word:focus-visible { outline: none; }
+.ls-cap-word:focus-visible .ls-cap-float { outline: 2px solid var(--color-acid-lime); outline-offset: 4px; }
+.ls-cap-word[aria-expanded="true"] { z-index: 3; }
+.ls-cap-word[aria-expanded="true"] i, .ls-cap-word[data-live="true"] i { box-shadow: 0 0 0 2px var(--color-fig-black), 0 0 0 4px var(--color-acid-lime); }
+.ls-cap-card { position: absolute; z-index: 4; width: 280px; translate: 18px calc(var(--down, 0) * -100%); display: flex; flex-direction: column; gap: 8px; padding: 14px 16px 16px; border: 1px solid var(--color-fig-800); border-radius: 2px; background: var(--color-fig-950); color: var(--color-chalk-white); box-shadow: 0 18px 40px color-mix(in oklab, var(--color-fig-black) 70%, transparent); transform-origin: 0 calc(var(--down, 0) * 100%); }
+.ls-cap-card[data-flip-x="true"] { translate: calc(-100% - 18px) calc(var(--down, 0) * -100%); transform-origin: 100% calc(var(--down, 0) * 100%); }
+.ls-cap-card-head { display: flex; align-items: center; justify-content: space-between; }
+.ls-cap-card-head .ls-cap-label { margin: 0; }
+.ls-cap-card-main { display: flex; align-items: center; gap: 12px; }
+.ls-cap-card-main img { width: 56px; height: 56px; object-fit: cover; border-radius: 2px; }
+.ls-cap-card h3 { margin: 0; font-family: var(--font-didot); font-weight: 400; font-size: 24px; line-height: 1.05; text-transform: uppercase; overflow-wrap: anywhere; }
+.ls-cap-card p { margin: 0; font-size: 14px; line-height: 1.45; color: var(--color-lilac-fog); white-space: normal; }
+.ls-cap-card p:first-of-type { color: var(--color-chalk-white); }
+.ls-cap-card > button { align-self: flex-start; margin-top: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Each word bobs on its own clock, a few pixels at most, so the lines still meet the dots. */
+  .ls-cap-map-stage:not([data-still="true"]) .ls-cap-float { animation: ls-cap-float calc(5s + var(--float-i, 0) * .6s) ease-in-out calc(var(--float-i, 0) * -.9s) infinite alternate; }
+  .ls-cap-word[aria-expanded="true"] .ls-cap-float { animation-play-state: paused; }
+  @keyframes ls-cap-float { from { translate: 0 -3px; } to { translate: 0 3px; } }
+  .ls-cap-word .ls-cap-float { transition: color .2s ease, scale .2s cubic-bezier(.165,.84,.44,1); }
+  .ls-cap-word:active .ls-cap-float { scale: .94; }
+  .ls-cap-card { animation: ls-cap-card-in .32s cubic-bezier(.165,.84,.44,1); }
+  @keyframes ls-cap-card-in { from { opacity: 0; scale: .9; } }
+}
+.ls-cap-map-top button svg, .ls-cap-card button svg { width: 16px; height: 16px; }
+.ls-cap-legend [data-kind="genre"] span { background: var(--product-gold); }
+.ls-cap-legend [data-kind="sound"] span { background: var(--color-chalk-white); }
+.ls-cap-legend [data-kind="piece"] span { background: var(--color-lilac-fog); }
+.ls-cap-legend [data-kind="pick"] span { background: var(--color-acid-lime); }
+
+/* Hero parallax: as the cover scrolls away, its back layer (the runway photos, or the film when it plays) drifts down
+   slower than the page while the title and kicker rise faster and fade, so the depth reads with the film on too. The
+   back layer only ever travels less than the share of the cover already scrolled out, so its top edge never shows.
+   Browsers without scroll-driven animations get the same motion from useHeroParallax. */
+.ls-hero-depth { position: absolute; inset: 0; z-index: -2; will-change: transform; }
+@keyframes ls-hero-back { to { transform: translateY(35%) scale(1.06); } }
+@keyframes ls-hero-front { to { transform: translateY(-30%); opacity: .2; } }
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    .ls-hero-cover { view-timeline: --ls-hero block; }
+    .ls-hero-depth { animation: ls-hero-back linear both; animation-timeline: --ls-hero; animation-range: exit 0% exit 100%; }
+    .ls-hero-cover > :is(.ls-hero-title, .ls-hero-kicker) { animation: ls-hero-front linear both; animation-timeline: --ls-hero; animation-range: exit 0% exit 100%; }
+  }
+}
+
+/* Build a day: the taste-profile form and the music supervisor's sheet it produces. */
+.ls-day { align-items: stretch; --cover-type: var(--color-chalk-white); --cover-paper: var(--color-fig-black); }
+.ls-day-title { margin: 0; font-family: var(--font-hammer); font-weight: 400; font-size: clamp(2.4rem, 7vw, 4.2rem); line-height: .92; text-transform: uppercase; color: var(--color-acid-lime); overflow-wrap: anywhere; }
+.ls-day-caption { margin: 8px 0 0; font-family: var(--font-isidora); font-weight: 500; font-size: 17px; color: var(--product-gold); }
+.ls-day-h2 { margin: 0 0 12px; font-family: var(--font-hammer); font-weight: 400; font-size: 28px; line-height: 1; text-transform: uppercase; color: var(--color-chalk-white); }
+.ls-day-note, .ls-day-aside { margin: 0; font-size: 13px; line-height: 1.45; color: var(--color-lilac-fog); }
+.ls-day-aside { margin-top: 10px; }
+.ls-day-form { padding: 18px; border: 1px solid var(--color-fig-800); border-radius: 2px; background: var(--color-fig-950); }
+.ls-day-form-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin-bottom: 14px; }
+.ls-day-form-head .ls-day-h2 { margin: 0; }
+.ls-day-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 14px 18px; }
+.ls-day-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ls-day-field > span { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--color-lilac-fog); }
+.ls-day-field output { color: var(--color-acid-lime); }
+.ls-day-field input[type="text"], .ls-day-field input[type="number"] { width: 100%; padding: 10px 12px; font: inherit; font-size: 16px; color: var(--color-chalk-white); background: var(--color-fig-black); border: 1px solid var(--color-fig-800); border-radius: 2px; }
+.ls-day-field input::placeholder { color: color-mix(in oklab, var(--color-lilac-fog) 60%, transparent); }
+.ls-day-field input:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 1px; border-color: transparent; }
+.ls-day-field input[type="range"] { accent-color: var(--color-acid-lime); min-height: 32px; }
+.ls-day-why { margin: 0; max-width: 68ch; font-size: 16px; line-height: 1.6; color: var(--color-chalk-white); }
+.ls-day-table-wrap { overflow-x: auto; border: 1px solid var(--color-fig-800); border-radius: 2px; }
+.ls-day-table { width: 100%; min-width: 860px; border-collapse: collapse; font-size: 14px; color: var(--color-chalk-white); }
+.ls-day-table th, .ls-day-table td { padding: 10px 12px; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--color-fig-800); }
+.ls-day-table thead th { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--color-lilac-fog); background: var(--color-fig-950); white-space: nowrap; }
+.ls-day-table tbody tr:last-child > * { border-bottom: 0; }
+.ls-day-table tbody th { font-weight: 400; padding: 4px 8px; min-width: 210px; }
+.ls-day-table tr[data-active="true"] { background: color-mix(in oklab, var(--color-acid-lime) 8%, transparent); }
+.ls-day-num { font-family: var(--font-hammer); font-size: 26px; line-height: 1; color: var(--product-gold); }
+.ls .ls-day-track { flex-direction: row; align-items: center; gap: 10px; padding: 6px; font-size: 15px; font-weight: 500; }
+.ls-day-track img { width: 40px; height: 40px; flex: none; object-fit: cover; border-radius: 2px; }
+.ls-day-track > span:nth-of-type(1) { flex: 1; min-width: 0; }
+.ls-day .ls-runway-play { flex: none; width: 32px; height: 32px; border-color: var(--color-fig-800); }
+.ls-day-track:hover .ls-runway-play, .ls-day-track[data-active="true"] .ls-runway-play { background: var(--color-chalk-white); color: var(--color-fig-black); border-color: var(--color-chalk-white); }
+.ls-day-tier { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; border: 1px solid var(--color-fig-800); white-space: nowrap; }
+tr[data-tier="core"] .ls-day-tier { color: var(--color-fig-black); background: var(--color-acid-lime); border-color: var(--color-acid-lime); }
+tr[data-tier="adjacent"] .ls-day-tier { color: var(--product-gold); border-color: var(--product-gold); }
+tr[data-tier="wildcard"] .ls-day-tier { color: var(--color-lilac-fog); border-style: dashed; }
+.ls-day-phase, .ls-day-bpm { color: var(--color-lilac-fog); white-space: nowrap; }
+.ls-day-bpm { font-variant-numeric: tabular-nums; }
+.ls-day-reason { min-width: 240px; color: var(--color-lilac-fog); line-height: 1.4; }
+.ls-day-wear { margin: 0 0 6px; font-family: var(--font-isidora); font-weight: 500; font-size: 16px; color: var(--color-chalk-white); }
+
+/* The hero headline's masked word reveal (GSAP, in HeroTitle). Each word clips at its own cap line and baseline, so a
+   word below or above its mask is out of sight; only once JavaScript has taken over (data-mask) do the rotating lines
+   stop crossfading, since the masks then hide the lines that aren't showing. */
+/* Hammer's box runs .6em above the baseline and .1em below, while the capitals reach .7em up. The padding lifts the
+   mask's top to just over the cap line (the negative margin keeps the layout as it was) and the clip ends just under
+   the baseline, leaving the headline's 2px drop shadow: a word moved 115% up or down is then wholly out of sight.
+   Insets are positive only, since WebKit drops a clip-path with negative ones. */
+.ls-mask { display: inline-block; padding: .14em .2em 0; margin: -.14em -.2em 0; clip-path: inset(0 0 .06em 0); }
+.ls-mask-in { display: inline-block; will-change: transform; }
+.ls-hero-title[data-mask="on"] .ls-hero-word { opacity: 1; transform: none; transition: none; }
+
+/* Now Playing as a postcard (SheetPostcard): a two-faced card in 3D, the cover in front and the written back behind. */
+.ls-postcard { width: 100%; aspect-ratio: 1; perspective: 1400px; }
+.ls-postcard-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; will-change: transform; }
+.ls-postcard-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 4px; overflow: hidden; }
+.ls-postcard-front img, .ls-postcard-front .ls-player-blank { width: 100%; height: 100%; object-fit: cover; display: grid; place-items: center; }
+.ls-postcard[data-side="front"] .ls-postcard-back, .ls-postcard[data-side="back"] .ls-postcard-front { visibility: hidden; }
+.ls-postcard-back { transform: rotateY(180deg); display: grid; place-items: center; background: var(--color-fig-900); border: 1px solid var(--color-fig-800); box-shadow: 0 24px 60px color-mix(in oklab, var(--color-fig-black) 60%, transparent); }
+.ls-postcard-back svg { width: 78%; height: 78%; overflow: visible; }
+.ls-postcard-shape { fill: var(--color-acid-lime); }
+/* The song name in the two Hammer cuts, word about: on the postcard and as the sheet's title. */
+[data-cut="hammer"] { font-family: var(--font-hammer); }
+[data-cut="xxx"] { font-family: var(--font-hammer-xxx); }
+.ls-player-title .ls-mask { line-height: .9; }
+@media (max-width: 600px) {
+  .ls-player[data-expanded="true"] .ls-player-title { font-family: var(--font-hammer); font-size: 48px; line-height: .9; text-transform: uppercase; letter-spacing: .01em; }
+}

@@ -33,6 +33,7 @@ export function ShopSection() {
   const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [catalogError, setCatalogError] = useState("");
+  const [source, setSource] = useState<"live" | "test">("live");
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [brand, setBrand] = useState("");
@@ -52,10 +53,13 @@ export function ShopSection() {
 
   useEffect(() => {
     let current = true;
-    getCatalog().then(response => {
+    // ?products=test loads the saved Farfetch file (src/lib/fixtures) instead of the live feed; the dev server only.
+    const test = new URLSearchParams(window.location.search).get("products") === "test";
+    getCatalog({ data: { test } }).then(response => {
       if (!current) return;
       setProducts(response.products);
       setCatalogError(response.error);
+      setSource(response.source);
     }).catch(() => { if (current) setCatalogError("Live products are unavailable right now. Please try again soon."); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
@@ -140,7 +144,9 @@ export function ShopSection() {
         </ul>
       )}
 
-      {!loading && !catalogError && <p className="mlshop-note">Live products via Farfetch · sizes and availability can change at the retailer.</p>}
+      {!loading && !catalogError && <p className="mlshop-note">{source === "test"
+        ? "Test products from a saved Farfetch file · sizes and stock are made up, nothing here is live."
+        : "Live products via Farfetch · sizes and availability can change at the retailer."}</p>}
 
       {open && <ShopDetail p={open} saved={!!wishFor(open)} onSave={() => toggleWish(open)} onClose={() => setOpenId(null)} />}
     </section>

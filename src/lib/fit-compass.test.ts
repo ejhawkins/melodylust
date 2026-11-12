@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FIT_ITEMS, quadrantPoles, voteShares, findLook, fitWishName } from "./fit-compass";
+import { FIT_ITEMS, quadrantPoles, voteShares, findLook, fitWishName, newVoterId } from "./fit-compass";
 
 describe("fit compass", () => {
   it("each item has exactly four looks, one per quadrant", () => {
@@ -25,5 +25,14 @@ describe("fit compass", () => {
   });
   it("names the Want List row after item and look", () => {
     const item = FIT_ITEMS[0]!; expect(fitWishName(item, item.looks[0]!)).toBe("The Statement Coat — 70s suede");
+  });
+  it("makes a voter id the vote server accepts, with or without crypto.randomUUID", () => {
+    const accepted = /^[A-Za-z0-9-]{16,64}$/; // style-votes.functions.ts
+    // Plain http (a phone on the Wi-Fi address) has no randomUUID; this used to throw and take the page down.
+    const plainHttp = { getRandomValues: (bytes: Uint8Array) => bytes.fill(171) };
+    expect(newVoterId(plainHttp)).toBe("ab".repeat(16));
+    expect(newVoterId(plainHttp)).toMatch(accepted);
+    expect(newVoterId({ ...plainHttp, randomUUID: () => "3f2b8c1e-5a47-4d09-9e6b-7c1d2a3b4c5d" })).toBe("3f2b8c1e-5a47-4d09-9e6b-7c1d2a3b4c5d");
+    expect(newVoterId()).toMatch(accepted);
   });
 });

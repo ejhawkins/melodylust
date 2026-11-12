@@ -42,7 +42,7 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
               <span className="ls-toc-num" aria-hidden>{String(n + 1).padStart(2, "0")}</span>
               <div className="min-w-0">
                 <p className="ls-toc-dekline">{ch.dek} · {ch.songs.length} {ch.songs.length === 1 ? "song" : "songs"}</p>
-                {ch.open ? <button type="button" className="ls-toc-name" onClick={ch.open}>{ch.title}</button> : <h3 className="ls-toc-name">{ch.title}</h3>}
+                {ch.open ? <button type="button" className="ls-toc-name" onClick={ch.open}>{ch.title}</button> : <h3 className="ls-toc-name">{ch.id === "mix" ? <MixTitle /> : ch.title}</h3>}
               </div>
               <LikeButton look="quick" kind="playlist" id={ch.id} name={ch.title} sub={`${ch.songs.length} songs`} {...(ch.songs[0]?.art ? { image: ch.songs[0].art } : {})} className="ls-toc-like" />
             </div>
@@ -81,4 +81,10 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
       {footer}
     </section>
   );
+}
+
+/** "The Autumn Mix" as the contents sets it: "The Autumn" in WTF Hammer Compressed, "Mix" in WTF Hammer XXX Compressed. One
+ *  inline run, so the space between them stays a real space and the heading still reads "The Autumn Mix". */
+function MixTitle() {
+  return <span className="ls-toc-mix"><span className="ls-toc-mix-autumn">The Autumn</span> <span className="ls-toc-mix-mix">Mix</span></span>;
 }

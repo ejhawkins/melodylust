@@ -1,27 +1,42 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { Check, Download, Import, Link2, ListMusic, MoreHorizontal, Pause, Play, Plus, Share2, Trash2, X } from "lucide-react";
+import { Check, Download, Import, Link2, ListMusic, Loader2, MoreHorizontal, Pause, Play, Plus, Share2, Sparkles, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSpotifyArtist } from "@/lib/spotify-track.functions";
+import { useAlbumArt } from "@/lib/album-art";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
   createStudioPlaylist, deleteStudioPlaylist, importTracks, matchCatalog, parseMusicLink, spotifyTrackInfo, parseSongList,
-  setInPlaylist, useStudio, type StudioTrack,
+  setInPlaylist, studioMix, useStudio, type StudioTrack,
 } from "@/lib/studio";
+import type { MixSong } from "@/lib/listening-room";
 import { useWishlist, type WishItem } from "@/lib/wishlist";
+import { AI_PLAYLIST_LENGTHS, localPlaylist, type AIPlaylist } from "@/lib/ai-playlist";
+import { generateAIPlaylist } from "@/lib/ai-playlist.functions";
+import { UNPLAYABLE } from "@/lib/capsule-tree";
 import { FIT_ITEMS, fitWishName } from "@/lib/fit-compass";
 import { stories } from "@/data/home";
 
 type Tab = "library" | "explore" | "import";
 const pill = "rounded-full px-4 py-1.5 text-sm transition-colors";
 
+/** A song's album art: its own, or its record's cover from Spotify when it came in without one. */
+function TrackArt({ t }: { t: StudioTrack }) {
+  const fetched = useAlbumArt(t.art ? null : t.spotify);
+  const art = t.art ?? fetched;
+  return art ? <img src={art} alt="" className="size-full object-cover" loading="lazy" /> : <ListMusic className="m-auto size-5 text-muted-foreground" />;
+}
+
 function Eq({ on }: { on: boolean }) {
   return <span className="ls-studio-eq" data-on={on} aria-hidden><i /><i /><i /><i /></span>;
 }
 
-/** The Studio: My Library, Explore, Import, with an Add-to-playlist sheet, Spotify previews and a share card. */
-export function ListenStudio() {
+/** The Studio: My Library, Explore, Import, with an Add-to-playlist sheet, Spotify previews and a share card. In the
+ *  listening room a song plays through the room's player bar (`onPlay`), queued with the rest of the list it was pressed
+ *  in, so the bar's next and previous walk that list; `nowPlaying` is the bar's song, marked in the rows. Without `onPlay`
+ *  the Studio previews in its own Spotify player. */
+export function ListenStudio({ onPlay, nowPlaying }: { onPlay?: (queue: MixSong[], index: number) => void; nowPlaying?: string | undefined } = {}) {
   const studio = useStudio();
   const [tab, setTab] = useState<Tab>("library");
   const [openList, setOpenList] = useState<string | null>(null);
@@ -31,20 +46,31 @@ export function ListenStudio() {
   const [newName, setNewName] = useState("");
   const byId = useMemo(() => new Map(studio.tracks.map(t => [t.id, t])), [studio.tracks]);
   const list = studio.playlists.find(p => p.id === openList);
+  const listTracks = (list?.trackIds ?? []).flatMap(i => byId.get(i) ?? []);
 
-  const play = (t: StudioTrack) => {
+  // The bar's song, when it is a Studio song: matched on the caption the bar plays it under.
+  const onBar = (t: StudioTrack) => Boolean(onPlay && nowPlaying && studioMix(t)?.caption === nowPlaying);
+  const play = (t: StudioTrack, from: readonly StudioTrack[]) => {
     if (!t.spotify) { toast("No preview for this song yet", { description: `${t.title} · ${t.artist}` }); return; }
+    if (onPlay) {
+      const playable = from.filter(track => track.spotify);
+      onPlay(playable.flatMap(track => studioMix(track) ?? []), Math.max(0, playable.findIndex(track => track.id === t.id)));
+      return;
+    }
     setPlaying(p => p?.id === t.id ? null : t);
   };
 
-  const Row = ({ t, playlistId }: { t: StudioTrack; playlistId?: string }) => (
+  const Row = ({ t, playlistId, from }: { t: StudioTrack; playlistId?: string; from: readonly StudioTrack[] }) => {
+    const previewing = !onPlay && playing?.id === t.id;
+    const live = previewing || onBar(t);
+    return (
     <li className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-2 py-2 hover:bg-secondary/60">
-      <button type="button" onClick={() => play(t)} aria-label={playing?.id === t.id ? `Pause ${t.title}` : `Play ${t.title}`} className="relative size-11 overflow-hidden rounded-lg bg-secondary">
-        {t.art ? <img src={t.art} alt="" className="size-full object-cover" loading="lazy" /> : <ListMusic className="m-auto size-5 text-muted-foreground" />}
-        <span className="absolute inset-0 grid place-items-center bg-background/50">{playing?.id === t.id ? <Pause className="size-4 text-primary" /> : <Play className="size-4 text-primary" />}</span>
+      <button type="button" onClick={() => play(t, from)} aria-label={previewing ? `Pause ${t.title}` : onBar(t) ? `Playing ${t.title}, play it from the start` : `Play ${t.title}`} className="relative size-11 overflow-hidden rounded-lg bg-secondary">
+        <TrackArt t={t} />
+        <span className="absolute inset-0 grid place-items-center bg-background/50">{previewing ? <Pause className="size-4 text-primary" /> : <Play className="size-4 text-primary" />}</span>
       </button>
       <div className="min-w-0">
-        <p className="flex items-center gap-2 truncate font-medium text-foreground">{t.title}<Eq on={playing?.id === t.id} /></p>
+        <p className="flex items-center gap-2 truncate font-medium text-foreground">{t.title}<Eq on={live} /></p>
         <p className="truncate text-xs text-muted-foreground">{t.artist}{t.album ? ` · ${t.album}` : ""}{t.duration ? ` · ${t.duration}` : ""}</p>
       </div>
       <div className="flex items-center gap-1">
@@ -63,12 +89,13 @@ export function ListenStudio() {
       </div>
     </li>
   );
+  };
 
   return (
     <section className="ls-section ls-studio rounded-3xl border border-border bg-card/70 p-4 text-card-foreground backdrop-blur sm:p-6" aria-labelledby="ls-studio-h">
       <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id="ls-studio-h" className="ls-studio-title">The Studio</h2>
+          <h2 id="ls-studio-h" className="ls-studio-title"><span className="ls-studio-the">The</span> Studio</h2>
           <p className="ls-studio-sub">Build playlists, preview songs, share the look of what you're hearing.</p>
         </div>
         <nav className="flex gap-1 rounded-full bg-secondary p-1" aria-label="Studio">
@@ -79,13 +106,14 @@ export function ListenStudio() {
       </header>
 
       {tab === "library" && !list && (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 pb-4 sm:grid-cols-4">
           {studio.playlists.map(p => {
-            const covers = p.trackIds.map(i => byId.get(i)?.art).filter(Boolean).slice(0, 4) as string[];
+            // Up to four of its songs' album covers: their own, or fetched from Spotify for songs that came in without one.
+            const covers = p.trackIds.flatMap(i => byId.get(i) ?? []).filter(t => t.art || t.spotify).slice(0, 4);
             return <li key={p.id}>
               <button type="button" onClick={() => setOpenList(p.id)} className="group w-full text-left">
                 <div className="grid aspect-square grid-cols-2 overflow-hidden rounded-2xl bg-secondary transition-transform group-hover:-translate-y-0.5">
-                  {covers.length ? covers.map((c, i) => <img key={i} src={c} alt="" className={`size-full object-cover ${covers.length === 1 ? "col-span-2 row-span-2" : ""}`} loading="lazy" />) : <ListMusic className="col-span-2 m-auto size-8 text-muted-foreground" />}
+                  {covers.length ? covers.map(t => <span key={t.id} className={`block size-full bg-secondary ${covers.length === 1 ? "col-span-2 row-span-2" : ""}`}><TrackArt t={t} /></span>) : <ListMusic className="col-span-2 m-auto size-8 text-muted-foreground" />}
                 </div>
                 <p className="mt-2 truncate font-medium">{p.name}</p>
                 <p className="text-xs text-muted-foreground">{p.trackIds.length} {p.trackIds.length === 1 ? "song" : "songs"}</p>
@@ -101,6 +129,7 @@ export function ListenStudio() {
               <Button type="submit" size="sm">Create</Button>
             </form>
           </li>
+          <li className="col-span-2"><AIPlaylistCard tracks={studio.tracks} onMade={setOpenList} /></li>
         </ul>
       )}
 
@@ -110,13 +139,16 @@ export function ListenStudio() {
             <Button variant="ghost" size="sm" onClick={() => setOpenList(null)}>← All playlists</Button>
             <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => { deleteStudioPlaylist(list.id); setOpenList(null); toast(`Deleted “${list.name}”`); }}><Trash2 className="size-4" />Delete</Button>
           </div>
-          <h3 className="ls-studio-list-title">{list.name}</h3>
-          {list.trackIds.length ? <ul>{list.trackIds.map(i => byId.get(i)).filter(Boolean).map(t => <Row key={t!.id} t={t!} playlistId={list.id} />)}</ul>
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="ls-studio-list-title">{list.name}</h3>
+            {onPlay && listTracks.some(t => t.spotify) && <Button size="sm" onClick={() => { const first = listTracks.find(t => t.spotify); if (first) play(first, listTracks); }}><Play className="size-4" />Play all</Button>}
+          </div>
+          {listTracks.length ? <ul>{listTracks.map(t => <Row key={t.id} t={t} playlistId={list.id} from={listTracks} />)}</ul>
             : <p className="py-6 text-sm text-muted-foreground">Empty for now. Tap + Add on any song in Explore.</p>}
         </div>
       )}
 
-      {tab === "explore" && <ul>{studio.tracks.map(t => <Row key={t.id} t={t} />)}</ul>}
+      {tab === "explore" && <ul>{studio.tracks.map(t => <Row key={t.id} t={t} from={studio.tracks} />)}</ul>}
 
       {tab === "import" && <Importer onDone={id => { setTab("library"); setOpenList(id); }} />}
 
@@ -380,5 +412,57 @@ function ShareCard({ track, onClose }: { track: StudioTrack | null; onClose: () 
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+const EXAMPLES = ["Front row at a fall show", "A Sunday thrift run", "Getting ready for a night out"];
+
+/** The Studio's AI playlist generator: describe a mood, a look or an occasion, pick a length, and a new playlist is made
+ *  from songs already in the Studio — the AI can only choose among them, never add one. With no AI configured, or when
+ *  it can't answer, the prompt's words pick the songs on this device instead, and the toast says which made it. */
+function AIPlaylistCard({ tracks, onMade }: { tracks: readonly StudioTrack[]; onMade: (id: string) => void }) {
+  const [prompt, setPrompt] = useState("");
+  const [length, setLength] = useState<number>(10);
+  const [busy, setBusy] = useState(false);
+  const field = useId();
+  const candidates = tracks.filter(t => t.spotify && !UNPLAYABLE.has(t.id)).map(t => ({ id: t.id, title: t.title, artist: t.artist, ...(t.genre ? { genre: t.genre } : {}) }));
+  const make = (playlist: AIPlaylist, by: string) => {
+    const p = createStudioPlaylist(playlist.title);
+    for (const pick of playlist.picks) setInPlaylist(p.id, pick.id, true);
+    toast(`Made “${p.name}”`, { description: `${playlist.picks.length} ${playlist.picks.length === 1 ? "song" : "songs"} from your Studio · ${by}` });
+    setPrompt("");
+    onMade(p.id);
+  };
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const text = prompt.trim();
+    if (text.length < 2 || busy) return;
+    setBusy(true);
+    try {
+      const answer = await generateAIPlaylist({ data: { prompt: text, length, candidates } }).catch(() => null);
+      if (answer?.playlist) return make(answer.playlist, "picked by AI");
+      const local = localPlaylist(text, candidates, length);
+      if (local) return make(local, answer?.status === "rate_limited" ? "AI is busy, matched on your words" : "matched on your words");
+      toast("Nothing in your Studio fits that yet", { description: "Try a mood, an occasion or an artist you have, or import more songs." });
+    } finally { setBusy(false); }
+  };
+  return (
+    <form className="ls-ai-card flex flex-col gap-2 rounded-2xl border border-primary/40 bg-secondary/40 p-3" onSubmit={submit} aria-busy={busy}>
+      <label htmlFor={field} className="flex items-center gap-2 text-sm font-medium text-foreground"><Sparkles className="size-4 text-primary" aria-hidden />AI playlist</label>
+      <textarea id={field} value={prompt} onChange={e => setPrompt(e.target.value)} rows={2} maxLength={200} placeholder={EXAMPLES[0]}
+        className="min-h-14 resize-none rounded-lg bg-secondary px-2 py-1.5 text-sm text-foreground placeholder:text-muted-foreground" />
+      <div className="flex flex-wrap gap-1" role="group" aria-label="Try a prompt">
+        {EXAMPLES.map(x => <button key={x} type="button" onClick={() => setPrompt(x)} className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground">{x}</button>)}
+      </div>
+      <div className="mt-auto flex items-center gap-2">
+        <div className="flex gap-1 rounded-full bg-secondary p-0.5" role="group" aria-label="Playlist length">
+          {AI_PLAYLIST_LENGTHS.map(n => <button key={n} type="button" aria-pressed={length === n} onClick={() => setLength(n)}
+            className={`rounded-full px-2.5 py-1 text-xs ${length === n ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{n}</button>)}
+        </div>
+        <Button type="submit" size="sm" className="ml-auto" disabled={busy || prompt.trim().length < 2}>
+          {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Sparkles className="size-4" aria-hidden />}{busy ? "Making…" : "Generate"}
+        </Button>
+      </div>
+    </form>
   );
 }

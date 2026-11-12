@@ -62,3 +62,10 @@ export function voteShares(counts: Record<string, number>, lookIds: string[]) {
 
 /** The Want List row name for a look. */
 export const fitWishName = (item: FitItem, look: FitLook) => `${item.name} — ${look.title}`;
+
+/** A fresh id for a visitor's vote. crypto.randomUUID only exists on https and localhost, so a page opened over plain http
+ *  (a phone on the Wi-Fi address) has none; calling it threw and took the page down. getRandomValues exists everywhere. */
+export function newVoterId(source: { randomUUID?: () => string; getRandomValues: (bytes: Uint8Array) => Uint8Array } = crypto): string {
+  if (typeof source.randomUUID === "function") return source.randomUUID();
+  return Array.from(source.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, "0")).join("");
+}

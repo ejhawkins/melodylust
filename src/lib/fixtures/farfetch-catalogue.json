@@ -1,0 +1,270 @@
+{
+  "_about": "Test data for the home Shop. Open /home?products=test#shop on the dev server to load it instead of the live feed; src/lib/shop-catalogue.test.ts reads it too. Each entry under `searches` is a farfetch-data search.php answer, keyed by the Shop's search keyword (src/lib/shop-catalogue.ts). The pieces, prices and photos are a real Farfetch snapshot (Off-White, saved 31 Oct 2026); the sizes and stock counts are made up so the filters have something to sort. Production builds never serve this file.",
+  "searches": {
+    "cardigan women": {
+      "products": {
+        "number": 1,
+        "totalPages": 1,
+        "totalItems": 0,
+        "entries": []
+      }
+    },
+    "mini skirt women": {
+      "products": {
+        "number": 1,
+        "totalPages": 1,
+        "totalItems": 0,
+        "entries": []
+      }
+    },
+    "jacket women": {
+      "products": {
+        "number": 1,
+        "totalPages": 1,
+        "totalItems": 6,
+        "entries": [
+          {
+            "id": 18535208,
+            "shortDescription": "logo-patch varsity jacket",
+            "brand": {
+              "name": "Off-White"
+            },
+            "price": 4169,
+            "currencyIsoCode": "USD",
+            "images": [
+              {
+                "order": 1,
+                "size": "400",
+                "url": "https://cdn-images.farfetch-contents.com/18/53/52/08/18535208_41095700_400.jpg"
+              },
+              {
+                "order": 1,
+                "size": "1000",
+                "url": "https://cdn-images.farfetch-contents.com/18/53/52/08/18535208_41095700_1000.jpg"
+              }
+            ],
+            "availableSizes": [
+              {
+                "size": "XS"
+              },
+              {
+                "size": "S"
+              },
+              {
+                "size": "M"
+              }
+            ],
+            "quantity": 6
+          },
+          {
+            "id": 40532006,
+            "shortDescription": "cashmere belted coat",
+            "brand": {
+              "name": "Off-White"
+            },
+            "price": 3897,
+            "currencyIsoCode": "USD",
+            "images": [
+              {
+                "order": 1,
+                "size": "400",
+                "url": "https://cdn-images.farfetch-contents.com/40/53/20/06/40532006_76821111_400.jpg"
+              },
+              {
+                "order": 1,
+                "size": "1000",
+                "url": "https://cdn-images.farfetch-contents.com/40/53/20/06/40532006_76821111_1000.jpg"
+              }
+            ],
+            "availableSizes": [
+              {
+                "size": "IT 38"
+              },
+              {
+                "size": "IT 40"
+              },
+              {
+                "size": "IT 42"
+              }
+            ],
+            "quantity": 2
+          },
+          {
+            "id": 19628103,
+            "shortDescription": "patch-detail bomber jacket",
+            "brand": {
+              "name": "Off-White"
+            },
+            "price": 5180,
+            "currencyIsoCode": "USD",
+            "images": [
+              {
+                "order": 1,
+                "size": "400",
+                "url": "https://cdn-images.farfetch-contents.com/19/62/81/03/19628103_43871755_400.jpg"
+              },
+              {
+                "order": 1,
+                "size": "1000",
+                "url": "https://cdn-images.farfetch-contents.com/19/62/81/03/19628103_43871755_1000.jpg"
+              }
+            ],
+            "availableSizes": [
+              {
+                "size": "S"
+              },
+              {
+                "size": "M"
+              },
+              {
+                "size": "L"
+              }
+            ]
+          },
+          {
+            "id": 20535266,
+            "shortDescription": "Arrows layered parka coat",
+            "brand": {
+              "name": "Off-White"
+            },
+            "price": 3754,
+            "currencyIsoCode": "USD",
+            "images": [
+              {
+                "order": 1,
+                "size": "400",
+                "url": "https://cdn-images.farfetch-contents.com/20/53/52/66/20535266_50542122_400.jpg"
+              },
+              {
+                "order": 1,
+                "size": "1000",
+                "url": "https://cdn-images.farfetch-contents.com/20/53/52/66/20535266_50542122_1000.jpg"
+              }
+            ],
+            "availableSizes": [
+              {
+                "size": "M"
+              }
+            ],
+            "quantity": 4
+          },
+          {
+            "id": 20191186,
+            "shortDescription": "Bling Stars bomber jacket",
+            "brand": {
+              "name": "Off-White"
+            },
+            "price": 3442,
+            "currencyIsoCode": "USD",
+            "images": [
+              {
+                "order": 1,
+                "size": "400",
+                "url": "https://cdn-images.farfetch-contents.com/20/19/11/86/20191186_50515944_400.jpg"
+              },
+              {
+                "order": 1,
+                "size": "1000",
+                "url": "https://cdn-images.farfetch-contents.com/20/19/11/86/20191186_50515944_1000.jpg"
+              }
+            ],
+            "availableSizes": [
+              {
+                "size": "S"
+              }
+            ],
+            "quantity": 1
+          },
+          {
+            "id": 20188995,
+            "shortDescription": "Moon leather varsity jacket",
+            "brand": {
+              "name": "Off-White"
+            },
+            "price": 3442,
+            "currencyIsoCode": "USD",
+            "images": [
+              {
+                "order": 1,
+                "size": "400",
+                "url": "https://cdn-images.farfetch-contents.com/20/18/89/95/20188995_51392137_400.jpg"
+              },
+              {
+                "order": 1,
+                "size": "1000",
+                "url": "https://cdn-images.farfetch-contents.com/20/18/89/95/20188995_51392137_1000.jpg"
+              }
+            ],
+            "availableSizes": [
+              {
+                "size": "XS"
+              },
+              {
+                "size": "S"
+              }
+            ],
+            "quantity": 3
+          }
+        ]
+      }
+    },
+    "slip dress women": {
+      "products": {
+        "number": 1,
+        "totalPages": 1,
+        "totalItems": 1,
+        "entries": [
+          {
+            "id": 19779355,
+            "shortDescription": "motorcycle hole mini dress",
+            "brand": {
+              "name": "Off-White"
+            },
+            "price": 4771,
+            "currencyIsoCode": "USD",
+            "images": [
+              {
+                "order": 1,
+                "size": "400",
+                "url": "https://cdn-images.farfetch-contents.com/19/77/93/55/19779355_44982799_400.jpg"
+              },
+              {
+                "order": 1,
+                "size": "1000",
+                "url": "https://cdn-images.farfetch-contents.com/19/77/93/55/19779355_44982799_1000.jpg"
+              }
+            ],
+            "availableSizes": [
+              {
+                "size": "XS"
+              },
+              {
+                "size": "S"
+              },
+              {
+                "size": "M"
+              }
+            ],
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "top women": {
+      "products": {
+        "number": 1,
+        "totalPages": 1,
+        "totalItems": 0,
+        "entries": []
+      }
+    },
+    "shoulder bag women": {
+      "products": {
+        "number": 1,
+        "totalPages": 1,
+        "totalItems": 0,
+        "entries": []
+      }
+    }
+  }
+}

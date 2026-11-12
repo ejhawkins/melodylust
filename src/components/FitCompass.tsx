@@ -5,15 +5,18 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { addWish, removeWish, useWishlist } from "@/lib/wishlist";
 import { STYLE_GENRES, type StyleGenre } from "@/lib/style-profile";
-import { AXES, FIT_ITEMS, fitWishName, quadrantPoles, voteShares, type FitLook, type Quadrant } from "@/lib/fit-compass";
+import { AXES, FIT_ITEMS, fitWishName, newVoterId, quadrantPoles, voteShares, type FitLook, type Quadrant } from "@/lib/fit-compass";
 import { castStyleVote, getStyleVotes } from "@/lib/style-votes.functions";
 
 const ORDER: Quadrant[] = ["tl", "tr", "bl", "br"];
 const VOTER_KEY = "fit-compass-voter";
+let visitVoter = "";
 function voterId() {
-  let v = localStorage.getItem(VOTER_KEY);
-  if (!v) { v = crypto.randomUUID(); localStorage.setItem(VOTER_KEY, v); }
-  return v;
+  try {
+    let v = localStorage.getItem(VOTER_KEY);
+    if (!v) { v = newVoterId(); localStorage.setItem(VOTER_KEY, v); }
+    return v;
+  } catch { return (visitVoter ||= newVoterId()); } // storage blocked: one id for this visit
 }
 
 /** The Fit Compass: one item in the centre, four ways to wear it on two style axes. */

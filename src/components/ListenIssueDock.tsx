@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 
-export type IssueTab = "issue" | "playlists" | "runway" | "notes" | "fashion" | "want";
+export type IssueTab = "playlists" | "runway" | "notes" | "fashion" | "want";
 const TABS: { id: IssueTab; label: string }[] = [
-  { id: "issue", label: "The Issue" },
   { id: "playlists", label: "Playlists" },
   { id: "runway", label: "Runway" },
   { id: "notes", label: "Notes" },

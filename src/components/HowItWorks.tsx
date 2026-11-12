@@ -4,7 +4,7 @@ import howEvidence from "@/assets/how-evidence.jpg";
 import howWear from "@/assets/how-wear.jpg";
 
 /*
- * "How it works" — pinned step sequence, placed directly under the music video.
+ * "How it works" — pinned step sequence, placed between "This is a mood" and its record stack.
  * Native CSS sticky + one rAF scroll loop: same feel as GSAP/Lenis, no extra weight,
  * and native scrolling stays untouched on phones.
  * TIMINGS: --gs-reveal / --gs-ease come from .guided in styles.css.
@@ -17,7 +17,7 @@ const steps = [
 ];
 
 // Closing line after step 03, set like "This is a mood": word groups of letter spans, revealed in view.
-const runwayWords = ["BRING", "IT", "TO", "THE", "RUNWAY."];
+const runwayWords = ["BRING", "IT", "FROM", "THE", "RUNWAY."];
 const runwayLetters = runwayWords.map((word, wi) => ({ word, letters: word.split("").map((ch, ci) => ({ ch, delay: (runwayWords.slice(0, wi).reduce((n, w) => n + w.length, 0) + ci) * 45 })) }));
 
 const reduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -70,7 +70,7 @@ export function HowItWorks() {
       </div>
     </section>
     <div className="gs-closing" ref={closing} data-inview={closingIn}>
-      <h2 className="film-title gs-closing-title" aria-label="Bring it to the runway.">{runwayLetters.map(({ word, letters }) => <span className="film-word" key={word} aria-hidden>{letters.map(({ ch, delay }, i) => <span key={i} style={{ transitionDelay: `${delay}ms` }}>{ch}</span>)}</span>)}</h2>
+      <h2 className="film-title gs-closing-title" aria-label="Bring it from the Runway.">{runwayLetters.map(({ word, letters }) => <span className="film-word" key={word} aria-hidden>{letters.map(({ ch, delay }, i) => <span key={i} style={{ transitionDelay: `${delay}ms` }}>{ch}</span>)}</span>)}</h2>
     </div>
   </div>;
 }

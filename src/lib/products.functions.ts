@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { brandMatches, readFarfetchCatalog, readFarfetchSearch, type CatalogProduct, type ShopProduct } from './farfetch';
+import { brandMatches, readFarfetchSearch, type CatalogProduct, type ShopProduct } from './farfetch';
 import { productCacheKey } from './product-cache';
+import { CATALOG_SEARCHES, mergeCatalogue, readCatalogueFixture, readCatalogueSearch } from './shop-catalogue';
 
 // Each search costs RapidAPI quota. Two layers keep that down:
 // 1. `inFlight` (memory): visitors asking for the same search at the same moment share one request.
@@ -32,18 +33,9 @@ async function search(apiKey: string, designer: string | undefined, item: string
   } finally { clearTimeout(timer); }
 }
 
-const CATALOG_SEARCHES = [
-  { keyword: 'cardigan women', category: 'Knitwear', names: ['cardigan'] },
-  { keyword: 'mini skirt women', category: 'Skirts', names: ['skirt'] },
-  { keyword: 'jacket women', category: 'Outerwear', names: ['jacket', 'coat', 'blazer'] },
-  { keyword: 'slip dress women', category: 'Dresses', names: ['dress', 'gown'] },
-  { keyword: 'top women', category: 'Tops', names: ['top', 'shirt', 'blouse', 'vest'] },
-  { keyword: 'shoulder bag women', category: 'Bags', names: ['bag', 'tote'] },
-] as const;
-
 async function searchCatalog(apiKey: string): Promise<CatalogProduct[]> {
-  const responses = await Promise.all(CATALOG_SEARCHES.map(async ({ keyword, category, names }) => {
-    const params = new URLSearchParams({ keyword, page: '1', country: 'US', currency: 'USD' });
+  const responses = await Promise.all(CATALOG_SEARCHES.map(async search => {
+    const params = new URLSearchParams({ keyword: search.keyword, page: '1', country: 'US', currency: 'USD' });
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 20_000);
     try {
@@ -51,29 +43,34 @@ async function searchCatalog(apiKey: string): Promise<CatalogProduct[]> {
         headers: { 'x-rapidapi-host': 'farfetch-data.p.rapidapi.com', 'x-rapidapi-key': apiKey }, signal: controller.signal,
       });
       if (!response.ok) throw new Error(`Farfetch catalogue search returned ${response.status}`);
-      return readFarfetchCatalog(await response.json(), category, 30)
-        .filter(product => names.some(name => product.name.toLowerCase().includes(name)))
-        .slice(0, 3);
+      return readCatalogueSearch(await response.json(), search);
     } finally { clearTimeout(timer); }
   }));
-  return responses.flat().filter((product, index, all) => all.findIndex(other => other.id === product.id) === index);
+  return mergeCatalogue(responses);
 }
 
-/** Current Farfetch products for the home Shop. Missing credentials never fall back to invented rows. */
+/** Current Farfetch products for the home Shop. Missing credentials never fall back to invented rows.
+ *  `test` (?products=test on the page) reads the saved Farfetch file instead, for checking the Shop while the
+ *  feed is down. Only the dev server honours it: production builds drop the branch and the file with it. */
 export const lookupShopCatalog = createServerFn({ method: 'GET' })
-  .handler(async (): Promise<{ products: CatalogProduct[]; error: string }> => {
+  .inputValidator((input: unknown) => z.object({ test: z.boolean().optional() }).strict().optional().parse(input))
+  .handler(async ({ data }): Promise<{ products: CatalogProduct[]; error: string; source: 'live' | 'test' }> => {
+    if (import.meta.env.DEV && data?.test) {
+      const { default: text } = await import('./fixtures/farfetch-catalogue.json?raw');
+      return { products: readCatalogueFixture(JSON.parse(text)), error: '', source: 'test' };
+    }
     const apiKey = process.env['RAPIDAPI_KEY'];
-    if (!apiKey) return { products: [], error: 'The live Farfetch catalogue is not connected yet.' };
+    if (!apiKey) return { products: [], error: 'The live Farfetch catalogue is not connected yet.', source: 'live' };
     try {
-      if (catalogCache && Date.now() - catalogCache.savedAt < 30 * 60 * 1000) return { products: catalogCache.products, error: '' };
+      if (catalogCache && Date.now() - catalogCache.savedAt < 30 * 60 * 1000) return { products: catalogCache.products, error: '', source: 'live' };
       catalogInFlight ??= searchCatalog(apiKey).then(products => {
         catalogCache = { savedAt: Date.now(), products };
         return products;
       }).finally(() => { catalogInFlight = undefined; });
-      return { products: await catalogInFlight, error: '' };
+      return { products: await catalogInFlight, error: '', source: 'live' };
     } catch (failure) {
       console.error('[Products] Farfetch catalogue failed', failure instanceof Error ? failure.message : failure);
-      return { products: [], error: 'Live products are unavailable right now. Please try again soon.' };
+      return { products: [], error: 'Live products are unavailable right now. Please try again soon.', source: 'live' };
     }
   });
 
