@@ -29,4 +29,4 @@
 - Keep room booklet behavior in useReadingBook and room styling scoped under .ls; clone source pages into an isolated lazy-loaded host so /home retains its original booklet.
 - Keep The Swivel ring maths in lib/swivel and fetch each real-product layer once on visibility; reuse LookPreview only on user request so the outfit builder never generates paid images automatically.
 - Keep Dressed to the Beat content in src/data/celebrity-looks.json and saves in the shared Want List (from "Dressed to the Beat"), so looks are editable without code; it opens only from the Listening Room "Celebrity" tab, not as a page.
-- Shareable style boards live in public.style_boards; the public /board/$id page reads one board only through the get_style_board RPC, so boards can be opened by link but never listed.
+- Shareable style boards live in public.style_boards; the public /board/$id page reads one board only through the get_style_board RPC, approved-only, so boards go public only after moderator review; the Listening Room "Boards" tab (ListenBoards) holds gallery, composer, own boards and review queue.

@@ -160,6 +160,10 @@ export type Database = {
           items: Json
           note: string
           owner_id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["styling_note_status"]
           title: string
         }
         Insert: {
@@ -169,6 +173,10 @@ export type Database = {
           items?: Json
           note: string
           owner_id: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["styling_note_status"]
           title: string
         }
         Update: {
@@ -178,6 +186,10 @@ export type Database = {
           items?: Json
           note?: string
           owner_id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["styling_note_status"]
           title?: string
         }
         Relationships: []
@@ -314,6 +326,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      list_style_boards: {
+        Args: { _limit?: number }
+        Returns: {
+          author_display_name: string
+          created_at: string
+          id: string
+          items: Json
+          note: string
+          title: string
+        }[]
       }
     }
     Enums: {

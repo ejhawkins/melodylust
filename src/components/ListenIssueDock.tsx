@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-export type IssueTab = "playlists" | "runway" | "notes" | "fashion" | "reading" | "beat" | "want";
+export type IssueTab = "playlists" | "runway" | "notes" | "fashion" | "reading" | "beat" | "boards" | "want";
 const TABS: { id: IssueTab; label: string }[] = [
   { id: "playlists", label: "Playlists" },
   { id: "runway", label: "Runway" },
@@ -8,6 +8,7 @@ const TABS: { id: IssueTab; label: string }[] = [
   { id: "fashion", label: "Fashion" },
   { id: "reading", label: "Reading" },
   { id: "beat", label: "Celebrity" },
+  { id: "boards", label: "Boards" },
 ];
 
 /** The Issue's sections as one slim row: inside the hero on phones, and pinned above the player once the hero scrolls away. */

@@ -3801,3 +3801,17 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls-board-item-name { font-size: 17px; }
 .ls-board-item-detail { color: var(--muted-foreground); font-size: 14px; }
 .ls-board-items a { color: var(--primary); text-decoration: underline; font-size: 14px; display: inline-block; padding: 10px 0; }
+.ls-boards { display: grid; gap: 18px; font-family: var(--font-isidora, sans-serif); }
+.ls-boards-title { font-family: "WTF Hammer", sans-serif; text-transform: uppercase; font-size: clamp(40px, 10vw, 72px); line-height: .9; }
+.ls-boards-dek, .ls-boards-empty, .ls-boards-msg { color: var(--muted-foreground); }
+.ls-boards-grid { list-style: none; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+.ls-boards-card { display: grid; gap: 10px; border: 1px solid var(--border); border-radius: 14px; padding: 10px; min-width: 0; }
+.ls-boards-card img, .ls-boards-noimg { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: var(--muted); }
+.ls-boards-card p, .ls-boards-mine p { font-size: 13px; color: var(--muted-foreground); }
+.ls-boards-card-title { font-size: 17px; color: var(--foreground) !important; text-decoration: none; }
+.ls-boards-mine { display: grid; gap: 10px; }
+.ls-boards-mine h3 { font-family: "WTF Hammer", sans-serif; text-transform: uppercase; font-size: 26px; }
+.ls-boards-mine > ul { list-style: none; padding: 0; display: grid; gap: 10px; }
+.ls-boards-mine > ul > li { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-top: 1px solid var(--border); padding-top: 10px; flex-wrap: wrap; }
+.ls-boards-note { white-space: pre-line; color: var(--foreground) !important; }
+.ls-boards-items { font-size: 13px; padding-left: 16px; }

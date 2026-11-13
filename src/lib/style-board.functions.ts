@@ -29,24 +29,79 @@ export const createStyleBoard = createServerFn({ method: "POST" })
   });
 
 export type StyleBoard = { id: string; author: string; title: string; note: string; items: BoardItem[]; createdAt: string };
+type PublicRow = { id: string; author_display_name: string; title: string; note: string; items: unknown; created_at: string };
+const toBoard = (r: PublicRow): StyleBoard => ({ id: r.id, author: r.author_display_name, title: r.title, note: r.note, items: r.items as BoardItem[], createdAt: r.created_at });
 
+function publicClient() {
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+  return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+    auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
+    global: { fetch: (input, init) => {
+      const h = new Headers(init?.headers);
+      if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+      h.set("apikey", key);
+      return fetch(input, { ...init, headers: h });
+    } },
+  });
+}
+
+/** Approved boards only; pending or rejected links read as not found. */
 export const getStyleBoard = createServerFn({ method: "GET" })
   .inputValidator((input: { id: string }) => ({ id: String(input.id) }))
   .handler(async ({ data }): Promise<StyleBoard | null> => {
     if (!isBoardId(data.id)) return null;
-    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-    const sb = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
-      auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
-      global: { fetch: (input, init) => {
-        const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
-        h.set("apikey", key);
-        return fetch(input, { ...init, headers: h });
-      } },
-    });
-    const { data: rows, error } = await sb.rpc("get_style_board", { _id: data.id });
+    const { data: rows, error } = await publicClient().rpc("get_style_board", { _id: data.id });
     if (error) { console.error(error); throw new Error("This board is unavailable right now."); }
-    const row = rows?.[0];
-    if (!row) return null;
-    return { id: row.id, author: row.author_display_name, title: row.title, note: row.note, items: row.items as unknown as BoardItem[], createdAt: row.created_at };
+    return rows?.[0] ? toBoard(rows[0]) : null;
+  });
+
+export const listStyleBoards = createServerFn({ method: "GET" }).handler(async (): Promise<{ boards: StyleBoard[] }> => {
+  const { data, error } = await publicClient().rpc("list_style_boards", { _limit: 24 });
+  if (error) { console.error(error); return { boards: [] }; }
+  return { boards: (data ?? []).map(toBoard) };
+});
+
+export type MyBoard = StyleBoard & { status: "pending" | "approved" | "rejected"; rejectionReason: string | null };
+type FullRow = PublicRow & { status: MyBoard["status"]; rejection_reason: string | null };
+const toMine = (r: FullRow): MyBoard => ({ ...toBoard(r), status: r.status, rejectionReason: r.rejection_reason });
+
+export const getBoardWorkspace = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const [{ data: own, error }, { data: roles }] = await Promise.all([
+      context.supabase.from("style_boards").select("*").eq("owner_id", context.userId).order("created_at", { ascending: false }),
+      context.supabase.from("user_roles").select("role").eq("user_id", context.userId),
+    ]);
+    if (error) throw new Error("Your boards could not be loaded.");
+    const canModerate = roles?.some(r => r.role === "moderator" || r.role === "admin") ?? false;
+    let queue: MyBoard[] = [];
+    if (canModerate) {
+      const { data } = await context.supabase.from("style_boards").select("*").eq("status", "pending").order("created_at", { ascending: true });
+      queue = (data ?? []).map(toMine);
+    }
+    return { mine: (own ?? []).map(toMine), canModerate, queue };
+  });
+
+const reviewInput = z.object({ id: z.string().refine(isBoardId), decision: z.enum(["approved", "rejected"]), reason: z.string().trim().max(500).optional() })
+  .strict().refine(v => v.decision === "approved" || Boolean(v.reason), "A rejection reason is required.");
+export const reviewStyleBoard = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => reviewInput.parse(input))
+  .handler(async ({ data, context }) => {
+    // RLS lets only moderators/admins update; a non-moderator's update matches no row.
+    const { data: rows, error } = await context.supabase.from("style_boards").update({
+      status: data.decision, rejection_reason: data.decision === "rejected" ? data.reason ?? null : null,
+      reviewed_at: new Date().toISOString(), reviewed_by: context.userId,
+    }).eq("id", data.id).select("id");
+    if (error || !rows?.length) throw new Error("You can't review this board.");
+    return { ok: true };
+  });
+
+export const deleteStyleBoard = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => ({ id: String(input.id) }))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("style_boards").delete().eq("id", data.id).eq("owner_id", context.userId);
+    if (error) throw new Error("This board couldn't be deleted.");
+    return { ok: true };
   });
