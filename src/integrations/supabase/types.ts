@@ -338,6 +338,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_influencers: {
+        Args: { _limit?: number }
+        Returns: {
+          author_display_name: string
+          board_count: number
+          board_id: string
+          items: Json
+          latest: string
+        }[]
+      }
       list_style_boards: {
         Args: { _limit?: number }
         Returns: {

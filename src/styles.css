@@ -3824,3 +3824,10 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls-inf-boards li { border-top: 1px solid var(--border); padding-top: 10px; }
 .ls-inf-boards a { font-size: 18px; color: var(--foreground); }
 .ls-inf-boards p { font-size: 13px; color: var(--muted-foreground); }
+.ls-infdir { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+.ls-infdir-card { min-width: 0; border: 1px solid var(--border); border-radius: 14px; padding: 10px; display: grid; gap: 10px; }
+.ls-infdir-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.ls-infdir-photos img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 8px; }
+.ls-infdir-photos img:only-child { grid-column: span 2; }
+.ls-infdir-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ml-stylists-link { display: block; margin: 40px auto; max-width: 64rem; padding: 0 20px; }

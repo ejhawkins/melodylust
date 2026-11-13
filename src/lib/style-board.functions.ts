@@ -117,3 +117,11 @@ export const getInfluencerBoards = createServerFn({ method: "GET" })
     const boards = rows.map(toBoard);
     return { author: boards.find(b => b.id === data.id)?.author ?? boards[0]!.author, boards };
   });
+
+export type InfluencerCard = { id: string; author: string; boardCount: number; photos: { name: string; image: string }[] };
+export const listInfluencers = createServerFn({ method: "GET" }).handler(async (): Promise<{ influencers: InfluencerCard[] }> => {
+  const { data, error } = await publicClient().rpc("list_influencers", { _limit: 48 });
+  if (error) { console.error(error); throw new Error("Stylists are unavailable right now."); }
+  return { influencers: (data ?? []).map(r => ({ id: r.board_id, author: r.author_display_name, boardCount: r.board_count,
+    photos: (r.items as BoardItem[]).filter(i => i.image).map(i => ({ name: i.name, image: i.image! })) })) };
+});

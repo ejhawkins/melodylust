@@ -35,7 +35,7 @@ const charliRock = { url: charliRockImage };
 const skuzland = { url: skuzlandImage };
 const coverStory = { url: coverStoryImage };
 const coverStoryFilm = { url: "" };
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Search, ArrowDown, ArrowRight, Play, ArrowUp, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -443,6 +443,7 @@ function Index() {
       <ShopSection />
       <Wishlist />
       <MoodHeading text="Reader looks" className="notes-head" stacked />
+      <Link to="/influencers" className="ml-stylists-link font-isidora underline">Style Influencers — follow reader stylists and their approved boards →</Link>
       <StylingNotes />
       <GuidedStory />
       <section className="manifesto"><h2>GOOD STYLE.<br />GREAT MUSIC. YOUR RULES.</h2><p>For the clothes you live in. The records you return to. And the moments when the two come together.</p></section>

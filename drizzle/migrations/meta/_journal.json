@@ -85,6 +85,13 @@
       "when": 1794578207172,
       "tag": "0011_influencer_boards",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794578471936,
+      "tag": "0012_list_influencers",
+      "breakpoints": true
     }
   ]
 }

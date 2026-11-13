@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { getInfluencerBoards } from "@/lib/style-board.functions";
 import { spotifyTrackId } from "@/lib/style-board";
+import { FollowButton } from "@/components/FollowButton";
 
 export const Route = createFileRoute("/influencer/$id")({
   loader: async ({ params }) => {
@@ -37,6 +38,7 @@ function InfluencerPage() {
       <header className="space-y-3">
         <p className="ls-board-kicker">Style Influencer</p>
         <h1 className="ls-board-title">{author}</h1>
+        <div className="flex gap-3 items-center"><FollowButton id={Route.useParams().id} author={author} /><Link to="/influencers" className="underline text-sm">All stylists</Link></div>
         <p className="ls-board-note">{boards.length} board{boards.length === 1 ? "" : "s"} · {photos.length} looks · {music.length} songs · {reads.length} reads</p>
       </header>
       {photos.length > 0 && <section aria-labelledby="inf-photos"><h2 id="inf-photos" className="ls-board-h2">The fashion</h2>
