@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -13,6 +13,21 @@ import { lookupProducts, lookupShopCatalog } from "@/lib/products.functions";
 import { songCatalog, spotifySearchUrl } from "@/lib/song-recommendations";
 import { useTasteSongs } from "@/lib/taste-songs";
 import { listenUrl } from "@/lib/youtube-takeout";
+import { searchArtists } from "@/lib/artists.functions";
+import type { ArtistSuggestion, SelectedArtist } from "@/lib/artist-search";
+import type { ArtistStyleRecommendation } from "@/lib/artist-style";
+import { FREQBLOG_ATTRIBUTION } from "@/lib/artist-provider";
+import type { EvidenceDocument } from "@/lib/melodylust-evidence";
+import { searchTrackedEditorialEvidence } from "@/lib/melodylust.functions";
+import { useArtistSuggestions } from "@/lib/use-artist-suggestions";
+import { useStyleProfile } from "@/lib/use-style-profile";
+import { AIArtistStyle } from "./AIArtistStyle";
+import { ArtistSongs } from "./ArtistSongs";
+import { ArtistSuggestionList } from "./ArtistSuggestionList";
+import { ScoutedArticles } from "./ScoutedArticles";
+
+/** Stylist AI's answer for the search: an artist's outfit ideas, articles and songs, as on the Stylist page. */
+type Stylist = { for: string; status: "loading" | "ready" | "none" | "error"; recommendation: ArtistStyleRecommendation | null; articles: EvidenceDocument[]; message: string };
 
 type Live = { item: string; products: ShopProduct[]; status: "loading" | "ok" | "not_configured" | "unavailable" };
 
@@ -44,6 +59,42 @@ export function FashionMusicSearch({ open, onOpenChange, playlist = [], tone }: 
   const library = useMusicLibrary();
   const taste = useTasteSongs();
 
+  // The Stylist AI search, in this field: artist suggestions as you type, and the artist's styling once chosen or searched.
+  const { profile } = useStyleProfile();
+  const suggestionId = useId();
+  const artistSearch = useServerFn(searchArtists);
+  const [chosenArtist, setChosenArtist] = useState<SelectedArtist | null>(null);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [stylist, setStylist] = useState<Stylist | null>(null);
+  const suggestions = useArtistSuggestions(open && !chosenArtist ? query : "", (value, signal) => artistSearch({ data: { query: value }, signal }));
+  const currentSuggestions = "query" in suggestions && suggestions.query === query.trim();
+  const artistResults = currentSuggestions && suggestions.status === "ready" ? suggestions.results : [];
+  const expanded = suggestionsOpen && artistResults.length > 0;
+  useEffect(() => { setActiveSuggestion(-1); }, [query]);
+  useEffect(() => {
+    if (activeSuggestion >= 0) document.getElementById(`${suggestionId}-option-${activeSuggestion}`)?.scrollIntoView?.({ block: "nearest" });
+  }, [activeSuggestion, suggestionId]);
+
+  const askStylist = async (text: string, artist: SelectedArtist | null) => {
+    const asked = text.trim();
+    if (!asked || (stylist?.for === asked && stylist.status !== "error")) return;
+    setStylist({ for: asked, status: "loading", recommendation: null, articles: [], message: "" });
+    const settle = (next: Omit<Stylist, "for">) => setStylist(now => (now?.for === asked ? { for: asked, ...next } : now)); // a newer search wins
+    try {
+      const response = await searchTrackedEditorialEvidence({ data: { query: asked, profile, ...(artist ? { artist } : {}) }, signal: AbortSignal.timeout(30_000) });
+      const recommendation = response.recommendation ?? null;
+      settle({ status: recommendation || response.articles.length ? "ready" : "none", recommendation, articles: response.articles, message: response.warning ?? "" });
+    } catch {
+      settle({ status: "error", recommendation: null, articles: [], message: "Stylist AI isn't answering right now. Please try again soon." });
+    }
+  };
+  const chooseArtist = (artist: ArtistSuggestion) => {
+    const selected = { id: artist.id, name: artist.name, source: artist.source };
+    setChosenArtist(selected); setQuery(artist.name); setSuggestionsOpen(false); setActiveSuggestion(-1);
+    void askStylist(artist.name, selected);
+  };
+
   // Chart first, then the editor's picks and the playlist, then the reader's own songs on this device.
   const songs = useMemo<SongHit[]>(() => [
     ...(feed?.chart.entries ?? []).map(e => ({ id: `hot-${e.pos}`, title: e.title, artist: e.artist, source: `Hot 100 · No. ${e.pos}`, href: listenLink(e) })),
@@ -54,6 +105,7 @@ export function FashionMusicSearch({ open, onOpenChange, playlist = [], tone }: 
   ], [feed, playlist, taste, library]);
 
   const q = query.trim();
+  const stylistNow = stylist && stylist.for === q ? stylist : null;
   const item = liveItem(q);
   const liveNow = live && live.item === item ? live : null;
   const products: ShopProduct[] = q
@@ -92,13 +144,49 @@ export function FashionMusicSearch({ open, onOpenChange, playlist = [], tone }: 
               <Dialog.Title className="fms-kicker">Fashion &amp; Music Search</Dialog.Title>
               <Dialog.Close asChild><Button variant="editorial" className="h-9 px-1 uppercase text-[11px] tracking-[0.16em]">Close <X aria-hidden /></Button></Dialog.Close>
             </div>
-            <form role="search" className="fms-form" onSubmit={event => { event.preventDefault(); void searchLive(); }}>
+            <form role="search" className="fms-form" onSubmit={event => { event.preventDefault(); setSuggestionsOpen(false); void searchLive(); void askStylist(q, chosenArtist); }}>
               <label htmlFor="fms-query" className="sr-only">Search fashion and music</label>
-              <input ref={input} id="fms-query" type="search" autoComplete="off" spellCheck={false} className="fms-input" placeholder="Fashion & music…" value={query} onChange={event => setQuery(event.target.value)} />
+              <input ref={input} id="fms-query" type="search" role="combobox" autoComplete="off" aria-autocomplete="list" spellCheck={false} className="fms-input" placeholder="Fashion & music…"
+                aria-expanded={expanded} aria-controls={`${suggestionId}-list`}
+                aria-activedescendant={expanded && activeSuggestion >= 0 && activeSuggestion < artistResults.length ? `${suggestionId}-option-${activeSuggestion}` : undefined}
+                value={query} onChange={event => { setQuery(event.target.value); setChosenArtist(null); setSuggestionsOpen(true); }}
+                onFocus={() => setSuggestionsOpen(true)} onBlur={() => { setSuggestionsOpen(false); setActiveSuggestion(-1); }}
+                onKeyDown={event => {
+                  // Escape closes the suggestions first; a second Escape closes the search.
+                  if (event.key === "Escape" && expanded) { event.preventDefault(); event.stopPropagation(); setSuggestionsOpen(false); setActiveSuggestion(-1); }
+                  if ((event.key === "ArrowDown" || event.key === "ArrowUp") && artistResults.length) {
+                    event.preventDefault(); setSuggestionsOpen(true);
+                    setActiveSuggestion(previous => event.key === "ArrowDown" ? (previous + 1) % artistResults.length : previous <= 0 ? artistResults.length - 1 : previous - 1);
+                  }
+                  if (event.key === "Enter" && expanded && activeSuggestion >= 0 && artistResults[activeSuggestion]) { event.preventDefault(); chooseArtist(artistResults[activeSuggestion]); }
+                }} />
               <Button type="submit" variant="searchGo" size="roundLg" aria-label="Search">{liveNow?.status === "loading" ? <LoaderCircle className="animate-spin" aria-hidden /> : <ArrowRight aria-hidden />}</Button>
             </form>
-            <Dialog.Description className="fms-hint">An artist, a song, a designer or a piece. Products and songs load underneath as you type.</Dialog.Description>
+            <div className="artist-search fms-artists">
+              <ArtistSuggestionList id={suggestionId} results={artistResults} expanded={expanded} active={activeSuggestion} onChoose={chooseArtist} />
+              {expanded && artistResults.some(artist => artist.source === "freqblog") && <p className="artist-credit">{FREQBLOG_ATTRIBUTION}</p>}
+            </div>
+            <Dialog.Description className="fms-hint">An artist, a song, a designer or a piece. Choose an artist for outfit ideas and articles; products and songs load underneath as you type.</Dialog.Description>
             <p className="sr-only" role="status">{q ? `${products.length} products and ${songHits.length} songs for ${q}` : ""}</p>
+
+            {stylistNow && <section className="fms-stylist" aria-label="Stylist AI" aria-busy={stylistNow.status === "loading"}>
+              <span className="stylus-eyebrow">Stylist AI</span>
+              {stylistNow.status === "loading" && <p role="status" className="stylus-status">Searching articles…</p>}
+              {stylistNow.status === "error" && <p role="alert" className="stylus-status">{stylistNow.message}</p>}
+              {stylistNow.status === "none" && <p role="status" className="stylus-status">No outfit ideas or articles for “{stylistNow.for}” yet. Choose an artist from the suggestions for styling.</p>}
+              {stylistNow.status === "ready" && stylistNow.message && <p role="status" className="stylus-status">{stylistNow.message}</p>}
+              {stylistNow.recommendation
+                ? <>
+                    {!stylistNow.articles.length && <p role="status" className="stylus-status">No approved articles about {stylistNow.recommendation.artist.name} in Melody Lust’s collection yet. The outfit below is an editorial suggestion, not sourced.</p>}
+                    <ScoutedArticles key={stylistNow.recommendation.artist.name} artist={stylistNow.recommendation.artist.name} />
+                    <ArtistSongs key={`songs:${stylistNow.recommendation.artist.name}`} artist={stylistNow.recommendation.artist.name} />
+                    <AIArtistStyle key={`style:${stylistNow.recommendation.artist.id}`} recommendation={stylistNow.recommendation} articles={stylistNow.articles} profile={profile} />
+                  </>
+                : stylistNow.articles.map(article => <article className="stylus-source" key={article.id}>
+                    <a href={article.url} target="_blank" rel="noopener noreferrer">{article.title} <ArrowUpRight aria-hidden /></a>
+                    <p>{article.publication} · {article.published_at}</p><p>{article.summary}</p>
+                  </article>)}
+            </section>}
 
             <div className="fms-results">
               <section className="fms-group" aria-labelledby="fms-products-title">

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Play } from "lucide-react";
+import { LikeButton } from "@/components/LikeButton";
 import coverChihiro from "@/assets/sleeve-chihiro.jpg";
 import coverBanks from "@/assets/sleeve-banks.jpg";
 import coverCudi from "@/assets/sleeve-cudi.jpg";
@@ -12,14 +13,15 @@ const videos: Video[] = [
   { id: "BY_XwvKogC8", artist: "Billie Eilish", title: "CHIHIRO", credit: "Official Music Video · Styling by", cover: coverChihiro, creditLink: { label: "Andrew Mukamal", href: "https://www.streeters.com/artists/styling/andrew-mukamal" }, url: "https://www.youtube.com/watch?v=BY_XwvKogC8", stylist: { name: "Andrew Mukamal", role: "Stylist", href: "https://www.streeters.com/artists/styling/andrew-mukamal" }, tags: ["Album", "2024"], theme: "The Ivy League" },
   { id: "5n8qzxUKQIs", artist: "BANKS", title: "This Is What It Feels Like", credit: "Goddess: Unplugged · ℗ 2024", cover: coverBanks, url: "https://music.youtube.com/watch?v=5n8qzxUKQIs", tags: ["Session", "2024"], theme: "Red Room" },
   { id: "VrDfSZ_6f4U", artist: "Kid Cudi", title: "Day 'N' Nite", credit: "Official Music Video · 2009", cover: coverCudi, url: "https://www.youtube.com/watch?v=VrDfSZ_6f4U", tags: ["Single", "2009"], theme: "Night Drive" },
-  { id: "S0qrinhNnOM", artist: "Solange", title: "Cranes in the Sky", credit: "A Seat at the Table · 2016", cover: coverSolange, url: "https://www.youtube.com/watch?v=S0qrinhNnOM", tags: ["Album", "2016"], theme: "Paper Sun" },
+  { id: "S0qrinhNnOM", artist: "Solange", title: "Cranes in the Sky", credit: "A Seat at the Table · 2016 · Styling by", cover: coverSolange, creditLink: { label: "Shiona Turini", href: "https://www.thefader.com/2016/10/07/solange-stylist-looks-seat-at-the-table-videos-cranes-dont-touch-my-hair" }, url: "https://www.youtube.com/watch?v=S0qrinhNnOM", stylist: { name: "Shiona Turini", role: "Stylist", href: "https://www.thefader.com/2016/10/07/solange-stylist-looks-seat-at-the-table-videos-cranes-dont-touch-my-hair" }, tags: ["Album", "2016"], theme: "Paper Sun" },
   { id: "4NRXx6U8ABQ", artist: "The Weeknd", title: "Blinding Lights", credit: "After Hours · 2020", cover: coverWeeknd, url: "https://www.youtube.com/watch?v=4NRXx6U8ABQ", tags: ["Album", "2020"], theme: "Neon Rush" },
 ];
 
 /** The music videos of "This is a mood", also listed in the listening room's library. */
 export { videos as moodVideos, type Video as MoodVideo };
 
-export function RecordStack() {
+/** `likes` adds a heart that files the film under Your Favorites (the listening room). */
+export function RecordStack({ likes = false }: { likes?: boolean }) {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState<number | null>(null);
   const v = videos[active] ?? videos[0]!;
@@ -93,8 +95,10 @@ export function RecordStack() {
         </div>
         <p className="records-credit">
           <a className="film-link" href={v.url} target="_blank" rel="noreferrer">{v.title} · {v.artist}</a>
-          <span>{v.credit}{v.creditLink && <> <a className="film-link" href={v.creditLink.href} target="_blank" rel="noreferrer">{v.creditLink.label}</a></>}</span>
+          {/* Every film names who styled it; where no styling credit has been published, it says so rather than guessing. */}
+          <span>{v.credit}{v.creditLink ? <> <a className="film-link" href={v.creditLink.href} target="_blank" rel="noreferrer">{v.creditLink.label}</a></> : " · Stylist not credited"}</span>
         </p>
+        {likes && <LikeButton look="quick" kind="video" id={v.id} name={`${v.title} by ${v.artist}`} sub={v.artist} image={v.cover} className="records-like" />}
       </div>
       <div className="records-spec">
         <h3 className="records-row">

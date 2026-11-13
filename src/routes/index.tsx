@@ -9,6 +9,7 @@ import { ArrowLeft, House, Play, Search, SlidersHorizontal, Square } from "lucid
 import { Button } from "@/components/ui/button";
 import { CuratorDossier, type DossierTab } from "@/components/CuratorDossier";
 import { DuotoneFilter } from "@/components/DuotoneFilter";
+import { AnalyticsGate } from "@/components/AnalyticsGate";
 import { FashionMusicSearch } from "@/components/FashionMusicSearch";
 import { ListenLibrary, PhotoOr } from "@/components/ListenLibrary";
 import { ListenContents } from "@/components/ListenContents";
@@ -21,7 +22,7 @@ import { LikeButton } from "@/components/LikeButton";
 import { ListenProductCard } from "@/components/ListenProductCard";
 import { ListenVideo } from "@/components/ListenVideo";
 import { ListenPlayer } from "@/components/ListenPlayer";
-import { ListenRunway, useRunwayNotes, useRunwaySongs } from "@/components/ListenRunway";
+import { ListenRunway, NoteCard, useRunwayNotes, useRunwaySongs } from "@/components/ListenRunway";
 import { ListenRunwayNote } from "@/components/ListenRunwayNote";
 import { ListenCapsule } from "@/components/ListenCapsule";
 import { ListenDayPlaylist } from "@/components/ListenDayPlaylist";
@@ -92,7 +93,7 @@ function MaskedWords({ text }: { text: string }) {
 }
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-/** YOU KNOW over a YOUR line that changes every few seconds. Its own component, so the timer re-renders only the headline.
+/** YOU KNOW over a YOUR line that changes every few seconds, once through, then the whole headline fades away. Its own component, so the timer re-renders only the headline.
  *  With motion allowed, GSAP reveals it word by word through masks once the cover is in view, then each change lifts the
  *  old line out of the top of its masks as the new one rises from below. Reduced motion keeps the plain crossfade. */
 function HeroTitle() {
@@ -100,8 +101,15 @@ function HeroTitle() {
   const title = useRef<HTMLHeadingElement>(null);
   const shown = useRef(index);
   const ready = useRef(false);
+  // One pass through the words, each held for a beat; after the last one the headline fades away and leaves the cover to the show.
+  const [faded, setFaded] = useState(false);
   useEffect(() => {
-    const id = window.setInterval(() => setIndex(i => (i + 1) % heroWords.length), 4600);
+    let shownWord = 0;
+    const id = window.setInterval(() => {
+      shownWord += 1;
+      if (shownWord < heroWords.length) setIndex(shownWord);
+      else { window.clearInterval(id); setFaded(true); }
+    }, 4600);
     return () => window.clearInterval(id);
   }, []);
 
@@ -140,7 +148,7 @@ function HeroTitle() {
   }, [index]);
 
   return (
-    <h1 ref={title} id="ls-hero-title" className="ls-hero-title" style={{ "--ls-slot-em": heroWords[index]?.em, "--ls-tallest-em": heroTallestEm } as CSSProperties}>
+    <h1 ref={title} id="ls-hero-title" className="ls-hero-title" data-faded={faded} style={{ "--ls-slot-em": heroWords[index]?.em, "--ls-tallest-em": heroTallestEm } as CSSProperties}>
       <span className="ls-hero-know" aria-hidden="true"><MaskedWords text="YOU KNOW" /></span>
       <span className="ls-hero-slot" aria-hidden="true">
         {heroWords.map((w, i) => <span key={w.word} className="ls-hero-word" data-active={i === index} style={{ "--word-em": w.em } as CSSProperties}><MaskedWords text={`YOUR ${w.word}`} /></span>)}
@@ -356,6 +364,10 @@ function ListeningRoom() {
   const video = view.kind === "video" ? moodVideos[view.index] : undefined;
   const ownList = view.kind === "playlist" ? playlists.find(p => p.id === view.id) : undefined;
   const note = view.kind === "note" ? runwayNoteList.find(n => n.id === view.id) : undefined;
+  // The latest Runway Note (the editor lists the newest first), as a card under Runway Songs in the contents.
+  const latestNote = runwayNoteList[0];
+  const latestIndex = latestNote?.lead?.songId ? runway.findIndex(s => s.id === latestNote.lead?.songId) : -1;
+  const runwayCard = latestNote && <NoteCard note={latestNote} index={latestIndex} active={onRunway && latestIndex >= 0 && latestIndex === now} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />;
   const notes = stories.filter(s => category === "All" || s.category === category);
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
   const heroLeads = phone && view.kind !== "want" && view.kind !== "profile" && !look && !video && !ownList && !note && !board && view.kind !== "contents";
@@ -388,7 +400,7 @@ function ListeningRoom() {
 
       <div className="ls-body">
         {heroLeads && <div className="ls-center ls-lead" ref={lead}><ListenHero onPlayMix={playMix}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero></div>}
-        <ListenLibrary open={libraryOpen} onOpenChange={setLibraryOpen} mix={mix} active={active}
+        <ListenLibrary open={libraryOpen} onOpenChange={setLibraryOpen} mix={mix} active={active} runwayCard={runwayCard}
           nowPlaying={listening ? song.caption : undefined} onPlaySong={play} onPlayListSong={playList}
           onPlayMix={playMix}
           onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)}
@@ -421,7 +433,7 @@ function ListeningRoom() {
             <div className="ls-contents-stage">
               <ListenStudio onPlay={playStudio} nowPlaying={onStudio && listening ? song.caption : undefined} />
               <ListenContents mix={mix} playlists={playlists} nowPlaying={listening ? song.caption : undefined} onPlayMix={play} onPlayList={playList}
-                onRunway={() => setCategory("Runway")} onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)} />
+                onRunway={() => setCategory("Runway")} onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)} runwayCard={runwayCard} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
             </div>
           ) : view.kind === "profile" ? (
@@ -530,6 +542,7 @@ function ListeningRoom() {
       <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}
         onRead={id => { setQuizOpen(false); const story = stories.find(s => s.id === id); if (story) { setActive(`story-${story.id}`); setArticle(story); } }} />
       <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} tone="room" />
+      <AnalyticsGate tone="room" />
       <StoryDialog story={article} onClose={() => setArticle(null)} />
     </div>
   );

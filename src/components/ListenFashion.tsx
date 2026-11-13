@@ -5,13 +5,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FitCompass } from "@/components/FitCompass";
 import { LikeButton } from "@/components/LikeButton";
+import { ListenTumblr } from "@/components/ListenTumblr";
 import { supabase } from "@/integrations/supabase/client";
 import { FIT_ITEMS, fitWishName } from "@/lib/fit-compass";
 import { getStylistStatus } from "@/lib/stylist.functions";
 import { drawStylistCard } from "@/lib/stylist-card";
 import { addWish, useWishlist } from "@/lib/wishlist";
 
-/** The Listening Room's Fashion tab: the Fit Compass, the capsule of looks with their songs, and a Story card only stylists can share. */
+/** The Listening Room's Fashion tab: the Fit Compass, the capsule of looks with their songs, the blog's latest Tumblr posts, and a Story card only stylists can share. */
 export function ListenFashion({ onProfile }: { onProfile: () => void }) {
   const item = FIT_ITEMS[0]!;
   const wishes = useWishlist();
@@ -76,6 +77,8 @@ export function ListenFashion({ onProfile }: { onProfile: () => void }) {
           </li>;
         })}
       </ul>
+
+      <ListenTumblr />
 
       <div className="ls-fashion-share">
         <p className="ls-fashion-kicker">For stylists</p>

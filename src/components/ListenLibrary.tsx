@@ -34,7 +34,9 @@ const songCount = (n: number) => (n === 1 ? "1 song" : `${n} songs`);
  *  than the whole catalogue, and Capsule holds the pieces saved to the Want List. A block with nothing added yet says how
  *  things get there. It folds down to a rail of
  *  the reader's favourites as thumbnails: everything they have hearted, newest first. */
-export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onPlaySong, onPlayListSong, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead, onContents, contentsShown, onCapsule, onDay }: {
+export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onPlaySong, onPlayListSong, onPlayMix, onPlaylist, onWant, onProfile, onLook, onVideo, onBoard, onRead, onContents, contentsShown, onCapsule, onDay, runwayCard }: {
+  /** The latest Runway Note's card, for the contents' Runway Songs chapter. */
+  runwayCard?: ReactNode;
   /** The feed already shows the contents spread, so the library skips its own copy. */
   contentsShown?: boolean;
   /** Playlists chosen: the contents spread opens front and center in the feed. */
@@ -139,7 +141,7 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
         </div>
         <div className="ls-scroll">
         {!contentsShown && (!kind || kind === "Playlists") && <ListenContents mix={mix} playlists={playlists} nowPlaying={nowPlaying} onPlayMix={onPlaySong} onPlayList={onPlayListSong}
-          onRunway={() => void navigate({ to: "/runway-songs" })} onPlaylist={onPlaylist} footer={<NewPlaylist onCreated={onPlaylist} />} />}
+          onRunway={() => void navigate({ to: "/runway-songs" })} onPlaylist={onPlaylist} footer={<NewPlaylist onCreated={onPlaylist} />} runwayCard={runwayCard} />}
         <ul>
           {groups.filter(group => group.kind !== "Playlists").map(group => (
             <li key={group.kind} className="ls-lib-group">

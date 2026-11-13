@@ -34,7 +34,7 @@ export function AIArtistStyle({ recommendation, articles, profile }: { recommend
       const response = await styleArtistWithAI({ data: {
         artist: artist.name, genres: artist.genres.slice(0, 8), songs,
         articles: articles.slice(0, 8).map(a => ({ id: a.id, title: a.title, summary: a.summary, url: a.url })),
-        coverage: coverage.slice(0, 6).map(a => ({ url: a.url, publication: a.publication, title: a.title, summary: a.summary })),
+        coverage: coverage.slice(0, 10).map(a => ({ url: a.url, publication: a.publication, title: a.title, summary: a.summary })),
         preferences: preferencesOf(profile),
       } });
       if (current) setState(response);
@@ -57,7 +57,7 @@ export function AIArtistStyle({ recommendation, articles, profile }: { recommend
       <ol>{idea.pieces.map(piece => <li key={piece.item}><span><strong>{piece.brand ? `${piece.brand} ${piece.item}` : piece.item}</strong> {piece.note}</span></li>)}</ol>
     </div>
     <ShopProducts key={`${artist.id}:${idea.title}`} designer={null} items={idea.pieces.map(piece => piece.item)} brands={idea.pieces.map(piece => piece.brand)} from={from}
-      seed={`${artist.id}|${idea.title}`} genres={artist.genres}
+      seed={`${artist.id}|${idea.title}`} genres={artist.genres} look={idea.title}
       title="Shop pieces like these" showStatus note={`Real Farfetch listings matched to this idea's pieces by search. Suggestions only, not items ${artist.name} wore. Prices and stock change.`} />
     {state.suggestions.length > 1 && <div className="stylus-restyle"><span>Idea {index % state.suggestions.length + 1} of {state.suggestions.length}</span><Button variant="stylusTool" onClick={() => setIndex(i => i + 1)}>Another idea <ArrowRight aria-hidden="true" /></Button></div>}
     <p className="stylus-evidence-note">{idea.basis === 'evidence'

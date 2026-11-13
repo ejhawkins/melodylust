@@ -8,7 +8,7 @@ type Chapter = { id: string; title: string; dek: string; songs: MixSong[]; play:
 
 /** The library's playlists as a magazine contents page: every playlist is a numbered feature with a contact-sheet strip
  *  of its covers and a dotted index of its songs, so songs from all of them sit on one screen. A tap plays that song. */
-export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayList, onRunway, onPlaylist, footer }: {
+export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayList, onRunway, onPlaylist, footer, runwayCard }: {
   mix: readonly MixSong[];
   playlists: readonly Playlist[];
   nowPlaying?: string | undefined;
@@ -17,6 +17,8 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
   onRunway: () => void;
   onPlaylist: (id: string) => void;
   footer?: ReactNode;
+  /** The latest Runway Note's card, set under Runway Songs. */
+  runwayCard?: ReactNode;
 }) {
   const chapters: Chapter[] = [
     { id: "mix", title: "The Autumn Mix", dek: "The season, scored", songs: [...mix], play: onPlayMix },
@@ -76,6 +78,7 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
               <span className="ls-toc-name">Runway Songs</span>
             </span>
           </button>
+          {runwayCard && <div className="ls-toc-runway-card">{runwayCard}</div>}
         </li>
       </ol>
       {footer}

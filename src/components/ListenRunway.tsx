@@ -80,7 +80,8 @@ export function ListenRunway({ notes, songs, playing, onPlay, onOpen }: {
   );
 }
 
-function NoteCard({ note, index, active, onPlay, onOpen }: { note: RunwayNote; index: number; active: boolean; onPlay: (index: number) => void; onOpen: (id: string) => void }) {
+/** One show's Runway Note as a card; also set under Runway Songs in the contents, for the latest note. */
+export function NoteCard({ note, index, active, onPlay, onOpen }: { note: RunwayNote; index: number; active: boolean; onPlay: (index: number) => void; onOpen: (id: string) => void }) {
   const show = `${note.house} ${note.season} ${note.year}`;
   const by = noteDesigners(note);
   const lead = note.lead;

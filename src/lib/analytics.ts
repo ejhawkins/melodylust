@@ -5,6 +5,8 @@
 export const GA_MEASUREMENT_ID = 'G-TFEYRBGQ9Q';
 
 export const ANALYTICS_CONSENT_KEY = 'ml-analytics-consent';
+/** Fired on the window when the reader chooses, so anything waiting on the choice (Vercel Analytics) hears it. */
+export const ANALYTICS_CONSENT_EVENT = 'ml-analytics-consent-change';
 export type AnalyticsConsent = 'granted' | 'denied' | 'ask';
 
 const MEASUREMENT_ID = /^G-[A-Z0-9]{4,}$/;
@@ -20,6 +22,7 @@ export function readAnalyticsConsent(): AnalyticsConsent {
 
 export function saveAnalyticsConsent(value: Exclude<AnalyticsConsent, 'ask'>) {
   try { window.localStorage.setItem(ANALYTICS_CONSENT_KEY, value); } catch { /* storage unavailable: asked again next visit */ }
+  try { window.dispatchEvent(new Event(ANALYTICS_CONSENT_EVENT)); } catch { /* no window */ }
 }
 
 type GtagWindow = Window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void };

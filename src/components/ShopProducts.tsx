@@ -5,14 +5,17 @@ import { lookupProducts } from '@/lib/products.functions';
 import { formatPrice, type ShopProduct } from '@/lib/farfetch';
 import { addWish } from '@/lib/wishlist';
 import { CANDIDATE_POOL, pickOutfitProducts } from '@/lib/product-pick';
+import { LookPreview } from './LookPreview';
 
 type ShopState = { status: 'loading' | 'ready' | 'none' | 'unavailable'; products: ShopProduct[] };
 
 /** Real Farfetch listings for a look: a house's signature pieces, or one match per item. Product
  *  photos are the provider's own; a card whose photo fails to load is hidden, never replaced.
  *  With `showStatus`, loading / no-match / unavailable are spelled out instead of rendering nothing. */
-export function ShopProducts({ designer, items, brands, from, title, showStatus = false, note, seed, genres = [] }: {
+export function ShopProducts({ designer, items, brands, from, title, showStatus = false, note, seed, genres = [], look }: {
   designer: string | null; items?: string[]; from: string; title?: string; showStatus?: boolean; note?: string;
+  /** With a look (the idea's title), offers an on-request AI image of a model wearing the first piece. */
+  look?: string;
   /** A brand per item, aligned with `items` ("Ralph Lauren" for "polo shirt"); null searches all brands. */
   brands?: (string | null)[];
   /** With a seed, each piece fetches several candidates and one is picked per artist and outfit (see product-pick). */
@@ -69,6 +72,7 @@ export function ShopProducts({ designer, items, brands, from, title, showStatus 
         <Button variant="stylusTool" size="icon" aria-label={`Save ${product.brand} ${product.name} to My Edit`} title="Save to My Edit" onClick={() => { addWish({ kind: 'piece', name: `${product.brand} ${product.name}`, detail: formatPrice(product.price, product.currency), link: product.link, note: '', from, image: product.image }); setSaved(s => [...s, product.id]); }}>{saved.includes(product.id) ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</Button>
       </span>
     </li>)}</ul>}
+    {look && shown.length > 0 && <LookPreview products={shown} mood={look} from={from} />}
     <p className="stylus-evidence-note">{note ?? 'Products via Farfetch search; prices and stock change. Not tracker evidence.'}</p>
   </section>;
 }

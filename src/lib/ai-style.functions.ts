@@ -25,7 +25,13 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
       const { clientKey } = await import('./client-key.server');
       if (!limiter.allow(await clientKey())) return { status: 'rate_limited', suggestions: [], provider };
       const { getRequest } = await import('@tanstack/react-start/server');
-      return readAIJSON(AI_STYLE_PROMPT, data, getRequest()).then(payload => readResult(payload));
+      // The model now and then returns text that isn't valid JSON; one more try usually answers, so the reader gets
+      // ideas from the articles rather than the generic fallback outfit.
+      const ask = () => readAIJSON(AI_STYLE_PROMPT, data, getRequest());
+      return ask().catch(failure => {
+        console.error('[AI style] retrying after', failure instanceof Error ? failure.message : failure);
+        return ask();
+      }).then(payload => readResult(payload));
     })().catch(failure => {
       // Server log only; never a key.
       console.error('[AI style] failed', failure instanceof Error ? failure.message : failure);
