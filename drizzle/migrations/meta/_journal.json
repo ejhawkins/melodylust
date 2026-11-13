@@ -50,6 +50,20 @@
       "when": 1794573078041,
       "tag": "0006_restore_evidence_and_product_caches",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794577251519,
+      "tag": "0007_create_style_boards",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794577273428,
+      "tag": "0008_create_style_boards",
+      "breakpoints": true
     }
   ]
 }

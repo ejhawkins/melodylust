@@ -17,6 +17,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RadioRouteImport } from './routes/radio'
 import { Route as RunwaySamplerRouteImport } from './routes/runway-sampler'
 import { Route as RunwaySongsRouteImport } from './routes/runway-songs'
+import { Route as BoardIdRouteImport } from './routes/board.$id'
 import { Route as SongIdRouteImport } from './routes/song.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -59,6 +60,11 @@ const RunwaySongsRoute = RunwaySongsRouteImport.update({
   path: '/runway-songs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoardIdRoute = BoardIdRouteImport.update({
+  id: '/board/$id',
+  path: '/board/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SongIdRoute = SongIdRouteImport.update({
   id: '/song/$id',
   path: '/song/$id',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/radio': typeof RadioRoute
   '/runway-sampler': typeof RunwaySamplerRoute
   '/runway-songs': typeof RunwaySongsRoute
+  '/board/$id': typeof BoardIdRoute
   '/song/$id': typeof SongIdRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/radio': typeof RadioRoute
   '/runway-sampler': typeof RunwaySamplerRoute
   '/runway-songs': typeof RunwaySongsRoute
+  '/board/$id': typeof BoardIdRoute
   '/song/$id': typeof SongIdRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/radio': typeof RadioRoute
   '/runway-sampler': typeof RunwaySamplerRoute
   '/runway-songs': typeof RunwaySongsRoute
+  '/board/$id': typeof BoardIdRoute
   '/song/$id': typeof SongIdRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/radio'
     | '/runway-sampler'
     | '/runway-songs'
+    | '/board/$id'
     | '/song/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/radio'
     | '/runway-sampler'
     | '/runway-songs'
+    | '/board/$id'
     | '/song/$id'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/radio'
     | '/runway-sampler'
     | '/runway-songs'
+    | '/board/$id'
     | '/song/$id'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   RadioRoute: typeof RadioRoute
   RunwaySamplerRoute: typeof RunwaySamplerRoute
   RunwaySongsRoute: typeof RunwaySongsRoute
+  BoardIdRoute: typeof BoardIdRoute
   SongIdRoute: typeof SongIdRoute
 }
 
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RunwaySongsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/board/$id': {
+      id: '/board/$id'
+      path: '/board/$id'
+      fullPath: '/board/$id'
+      preLoaderRoute: typeof BoardIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/song/$id': {
       id: '/song/$id'
       path: '/song/$id'
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   RadioRoute: RadioRoute,
   RunwaySamplerRoute: RunwaySamplerRoute,
   RunwaySongsRoute: RunwaySongsRoute,
+  BoardIdRoute: BoardIdRoute,
   SongIdRoute: SongIdRoute,
 }
 export const routeTree = rootRouteImport

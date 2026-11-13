@@ -9,6 +9,8 @@ import { ArrowLeft, House, Play, Search, SlidersHorizontal, Square, Volume2, Vol
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { StylingNotes } from "@/components/StylingNotes";
+import { StyleBoardComposer } from "@/components/StyleBoardComposer";
+import { DressedToTheBeat } from "@/components/DressedToTheBeat";
 import { DigitalZine } from "@/components/DigitalZine";
 import { CuratorDossier, type DossierTab } from "@/components/CuratorDossier";
 import { DuotoneFilter } from "@/components/DuotoneFilter";
@@ -317,7 +319,7 @@ function ListeningRoom() {
   const [filmNotesOpen, setFilmNotesOpen] = useState(false);
   const [onRunway, setOnRunway] = useState(false);
   // The feed's note shelves stay folded until a pill opens one.
-  const [shelf, setShelf] = useState<"music" | "runway" | "style" | "fashion" | "reading" | null>(null);
+  const [shelf, setShelf] = useState<"music" | "runway" | "style" | "fashion" | "reading" | "beat" | null>(null);
   const feed = useRef<HTMLElement>(null);
   const lead = useRef<HTMLDivElement>(null);
   useRoomMotion(feed);
@@ -398,7 +400,7 @@ function ListeningRoom() {
   const notes = stories.filter(s => category === "All" || s.category === category);
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
   const heroLeads = phone && view.kind !== "want" && view.kind !== "profile" && !look && !video && !ownList && !note && !board && view.kind !== "contents";
-  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : shelf === "reading" ? "reading" : undefined;
+  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : shelf === "reading" ? "reading" : shelf === "beat" ? "beat" : undefined;
   const openReading = () => {
     setView({ kind: "feed" }); setShelf("reading");
     requestAnimationFrame(() => document.getElementById("reading-room")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
@@ -406,6 +408,10 @@ function ListeningRoom() {
   useEffect(() => { if (window.location.hash === "#reading-room") openReading(); }, []);
   const pickIssue = (tab: IssueTab) => {
     if (tab === "reading") return openReading();
+    if (tab === "beat") {
+      setView({ kind: "feed" }); setShelf("beat");
+      return requestAnimationFrame(() => document.getElementById("dressed-to-the-beat")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
+    }
     if (tab === "playlists") return open({ kind: "contents" }, "mix");
     if (tab === "want") return openWant();
     setView({ kind: "feed" });
@@ -456,6 +462,7 @@ function ListeningRoom() {
             // The home page's Want List, loaded right here and re-inked black and white.
             <div className="ls-want">
               <Wishlist />
+              <StyleBoardComposer />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
             </div>
           ) : view.kind === "day" ? (
@@ -503,6 +510,7 @@ function ListeningRoom() {
           ) : <>
             {!heroLeads && <ListenHero onPlayMix={playMix} onNotes={() => setFilmNotesOpen(true)} onFilmSound={() => setListening(false)}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero>}
 
+            {shelf === "beat" && <DressedToTheBeat />}
             {shelf === "fashion" && <ListenFashion onProfile={openProfile} playing={listening} />}
 
             <DigitalZine tone="room" nowReadingWith={{ id: song.caption, title: song.title, artist: song.artist, art: song.art }} />

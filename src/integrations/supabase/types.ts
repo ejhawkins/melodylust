@@ -152,6 +152,36 @@ export type Database = {
         }
         Relationships: []
       }
+      style_boards: {
+        Row: {
+          author_display_name: string
+          created_at: string
+          id: string
+          items: Json
+          note: string
+          owner_id: string
+          title: string
+        }
+        Insert: {
+          author_display_name: string
+          created_at?: string
+          id: string
+          items?: Json
+          note: string
+          owner_id: string
+          title: string
+        }
+        Update: {
+          author_display_name?: string
+          created_at?: string
+          id?: string
+          items?: Json
+          note?: string
+          owner_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       style_votes: {
         Row: {
           created_at: string
@@ -267,6 +297,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_style_board: {
+        Args: { _id: string }
+        Returns: {
+          author_display_name: string
+          created_at: string
+          id: string
+          items: Json
+          note: string
+          title: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

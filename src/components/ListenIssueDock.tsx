@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 
-export type IssueTab = "playlists" | "runway" | "notes" | "fashion" | "reading" | "want";
+export type IssueTab = "playlists" | "runway" | "notes" | "fashion" | "reading" | "beat" | "want";
 const TABS: { id: IssueTab; label: string }[] = [
   { id: "playlists", label: "Playlists" },
   { id: "runway", label: "Runway" },
   { id: "notes", label: "Notes" },
   { id: "fashion", label: "Fashion" },
   { id: "reading", label: "Reading" },
+  { id: "beat", label: "Celebrity" },
 ];
 
 /** The Issue's sections as one slim row: inside the hero on phones, and pinned above the player once the hero scrolls away. */
