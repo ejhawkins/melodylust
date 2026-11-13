@@ -158,7 +158,8 @@ function NoteCard({ note, index, saveable = false }: { note: StylingNoteView; in
   </article>;
 }
 
-export function AuthDialog({ open, onOpenChange, onSignedIn, initialMode = "signin", onPasswordUpdated }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void>; initialMode?: AuthMode; onPasswordUpdated?: () => void }) {
+/** `tone="room"` sets the dialog in the Listening Room's tokens (it is portalled, so it can't inherit them). */
+export function AuthDialog({ open, onOpenChange, onSignedIn, initialMode = "signin", onPasswordUpdated, tone }: { open: boolean; onOpenChange: (open: boolean) => void; onSignedIn: () => Promise<void>; initialMode?: AuthMode; onPasswordUpdated?: () => void; tone?: "room" | undefined }) {
   const [mode, setMode] = useState<AuthMode>(initialMode); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [displayName, setDisplayName] = useState(""); const [status, setStatus] = useState(""); const [busy, setBusy] = useState(false);
   // Each time it opens, start where the visit needs it: a reset link goes straight to a new password.
   useEffect(() => { if (open) { setMode(initialMode); setStatus(""); } }, [open, initialMode]);
@@ -173,7 +174,7 @@ export function AuthDialog({ open, onOpenChange, onSignedIn, initialMode = "sign
   } catch (error) { setStatus(authMessage(error)); } finally { setBusy(false); } };
   // A message belongs to the screen it came from; switching screens starts clean.
   const go = (next: AuthMode) => { setMode(next); setStatus(""); };
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="styling-auth"><DialogTitle>{mode === "signup" ? "Join Styling Notes" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : "Sign in to contribute"}</DialogTitle><DialogDescription>Browse freely. Sign in only when you want to submit or manage your notes.</DialogDescription><form onSubmit={submit}>
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className={tone === "room" ? "styling-auth ls-quiz" : "styling-auth"}><DialogTitle>{mode === "signup" ? "Join Styling Notes" : mode === "forgot" ? "Reset your password" : mode === "reset" ? "Choose a new password" : "Sign in to contribute"}</DialogTitle><DialogDescription>Browse freely. Sign in only when you want to submit or manage your notes.</DialogDescription><form onSubmit={submit}>
     {mode === "signup" && <label>Display name<input required maxLength={60} value={displayName} onChange={e => setDisplayName(e.target.value)} /></label>}
     {mode !== "reset" && <label>Email<input required type="email" value={email} onChange={e => setEmail(e.target.value)} /></label>}
     {mode !== "forgot" && <label>Password<input required minLength={8} type="password" value={password} onChange={e => setPassword(e.target.value)} /></label>}

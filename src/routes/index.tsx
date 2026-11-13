@@ -27,6 +27,8 @@ import { ListenCapsule } from "@/components/ListenCapsule";
 import { ListenDayPlaylist } from "@/components/ListenDayPlaylist";
 import { moodVideos } from "@/components/RecordStack";
 import { NowWearing } from "@/components/NowWearing";
+import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
+import { useStyleProfile } from "@/lib/use-style-profile";
 import { StoryDialog } from "@/components/StoryDialog";
 import { Wishlist } from "@/components/Wishlist";
 import { ListenWantShelf } from "@/components/ListenWantShelf";
@@ -45,6 +47,8 @@ import heroRunway4 from "@/assets/hero-runway-4.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
     { title: "The Listening Room — Melody Lust" },
+    // The browser's own bar in the top bar's plum (--color-fig-950), so the page runs flush into it.
+    { name: "theme-color", content: "#140713" },
     { name: "description", content: "Melody Lust as a listening room: your library, The Autumn Mix and the three pieces that dress each song." },
     { property: "og:title", content: "The Listening Room — Melody Lust" },
     { property: "og:description", content: "Your library, The Autumn Mix, and music-led looks in the Melody Lust Listening Room." },
@@ -268,6 +272,9 @@ function ListeningRoom() {
   const [listening, setListening] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(true);
   const [wearingOpen, setWearingOpen] = useState(true);
+  // Phones hide the Style profile button, so the style quiz gets its own place in the top bar there.
+  const [quizOpen, setQuizOpen] = useState(false);
+  const styleProfile = useStyleProfile();
   const [active, setActive] = useState("mix");
   const [view, setView] = useState<View>({ kind: "feed" });
   const [category, setCategory] = useState("All");
@@ -367,13 +374,14 @@ function ListeningRoom() {
       <header className="ls-head">
         <Link to="/" className="ls-logo-link" aria-label="Melody Lust home"><img src={logo} alt="" className="ls-logo" width={448} height={209} /></Link>
         <div className="ls-head-center">
-          <Button variant="listenHome" size="roundLg" aria-label="Listening room home" title="Home" onClick={goHome}><House /></Button>
+          <Button variant="listenHome" size="roundLg" className="ls-home" aria-label="Listening room home" title="Home" onClick={goHome}><House /></Button>
           <Button variant="listenSearch" size="field" className="ls-search" aria-haspopup="dialog" aria-expanded={findOpen} onClick={() => setFindOpen(true)}>
             <Search aria-hidden /><span className="truncate"><span className="sr-only">Search </span>Artists, songs, looks, runways</span>
           </Button>
         </div>
         <div className="ls-head-end">
           <Button variant="listenOutline" size="bar" className="ls-hide-sm" aria-expanded={view.kind === "profile"} onClick={openProfile}><SlidersHorizontal aria-hidden />Style profile</Button>
+          <Button variant="listenOutline" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-haspopup="dialog" onClick={() => setQuizOpen(true)}><span>Style quiz</span></Button>
           <Button variant="listenSolid" size="bar" className="ls-want-btn" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
         </div>
       </header>
@@ -519,7 +527,9 @@ function ListeningRoom() {
         wearingOpen={wearingOpen} onWearingChange={setWearingOpen} sheet={phone}
         shop={<ListenProductCard active={phone && listening} songKey={song.caption} />} />
 
-      <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} />
+      <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}
+        onRead={id => { setQuizOpen(false); const story = stories.find(s => s.id === id); if (story) { setActive(`story-${story.id}`); setArticle(story); } }} />
+      <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} tone="room" />
       <StoryDialog story={article} onClose={() => setArticle(null)} />
     </div>
   );

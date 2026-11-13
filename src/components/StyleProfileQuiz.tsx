@@ -12,7 +12,9 @@ const steps: { title: string; fields: ProfileField[] }[] = [
   { title: 'Your sound & reading list', fields: ['music'] },
 ];
 
-export function StyleProfileQuiz({ open, onOpenChange, profile, onSave, onClear, onRead }: {
+export function StyleProfileQuiz({ open, onOpenChange, profile, onSave, onClear, onRead, tone }: {
+  /** "room" sets the quiz in the Listening Room's tokens and fonts; the layout stays the journal's editorial one. */
+  tone?: "room";
   open: boolean; onOpenChange: (open: boolean) => void; profile: StyleProfile;
   onSave: (profile: StyleProfile) => boolean; onClear: () => boolean; onRead: (id: number) => void;
 }) {
@@ -22,7 +24,7 @@ export function StyleProfileQuiz({ open, onOpenChange, profile, onSave, onClear,
   useEffect(() => { if (open) { setDraft(profile); setStep(0); setStorageError(false); } }, [open, profile]);
   const current = steps[step];
   const count = profileSelectionCount(draft);
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-h-[88dvh] max-w-2xl overflow-y-auto p-6 sm:p-8">
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className={`max-h-[88dvh] max-w-2xl overflow-y-auto p-6 sm:p-8${tone === "room" ? " ls-quiz" : ""}`}>
     <span className="text-xs uppercase text-muted-foreground">Melody Lust / Style profile · {Math.min(step + 1, 4)} of 4</span>
     <DialogTitle className="font-editorial text-3xl font-normal">{current?.title ?? 'Your taste, on record.'}</DialogTitle>
     <DialogDescription>{current ? 'Your favorites.' : `${count} preferences · Saved on this device.`}</DialogDescription>

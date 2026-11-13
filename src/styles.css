@@ -2290,6 +2290,24 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 @keyframes fms-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @media (min-width: 1024px) { .fms-results { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 64px; align-items: start; } }
 @media (prefers-reduced-motion: reduce) { .fms[data-state], .fms-rise { animation: none; } }
+/* The Listening Room's search: the room's tokens instead of the journal's. Fig black and chalk white, lilac fog for
+   the quiet text, acid lime for what acts; WTF Hammer for the field and song titles, Isidora for the small type. */
+.fms[data-tone="room"] {
+  --background: var(--color-fig-black); --foreground: var(--color-chalk-white); --muted-foreground: var(--color-lilac-fog);
+  --border: var(--color-fig-800); --muted: var(--color-fig-900);
+  background: linear-gradient(180deg, var(--color-fig-900) 0, var(--color-fig-black) 520px) fixed, var(--color-fig-black);
+}
+.fms[data-tone="room"] :is(.fms-kicker, .fms-group-head h3, .fms-group-head span, .fms-product-brand, .fms-song-artist, .fms-song-num, .fms-song-listen, .fms-more, .fms-credit) { font-family: var(--font-isidora); }
+.fms[data-tone="room"] :is(.fms-hint, .fms-product-name, .fms-product-price, .fms-song-source, .fms-note) { font-family: var(--font-isidora); font-style: normal; }
+.fms[data-tone="room"] .fms-input { font-family: var(--font-hammer); font-style: normal; text-transform: uppercase; letter-spacing: .01em; line-height: .9; }
+.fms[data-tone="room"] .fms-song-title { font-family: var(--font-hammer); text-transform: uppercase; letter-spacing: .01em; line-height: .95; }
+.fms[data-tone="room"] :is(.fms-form, .fms-group-head) { border-color: var(--color-fig-800); }
+.fms[data-tone="room"] .fms-form:focus-within { border-color: var(--color-acid-lime); }
+.fms[data-tone="room"] :is(.fms-kicker, .fms-group-head h3, .fms-song-listen, .fms-more) { color: var(--color-acid-lime); }
+.fms[data-tone="room"] .fms-product-frame { border-radius: 4px; }
+.fms[data-tone="room"] .fms-more { padding-inline: 0; }
+.fms[data-tone="room"] .fms-form button[type="submit"] { border-color: var(--color-acid-lime); background: var(--color-acid-lime); color: var(--color-fig-black); }
+.fms[data-tone="room"] .fms-form button[type="submit"]:hover { background: transparent; color: var(--color-acid-lime); }
 
 /* Fashion Designer Musing: the opening essay as a magazine excerpt — Didot headline, three ruled columns. */
 .musing { max-width: 1180px; margin: 0 auto; padding: clamp(72px, 9vw, 128px) 0 clamp(24px, 12vw, 176px); color: var(--foreground); } /* room below: the pinned How it works steps rise into this space on laptop-height screens */
@@ -2318,9 +2336,9 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 }
 .ls :focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .ls-center :focus-visible { outline-color: var(--ls-ink); }
-.ls-head { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 48px; padding: 0 4px; }
+.ls-head { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 48px; padding: 12px 8px 8px; } /* room above the logo row; the bar closes right under its last row */
 .ls-logo-link { display: flex; align-items: center; padding: 0 12px 0 8px; }
-.ls-logo { height: 34px; width: auto; display: block; }
+.ls-logo { height: 48px; width: auto; display: block; }
 .ls-head-center { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; max-width: 540px; }
 .ls-search { width: 100%; }
 .ls-head-end { display: flex; align-items: center; gap: 8px; padding-right: 4px; }
@@ -2379,7 +2397,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding-left: 8px; }
 .ls-filters > button { min-width: 0; padding-inline: 4px; font-size: 12px; letter-spacing: 0; }
 .ls-rail-head { padding-top: 12px; }
-.ls-rail-label { display: none; } /* phones only: names the folded Issue bar */
+.ls-rail-label, .ls-show-sm { display: none; } /* phones only: the folded Issue bar's name and the top bar's Style quiz */
 .ls-rail { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 8px; }
 .ls-thumb { width: 48px; height: 48px; flex: none; object-fit: cover; border-radius: 2px; display: block; }
 .ls-thumb[data-round="true"] { border-radius: 50%; }
@@ -2536,7 +2554,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-note-kicker { font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink-muted); }
 .ls-note-title { font-family: var(--font-couturier); font-weight: 100; font-size: 23px; line-height: 1.15; } /* the story titles in Couturier Poster Thin, the cover's serif */
 .ls-note-intro { font-family: var(--font-isidora); font-weight: 500; font-size: 13px; line-height: 1.55; color: var(--ls-ink-muted); } /* the standfirst in Isidora Medium, its only loaded cut */
-.ls-empty { margin: 0; font-family: var(--font-didot); font-size: 22px; color: var(--ls-ink-muted); }
+.ls-empty { margin: 0; font-family: var(--font-isidora); font-size: 16px; line-height: 1.45; color: var(--ls-ink-muted); } /* the room's empty-shelf lines, in Isidora */
 .ls-section-link { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--ls-ink); text-decoration: underline; text-underline-offset: .4em; }
 .ls-section-link svg { width: 14px; height: 14px; }
 /* Runway Songs under the RUNWAY filter: a tracklist in type only, house in Didot. */
@@ -2617,14 +2635,29 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
   --want-green: var(--color-acid-lime); --want-green-hover: var(--color-acid-muted);
   --want-field: var(--color-chalk-white); --want-field-ink: var(--color-fig-black); --want-field-muted: color-mix(in oklab, var(--color-fig-800) 70%, var(--color-chalk-white));
   --want-panel: var(--color-fig-950); --want-well: var(--color-chalk-white);
-  --foreground: var(--want-ink); --muted-foreground: var(--want-muted); --border: var(--want-rule); }
+  --foreground: var(--want-ink); --muted-foreground: var(--want-muted); --border: var(--want-rule);
+  /* The room's type in place of the journal's: Isidora for the reading and small type, WTF Hammer for the headline. */
+  --font-editorial: var(--font-isidora); --font-iconic: var(--font-isidora); --font-cover: var(--font-hammer); }
+.ls-want :is(.want-deck, .wish-empty) { font-style: normal; }
+.ls-want :is(.want-row-number, .want-look h4, .want-playlist-heading h3, .want-signals h4) { font-family: var(--font-hammer); text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
 .ls-want .want-heading { font-size: clamp(48px, 12cqi, 132px); }
 .ls-want .want-playlist li { border-bottom-color: var(--want-rule); }
 @container (max-width: 900px) { .ls-want .want-output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ls-want .want-playlist { grid-column: 1 / -1; } }
 @container (max-width: 560px) { .ls-want .want-output-grid { grid-template-columns: minmax(0, 1fr); } .ls-want .wishlist { padding: 32px 16px 40px; } }
 /* The profile: /profile's Curator Dossier without its masthead, inked pure black and sized to the feed. */
 .ls-profile .dossier { width: 100%; max-width: none; margin: 0; padding: 0;
-  --background: var(--ls-paper); --foreground: var(--ls-ink); --muted-foreground: var(--ls-ink-muted); --dossier-ink: var(--ls-ink); --dossier-plum: var(--ls-ink); }
+  /* The room's tokens, named outright: the feed flips --ls-ink to chalk, which had left this page white on white. */
+  --background: transparent; --foreground: var(--color-chalk-white); --muted-foreground: var(--color-lilac-fog);
+  --border: var(--color-fig-800); --input: var(--color-fig-800); --primary: var(--color-acid-lime); --primary-foreground: var(--color-fig-black);
+  --dossier-ink: var(--color-fig-950); --dossier-plum: var(--color-fig-900); --dossier-rule: var(--color-fig-800);
+  --font-editorial: var(--font-isidora); --font-iconic: var(--font-isidora); --font-cover: var(--font-hammer);
+  background: transparent; color: var(--color-chalk-white); }
+.ls-profile .dossier-head { border: 1px solid var(--color-fig-800); }
+.ls-profile .dossier-title-name { font-family: var(--font-hammer-xxx); font-style: normal; text-transform: uppercase; letter-spacing: .01em; }
+.ls-profile .dossier-title-slash { color: var(--color-acid-lime); }
+.ls-profile .dossier :is(.dossier-meta, .dossier-fine, p, em, i) { font-style: normal; }
+.ls-profile .dossier button[aria-selected="true"] { color: var(--color-acid-lime); border-color: var(--color-acid-lime); }
+.ls-profile .dossier .dossier-quiz { background: var(--color-acid-lime); color: var(--color-fig-black); }
 .ls-profile .dossier-head { margin-top: 0; padding: clamp(24px, 6cqi, 56px); border-radius: 2px; }
 .ls-profile .dossier-head h1 { font-size: clamp(36px, 10cqi, 96px); }
 .ls-profile .dossier-stats dd { font-size: clamp(32px, 7cqi, 64px); }
@@ -2661,7 +2694,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 @media (min-width: 901px) and (max-width: 1100px) { .ls-left { flex-basis: 220px; } .ls-right { flex-basis: 240px; } .ls-head { grid-template-columns: 220px minmax(0, 1fr) auto; } .ls-wear { padding-inline: 16px; } .ls-hero-foot { padding-inline: 16px; gap: 12px; } .ls-hero-by { height: 24px; } }
 @media (max-width: 900px) {
   .ls { height: auto; min-height: 100dvh; grid-template-rows: auto auto auto; }
-  .ls-head { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .ls-head { grid-template-columns: minmax(0, 1fr) auto; gap: 12px 8px; padding-block: 16px 8px; }
   .ls-head-center { grid-column: 1 / -1; grid-row: 2; max-width: none; }
   .ls-head-end { justify-self: end; }
   .ls-body { flex-direction: column; }
@@ -2682,6 +2715,14 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
   .ls-right { overflow: visible; } /* Now wearing, the front-row pass, follows The Issue straight away (order 0, after the library in the source) */
   .ls-player { position: sticky; bottom: 0; z-index: 5; grid-template-columns: minmax(0, 1fr) auto; border-top: 1px solid var(--ls-line); padding-bottom: max(4px, env(safe-area-inset-bottom)); }
   .ls-player-tools, .ls-hide-sm { display: none !important; }
+  .ls-show-sm { display: inline-flex !important; }
+  /* Home answers a tap in acid lime: on at once, then easing back so the press is seen under a thumb. */
+  .ls .ls-home { transition: background-color .5s ease-out, color .5s ease-out; -webkit-tap-highlight-color: transparent; }
+  .ls button.ls-home.ls-home:active { background-color: var(--color-acid-lime); color: var(--color-fig-black); transition-duration: 0s; }
+  .ls-left[data-open="false"] .ls-rail-head { flex: 1; }
+  .ls-left[data-open="false"] .ls-rail-head .ls-want-btn { margin-left: auto; }
+  .ls-left[data-open="false"] .ls-rail-label { flex: none; white-space: nowrap; }
+  .ls-lib-title .ls-want-btn { flex: none; }
   .ls-hero-foot { grid-template-columns: auto minmax(0, 1fr); }
   .ls-player[data-listening="true"] { grid-template-columns: minmax(0, 1fr); }
   .ls-player[data-listening="true"] .ls-player-song { display: none; }
@@ -2698,7 +2739,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
   .ls-film .records-theme { font-size: calc((100cqi - 32px) / 7.9); }
   .ls-head { gap: 8px; }
   .ls-head-center { order: 3; flex-basis: 100%; }
-  .ls-logo { height: 28px; }
+  .ls-logo { height: 44px; }
   .ls-head-end { margin-left: auto; }
   .ls-player { gap: 8px; }
   .ls-player-song { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 8px; }
@@ -2815,12 +2856,36 @@ h3.ls-toc-name { cursor: default; }
   font-family: var(--font-body);
 }
 .ls .ls-panel, .ls .ls-player { background: var(--color-fig-950); }
+.ls .ls-head { margin: -8px -8px 0; padding-inline: 16px; background: var(--color-fig-950); } /* the top bar, flush to the screen's edges in fig-950, the plum the browser's own bar takes (theme-color on the route) */
 .ls .ls-tile-play { background: var(--ls-accent); color: var(--color-fig-black); }
 .ls .ls-runway-play:hover { border-color: var(--ls-accent); color: var(--ls-accent); }
 .ls :focus-visible { outline-color: var(--ls-accent); }
 .ls .ls-hero-title { font-family: var(--font-heading); }
 .ls :is(.ls-hero-show-label, .ls-hero-credit) { font-family: var(--font-accent); font-style: italic; font-weight: 900; }
 .ls .ls-play-btn { background: var(--ls-accent); color: var(--color-fig-black); }
+
+/* The style quiz opened from the room. It is portalled outside .ls, so it carries the room's tokens itself: fig, chalk,
+   lilac fog and acid lime, with WTF Hammer for the question and Isidora for the rest. The squared, ruled editorial
+   layout is the journal's, unchanged. */
+.ls-quiz {
+  --background: var(--color-fig-950); --foreground: var(--color-chalk-white);
+  --popover: var(--color-fig-950); --popover-foreground: var(--color-chalk-white);
+  --primary: var(--color-acid-lime); --primary-foreground: var(--color-fig-black);
+  --muted-foreground: var(--color-lilac-fog); --border: var(--color-fig-800); --ring: var(--color-acid-lime);
+  --input: color-mix(in oklab, var(--color-chalk-white) 28%, transparent);
+  --accent: var(--color-fig-800); --accent-foreground: var(--color-chalk-white);
+  --secondary: var(--color-fig-900); --secondary-foreground: var(--color-chalk-white);
+  background: var(--color-fig-950); color: var(--color-chalk-white); border-color: var(--color-fig-800);
+  font-family: var(--font-isidora);
+}
+.ls-quiz :is(button, input, label, legend, small, p, span) { font-family: var(--font-isidora); }
+.ls-quiz h2 { font-family: var(--font-hammer); font-size: clamp(34px, 9vw, 48px); line-height: .9; letter-spacing: .01em; text-transform: uppercase; }
+.ls-quiz :focus-visible { outline-color: var(--color-acid-lime); }
+/* The sign-in dialog opened from the room's Style profile: the same room tokens over its own paper, ink and accent. */
+.styling-auth.ls-quiz { --stylus-paper: var(--color-fig-950); --stylus-ink: var(--color-chalk-white); --stylus-accent: var(--color-acid-lime); border-color: var(--color-fig-800); }
+.styling-auth.ls-quiz .styling-auth-links button { color: var(--color-acid-lime); }
+.styling-auth.ls-quiz h2 { padding-right: 32px; font-size: clamp(30px, 8.4vw, 44px); } /* clear of the close button */
+.styling-auth.ls-quiz form button[type="submit"] { font-family: var(--font-hammer); font-size: 20px; letter-spacing: .02em; text-transform: uppercase; }
 
 /* ===== The Issue: section row in the hero, pinned above the player after it (phones) ===== */
 .ls-issue-tabs { display: none; }
@@ -2859,6 +2924,7 @@ h3.ls-toc-name { cursor: default; }
 .ls main .ls-section { padding: 28px 20px 0; animation: ls-shelf-in .45s cubic-bezier(.16,1,.3,1) both; }
 .ls main .ls-section-head { border-bottom: 0; margin-bottom: 14px; padding-bottom: 0; }
 .ls main .ls-section-head h2 { font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 9vw, 56px); line-height: .9; letter-spacing: 0; text-transform: uppercase; }
+.ls-favs-your { font-family: var(--font-hammer); font-style: normal; } /* YOUR in WTF Hammer beside FAVORITES in the XXX cut */
 .ls main .ls-section-head span { font-family: var(--font-accent); font-style: italic; font-weight: 900; letter-spacing: 0; text-transform: none; font-size: 14px; color: var(--color-acid-muted); }
 /* Music: a horizontal shelf that runs off the edge, like a Spotify row */
 .ls main .ls-tiles { display: flex; gap: 14px; margin: 0 -20px; padding: 0 20px 8px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
@@ -2958,6 +3024,7 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-want-shelf[data-flash] { border-color: var(--color-acid-lime); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-acid-lime) 25%, transparent); }
 .ls-want-shelf-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .ls-want-shelf-head h2 { margin: 0; font-family: var(--font-heading); font-weight: 400; text-transform: uppercase; font-size: clamp(34px, 6vw, 56px); line-height: .9; color: var(--color-acid-lime); }
+.ls-want-shelf-list { font-family: var(--font-hammer); font-style: normal; } /* LIST in WTF Hammer beside YOUR WANT in the XXX cut */
 .ls-want-shelf-head span, .ls-want-shelf small, .ls-want-shelf-empty { color: var(--color-lilac-fog); font-size: 13px; }
 .ls-want-shelf-status { min-height: 1.2em; margin: 6px 0 10px; font-size: 13px; color: var(--color-acid-lime); }
 .ls-want-shelf-pieces { list-style: none; margin: 0 0 16px; padding: 0 0 6px; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 180px); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; }
@@ -3012,6 +3079,11 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-studio-title { font-family: var(--font-hammer); font-weight: 400; font-size: clamp(2.4rem, 7vw, 4rem); line-height: .9; text-transform: uppercase; color: var(--color-acid-lime); }
 .ls-studio-sub { font-family: var(--font-accent); font-style: italic; font-weight: 900; color: var(--color-acid-muted); }
 .ls-studio, .ls-studio-dialog { font-family: var(--font-body); }
+/* The AI playlist card's name and its Generate button in the two Hammer cuts, like THE AUTUMN MIX. */
+.ls-ai-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-hammer); font-size: 30px; font-weight: 400; line-height: 1; letter-spacing: .02em; text-transform: uppercase; color: var(--color-chalk-white); }
+.ls-ai-title svg { width: 20px; height: 20px; flex: none; }
+.ls-ai-xxx { font-family: var(--font-hammer-xxx); }
+.ls-studio .ls-ai-card button .ls-ai-go { font-family: var(--font-hammer); font-size: 20px; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
 .ls-studio-list-title { font-family: var(--font-heading); font-size: 1.6rem; text-transform: uppercase; color: var(--color-chalk-white); }
 .ls-studio-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
 .ls-studio-eq[data-on="false"] { display: none; }
@@ -3216,6 +3288,7 @@ body { background: var(--background); color: var(--foreground); font-family: var
 
 /* The header's Want List button, set in WTF Hammer Compressed (400 is its only weight; asking for more makes Safari fake a bold). */
 .ls-want-btn > span { display: inline-block; white-space: nowrap; font-family: var(--font-hammer); font-size: 24px; font-weight: 400; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
+.ls-style-btn > span { font-family: var(--font-hammer-xxx); } /* the style buttons (Style quiz, Style profile) take the XXX cut; it shares Compressed's cap height */
 
 /* The library's title in WTF Hammer Compressed (400 only), and the folded rail's line for a reader with no favourites yet. */
 .ls-lib-title h2 { font-family: var(--font-hammer); font-size: 30px; font-weight: 400; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
@@ -3463,3 +3536,17 @@ tr[data-tier="wildcard"] .ls-day-tier { color: var(--color-lilac-fog); border-st
 @media (max-width: 600px) {
   .ls-player[data-expanded="true"] .ls-player-title { font-family: var(--font-hammer); font-size: 48px; line-height: .9; text-transform: uppercase; letter-spacing: .01em; }
 }
+
+/* ===== Fields are white, site wide =====
+   Every text field, text area and select sits on chalk white with fig-black type, whatever page or panel it is in, so a
+   place to type always reads as one. !important because each surface had set its own field colours. Checkboxes, radios,
+   sliders and file pickers keep their native look. The room's search bar is a button dressed as a field, so it joins in. */
+input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="button"], [type="submit"], [type="reset"], [type="hidden"], [type="image"]),
+textarea, select {
+  background-color: var(--color-chalk-white) !important; color: var(--color-fig-black) !important; caret-color: var(--color-fig-black);
+}
+input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--color-fig-800) 70%, var(--color-chalk-white)) !important; opacity: 1 !important; }
+/* Fields that were only an underline on the page colour get room inside their new white box. */
+.wish-input, .want-song-panel input, .fms-input, .dossier input, .dossier textarea { padding-inline: 12px; }
+.ls .ls-search { background: var(--color-chalk-white); border-color: var(--color-chalk-white); color: color-mix(in oklab, var(--color-fig-800) 70%, var(--color-chalk-white)); }
+.ls .ls-search:hover { color: var(--color-fig-black); border-color: var(--color-acid-lime); }

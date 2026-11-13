@@ -448,7 +448,7 @@ function AIPlaylistCard({ tracks, onMade }: { tracks: readonly StudioTrack[]; on
   };
   return (
     <form className="ls-ai-card flex flex-col gap-2 rounded-2xl border border-primary/40 bg-secondary/40 p-3" onSubmit={submit} aria-busy={busy}>
-      <label htmlFor={field} className="flex items-center gap-2 text-sm font-medium text-foreground"><Sparkles className="size-4 text-primary" aria-hidden />AI playlist</label>
+      <label htmlFor={field} className="ls-ai-title"><Sparkles className="text-primary" aria-hidden /><span><span className="ls-ai-xxx">AI</span> Playlist</span></label>
       <textarea id={field} value={prompt} onChange={e => setPrompt(e.target.value)} rows={2} maxLength={200} placeholder={EXAMPLES[0]}
         className="min-h-14 resize-none rounded-lg bg-secondary px-2 py-1.5 text-sm text-foreground placeholder:text-muted-foreground" />
       <div className="flex flex-wrap gap-1" role="group" aria-label="Try a prompt">
@@ -460,7 +460,7 @@ function AIPlaylistCard({ tracks, onMade }: { tracks: readonly StudioTrack[]; on
             className={`rounded-full px-2.5 py-1 text-xs ${length === n ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{n}</button>)}
         </div>
         <Button type="submit" size="sm" className="ml-auto" disabled={busy || prompt.trim().length < 2}>
-          {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Sparkles className="size-4" aria-hidden />}{busy ? "Making…" : "Generate"}
+          {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Sparkles className="size-4" aria-hidden />}<span className="ls-ai-go">{busy ? "Making…" : "Generate"}</span>
         </Button>
       </div>
     </form>

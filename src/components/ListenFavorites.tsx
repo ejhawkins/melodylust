@@ -14,7 +14,7 @@ export function ListenFavorites({ onStory }: { onStory: (s: Story) => void }) {
   });
   return (
     <section className="ls-section" aria-labelledby="ls-favs">
-      <div className="ls-section-head"><h2 id="ls-favs">+ Your favourites</h2><span>{rows.length ? `${rows.length} saved` : "Tap a heart to add it here"}</span></div>
+      <div className="ls-section-head"><h2 id="ls-favs"><em className="ls-favs-your">Your</em> Favorites</h2><span>{rows.length ? `${rows.length} saved` : "Tap a heart to add it here"}</span></div>
       {rows.length === 0 ? <p className="ls-empty"><Heart className="mr-1 inline size-4" aria-hidden />Heart songs, playlists, stories, looks, products and runway moments, and they gather here.</p> : (
         <ul className="ls-notes">
           {rows.map(r => <li key={`${r.kind}-${r.key}`}>

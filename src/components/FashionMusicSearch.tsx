@@ -27,8 +27,10 @@ const catalogQuery = queryOptions({
 
 /** The cover menu's Fashion & Music Search: a large search unveiled over the page, with products
  *  and songs loading underneath as the reader types. Enter also asks Farfetch for the piece. */
-export function FashionMusicSearch({ open, onOpenChange, playlist = [] }: {
+export function FashionMusicSearch({ open, onOpenChange, playlist = [], tone }: {
   open: boolean;
+  /** "room" dresses the search in the Listening Room's tokens (fig, chalk, acid lime, Hammer); the journal keeps its own. */
+  tone?: "room";
   onOpenChange: (open: boolean) => void;
   /** The home playlist, searchable alongside the chart and the editor's picks. */
   playlist?: readonly { title: string; artist: string }[];
@@ -84,7 +86,7 @@ export function FashionMusicSearch({ open, onOpenChange, playlist = [] }: {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Content id="fashion-music-search" className="fms" onOpenAutoFocus={event => { event.preventDefault(); input.current?.focus(); }}>
+        <Dialog.Content id="fashion-music-search" className="fms" data-tone={tone} onOpenAutoFocus={event => { event.preventDefault(); input.current?.focus(); }}>
           <div className="fms-inner">
             <div className="fms-head">
               <Dialog.Title className="fms-kicker">Fashion &amp; Music Search</Dialog.Title>

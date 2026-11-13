@@ -130,6 +130,8 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
           <div className="ls-lib-title">
             <Button variant="listenIcon" size="round" aria-label="Collapse your library" title="Collapse your library" onClick={() => onOpenChange(false)}><PanelLeftClose /></Button>
             <h2>The Issue</h2>
+            {/* Phones: the Style profile sits beside The Issue, set like the Want List (the top bar's copy is hidden there). */}
+            <Button variant="listenSolid" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-expanded={active === "profile"} onClick={onProfile}><span>Style profile</span></Button>
           </div>
           <div className="ls-filters" role="group" aria-label="Filter your library">
             {KINDS.map(k => <Button key={k} variant="listenFilter" size="chip" aria-pressed={kind === k} onClick={() => { if (k === "Playlists" && kind !== k) onContents?.(); setKind(current => (current === k ? null : k)); }}>{k}</Button>)}
@@ -152,10 +154,11 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
         <div className="ls-rail-head">
           <Button variant="listenIcon" size="round" aria-label="Expand your library" title="Expand your library" onClick={() => onOpenChange(true)}><PanelLeftOpen /></Button>
           <button type="button" className="ls-rail-label" tabIndex={-1} aria-hidden="true" onClick={() => onOpenChange(true)}>The Issue</button>
+          <Button variant="listenSolid" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-expanded={active === "profile"} onClick={onProfile}><span>Style profile</span></Button>
         </div>
         {favourites.length > 0
-          ? <ul className="ls-scroll ls-rail" aria-label="Your favourites">{favourites.map(row => item(row, true))}</ul>
-          : <p className="ls-rail-empty" title="Tap a heart and your favourites show here"><Heart aria-hidden /><span className="sr-only">Tap a heart and your favourites show here.</span></p>}
+          ? <ul className="ls-scroll ls-rail" aria-label="Your favorites">{favourites.map(row => item(row, true))}</ul>
+          : <p className="ls-rail-empty" title="Tap a heart and your favorites show here"><Heart aria-hidden /><span className="sr-only">Tap a heart and your favorites show here.</span></p>}
       </>}
     </nav>
   );

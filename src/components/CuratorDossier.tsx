@@ -78,6 +78,8 @@ export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: Do
       <p className="dossier-kicker">Melody Lust · Editorial identity</p>
       <h1 id="dossier-title"><span className="dossier-title-main">Curator dossier</span> <span className="dossier-title-slash" aria-hidden>//</span> <span className="dossier-title-name">{name}</span></h1>
       <div className="dossier-meta">
+        {/* The style quiz leads the profile, rather than waiting inside the Style DNA tab. */}
+        <Button variant="dossierSolid" className="dossier-quiz" onClick={() => setQuizOpen(true)}>{styleDna(profile).empty ? "Take the style quiz" : "Retake the style quiz"}</Button>
         <span>{session ? memberSince(session.user.created_at) ?? "Member" : "Reading as a guest"}</span>
         <span className="dossier-role" data-role={role}>{role}</span>
         {session
@@ -103,7 +105,7 @@ export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: Do
         wishCount={wishes.length} onClearWishes={clearWishlist} onClearDna={clear} onSignIn={() => setAuthOpen(true)} onSignOut={() => void supabase.auth.signOut()} />}
     </section>
 
-    <AuthDialog open={authOpen} onOpenChange={setAuthOpen} onSignedIn={async () => { await loadWorkspace(); }} />
+    <AuthDialog tone={embedded ? "room" : undefined} open={authOpen} onOpenChange={setAuthOpen} onSignedIn={async () => { await loadWorkspace(); }} />
     <StyleProfileQuiz open={quizOpen} onOpenChange={setQuizOpen} profile={profile} onSave={save} onClear={clear} onRead={() => { window.location.href = "/#journal"; }} />
   </Root>;
 }

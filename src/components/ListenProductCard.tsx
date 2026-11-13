@@ -152,7 +152,7 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
             {/* A favourite from the bag is also wanted: hearting files the piece in the Want List too. Taking the heart off
                 leaves the Want List alone; the Wishlist button below is what removes it. */}
             <LikeButton look="quick" kind="fashion" id={`product-${product.name}`} name={product.name} sub={product.price} image={color.image}
-              into="your favourites and Want List" onLike={liked => { if (liked && !saved) saveWish(); }} />
+              into="your favorites and Want List" onLike={liked => { if (liked && !saved) saveWish(); }} />
           </div>
 
           <div className="ls-product-pick">

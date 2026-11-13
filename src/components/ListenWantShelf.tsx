@@ -26,7 +26,7 @@ export function ListenWantShelf({ onOpen }: { onOpen: () => void }) {
   };
   return <section ref={ref} className="ls-want-shelf" aria-labelledby="ls-want-shelf-title" data-flash={flash ? true : undefined}>
     <div className="ls-want-shelf-head">
-      <h2 id="ls-want-shelf-title">+ Your Want List</h2>
+      <h2 id="ls-want-shelf-title">Your Want <em className="ls-want-shelf-list">List</em></h2>
       <span>{pieces.length} {pieces.length === 1 ? "look" : "looks"} · {songs.length} {songs.length === 1 ? "song" : "songs"}</span>
     </div>
     <p className="ls-want-shelf-status" role="status">{flash}</p>
