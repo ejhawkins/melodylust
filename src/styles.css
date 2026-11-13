@@ -3719,10 +3719,12 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
   .ls-issue-tabs.ls-issue-hero { flex-wrap: wrap; border-radius: 8px; justify-content: center; }
 }
 
-/* Dressed to the Beat — flat editorial feature on /home; its own tokens, scoped to .dtb. */
+/* Dressed to the Beat — a flat editorial feature in the Listening Room. Its --dtb-* names map onto the room's tokens:
+   fig-black paper, chalk-white ink, acid lime where the brief had green and gold, Hammer XXX / Isidora / Couturier type. */
 :root {
-  --dtb-paper: #ffffff; --dtb-ink: #000000; --dtb-green: #1e4d3a; --dtb-gold: #b8892b;
-  --font-dtb-display: "Bodoni Moda", serif; --font-dtb-body: "Hanken Grotesk", sans-serif; --font-dtb-mono: "IBM Plex Mono", monospace;
+  --dtb-paper: var(--color-fig-black); --dtb-ink: var(--color-chalk-white); --dtb-green: var(--color-acid-lime); --dtb-gold: var(--color-acid-lime);
+  --dtb-line: var(--color-fig-800); --dtb-quiet: var(--color-lilac-fog);
+  --font-dtb-display: var(--font-hammer-xxx); --font-dtb-body: var(--font-isidora); --font-dtb-mono: var(--font-isidora);
 }
 .dtb { background: var(--dtb-paper); color: var(--dtb-ink); font-family: var(--font-dtb-body); padding: 64px 20px 0; }
 .dtb > * { max-width: 1200px; margin-inline: auto; }
@@ -3774,6 +3776,21 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .dtb h2.dtb-title, .dtb h3.dtb-name, .dtb .dtb-why, .dtb .dtb-band p, .dtb .dtb-cta-title { font-family: var(--font-dtb-display); letter-spacing: normal; text-transform: none; }
 .dtb .dtb-band p { color: var(--dtb-paper); }
 .dtb .dtb-numeral { color: var(--dtb-gold); }
+/* Room tokens: condensed capitals for headings, Couturier italic for the verdict, quiet rules, lime for the pressed and band states. */
+.dtb h2.dtb-title, .dtb h3.dtb-name, .dtb .dtb-band p, .dtb .dtb-cta-title, .dtb .dtb-numeral { font-weight: 400; text-transform: uppercase; letter-spacing: .01em; line-height: .9; }
+/* The condensed face sets narrower than the serif the sizes were drawn for, so headings step up to hold their weight. */
+.dtb h2.dtb-title { font-size: clamp(76px, 20vw, 168px); }
+.dtb h3.dtb-name { font-size: clamp(40px, 9vw, 64px); }
+.dtb .dtb-small h3.dtb-name { font-size: clamp(36px, 8vw, 44px); }
+.dtb .dtb-why { font-family: var(--font-couturier); font-style: italic; font-weight: 900; letter-spacing: 0; text-transform: none; }
+.dtb .dtb-mono, .dtb .dtb-photo-empty { color: var(--dtb-quiet); font-weight: 500; letter-spacing: .12em; }
+.dtb .dtb-head > .dtb-mono:first-child { color: var(--dtb-green); }
+.dtb :is(.dtb-cover figcaption, .dtb-label-row, .dtb-look, .dtb-credits) { border-color: var(--dtb-line); }
+.dtb .dtb-chips li { border-color: var(--dtb-quiet); color: var(--dtb-ink); font-weight: 500; letter-spacing: .04em; }
+.dtb .dtb-photo { background: var(--color-fig-900); }
+.dtb .dtb-btn { font-weight: 500; }
+.dtb .dtb-btn[aria-pressed="true"], .dtb .dtb-band p { color: var(--color-fig-black); }
+.dtb .dtb-btn:focus-visible, .dtb a:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 3px; }
 
 /* Shareable style boards: composer in the Want List view and the public /board page. */
 .ls-board-make { margin-top: 32px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; font-family: var(--font-isidora, inherit); display: grid; gap: 12px; }

@@ -87,8 +87,8 @@ export function DressedToTheBeat() {
     <div className="dtb-cta">
       <p className="dtb-cta-title">Find the look your playlist belongs to</p>
       <div className="dtb-actions">
-        <a className="dtb-btn" href="#search">Start with a song</a>
-        <a className="dtb-btn dtb-btn-ghost" href="#wishlist">Build your Want List</a>
+        <a className="dtb-btn" href="/home#search">Start with a song</a>
+        <a className="dtb-btn dtb-btn-ghost" href="/home#wishlist">Build your Want List</a>
       </div>
     </div>
     <footer className="dtb-credits">
