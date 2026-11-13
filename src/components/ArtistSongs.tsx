@@ -18,13 +18,14 @@ export function ArtistSongs({ artist }: { artist: string }) {
   }, [artist]);
   // Loading, no key or no songs: the section stays out of the way.
   if (!songs?.length) return null;
-  return <section className="stylus-songs" aria-label={`Top songs by ${artist}`}>
+  return <section className="stylus-songs artist-song-results" aria-label={`Top songs by ${artist}`}>
     <span className="stylus-eyebrow">Three songs by {artist}</span>
-    <ol>{songs.map(song => {
+    <ol>{songs.map((song, index) => {
       const name = `${song.title} — ${artist}`;
       return <li key={song.title} className="stylus-song">
+        <span className="artist-song-rank" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
         <div className="min-w-0">
-          <div className="stylus-song-head"><h4>{song.title}</h4><span>{artist}{song.album && <> · <em>{song.album}</em></>}{song.year && ` · ${song.year}`}</span></div>
+          <div className="stylus-song-head"><h4>{song.title}</h4><span className="artist-song-artist">{artist}</span>{(song.album || song.year) && <span className="artist-song-release">{song.album}{song.album && song.year && ' · '}{song.year}</span>}</div>
           {song.genre && <ul className="stylus-song-reasons"><li>{song.genre}</li></ul>}
           <div className="stylus-song-actions">
             <Button variant="stylusTool" asChild><a href={song.spotifyUrl} target="_blank" rel="noopener noreferrer">Spotify <ArrowRight aria-hidden="true" /></a></Button>

@@ -43,6 +43,13 @@
       "when": 1794428144269,
       "tag": "0005_create_style_votes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794573078041,
+      "tag": "0006_restore_evidence_and_product_caches",
+      "breakpoints": true
     }
   ]
 }

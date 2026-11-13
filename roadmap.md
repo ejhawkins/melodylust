@@ -1,5 +1,16 @@
 # Roadmap
 
+- [x] Add The Swivel after Fashion’s capsule, using real product layers and tap-only model previews.
+- [x] Verify gestures, keyboard, locked shuffle, saves and reduced motion; ring maths and all 404 tests pass.
+
+- [x] Add Reading Room navigation and reuse the zine in the home feed.
+- [x] Add lazy single-page reading, persistence, reduced-motion fallback, saves and issue sharing; verified phone/desktop, original /home zine and 401 tests.
+
+- [x] Add opening-film sound/restart controls and a contextual community Styling Notes entry; verified phone/desktop controls and sign-in prompt.
+- [ ] Verify a signed-in film note submission and readback; blocked because Cloud has no signed-up users.
+
+- [x] Restore server-only article/product caches and show the existing outfit while AI suggestions load; verify real artist search and product matching.
+
 - [x] Refine Listening Room desktop proportions, playlist spacing, and phone layout using the three uploaded screenshots; verify controls and screen sizes
 
 - [x] Replace Featured songs with a scroll-driven collage and album spotlight; labelled sample music/social metrics and verified song actions, desktop/mobile layout and reduced motion

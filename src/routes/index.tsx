@@ -5,8 +5,11 @@ import { gsap } from "gsap";
 import { flushSync } from "react-dom";
 import { prefersReducedMotion, useRoomMotion } from "@/components/useRoomMotion";
 import { useHeroParallax } from "@/components/useHeroParallax";
-import { ArrowLeft, House, Play, Search, SlidersHorizontal, Square } from "lucide-react";
+import { ArrowLeft, House, Play, Search, SlidersHorizontal, Square, Volume2, VolumeX, RotateCcw, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { StylingNotes } from "@/components/StylingNotes";
+import { DigitalZine } from "@/components/DigitalZine";
 import { CuratorDossier, type DossierTab } from "@/components/CuratorDossier";
 import { DuotoneFilter } from "@/components/DuotoneFilter";
 import { AnalyticsGate } from "@/components/AnalyticsGate";
@@ -165,10 +168,11 @@ function HeroTitle() {
  *  playing and pauses only once it has faded out, so YouTube's pause screen never shows; if YouTube refuses the film
  *  outright, the button becomes a link to it on YouTube. Once loaded it stays loaded, so Watch picks up at once. Its own
  *  component, so leaving the feed resets it. */
-function ListenHero({ onPlayMix, children }: { onPlayMix: () => void; children?: React.ReactNode }) {
+function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: () => void; onNotes: () => void; onFilmSound: () => void; children?: React.ReactNode }) {
   const [on, setOn] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(true);
   // YouTube refused to play the film here (an onError, such as 150 when the owner blocks this kind of embed).
   const [refused, setRefused] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -176,6 +180,20 @@ function ListenHero({ onPlayMix, children }: { onPlayMix: () => void; children?:
   useHeroParallax(cover);
   const shown = on && playing;
   const wanted = useRef(on);
+  const soundWanted = useRef(false);
+
+  const toggleSound = () => {
+    const next = !muted;
+    soundWanted.current = !next;
+    setMuted(next);
+    if (!next) { onFilmSound(); setOn(true); }
+    tellShow(frame.current, { event: "command", func: next ? "mute" : "unMute", args: [] });
+  };
+  const restart = () => {
+    setOn(true);
+    tellShow(frame.current, { event: "command", func: "seekTo", args: [0, true] });
+    tellShow(frame.current, { event: "command", func: "playVideo", args: [] });
+  };
 
   useEffect(() => {
     if (!window.matchMedia(reducedMotionQuery).matches) setOn(true);
@@ -208,6 +226,7 @@ function ListenHero({ onPlayMix, children }: { onPlayMix: () => void; children?:
       if (state === 2) setPlaying(false);
       if (state !== 1) return;
       setPlaying(true);
+      tellShow(frame.current, { event: "command", func: soundWanted.current ? "unMute" : "mute", args: [] });
       if (!wanted.current) tellShow(frame.current, { event: "command", func: "pauseVideo", args: [] });
     };
     window.addEventListener("message", onMessage);
@@ -227,6 +246,7 @@ function ListenHero({ onPlayMix, children }: { onPlayMix: () => void; children?:
           </div>
           <p className="ls-hero-kicker">Music and style notes · By Erica Hawkins</p>
           <HeroTitle />
+          <div className="ls-film-controls" role="group" aria-label="Runway film controls">
           {refused ? (
             // The film will not play in this page, so the button sends the reader to it on YouTube instead.
             <Button asChild variant="listenCaption" size="caption" className="ls-hero-show-btn">
@@ -238,6 +258,12 @@ function ListenHero({ onPlayMix, children }: { onPlayMix: () => void; children?:
               {on ? <Square aria-hidden /> : <Play aria-hidden />}<span className="ls-hero-show-label">{on ? "Stop the show" : "Watch the show"}</span>
             </Button>
           )}
+          {!refused && <>
+            <Button variant="listenCaption" size="caption" title={muted ? "Turn film sound on" : "Mute film"} aria-label={muted ? "Turn film sound on" : "Mute film"} aria-pressed={!muted} onClick={toggleSound}>{muted ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}</Button>
+            <Button variant="listenCaption" size="caption" title="Restart film" aria-label="Restart film" onClick={restart}><RotateCcw aria-hidden /></Button>
+          </>}
+          <Button variant="listenCaption" size="caption" title="Leave a style note" aria-label="Leave a style note" onClick={() => { setOn(false); onNotes(); }}><PenLine aria-hidden /><span className="ls-film-note-label">Style note</span></Button>
+          </div>
           {shown && <a className="ls-hero-credit" href={heroShow.url} target="_blank" rel="noreferrer">{heroShow.credit} ↗</a>}
         </div>
         <div className="ls-hero-foot">
@@ -288,9 +314,10 @@ function ListeningRoom() {
   const [category, setCategory] = useState("All");
   const [article, setArticle] = useState<Story | null>(null);
   const [findOpen, setFindOpen] = useState(false);
+  const [filmNotesOpen, setFilmNotesOpen] = useState(false);
   const [onRunway, setOnRunway] = useState(false);
   // The feed's note shelves stay folded until a pill opens one.
-  const [shelf, setShelf] = useState<"music" | "runway" | "style" | "fashion" | null>(null);
+  const [shelf, setShelf] = useState<"music" | "runway" | "style" | "fashion" | "reading" | null>(null);
   const feed = useRef<HTMLElement>(null);
   const lead = useRef<HTMLDivElement>(null);
   useRoomMotion(feed);
@@ -371,8 +398,14 @@ function ListeningRoom() {
   const notes = stories.filter(s => category === "All" || s.category === category);
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
   const heroLeads = phone && view.kind !== "want" && view.kind !== "profile" && !look && !video && !ownList && !note && !board && view.kind !== "contents";
-  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : undefined;
+  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : shelf === "reading" ? "reading" : undefined;
+  const openReading = () => {
+    setView({ kind: "feed" }); setShelf("reading");
+    requestAnimationFrame(() => document.getElementById("reading-room")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
+  };
+  useEffect(() => { if (window.location.hash === "#reading-room") openReading(); }, []);
   const pickIssue = (tab: IssueTab) => {
+    if (tab === "reading") return openReading();
     if (tab === "playlists") return open({ kind: "contents" }, "mix");
     if (tab === "want") return openWant();
     setView({ kind: "feed" });
@@ -399,7 +432,7 @@ function ListeningRoom() {
       </header>
 
       <div className="ls-body">
-        {heroLeads && <div className="ls-center ls-lead" ref={lead}><ListenHero onPlayMix={playMix}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero></div>}
+        {heroLeads && <div className="ls-center ls-lead" ref={lead}><ListenHero onPlayMix={playMix} onNotes={() => setFilmNotesOpen(true)} onFilmSound={() => setListening(false)}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero></div>}
         <ListenLibrary open={libraryOpen} onOpenChange={setLibraryOpen} mix={mix} active={active} runwayCard={runwayCard}
           nowPlaying={listening ? song.caption : undefined} onPlaySong={play} onPlayListSong={playList}
           onPlayMix={playMix}
@@ -433,7 +466,7 @@ function ListeningRoom() {
             <div className="ls-contents-stage">
               <ListenStudio onPlay={playStudio} nowPlaying={onStudio && listening ? song.caption : undefined} />
               <ListenContents mix={mix} playlists={playlists} nowPlaying={listening ? song.caption : undefined} onPlayMix={play} onPlayList={playList}
-                onRunway={() => setCategory("Runway")} onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)} runwayCard={runwayCard} />
+                onRunway={() => setCategory("Runway")} onReading={openReading} onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)} runwayCard={runwayCard} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
             </div>
           ) : view.kind === "profile" ? (
@@ -468,9 +501,11 @@ function ListeningRoom() {
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
             </section>
           ) : <>
-            {!heroLeads && <ListenHero onPlayMix={playMix} />}
+            {!heroLeads && <ListenHero onPlayMix={playMix} onNotes={() => setFilmNotesOpen(true)} onFilmSound={() => setListening(false)}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero>}
 
-            {shelf === "fashion" && <ListenFashion onProfile={openProfile} />}
+            {shelf === "fashion" && <ListenFashion onProfile={openProfile} playing={listening} />}
+
+            <DigitalZine tone="room" nowReadingWith={{ id: song.caption, title: song.title, artist: song.artist, art: song.art }} />
 
             <ListenStudio onPlay={playStudio} nowPlaying={onStudio && listening ? song.caption : undefined} />
 
@@ -542,6 +577,13 @@ function ListeningRoom() {
       <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}
         onRead={id => { setQuizOpen(false); const story = stories.find(s => s.id === id); if (story) { setActive(`story-${story.id}`); setArticle(story); } }} />
       <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} tone="room" />
+      <Dialog open={filmNotesOpen} onOpenChange={setFilmNotesOpen}>
+        <DialogContent className="ls-film-notes">
+          <DialogTitle>Thom Browne · FW17</DialogTitle>
+          <DialogDescription>Your take on the film, the clothes and the sound. Notes join the community edit after review.</DialogDescription>
+          {filmNotesOpen && <StylingNotes context={{ title: "Thom Browne FW17 — my style note", tags: ["thom browne", "fw17", "runway film"] }} />}
+        </DialogContent>
+      </Dialog>
       <AnalyticsGate tone="room" />
       <StoryDialog story={article} onClose={() => setArticle(null)} />
     </div>

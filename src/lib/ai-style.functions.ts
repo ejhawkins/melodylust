@@ -29,6 +29,8 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
       // ideas from the articles rather than the generic fallback outfit.
       const ask = () => readAIJSON(AI_STYLE_PROMPT, data, getRequest());
       return ask().catch(failure => {
+        // Only malformed JSON benefits from another attempt; provider failures do not.
+        if (!(failure instanceof SyntaxError)) throw failure;
         console.error('[AI style] retrying after', failure instanceof Error ? failure.message : failure);
         return ask();
       }).then(payload => readResult(payload));

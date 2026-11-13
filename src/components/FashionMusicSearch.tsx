@@ -177,10 +177,10 @@ export function FashionMusicSearch({ open, onOpenChange, playlist = [], tone }: 
               {stylistNow.status === "ready" && stylistNow.message && <p role="status" className="stylus-status">{stylistNow.message}</p>}
               {stylistNow.recommendation
                 ? <>
+                    <AIArtistStyle key={`style:${stylistNow.recommendation.artist.id}`} recommendation={stylistNow.recommendation} articles={stylistNow.articles} profile={profile} />
                     {!stylistNow.articles.length && <p role="status" className="stylus-status">No approved articles about {stylistNow.recommendation.artist.name} in Melody Lust’s collection yet. The outfit below is an editorial suggestion, not sourced.</p>}
                     <ScoutedArticles key={stylistNow.recommendation.artist.name} artist={stylistNow.recommendation.artist.name} />
                     <ArtistSongs key={`songs:${stylistNow.recommendation.artist.name}`} artist={stylistNow.recommendation.artist.name} />
-                    <AIArtistStyle key={`style:${stylistNow.recommendation.artist.id}`} recommendation={stylistNow.recommendation} articles={stylistNow.articles} profile={profile} />
                   </>
                 : stylistNow.articles.map(article => <article className="stylus-source" key={article.id}>
                     <a href={article.url} target="_blank" rel="noopener noreferrer">{article.title} <ArrowUpRight aria-hidden /></a>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useServerFn } from '@tanstack/react-start';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { styleArtistWithAI } from '@/lib/ai-style.functions';
@@ -22,16 +23,20 @@ export function AIArtistStyle({ recommendation, articles, profile }: { recommend
   const artist = recommendation.artist;
   const [state, setState] = useState<State>({ status: 'loading' });
   const [index, setIndex] = useState(0);
+  const getSongs = useServerFn(lookupArtistSongs);
+  const getCoverage = useServerFn(scoutArtistArticles);
+  const getStyle = useServerFn(styleArtistWithAI);
   useEffect(() => {
     let current = true; // a newer artist replaces this one's answer
     setState({ status: 'loading' }); setIndex(0);
     (async () => {
       // Same server-cached answers the song and coverage sections use, so these cost no extra API request.
       const [songs, coverage] = await Promise.all([
-        lookupArtistSongs({ data: { artist: artist.name } }).then(r => r.songs.map(s => s.title)).catch(() => []),
-        scoutArtistArticles({ data: { name: artist.name } }).then(r => r.articles).catch(() => []),
+        getSongs({ data: { artist: artist.name } }).then(r => r.songs.map(s => s.title)).catch(() => []),
+        getCoverage({ data: { name: artist.name } }).then(r => r.articles).catch(() => []),
       ]);
-      const response = await styleArtistWithAI({ data: {
+      if (!current) return;
+      const response = await getStyle({ data: {
         artist: artist.name, genres: artist.genres.slice(0, 8), songs,
         articles: articles.slice(0, 8).map(a => ({ id: a.id, title: a.title, summary: a.summary, url: a.url })),
         coverage: coverage.slice(0, 10).map(a => ({ url: a.url, publication: a.publication, title: a.title, summary: a.summary })),
@@ -42,9 +47,12 @@ export function AIArtistStyle({ recommendation, articles, profile }: { recommend
     return () => { current = false; };
   }, [artist.name, artist.genres.join(','), articles.map(a => a.id).join(','), preferencesOf(profile).join(',')]);
 
-  if (state.status === 'loading') return <p role="status" className="stylus-status">Styling ideas for {artist.name}…</p>;
-  if (state.status !== 'ok' || !state.suggestions.length) return <ArtistOutfitResult recommendation={recommendation} articles={articles} />;
-  const idea = state.suggestions[index % state.suggestions.length]!;
+  if (state.status !== 'ok' || !state.suggestions.length) return <>
+    {state.status === 'loading' && <p role="status" className="stylus-status">Refining styling ideas for {artist.name}…</p>}
+    <ArtistOutfitResult recommendation={recommendation} articles={articles} />
+  </>;
+  const idea = state.suggestions[index % state.suggestions.length];
+  if (!idea) return <ArtistOutfitResult recommendation={recommendation} articles={articles} />;
   const from = `AI styling idea for ${artist.name}`;
   return <section className="stylus-artist-outfit" aria-label={`Styling ideas for ${artist.name}`} aria-live="polite">
     <span className="stylus-eyebrow">{idea.basis === 'evidence' ? 'From the articles · AI-styled' : idea.inspiration ? `Inspired by ${idea.inspiration.publication} coverage · AI-styled` : 'Creative idea · AI-generated'}</span>

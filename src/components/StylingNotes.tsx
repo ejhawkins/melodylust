@@ -16,7 +16,7 @@ type Workspace = Awaited<ReturnType<typeof getStylingNotesWorkspace>>;
 type AuthMode = "signin" | "signup" | "forgot" | "reset";
 const emptyForm = { displayName: "", title: "", stylingIdea: "", tags: "", songArtist: "", songTrack: "", songReason: "" };
 
-export function StylingNotes() {
+export function StylingNotes({ context }: { context?: { title: string; tags: string[] } }) {
   const listPublic = useServerFn(listApprovedStylingNotes);
   const getWorkspace = useServerFn(getStylingNotesWorkspace);
   const saveNote = useServerFn(saveStylingNote);
@@ -68,7 +68,7 @@ export function StylingNotes() {
     setForm(note ? {
       displayName: note.author_display_name, title: note.title, stylingIdea: note.styling_idea,
       tags: note.tags.join(", "), songArtist: note.song_artist, songTrack: note.song_track, songReason: note.song_reason,
-    } : { ...emptyForm, displayName: workspace?.displayName ?? "" });
+    } : { ...emptyForm, displayName: workspace?.displayName ?? "", title: context?.title ?? "", tags: context?.tags.join(", ") ?? "" });
     setCompose(true);
   };
 

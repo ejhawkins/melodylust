@@ -1,9 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import type { PageFlip, SizeType } from "page-flip";
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import cover from "@/assets/grunge-cover.jpg";
 import street from "@/assets/street-style.jpg";
+import { LikeButton } from "./LikeButton";
+import { useReadingBook } from "./useReadingBook";
+import { addWish, useWishlist } from "@/lib/wishlist";
+import { drawCard } from "./ListenStudio";
+import type { StudioTrack } from "@/lib/studio";
 
 const PAGE_COUNT = 7;
 
@@ -15,7 +20,7 @@ const GOOD_READS = [
   { source: "Sample read", title: "Thrift culture and the new It-girl", note: "Second-hand, first choice.", url: "https://example.com/read-4" },
 ];
 
-export function DigitalZine() {
+export function DigitalZine({ tone, nowReadingWith }: { tone?: "room"; nowReadingWith?: StudioTrack }) {
   const source = useRef<HTMLDivElement>(null);
   const mount = useRef<HTMLDivElement>(null);
   const book = useRef<PageFlip | null>(null);
@@ -23,8 +28,40 @@ export function DigitalZine() {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const reduced = useRef(false);
+  const room = tone === "room";
+  const reading = useReadingBook(room, source, mount);
+  const wishes = useWishlist();
+  const touch = useRef<number | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [shareMessage, setShareMessage] = useState("");
+  const heading = useRef<HTMLHeadingElement>(null);
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => {
+    if (!room || !heading.current) return;
+    const observer = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) { setRevealed(true); observer.disconnect(); } });
+    observer.observe(heading.current); return () => observer.disconnect();
+  }, [room]);
+  const activePage = room ? reading.page : page;
+  const activeReady = room ? reading.ready : ready;
+  const restart = () => room ? reading.turn(0) : book.current?.turnToPage(0);
+  const share = async () => {
+    setSharing(true); setShareMessage("");
+    try {
+      const link = `${window.location.origin}/#reading-room`;
+      const blob = await drawCard(nowReadingWith ?? { id: "reading-room", title: "The Reading Room", artist: "Melody Lust", art: cover }, link, { label: "Reading", title: "The Zine · Sample issue 01", sub: "Fashion × Music", image: cover });
+      if (!blob) throw new Error("Could not create the issue card. Try again.");
+      const file = new File([blob], "melodylust-reading-room.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: "The Reading Room", url: link });
+      else {
+        const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+        await navigator.clipboard?.writeText(link).catch(() => {}); setShareMessage("Issue card downloaded.");
+      }
+    } catch (error) { if (!(error instanceof Error && error.name === "AbortError")) setShareMessage(error instanceof Error ? error.message : "Could not share this issue."); }
+    finally { setSharing(false); }
+  };
 
   useEffect(() => {
+    if (room) return;
     let cancelled = false;
     let instance: PageFlip | null = null;
     const container = mount.current;
@@ -55,9 +92,10 @@ export function DigitalZine() {
       instance?.destroy();
       host.remove();
     };
-  }, []);
+  }, [room]);
 
   function turn(direction: "next" | "previous") {
+    if (room) { reading.turn(activePage + (direction === "next" ? 1 : -1)); return; }
     const current = book.current;
     if (!current) return;
     if (reduced.current) {
@@ -67,29 +105,36 @@ export function DigitalZine() {
     else current.flipPrev();
   }
 
-  return <section className="zine-section" id="zine" aria-labelledby="zine-heading">
+  return <section className="zine-section" data-tone={tone} id={room ? "reading-room" : "zine"} aria-labelledby={room ? "reading-room-heading" : "zine-heading"}>
     <header className="zine-header">
       <span className="zine-eyebrow">+ The reading room</span>
-      <h2 id="zine-heading">THE ZINE</h2>
+      <h2 ref={heading} data-revealed={revealed} id={room ? "reading-room-heading" : "zine-heading"}>{room ? ["The", "Reading", "Room"].map((word, i) => <Fragment key={word}>{i > 0 && " "}<span className="reading-word">{Array.from(word).map((letter, j) => <span key={j}>{letter}</span>)}</span></Fragment>) : "THE ZINE"}</h2>
       <p>A little fashion. A little music. Something to keep.</p>
     </header>
     <div className="zine-layout">
     <div className="zine-main">
+    {room && <div className="zine-cover-heart"><LikeButton look="quick" kind="story" id="reading-room-issue-01" name="The Zine · Sample issue 01" image={cover} /></div>}
     <div className="zine-stage" ref={mount} role="group" aria-label="Melody Lust digital booklet" tabIndex={0}
+      data-plain={room && reading.plain}
+      onTouchStart={event => { touch.current = event.touches[0]?.clientX ?? null; }}
+      onTouchEnd={event => { const end = event.changedTouches[0]?.clientX; if (room && touch.current !== null && end !== undefined && Math.abs(end - touch.current) > 40) turn(end < touch.current ? "next" : "previous"); touch.current = null; }}
       onKeyDown={event => {
         if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
           event.preventDefault();
           turn(event.key === "ArrowRight" ? "next" : "previous");
         }
       }} />
-    {!ready && <p className="zine-status" role="status">{failed ? "The booklet could not open. Please refresh to try again." : "Opening the booklet…"}</p>}
+    {!activeReady && <p className="zine-status" role="status">{failed ? "The booklet could not open. Please refresh to try again." : "Opening the booklet…"}</p>}
     <div className="zine-controls">
-      <Button variant="ghost" size="icon" title="Previous page" aria-label="Previous zine page" disabled={!ready || page === 0} onClick={() => turn("previous")}><ArrowLeft /></Button>
-      <span aria-live="polite" aria-atomic="true">{page === 0 ? "Cover" : page === PAGE_COUNT - 1 ? "Back cover" : `Page ${page + 1} of ${PAGE_COUNT}`}</span>
-      <Button variant="ghost" size="icon" title="Next page" aria-label="Next zine page" disabled={!ready || page === PAGE_COUNT - 1} onClick={() => turn("next")}><ArrowRight /></Button>
-      <Button variant="ghost" size="icon" title="Back to cover" aria-label="Return to zine cover" disabled={!ready || page === 0} onClick={() => book.current?.turnToPage(0)}><RotateCcw /></Button>
+      <Button variant={room ? "listenOutline" : "ghost"} size="icon" title="Previous page" aria-label="Previous zine page" disabled={!activeReady || activePage === 0} onClick={() => turn("previous")}><ArrowLeft /></Button>
+      <span aria-live="polite" aria-atomic="true">{room ? `Page ${activePage + 1} of ${PAGE_COUNT}` : page === 0 ? "Cover" : page === PAGE_COUNT - 1 ? "Back cover" : `Page ${page + 1} of ${PAGE_COUNT}`}</span>
+      <Button variant={room ? "listenOutline" : "ghost"} size="icon" title="Next page" aria-label="Next zine page" disabled={!activeReady || activePage === PAGE_COUNT - 1} onClick={() => turn("next")}><ArrowRight /></Button>
+      <Button variant={room ? "listenOutline" : "ghost"} size="icon" title="Back to cover" aria-label="Return to zine cover" disabled={!activeReady || activePage === 0} onClick={restart}><RotateCcw /></Button>
     </div>
     <p className="zine-caption">Melody Lust · Sample issue · 7 pages</p>
+    {room && <p className="zine-caption">Now reading with · {nowReadingWith ? `${nowReadingWith.title} — ${nowReadingWith.artist}` : "The Autumn Mix"}</p>}
+    {room && activePage === 6 && <div className="zine-end"><Button variant="listenOutline" size="bar" onClick={restart}>Back to the cover</Button><Button variant="listenSolid" size="bar" disabled={sharing} onClick={() => void share()}>{sharing ? "Creating card…" : "Share this issue"}</Button></div>}
+    {shareMessage && <p role="status" className="zine-caption">{shareMessage}</p>}
     </div>
     <aside className="good-reads" aria-labelledby="good-reads-heading">
       <h3 id="good-reads-heading">GOOD READS</h3>
@@ -102,6 +147,7 @@ export function DigitalZine() {
             <span className="good-reads-desc">{read.note}</span>
             <span className="good-reads-arrow" aria-hidden>↗</span>
           </a>
+          {room && <Button variant="listenOutline" size="bar" onClick={() => addWish({ kind: "piece", name: read.title, detail: read.source, link: read.url, note: read.note, from: "Reading Room · Sample read" })}>{wishes.some(w => w.name === read.title && w.from === "Reading Room · Sample read") ? "In Want List" : "+ Want List"}</Button>}
         </li>)}
       </ol>
     </aside>

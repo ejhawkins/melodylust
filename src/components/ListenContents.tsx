@@ -1,4 +1,5 @@
 import { LikeButton } from "@/components/LikeButton";
+import { Button } from "@/components/ui/button";
 import { Disc3 } from "lucide-react";
 import type { ReactNode } from "react";
 import type { MixSong } from "@/lib/listening-room";
@@ -8,13 +9,14 @@ type Chapter = { id: string; title: string; dek: string; songs: MixSong[]; play:
 
 /** The library's playlists as a magazine contents page: every playlist is a numbered feature with a contact-sheet strip
  *  of its covers and a dotted index of its songs, so songs from all of them sit on one screen. A tap plays that song. */
-export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayList, onRunway, onPlaylist, footer, runwayCard }: {
+export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayList, onRunway, onReading, onPlaylist, footer, runwayCard }: {
   mix: readonly MixSong[];
   playlists: readonly Playlist[];
   nowPlaying?: string | undefined;
   onPlayMix: (index: number) => void;
   onPlayList: (id: string, index: number) => void;
   onRunway: () => void;
+  onReading?: () => void;
   onPlaylist: (id: string) => void;
   footer?: ReactNode;
   /** The latest Runway Note's card, set under Runway Songs. */
@@ -80,6 +82,10 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
           </button>
           {runwayCard && <div className="ls-toc-runway-card">{runwayCard}</div>}
         </li>
+        {onReading && <li className="ls-toc-chapter"><Button variant="listenTile" size="block" className="ls-toc-head ls-toc-runway" onClick={onReading}>
+          <span className="ls-toc-num" aria-hidden>{String(chapters.length + 2).padStart(2, "0")}</span>
+          <span className="min-w-0 text-left"><span className="ls-toc-dekline">The Zine · Sample issue 01</span><span className="ls-toc-name">Reading Room</span></span>
+        </Button></li>}
       </ol>
       {footer}
     </section>

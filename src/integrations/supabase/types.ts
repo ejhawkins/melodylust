@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      article_evidence: {
+        Row: {
+          article_url: string
+          created_at: string
+          evidence: Json
+          fingerprint: string
+          reader: string
+        }
+        Insert: {
+          article_url: string
+          created_at?: string
+          evidence: Json
+          fingerprint: string
+          reader: string
+        }
+        Update: {
+          article_url?: string
+          created_at?: string
+          evidence?: Json
+          fingerprint?: string
+          reader?: string
+        }
+        Relationships: []
+      }
       articles: {
         Row: {
           categories: string[]
@@ -86,6 +110,24 @@ export type Database = {
           source?: string
           source_id?: string | null
           status?: string
+        }
+        Relationships: []
+      }
+      product_cache: {
+        Row: {
+          key: string
+          products: Json
+          saved_at: string
+        }
+        Insert: {
+          key: string
+          products: Json
+          saved_at?: string
+        }
+        Update: {
+          key?: string
+          products?: Json
+          saved_at?: string
         }
         Relationships: []
       }

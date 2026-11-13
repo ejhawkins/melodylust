@@ -24,3 +24,7 @@
 - Keep the phone section row in ListenIssueDock (hero + pinned variants sharing one handler) so in-hero tabs and the sticky dock never drift apart.
 - Keep the Listening Room Studio (library, add-to-playlist, Spotify embed previews, share card, importer) in ListenStudio with its own device-stored catalogue in lib/studio, so it never alters the existing caption-based playlists.
 - Keep the Style Matrix as the FitCompass component fed by lib/fit-compass (one item, four quadrant looks); votes go only through server functions that return aggregate counts, so voter ids never reach the browser.
+- Keep evidence and product caches server-only in Cloud, and render the rule-based outfit while AI refines it; this avoids repeat analysis and lets product matching start before the model finishes.
+- Route opening-film contributions through the existing StylingNotes composer with show context, so ownership and publication review stay in one workflow.
+- Keep room booklet behavior in useReadingBook and room styling scoped under .ls; clone source pages into an isolated lazy-loaded host so /home retains its original booklet.
+- Keep The Swivel ring maths in lib/swivel and fetch each real-product layer once on visibility; reuse LookPreview only on user request so the outfit builder never generates paid images automatically.
