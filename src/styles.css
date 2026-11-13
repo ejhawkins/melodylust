@@ -3815,3 +3815,4 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls-boards-mine > ul > li { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-top: 1px solid var(--border); padding-top: 10px; flex-wrap: wrap; }
 .ls-boards-note { white-space: pre-line; color: var(--foreground) !important; }
 .ls-boards-items { font-size: 13px; padding-left: 16px; }
+.ls-boards-account { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 14px; }

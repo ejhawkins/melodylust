@@ -4,6 +4,7 @@ import { Link2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { StyleBoardComposer } from "@/components/StyleBoardComposer";
+import { AuthDialog } from "@/components/StylingNotes";
 import { deleteStyleBoard, getBoardWorkspace, listStyleBoards, reviewStyleBoard, type MyBoard, type StyleBoard } from "@/lib/style-board.functions";
 
 type Workspace = Awaited<ReturnType<typeof getBoardWorkspace>>;
@@ -29,9 +30,12 @@ export function ListenBoards() {
   const [boards, setBoards] = useState<StyleBoard[]>([]);
   const [ws, setWs] = useState<Workspace | null>(null);
   const [msg, setMsg] = useState("");
+  const [email, setEmail] = useState<string | null>(null);
+  const [authOpen, setAuthOpen] = useState<false | "signin" | "signup">(false);
   const refresh = useCallback(async () => {
     setBoards((await list()).boards);
     const { data } = await supabase.auth.getSession();
+    setEmail(data.session?.user.email ?? null);
     if (data.session) { try { setWs(await load()); } catch { setWs(null); } } else setWs(null);
   }, [list, load]);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -44,6 +48,13 @@ export function ListenBoards() {
   return <section className="ls-section ls-boards" id="style-boards" aria-labelledby="ls-boards-title">
     <h2 id="ls-boards-title" className="ls-boards-title">Style boards</h2>
     <p className="ls-boards-dek">Outfits with their soundtrack and reading list, posted by readers and reviewed before they go public.</p>
+    <div className="ls-boards-account">
+      {email ? <><span>Signed in as {email}{ws?.canModerate ? " · reviewer" : ""}</span>
+        <Button variant="listenOutline" size="chip" onClick={() => void supabase.auth.signOut().then(refresh)}>Sign out</Button></>
+      : <><Button variant="listenSolid" size="chip" onClick={() => setAuthOpen("signup")}>Create account</Button>
+        <Button variant="listenOutline" size="chip" onClick={() => setAuthOpen("signin")}>Sign in</Button></>}
+    </div>
+    <AuthDialog open={Boolean(authOpen)} initialMode={authOpen || "signin"} onOpenChange={o => { if (!o) setAuthOpen(false); }} tone="room" onSignedIn={refresh} />
     {msg && <p role="status" className="ls-boards-msg">{msg}</p>}
 
     {boards.length ? <ul className="ls-boards-grid">{boards.map(b => <li key={b.id} className="ls-boards-card">
@@ -52,7 +63,7 @@ export function ListenBoards() {
       <Button variant="listenOutline" size="chip" onClick={() => void shareLink(b).then(setMsg)}><Link2 aria-hidden />Share</Button>
     </li>)}</ul> : <p className="ls-boards-empty">No boards are live yet — post the first one.</p>}
 
-    <StyleBoardComposer onCreated={() => void refresh()} />
+    <StyleBoardComposer key={email ?? "out"} onCreated={() => void refresh()} />
 
     {ws && ws.mine.length > 0 && <div className="ls-boards-mine"><h3>Your boards</h3><ul>{ws.mine.map(b => <li key={b.id}>
       <div><p className="ls-boards-card-title">{b.title}</p><p>{STATUS[b.status]}{b.status === "rejected" && b.rejectionReason ? ` — ${b.rejectionReason}` : ""}</p></div>

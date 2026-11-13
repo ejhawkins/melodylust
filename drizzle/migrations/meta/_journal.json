@@ -71,6 +71,13 @@
       "when": 1794577478493,
       "tag": "0009_style_board_review",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794577784458,
+      "tag": "0010_first_account_admin",
+      "breakpoints": true
     }
   ]
 }
