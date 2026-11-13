@@ -3806,6 +3806,17 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls-board-pick img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
 .ls-board-pick input { width: 20px; height: 20px; accent-color: var(--primary); }
 .ls-board-row { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Add an item straight into a board: pick a section, find a real piece with its photo or type your own. */
+.ls-board-add { display: grid; gap: 10px; padding: 12px; border: 1px dashed var(--border); border-radius: 12px; }
+.ls-board-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.ls-board-shop { display: grid; gap: 10px; }
+.ls-board-results { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.ls-board-results button { display: grid; gap: 4px; width: 100%; padding: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.3; color: inherit; background: none; border: 0; cursor: pointer; }
+.ls-board-results button:disabled { opacity: .55; cursor: default; }
+.ls-board-results img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 8px; background: var(--color-fig-900); }
+.ls-board-results em { font-style: normal; color: var(--primary); }
+.ls-board-results button:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 3px; border-radius: 8px; }
+.ls-board-or { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-foreground); margin-top: 4px; }
 .ls-board-link { word-break: break-all; color: var(--primary); text-decoration: underline; }
 .ls-board-page { background: var(--background); color: var(--foreground); font-family: var(--font-isidora, sans-serif); }
 .ls-board-kicker { color: var(--primary); font-size: 13px; text-transform: uppercase; letter-spacing: .1em; }
