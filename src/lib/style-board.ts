@@ -29,3 +29,11 @@ export function spotifyTrackId(link?: string | null): string | null {
   const m = link?.match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?track\/([A-Za-z0-9]{22})/);
   return m ? m[1]! : null;
 }
+
+export type PortfolioPiece = { title: string; image: string; link: string };
+/** Keep up to 12 portfolio pieces with a title and an https photo; links must be https too. */
+export function cleanPortfolio(list: PortfolioPiece[]): PortfolioPiece[] {
+  const ok = (u: string) => /^https:\/\/[^\s]+$/i.test(u);
+  return list.map(p => ({ title: p.title.trim().slice(0, 80), image: p.image.trim(), link: p.link.trim() }))
+    .filter(p => p.title && ok(p.image)).map(p => ({ ...p, link: ok(p.link) ? p.link : "" })).slice(0, 12);
+}

@@ -3831,3 +3831,11 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls-infdir-photos img:only-child { grid-column: span 2; }
 .ls-infdir-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .ml-stylists-link { display: block; margin: 40px auto; max-width: 64rem; padding: 0 20px; }
+.ls-sp-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.ls-sp-tabs button { font-family: var(--font-isidora, sans-serif); font-size: 14px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); color: var(--foreground); }
+.ls-sp-tabs button[aria-selected="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.ls-sp-tabs button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.ls-sp-bio { white-space: pre-line; }
+.ls-sp-portfolio { display: grid; gap: 12px; border: 0; padding: 0; min-width: 0; }
+.ls-sp-piece { display: grid; gap: 6px; border-top: 1px solid var(--border); padding-top: 10px; }
+.ls-sp-piece > button { justify-self: start; }

@@ -1,17 +1,18 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getInfluencerBoards } from "@/lib/style-board.functions";
+import { useState } from "react";
+import { getInfluencerBoards, getStylistProfile } from "@/lib/style-board.functions";
 import { spotifyTrackId } from "@/lib/style-board";
 import { FollowButton } from "@/components/FollowButton";
 
 export const Route = createFileRoute("/influencer/$id")({
   loader: async ({ params }) => {
-    const page = await getInfluencerBoards({ data: { id: params.id } });
+    const [page, profile] = await Promise.all([getInfluencerBoards({ data: { id: params.id } }), getStylistProfile({ data: { id: params.id } })]);
     if (!page) throw notFound();
-    return page;
+    return { ...page, profile };
   },
   head: ({ loaderData: p }) => {
     const title = p ? `${p.author} — Style Influencer · Melodylust` : "Style Influencer · Melodylust";
-    const description = p ? `${p.boards.length} style board${p.boards.length === 1 ? "" : "s"} by ${p.author}: outfits, the songs they're worn to, and good reads.` : "A Melodylust Style Influencer.";
+    const description = p?.profile.bio ? p.profile.bio.slice(0, 155) : p ? `${p.boards.length} style board${p.boards.length === 1 ? "" : "s"} by ${p.author}: outfits, the songs they're worn to, and good reads.` : "A Melodylust Style Influencer.";
     const image = p?.boards.flatMap(b => b.items).find(i => i.image)?.image;
     return { meta: [
       { title }, { name: "description", content: description },
@@ -28,7 +29,8 @@ export const Route = createFileRoute("/influencer/$id")({
 });
 
 function InfluencerPage() {
-  const { author, boards } = Route.useLoaderData();
+  const { author, boards, profile } = Route.useLoaderData();
+  const [tab, setTab] = useState<"boards" | "portfolio" | "notes">("boards");
   const items = boards.flatMap(b => b.items.map(i => ({ ...i, board: b })));
   const photos = items.filter(i => i.section === "fashion" && i.image);
   const music = items.filter(i => i.section === "music");
@@ -40,7 +42,28 @@ function InfluencerPage() {
         <h1 className="ls-board-title">{author}</h1>
         <div className="flex gap-3 items-center"><FollowButton id={Route.useParams().id} author={author} /><Link to="/influencers" className="underline text-sm">All stylists</Link></div>
         <p className="ls-board-note">{boards.length} board{boards.length === 1 ? "" : "s"} · {photos.length} looks · {music.length} songs · {reads.length} reads</p>
+        {profile.bio && <p className="ls-board-note ls-sp-bio">{profile.bio}</p>}
+        {profile.inspirations && <p className="ls-board-item-detail"><span className="ls-board-kicker">Inspirations · </span>{profile.inspirations}</p>}
       </header>
+      <div role="tablist" aria-label="Stylist sections" className="ls-sp-tabs">
+        {([["boards", "Boards"], ["portfolio", `Portfolio (${profile.portfolio.length})`], ["notes", `Styling notes (${profile.notes.length})`]] as const).map(([id, label]) =>
+          <button key={id} role="tab" type="button" aria-selected={tab === id} aria-controls={`sp-${id}`} id={`sp-tab-${id}`} onClick={() => setTab(id)}>{label}</button>)}
+      </div>
+      {tab === "portfolio" && <section id="sp-portfolio" role="tabpanel" aria-labelledby="sp-tab-portfolio">
+        {profile.portfolio.length ? <ul className="ls-inf-photos">{profile.portfolio.map((p, n) => <li key={n}>
+          <img src={p.image} alt={p.title} loading="lazy" width={400} height={500} />
+          <p className="ls-board-item-name">{p.title}</p>
+          {p.link && <a href={p.link} target="_blank" rel="noopener noreferrer nofollow">View</a>}
+        </li>)}</ul> : <p className="ls-board-note">No portfolio pieces yet.</p>}
+      </section>}
+      {tab === "notes" && <section id="sp-notes" role="tabpanel" aria-labelledby="sp-tab-notes">
+        {profile.notes.length ? <ul className="ls-inf-boards">{profile.notes.map((n, i) => <li key={i}>
+          <p className="ls-board-item-name">{n.title}</p><p className="ls-board-note">{n.idea}</p>
+          <p className="ls-board-item-detail">Soundtrack: {n.track} — {n.artist}{n.reason ? ` · ${n.reason}` : ""}</p>
+          {n.tags.length > 0 && <p className="ls-board-item-detail">{n.tags.map(t => `#${t}`).join(" ")}</p>}
+        </li>)}</ul> : <p className="ls-board-note">No approved styling notes yet.</p>}
+      </section>}
+      {tab === "boards" && <div id="sp-boards" role="tabpanel" aria-labelledby="sp-tab-boards" className="space-y-10">
       {photos.length > 0 && <section aria-labelledby="inf-photos"><h2 id="inf-photos" className="ls-board-h2">The fashion</h2>
         <ul className="ls-inf-photos">{photos.map((i, n) => <li key={n}>
           <img src={i.image!} alt={i.name} loading={n < 4 ? "eager" : "lazy"} width={400} height={500} />
@@ -60,6 +83,7 @@ function InfluencerPage() {
         </li>)}</ul></section>}
       <section aria-labelledby="inf-boards"><h2 id="inf-boards" className="ls-board-h2">Boards</h2>
         <ul className="ls-inf-boards">{boards.map(b => <li key={b.id}><Link to="/board/$id" params={{ id: b.id }}>{b.title}</Link><p>{b.note.slice(0, 140)}</p></li>)}</ul></section>
+      </div>}
       <Link to="/" className="inline-block rounded-full bg-primary px-5 py-2 font-isidora text-sm text-primary-foreground">Make your own in the Listening Room</Link>
     </article>
   </main>;

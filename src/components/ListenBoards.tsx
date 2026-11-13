@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { StyleBoardComposer } from "@/components/StyleBoardComposer";
 import { AuthDialog } from "@/components/StylingNotes";
+import { StylistProfileEditor } from "@/components/StylistProfileEditor";
 import { deleteStyleBoard, getBoardWorkspace, listStyleBoards, reviewStyleBoard, type MyBoard, type StyleBoard } from "@/lib/style-board.functions";
 
 type Workspace = Awaited<ReturnType<typeof getBoardWorkspace>>;
@@ -64,6 +65,8 @@ export function ListenBoards() {
     </li>)}</ul> : <p className="ls-boards-empty">No boards are live yet — post the first one.</p>}
 
     <StyleBoardComposer key={email ?? "out"} onCreated={() => void refresh()} />
+
+    {email && <StylistProfileEditor key={email} />}
 
     {ws && ws.mine.length > 0 && <div className="ls-boards-mine"><h3>Your boards</h3><ul>{ws.mine.map(b => <li key={b.id}>
       <div><p className="ls-boards-card-title">{b.title}</p><p>{STATUS[b.status]}{b.status === "rejected" && b.rejectionReason ? ` — ${b.rejectionReason}` : ""}</p></div>

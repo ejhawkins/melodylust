@@ -27,3 +27,11 @@ t2("spotify track links become embeddable ids, other links don't", () => {
   e2(sti("https://open.spotify.com/intl-fr/track/4iV5W9uYEdYUVa79Axb7Rh")).toBe("4iV5W9uYEdYUVa79Axb7Rh");
   e2(sti("https://evil.com/open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh")).toBeNull();
 });
+
+import { cleanPortfolio } from "./style-board";
+t2("portfolio keeps titled https photos, drops unsafe links, caps at 12", () => {
+  const ok = { title: "Editorial", image: "https://x.com/a.jpg", link: "javascript:alert(1)" };
+  expect(cleanPortfolio([ok, { title: "", image: "https://x.com/b.jpg", link: "" }, { title: "Bad", image: "http://x.com/c.jpg", link: "" }]))
+    .toEqual([{ ...ok, link: "" }]);
+  expect(cleanPortfolio(Array(15).fill({ ...ok, link: "" })).length).toBe(12);
+});

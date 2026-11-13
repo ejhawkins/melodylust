@@ -133,21 +133,30 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bio: string
           created_at: string
           display_name: string
           id: string
+          inspirations: string
+          portfolio: Json
           updated_at: string
         }
         Insert: {
+          bio?: string
           created_at?: string
           display_name?: string
           id: string
+          inspirations?: string
+          portfolio?: Json
           updated_at?: string
         }
         Update: {
+          bio?: string
           created_at?: string
           display_name?: string
           id?: string
+          inspirations?: string
+          portfolio?: Json
           updated_at?: string
         }
         Relationships: []
@@ -329,6 +338,15 @@ export type Database = {
           items: Json
           note: string
           title: string
+        }[]
+      }
+      get_stylist_profile: {
+        Args: { _board_id: string }
+        Returns: {
+          bio: string
+          inspirations: string
+          notes: Json
+          portfolio: Json
         }[]
       }
       has_role: {

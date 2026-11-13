@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
-import { boardId, isBoardId, type BoardItem } from "@/lib/style-board";
+import { boardId, cleanPortfolio, isBoardId, type BoardItem, type PortfolioPiece } from "@/lib/style-board";
 
 const url = z.string().max(500).refine(v => v === "" || /^https?:\/\//i.test(v));
 const boardInput = z.object({
@@ -125,3 +125,34 @@ export const listInfluencers = createServerFn({ method: "GET" }).handler(async (
   return { influencers: (data ?? []).map(r => ({ id: r.board_id, author: r.author_display_name, boardCount: r.board_count,
     photos: (r.items as BoardItem[]).filter(i => i.image).map(i => ({ name: i.name, image: i.image! })) })) };
 });
+
+export type StylistNote = { title: string; idea: string; tags: string[]; artist: string; track: string; reason: string; createdAt: string };
+export type StylistProfile = { bio: string; inspirations: string; portfolio: PortfolioPiece[]; notes: StylistNote[] };
+export const getStylistProfile = createServerFn({ method: "GET" })
+  .inputValidator((input: { id: string }) => ({ id: String(input.id) }))
+  .handler(async ({ data }): Promise<StylistProfile> => {
+    const empty = { bio: "", inspirations: "", portfolio: [], notes: [] };
+    if (!isBoardId(data.id)) return empty;
+    const { data: rows, error } = await publicClient().rpc("get_stylist_profile", { _board_id: data.id });
+    if (error) { console.error(error); return empty; }
+    const r = rows?.[0];
+    return r ? { bio: r.bio, inspirations: r.inspirations, portfolio: r.portfolio as PortfolioPiece[], notes: r.notes as StylistNote[] } : empty;
+  });
+
+export const getMyStylistProfile = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase.from("profiles").select("bio, inspirations, portfolio").eq("id", context.userId).maybeSingle();
+    return { bio: data?.bio ?? "", inspirations: data?.inspirations ?? "", portfolio: (data?.portfolio ?? []) as PortfolioPiece[] };
+  });
+
+const profileInput = z.object({ bio: z.string().max(1200), inspirations: z.string().max(600),
+  portfolio: z.array(z.object({ title: z.string().max(200), image: z.string().max(1000), link: z.string().max(1000) })).max(30) });
+export const saveMyStylistProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => profileInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.from("profiles").update({ bio: data.bio.trim(), inspirations: data.inspirations.trim(), portfolio: cleanPortfolio(data.portfolio) }).eq("id", context.userId);
+    if (error) { console.error(error); throw new Error("Your profile couldn't be saved."); }
+    return { ok: true };
+  });
