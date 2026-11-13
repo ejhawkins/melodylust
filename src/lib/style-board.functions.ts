@@ -105,3 +105,15 @@ export const deleteStyleBoard = createServerFn({ method: "POST" })
     if (error) throw new Error("This board couldn't be deleted.");
     return { ok: true };
   });
+
+/** A Style Influencer page: every approved board by the author of one approved board (owner id never leaves the server). */
+export const getInfluencerBoards = createServerFn({ method: "GET" })
+  .inputValidator((input: { id: string }) => ({ id: String(input.id) }))
+  .handler(async ({ data }): Promise<{ author: string; boards: StyleBoard[] } | null> => {
+    if (!isBoardId(data.id)) return null;
+    const { data: rows, error } = await publicClient().rpc("get_influencer_boards", { _board_id: data.id });
+    if (error) { console.error(error); throw new Error("This page is unavailable right now."); }
+    if (!rows?.length) return null;
+    const boards = rows.map(toBoard);
+    return { author: boards.find(b => b.id === data.id)?.author ?? boards[0]!.author, boards };
+  });

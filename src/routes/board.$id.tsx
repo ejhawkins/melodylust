@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { getStyleBoard } from "@/lib/style-board.functions";
-import type { BoardSection } from "@/lib/style-board";
+import { spotifyTrackId, type BoardSection } from "@/lib/style-board";
 
 export const Route = createFileRoute("/board/$id")({
   loader: async ({ params }) => {
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/board/$id")({
       ...(image ? [{ property: "og:image", content: image }, { name: "twitter:image", content: image }] : []),
     ] };
   },
+  errorComponent: () => <main className="ls-board-page grid min-h-screen place-items-center p-6 text-center"><p>This board couldn't load. Please try again.</p></main>,
   notFoundComponent: () => <main className="ls-board-page grid min-h-screen place-items-center p-6 text-center">
     <div><h1 className="ls-board-title">Board not found</h1><Link to="/" className="mt-4 inline-block underline">Open the Listening Room</Link></div>
   </main>,
@@ -32,7 +33,7 @@ function BoardPage() {
   return <main className="ls-board-page min-h-screen px-5 py-10">
     <article className="mx-auto max-w-2xl space-y-8">
       <header className="space-y-3">
-        <p className="ls-board-kicker">Style board · by {b.author}</p>
+        <p className="ls-board-kicker">Style board · by <Link to="/influencer/$id" params={{ id: b.id }} className="underline">{b.author}</Link></p>
         <h1 className="ls-board-title">{b.title}</h1>
         <p className="ls-board-note">{b.note}</p>
       </header>
@@ -40,7 +41,7 @@ function BoardPage() {
         const items = b.items.filter(i => i.section === s.id);
         return items.length ? <section key={s.id} aria-labelledby={`b-${s.id}`}>
           <h2 id={`b-${s.id}`} className="ls-board-h2">{s.label}</h2>
-          <ul className="ls-board-items">{items.map((i, n) => <li key={n}>
+          <ul className="ls-board-items">{items.map((i, n) => s.id === "music" && spotifyTrackId(i.link) ? <li key={n} className="ls-board-embed"><iframe title={`${i.name} on Spotify`} src={`https://open.spotify.com/embed/track/${spotifyTrackId(i.link)}`} width="100%" height="80" loading="lazy" style={{ border: 0, borderRadius: 12 }} allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" /></li> : <li key={n}>
             {i.image && <img src={i.image} alt={i.name} loading="lazy" width={96} height={96} />}
             <div><p className="ls-board-item-name">{i.name}</p>{i.detail && <p className="ls-board-item-detail">{i.detail}</p>}
               {i.link && <a href={i.link} target="_blank" rel="noopener noreferrer nofollow">{s.id === "music" ? "Listen" : s.id === "read" ? "Read" : "Shop"}</a>}</div>

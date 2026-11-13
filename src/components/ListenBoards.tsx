@@ -59,7 +59,7 @@ export function ListenBoards() {
 
     {boards.length ? <ul className="ls-boards-grid">{boards.map(b => <li key={b.id} className="ls-boards-card">
       {cover(b) ? <img src={cover(b)} alt="" loading="lazy" width={320} height={320} /> : <div className="ls-boards-noimg" aria-hidden />}
-      <div><a href={`/board/${b.id}`} className="ls-boards-card-title">{b.title}</a><p>by {b.author} · {count(b)}</p></div>
+      <div><a href={`/board/${b.id}`} className="ls-boards-card-title">{b.title}</a><p>by <a href={`/influencer/${b.id}`} className="underline">{b.author}</a> · {count(b)}</p></div>
       <Button variant="listenOutline" size="chip" onClick={() => void shareLink(b).then(setMsg)}><Link2 aria-hidden />Share</Button>
     </li>)}</ul> : <p className="ls-boards-empty">No boards are live yet — post the first one.</p>}
 

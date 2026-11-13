@@ -309,6 +309,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_influencer_boards: {
+        Args: { _board_id: string }
+        Returns: {
+          author_display_name: string
+          created_at: string
+          id: string
+          items: Json
+          note: string
+          title: string
+        }[]
+      }
       get_style_board: {
         Args: { _id: string }
         Returns: {

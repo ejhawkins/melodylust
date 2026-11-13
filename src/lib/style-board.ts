@@ -23,3 +23,9 @@ export function boardId(random: (n: number) => Uint8Array = n => crypto.getRando
   return Array.from(random(10), b => abc[b % 32]).join("");
 }
 export const isBoardId = (id: string) => /^[a-z2-9]{10}$/.test(id);
+
+/** Spotify track id from an open.spotify.com track link, for embedding real playback. */
+export function spotifyTrackId(link?: string | null): string | null {
+  const m = link?.match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?track\/([A-Za-z0-9]{22})/);
+  return m ? m[1]! : null;
+}

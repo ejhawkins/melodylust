@@ -19,3 +19,11 @@ describe("style board", () => {
     expect(isBoardId("../etc")).toBe(false);
   });
 });
+
+import { spotifyTrackId as sti } from "./style-board";
+import { test as t2, expect as e2 } from "vitest";
+t2("spotify track links become embeddable ids, other links don't", () => {
+  e2(sti("https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh?si=x")).toBe("4iV5W9uYEdYUVa79Axb7Rh");
+  e2(sti("https://open.spotify.com/intl-fr/track/4iV5W9uYEdYUVa79Axb7Rh")).toBe("4iV5W9uYEdYUVa79Axb7Rh");
+  e2(sti("https://evil.com/open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh")).toBeNull();
+});
