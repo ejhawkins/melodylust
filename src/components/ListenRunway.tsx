@@ -99,11 +99,11 @@ export function NoteCard({ note, index, active, onPlay, onOpen }: { note: Runway
       {lead && (index >= 0 ? (
         <Button variant="listenTile" size="block" className="ls-rn-card-song w-full" data-active={active}
           aria-label={`Play ${lead.title ?? lead.artist}${lead.title ? ` by ${lead.artist}` : ""}, from ${show}`} onClick={() => onPlay(index)}>
-          <span className="ls-rn-card-track"><span className="ls-runway-name">{lead.title ?? lead.artist}</span>{lead.title && <span className="ls-runway-artist">{lead.artist}</span>}</span>
+          <span className="ls-rn-card-track"><SongTitle text={lead.title ?? lead.artist} />{lead.title && <span className="ls-runway-artist">{lead.artist}</span>}</span>
           <span className="ls-runway-play" aria-hidden><Play /></span>
         </Button>
       ) : (
-        <p className="ls-rn-card-song"><span className="ls-rn-card-track"><span className="ls-runway-name">{lead.title ?? lead.artist}</span>{lead.title && <span className="ls-runway-artist">{lead.artist}</span>}</span></p>
+        <p className="ls-rn-card-song"><span className="ls-rn-card-track"><SongTitle text={lead.title ?? lead.artist} />{lead.title && <span className="ls-runway-artist">{lead.artist}</span>}</span></p>
       ))}
 
       {note.why && <p className="ls-rn-card-why">{note.why}</p>}
@@ -116,5 +116,17 @@ export function NoteCard({ note, index, active, onPlay, onOpen }: { note: Runway
         </div>
       </footer>
     </article>
+  );
+}
+
+/** A song title set in the room's two display faces, like "The Autumn Mix": WTF Hammer, with the last word in XXX Compressed. */
+function SongTitle({ text }: { text: string }) {
+  const words = text.trim().split(/\s+/);
+  const last = words.length > 1 ? words.pop() : undefined;
+  return (
+    <span className="ls-runway-name">
+      {words.join(" ")}
+      {last && <> <span className="ls-runway-name-xxx">{last}</span></>}
+    </span>
   );
 }
