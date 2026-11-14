@@ -504,8 +504,6 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 .stylus-restyle { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 16px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
 .stylus-songs { margin-top: 24px; padding-top: 20px; border-top: 1px solid color-mix(in oklab, var(--stylus-paper) 25%, transparent); overflow-x: clip; }
 .stylus-moods { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
-.stylus-moods button { min-height: 44px; padding: 0 16px; border: 1px solid color-mix(in oklab, var(--stylus-paper) 40%, transparent); border-radius: 999px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
-.stylus-moods button[aria-pressed="true"] { background: var(--stylus-accent); border-color: var(--stylus-accent); color: var(--stylus-ink); }
 .stylus-songs > ol { display: grid; gap: 20px; }
 .stylus-song { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; align-items: start; }
 .stylus-song-cover { display: flex; flex-direction: column; gap: 6px; }
@@ -1308,10 +1306,6 @@ body { margin: 0; font-family: var(--font-sans); overflow-x: clip; }
 
 .circles-filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
 .circles-genre-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.circles-genre-pill { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--stylus-ink); background: none; color: var(--stylus-ink); font-family: var(--font-cover); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; font-size: 12px; cursor: pointer; transition: background .15s, color .15s; }
-.circles-genre-pill[data-active="true"] { background: var(--stylus-ink); color: var(--stylus-paper); }
-.circles-genre-pill:hover { background: color-mix(in oklab, var(--stylus-ink) 12%, transparent); }
-.circles-genre-pill[data-active="true"]:hover { background: var(--stylus-ink); }
 .circles-match-mode { display: inline-flex; border: 1px solid var(--stylus-ink); border-radius: 999px; overflow: hidden; }
 .circles-match-mode button { padding: 7px 12px; border: 0; background: none; font-family: var(--font-cover); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 11px; cursor: pointer; color: var(--stylus-ink); }
 .circles-match-mode button[data-active="true"] { background: var(--stylus-accent); color: var(--stylus-ink); }
@@ -1576,8 +1570,6 @@ button.footer-link { background: none; border: 0; padding: 0; cursor: pointer; }
 .gs-quote p { margin-top: 32px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
 /* tabs */
 .gs-tablist { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 40px; }
-.gs-tablist button { min-height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid currentColor; text-transform: uppercase; font-size: 13px; letter-spacing: .08em; transition: background .3s, color .3s; }
-.gs-tablist button[aria-selected="true"] { background: var(--stylus-accent); border-color: var(--stylus-accent); color: var(--stylus-ink); }
 /* "Three moods" opens under a thin white rule, like the Styling Notes chapter above it. */
 .gs-tabs::before { content: ""; display: block; height: 1px; background: oklch(1 0 0); margin-bottom: 14px; }
 .gs-tabwindow { overflow: hidden; }
@@ -1788,7 +1780,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 
 /* Musician Circles on home: white, all black, portraits drop in */
 .circles-section { --stylus-paper: var(--card); --stylus-ink: var(--card-foreground); --stylus-accent: var(--card-foreground); background: var(--card); color: var(--card-foreground); }
-.circles-section .circles-genre-pill[data-active="true"], .circles-section .circles-match-mode button[data-active="true"] { background: var(--card-foreground); color: var(--card); }
+.circles-section .circles-match-mode button[data-active="true"] { background: var(--card-foreground); color: var(--card); }
 .circles-block[data-in="true"] .circles-grid > * { animation: pebble-drop 1.15s ease calc(var(--d, 0) * 70ms) both; transform-origin: 50% 100%; }
 .circles-block[data-in="false"] .circles-grid > * { opacity: 0; }
 /* pebbles: fall, land with a squash, bounce a little smaller each time */
@@ -2445,8 +2437,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-lib-head { padding: 12px 12px 12px 8px; display: flex; flex-direction: column; gap: 12px; }
 .ls-lib-title { display: flex; align-items: center; gap: 4px; }
 .ls-lib-title h2 { margin: 0; flex: 1; font-size: 15px; font-weight: 600; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ls-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding-left: 8px; }
-.ls-filters > button { min-width: 0; padding-inline: 4px; font-size: 12px; letter-spacing: 0; }
+.ls-filters { margin-left: 8px; }
 .ls-rail-head { padding-top: 12px; }
 .ls-rail-label, .ls-show-sm { display: none; } /* phones only: the folded Issue bar's name and the top bar's Style quiz */
 .ls-rail { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 8px; }
@@ -2944,9 +2935,6 @@ h3.ls-toc-name { cursor: default; }
 @media (max-width: 900px) {
   .ls-issue-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding: 6px 12px; font-family: var(--font-body); }
   .ls-issue-tabs::-webkit-scrollbar { display: none; }
-  .ls .ls-issue-tab { flex: none; height: 32px; padding: 0 12px; border-radius: 999px; font-family: var(--font-body); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--color-lilac-fog); background: transparent; }
-  .ls .ls-issue-tab:hover { color: var(--color-chalk-white); background: var(--color-fig-900); }
-  .ls .ls-issue-tab[aria-pressed="true"] { color: var(--color-fig-black); background: var(--color-acid-lime); }
   .ls-issue-hero { background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800); }
   .ls-issue-dock { position: fixed; left: 0; right: 0; bottom: calc(72px + env(safe-area-inset-bottom)); z-index: 6; height: 44px; align-items: center; background: color-mix(in oklab, var(--color-fig-950) 94%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--color-fig-800); transform: translateY(calc(100% + 80px)); opacity: 0; pointer-events: none; transition: transform .35s cubic-bezier(.16,1,.3,1), opacity .25s ease; }
   .ls-issue-dock[data-docked="true"] { transform: none; opacity: 1; pointer-events: auto; }
@@ -2957,7 +2945,6 @@ h3.ls-toc-name { cursor: default; }
 .ls .ls-wear-title em, .ls .ls-wear-title em .ls-wear-xxx { color: var(--color-acid-lime); }
 
 .ls-shelf-pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 20px 24px 4px; }
-.ls .ls-shelf-pills [aria-pressed="true"] { background: var(--color-acid-lime); color: var(--color-fig-black); border-color: var(--color-acid-lime); }
 
 /* ===== Feed as a flowing magazine, Spotify-style shelves (Listening Room) ===== */
 .ls main.ls-center { background: linear-gradient(180deg, var(--color-fig-900) 0, var(--color-fig-black) 520px); color: var(--color-chalk-white); --ls-ink: var(--color-chalk-white); --ls-ink-muted: var(--color-lilac-fog); --ls-ink-line: var(--color-fig-800); }
@@ -2971,8 +2958,6 @@ h3.ls-toc-name { cursor: default; }
 /* The Fit Compass card is dark wherever it stands, so in the room it gets the cover tokens /home already gives it (its Like button was black on fig). */
 .ls .fc { --cover-type: var(--color-chalk-white); --cover-paper: var(--color-fig-black); }
 .ls .ls-shelf-pills { position: sticky; top: 0; z-index: 3; padding: 14px 20px; background: color-mix(in oklab, var(--color-fig-900) 92%, transparent); backdrop-filter: blur(10px); flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-.ls .ls-shelf-pills > button { flex: none; border-radius: 999px; border: 0; background: var(--color-fig-800); color: var(--color-chalk-white); font-family: var(--font-body); }
-.ls .ls-shelf-pills > button[aria-pressed="true"] { background: var(--color-acid-lime); color: var(--color-fig-black); }
 .ls main .ls-section { padding: 28px 20px 0; animation: ls-shelf-in .45s cubic-bezier(.16,1,.3,1) both; }
 .ls main .ls-section-head { border-bottom: 0; margin-bottom: 14px; padding-bottom: 0; }
 .ls main .ls-section-head h2 { font-family: var(--font-heading); font-weight: 400; font-size: clamp(34px, 9vw, 56px); line-height: .9; letter-spacing: 0; text-transform: uppercase; }
@@ -3111,10 +3096,9 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .site-frame .circles-section .circles-heading { font-family: var(--font-heading); font-weight: 400; text-transform: uppercase; line-height: .9; letter-spacing: 0; font-size: clamp(56px, 14vw, 140px); color: var(--color-acid-lime); }
 .site-frame .circles-section .circles-lede { font-family: var(--font-body); font-style: normal; }
 .site-frame .circles-section .circles-principle { font-family: var(--font-accent); font-style: italic; font-weight: 900; text-transform: none; letter-spacing: 0; color: var(--color-acid-lime); }
-.site-frame .circles-section .circles-genre-pill, .site-frame .circles-section .circles-match-mode, .site-frame .circles-section .circles-view-toggle { border-color: var(--color-fig-800); background: var(--color-fig-950); font-family: var(--font-body); }
-.site-frame .circles-section .circles-genre-pill:hover { border-color: var(--color-acid-lime); background: var(--color-fig-950); }
-.site-frame .circles-section [data-active="true"]:is(.circles-genre-pill, button) { background: var(--color-acid-lime) !important; border-color: var(--color-acid-lime); }
-.site-frame .circles-section [data-active="true"]:is(.circles-genre-pill, button), .site-frame .circles-section [data-active="true"]:is(.circles-genre-pill, button) * { color: var(--color-fig-black) !important; }
+.site-frame .circles-section .circles-match-mode, .site-frame .circles-section .circles-view-toggle { border-color: var(--color-fig-800); background: var(--color-fig-950); font-family: var(--font-body); }
+.site-frame .circles-section [data-active="true"]:is(button):not(.circles-genre-pill) { background: var(--color-acid-lime) !important; border-color: var(--color-acid-lime); }
+.site-frame .circles-section [data-active="true"]:is(button):not(.circles-genre-pill), .site-frame .circles-section [data-active="true"]:is(button):not(.circles-genre-pill) * { color: var(--color-fig-black) !important; }
 .site-frame .circles-section .circles-portrait[data-dimmed] , .site-frame .circles-section .circles-photo[data-dimmed] { color: inherit !important; }
 .site-frame .circles-section :is(input, select, .circles-clear) { border-color: var(--color-fig-800); }
 .site-frame .circles-section input:focus, .site-frame .circles-section select:focus { border-color: var(--color-acid-lime); outline: none; }
@@ -3252,9 +3236,7 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-share-extra-title { font-family: var(--font-heading); font-size: 20px; line-height: 1; text-transform: uppercase; color: var(--color-chalk-white); }
 
 /* Issue buttons as one cohesive segmented pill (not sticky). */
-.ls-issue-tabs.ls-issue-hero { display: flex; flex-wrap: nowrap; gap: 2px; padding: 4px; width: max-content; max-width: 100%; margin-inline: auto; /* centred under the hero when its pills are narrower than the card */ overflow-x: auto; scrollbar-width: none; border-radius: 999px; background: color-mix(in oklab, var(--color-fig-900) 85%, transparent); border: 1px solid color-mix(in oklab, var(--color-lilac-fog) 30%, transparent); }
-.ls-issue-hero .ls-issue-tab { flex: none; height: 32px; padding: 0 14px; border-radius: 999px; font-family: var(--font-body); font-size: 13px; color: var(--color-chalk-white); background: transparent; border: 0; }
-.ls-issue-hero .ls-issue-tab[aria-pressed="true"] { background: var(--color-acid-lime); color: var(--color-fig-black); }
+.ls-issue-tabs.ls-issue-hero { display: flex; width: max-content; margin-inline: auto; /* centred under the hero when its pills are narrower than the card */ }
 
 /* Favourites shelf + hearts on runway rows, playlists and the product card. */
 .ls-fav { cursor: default; text-align: left; }
@@ -3729,7 +3711,6 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 @media (max-width: 600px) {
   .ls .zine-section { padding-inline: 0; }
   .ls .zine-header h2 { font-size: 48px; }
-  .ls-issue-tabs.ls-issue-hero { flex-wrap: wrap; border-radius: 8px; justify-content: center; }
 }
 
 /* Dressed to the Beat — a flat editorial feature in the Listening Room. Its --dtb-* names map onto the room's tokens:
@@ -3883,3 +3864,42 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 
 /* Shown only while the device has no connection (see AppShell). */
 .app-offline { position: fixed; top: max(12px, env(safe-area-inset-top)); left: 50%; translate: -50% 0; z-index: 9999; width: max-content; max-width: calc(100vw - 24px); margin: 0; padding: 10px 16px; border: 1px solid var(--color-acid-lime); border-radius: 999px; background: var(--color-fig-900); color: var(--color-chalk-white); font-family: var(--font-ui); font-size: 13px; line-height: 1.35; text-align: center; }
+
+/* ---- Pill rails ------------------------------------------------------------------------------
+   Every group of pill buttons is one swipeable row instead of wrapping onto several lines: the
+   row scrolls sideways, snaps pill by pill, hides its scrollbar and fades at the trailing edge so
+   it reads as "there's more". One shared pill: slim, hairline when idle, inverted when chosen.
+   A group sets --pill-ink / --pill-ground when it sits on something other than the page colours. */
+:where(.pill-rail, .ls-filters) { display: flex; } /* the other groups already say when they show */
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) {
+  --pill-ink: var(--foreground); --pill-ground: var(--background);
+  flex-wrap: nowrap; align-items: center; gap: 8px; min-width: 0; max-width: 100%;
+  overflow-x: auto; overscroll-behavior-x: contain; white-space: nowrap; scroll-behavior: smooth;
+  scroll-snap-type: x mandatory; scroll-padding-inline: 3px; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; -ms-overflow-style: none;
+  padding-block: 3px; padding-inline: 3px 32px; /* room for the focus ring, and for the last pill to clear the fade */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs)::-webkit-scrollbar { display: none; }
+:root :is(.stylus-moods, .gs-tablist, .pill-rail[data-tone="stylus"]) { --pill-ink: var(--stylus-paper); --pill-ground: var(--stylus-ink); }
+:root .ls :is(.ls-shelf-pills, .ls-filters, .ls-issue-tabs) { --pill-ink: var(--color-chalk-white); --pill-ground: var(--color-fig-black); }
+
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a) {
+  flex: none; scroll-snap-align: start; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 34px; min-height: 34px; padding: 0 16px; border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--pill-ink) 32%, transparent);
+  background: transparent; color: color-mix(in oklab, var(--pill-ink) 72%, transparent); box-shadow: none;
+  font-family: var(--font-ui); font-size: 11px; font-weight: 500; line-height: 1; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
+  cursor: pointer; transition: border-color 200ms ease, background-color 200ms ease, color 200ms ease, scale 200ms ease;
+}
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):hover { border-color: var(--pill-ink); color: var(--pill-ink); background: transparent; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):is([aria-pressed="true"], [aria-selected="true"], [data-active="true"]) {
+  border-color: var(--pill-ink); background: var(--pill-ink); color: var(--pill-ground); box-shadow: 0 1px 2px rgb(0 0 0 / .25);
+}
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):active { scale: .98; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):focus-visible { outline: 1px solid var(--ring); outline-offset: 2px; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):disabled { opacity: .4; cursor: default; }
+@media (prefers-reduced-motion: reduce) {
+  :root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) { scroll-behavior: auto; }
+}

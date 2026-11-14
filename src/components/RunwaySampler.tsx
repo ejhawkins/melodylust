@@ -69,7 +69,7 @@ export function RunwaySampler() {
           </div>
         </div>
 
-        <div role="group" aria-label="Filter by category" className="mt-4 flex flex-wrap gap-2">
+        <div role="group" aria-label="Filter by category" className="pill-rail mt-4" data-tone="stylus">
           {(['all', ...categoryIds] as const).map(id => <Button key={id} variant="stylusTool" aria-pressed={filter === id} onClick={() => setFilter(id)}
             className={`${tool} ${filter === id ? 'border-stylus-accent bg-stylus-accent text-stylus-ink hover:bg-stylus-accent' : ''}`}>
             {id === 'all' ? 'All' : `${id} · ${RUNWAY_CATEGORIES[id].name}`}
