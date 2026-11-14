@@ -276,6 +276,15 @@
   --font-subheading: "WTF Hammer Compressed", "Archivo", sans-serif;
   --font-accent: "Couturier Poster", "Didot", serif;
 }
+/* The type hierarchy by role. New work should use these; each points at a family token below, so the
+   older names (--font-heading, --font-body, --font-hammer, --font-editorial…) keep working unchanged.
+   "static" keeps the four variables in the stylesheet even before anything uses them. */
+@theme inline static {
+  --font-poster: var(--font-hammer-xxx);  /* Poster display: WTF Hammer XXX Compressed */
+  --font-section: var(--font-hammer);     /* Section subhead: WTF Hammer (Compressed cut) */
+  --font-headline: var(--font-editorial); /* Editorial headline: Bodoni Moda */
+  --font-ui: var(--font-isidora);         /* Body, navigation and labels: Isidora */
+}
 @theme inline {
   --font-sans: "DM Sans", sans-serif; /* the Listening Room's copy and the page default (Avenir retired Nov 2026) */
   --font-editorial: "Bodoni Moda", serif;
