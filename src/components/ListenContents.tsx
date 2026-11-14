@@ -77,7 +77,7 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
             <span className="ls-toc-num" aria-hidden>{String(chapters.length + 1).padStart(2, "0")}</span>
             <span className="min-w-0 text-left">
               <span className="ls-toc-dekline">Special report</span>
-              <span className="ls-toc-name">Runway Songs</span>
+              <span className="ls-toc-name"><span className="ls-toc-mix"><span className="ls-toc-mix-autumn">Runway</span> <span className="ls-toc-mix-mix">Songs</span></span></span>
             </span>
           </button>
           {runwayCard && <div className="ls-toc-runway-card">{runwayCard}</div>}
