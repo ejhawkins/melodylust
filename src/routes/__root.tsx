@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
+import { AppShell } from "@/components/AppShell";
 import { VercelAnalytics } from "@/components/VercelAnalytics";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -83,6 +84,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Melody Lust — Fashion, Music, Your Point of View" },
       { name: "description", content: "An independent fashion and music journal for editorials, live finds, and community Styling Notes." },
       { name: "author", content: "Melody Lust" },
+      { name: "theme-color", content: "#0B040B" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Melody Lust" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { property: "og:title", content: "Melody Lust — Fashion, Music, Your Point of View" },
       { property: "og:description", content: "An independent fashion and music journal for editorials, live finds, and community Styling Notes." },
       { property: "og:type", content: "website" },
@@ -100,6 +105,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -130,6 +137,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <VercelAnalytics />
+      <AppShell />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
