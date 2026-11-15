@@ -2484,7 +2484,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-product-head, .ls-product-pick, .ls-product-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
 .ls-product-head { align-items: start; }
 .ls-product-pick { align-items: center; margin-top: 10px; }
-.ls-product-actions { margin-top: 12px; }
+.ls-product-actions { margin-top: 12px; grid-template-columns: auto minmax(0, 1fr); align-items: center; } /* one line: the heart, then Wishlist across the rest */
 .ls-product-group { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .ls-product-group + .ls-product-group { gap: 4px; }
 .ls-product-kicker { margin: 0; font-family: var(--font-isidora); font-weight: 500; font-size: 8px; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in oklab, var(--product-ink) 55%, transparent); }
@@ -2833,11 +2833,14 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
   .ls-player[data-expanded="true"] .ls-sheet-shop { position: absolute; z-index: 2; top: calc(max(12px, env(safe-area-inset-top)) + 52px); left: 32px; right: 32px; }
   .ls-player[data-expanded="true"] .ls-sheet-shop .ls-product { margin: 0; }
   .ls-player[data-expanded="true"] .ls-sheet-shop .ls-product-card { width: 100%; height: auto; }
-  .ls-player[data-expanded="true"] .ls-sheet-shop .ls-product-photo { flex: none; height: 120px; }
+  .ls-player[data-expanded="true"] .ls-sheet-shop .ls-product-photo { flex: none; height: clamp(160px, min(30dvh, 100vw - 160px), 340px); } /* as tall as the cover allows: the card ends just above the song title (the cover is the screen's width less 40px, square) */
+  .ls-player[data-expanded="true"] .ls-sheet-shop .ls-product-photo { padding-top: 16px; } /* breathing room above the photo, inside the same height so the card stays clear of the title */
+  .ls-player[data-expanded="true"] .ls-sheet-shop .ls-product-card:has(.ls-product-pick) .ls-product-photo { height: clamp(160px, min(30dvh, 100vw - 205px), 320px); } /* a row of colours and sizes takes some of that room */
   .ls-player[data-expanded="true"] .ls-sheet-shop .ls-product-bag { position: absolute; top: 8px; right: -12px; }
 }
 /* The shop's controls and labels use Isidora. */
-.ls-product, .ls-product button, .ls-product-name, .ls-product-bag { font-family: var(--font-isidora); }
+.ls-product, .ls-product button, .ls-product-bag { font-family: var(--font-isidora); }
+.ls-product .ls-product-name { font-family: var(--font-headline); font-weight: 400; text-transform: uppercase; letter-spacing: -0.03em; } /* the piece's name in Bodoni Moda, the editorial headline face */
 .ls-product button { font-weight: 500; }
 @media (max-width: 600px) { .ls-player[data-expanded="true"] .ls-player-song { flex: none; } }
 /* Your Library's playlists as a magazine contents page: Didot masthead, numbered features, contact-sheet covers, dotted index. */

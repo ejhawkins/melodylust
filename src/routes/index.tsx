@@ -47,6 +47,7 @@ import { ListenFashion } from "@/components/ListenFashion";
 import { categories, iconicSongs, playlist, stories, type Story } from "@/data/home";
 import { fromRunway, step, toMix, type MixSong } from "@/lib/listening-room";
 import { getGenreStories } from "@/lib/contentful.functions";
+import { getSongLook } from "@/lib/contentful-looks.functions";
 import { editionStories, notesFor, songsFor } from "@/lib/genre-edition";
 import { useGenrePreference } from "@/lib/genre-preference";
 import { useQuery } from "@tanstack/react-query";
@@ -369,6 +370,14 @@ function ListeningRoom() {
   // The player bar plays The Autumn Mix, or Runway Songs once a runway row is pressed, or a playlist of the reader's.
   const queue = onRunway && runwayMix.length > 0 ? runwayMix : onStudio && studioQueue ? studioQueue : onList ? listMix : mix;
   const song = queue[Math.min(now, queue.length - 1)];
+  // The pieces Contentful links to this song (else its artist, else its genre). Asked for only once the phone's product
+  // card can show; with none, the card keeps its built-in line-up.
+  const { data: songLook } = useQuery({
+    queryKey: ["song-look", song?.caption],
+    queryFn: () => getSongLook({ data: { caption: song?.caption ?? "" } }),
+    enabled: phone && listening && Boolean(song?.caption),
+    staleTime: 10 * 60 * 1000,
+  });
   if (!song) return null;
 
   const go = (index: number) => { setNow(index); setActive(onRunway ? "runway-songs" : onStudio ? "studio" : onList ? `playlist-${listId}` : `look-${index}`); };
@@ -612,7 +621,7 @@ function ListeningRoom() {
       <ListenPlayer song={song} listening={listening} onListen={() => (onRunway ? playRunway(now) : onStudio && studioQueue ? playStudio(studioQueue, now) : onList && listId ? playList(listId, now) : play(now))}
         onPrev={() => go(step(queue.length, now, -1))} onNext={() => go(step(queue.length, now, 1))}
         wearingOpen={wearingOpen} onWearingChange={setWearingOpen} sheet={phone} autoOpen={shelf !== "featured"}
-        shop={<ListenProductCard active={phone && listening} songKey={song.caption} />} />
+        shop={<ListenProductCard active={phone && listening} songKey={song.caption} {...(songLook?.pieces.length ? { products: songLook.pieces } : {})} />} />
 
       <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}
         onRead={id => { setQuizOpen(false); const story = stories.find(s => s.id === id); if (story) { setActive(`story-${story.id}`); setArticle(story); } }} />

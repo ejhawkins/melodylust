@@ -12,12 +12,17 @@ export const CONTENTFUL_CDN = 'https://cdn.contentful.com';
 /** The most stories one edition asks for. */
 export const STORY_LIMIT = 24;
 
+/** Where a space's entries are read from: the CDN (or a configured gateway), with the environment when one is named. */
+export function entriesRoot({ base = CONTENTFUL_CDN, space, environment }: { base?: string; space: string; environment?: string | undefined }): string {
+  return `${base.replace(/\/$/, '')}/spaces/${encodeURIComponent(space)}${environment ? `/environments/${encodeURIComponent(environment)}` : ''}/entries`;
+}
+
 /** `GET /spaces/{space}/entries?content_type=story&fields.genre[match]=Hip-Hop&include=2`, newest first. Without a genre
  *  it asks for every story. The access token is never part of the URL; it travels in a header. */
 export function entriesUrl({ base = CONTENTFUL_CDN, space, environment, genre, limit = STORY_LIMIT }: {
   base?: string; space: string; environment?: string | undefined; genre?: Genre | undefined; limit?: number;
 }): string {
-  const root = `${base.replace(/\/$/, '')}/spaces/${encodeURIComponent(space)}${environment ? `/environments/${encodeURIComponent(environment)}` : ''}/entries`;
+  const root = entriesRoot({ base, space, environment });
   const query = [
     'content_type=story',
     ...(genre ? [`fields.genre[match]=${encodeURIComponent(genre)}`] : []),

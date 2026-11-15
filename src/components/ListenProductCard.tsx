@@ -1,6 +1,6 @@
 import { LikeButton } from "@/components/LikeButton";
 import { useEffect, useState } from "react";
-import { Check, ChevronRight, Heart, Plus, ShoppingBag, X } from "lucide-react";
+import { ChevronRight, Heart, ShoppingBag, X } from "lucide-react";
 import amber from "@/assets/shades-amber.webp";
 import black from "@/assets/shades-black.webp";
 import tortoise from "@/assets/shades-tortoise.webp";
@@ -17,7 +17,7 @@ export type FeaturedProduct = {
   price: string;
   sizes: readonly string[];
   /** One photo per colour; swatch is a Tailwind colour class backed by a token in src/styles.css. */
-  colors: readonly { name: string; image: string; alt: string; swatch: string }[];
+  colors: readonly { name: string; image: string; alt: string; swatch: string; /** A hex colour, for pieces from Contentful, which carry no class. */ swatchColor?: string }[];
 };
 
 /** The Shield Aviator, the product the gilded-verdant-harmony home page features. Its photos are real files here, so they
@@ -59,8 +59,8 @@ export const MAX_SESSION_PRODUCTS = 10;
 const REMINDER_AFTER_MS = 60 * 60 * 1000; // an hour
 
 /** A featured-product card, the gilded-verdant-harmony hero card brought into the listening room (shown over its hero on
- *  phones). It appears five seconds after mobile song playback is requested; a swatch swaps the photo, S / M / L picks a size, Add to cart
- *  toggles, Wishlist saves the piece to the Want List and the heart saves it to Favourites and the Want List together. Closing it keeps it away for an hour behind a gold bag button; after
+ *  phones). It appears five seconds after mobile song playback is requested; a swatch swaps the photo, S / M / L picks a size,
+ *  Wishlist saves the piece to the Want List and the heart saves it to Favourites and the Want List together. Closing it keeps it away for an hour behind a gold bag button; after
  *  that it comes back on its own as a reminder. The hidden time is stored per product, so each card keeps its own. */
 export function ListenProductCard({ active, products = sessionProducts, songKey }: { active: boolean; products?: readonly FeaturedProduct[]; songKey?: string }) {
   const lineup = products.slice(0, MAX_SESSION_PRODUCTS);
@@ -72,7 +72,6 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
   const [reminder, setReminder] = useState(false);
   const [colorIndex, setColorIndex] = useState(0);
   const [size, setSize] = useState(product.sizes[1] ?? product.sizes[0] ?? "");
-  const [added, setAdded] = useState(false);
   const items = useWishlist();
   const saved = findWish(items, "piece", product.name, product.collection);
   const color = product.colors[colorIndex] ?? product.colors[0];
@@ -83,7 +82,11 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
     setLastSong(songKey);
     if (revealed) setIndex(i => Math.min(i + 1, lineup.length - 1));
   }
-  useEffect(() => { setColorIndex(0); setSize(product.sizes[1] ?? product.sizes[0] ?? ""); setAdded(false); }, [product]);
+  // A line-up of its own for this song (its pieces from Contentful) starts from its first piece.
+  const lineupKey = lineup.map(p => p.id).join("|");
+  const [lastLineup, setLastLineup] = useState(lineupKey);
+  if (lineupKey !== lastLineup) { setLastLineup(lineupKey); setIndex(0); }
+  useEffect(() => { setColorIndex(0); setSize(product.sizes[1] ?? product.sizes[0] ?? ""); }, [product]);
 
   useEffect(() => {
     setRevealed(false);
@@ -113,7 +116,7 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
     try { window.localStorage.removeItem(hiddenKey); } catch { /* ignore */ }
   };
   // The piece as the Want List keeps it, in the colour and size picked on the card.
-  const saveWish = () => { if (color) addWish({ kind: "piece", name: product.name, detail: product.price, link: "", note: `${color.name} · Size ${size}`, from: product.collection, image: color.image }); };
+  const saveWish = () => { if (color) addWish({ kind: "piece", name: product.name, detail: product.price, link: "", note: size ? `${color.name} · Size ${size}` : color.name, from: product.collection, image: color.image }); };
   const toggleWish = () => {
     if (saved) { removeWish(saved.id); return; }
     saveWish();
@@ -149,33 +152,32 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
               <p className="ls-product-meta">{product.collection} · {color.name}</p>
             </div>
             <span className="ls-product-price">{product.price}</span>
-            {/* A favourite from the bag is also wanted: hearting files the piece in the Want List too. Taking the heart off
-                leaves the Want List alone; the Wishlist button below is what removes it. */}
-            <LikeButton look="quick" kind="fashion" id={`product-${product.name}`} name={product.name} sub={product.price} image={color.image}
-              into="your favorites and Want List" onLike={liked => { if (liked && !saved) saveWish(); }} />
           </div>
 
-          <div className="ls-product-pick">
-            <div className="ls-product-group" role="group" aria-label="Choose color">
+          {(product.colors.length > 1 || product.sizes.length > 0) && <div className="ls-product-pick">
+            {/* One colour is no choice: a lone swatch only shows from Contentful pieces with a single photo. */}
+            {product.colors.length > 1 && <div className="ls-product-group" role="group" aria-label="Choose color">
               {product.colors.map((option, index) => (
                 <Button key={option.name} variant="productSwatch" size="dot" aria-label={option.name} aria-pressed={colorIndex === index}
-                  onClick={() => { setColorIndex(index); setAdded(false); }}>
-                  <span className={cn("block size-full rounded-full", option.swatch)} aria-hidden="true" />
+                  onClick={() => setColorIndex(index)}>
+                  <span className={cn("block size-full rounded-full", option.swatch)} style={option.swatchColor ? { backgroundColor: option.swatchColor } : undefined} aria-hidden="true" />
                 </Button>
               ))}
-            </div>
-            <div className="ls-product-group" role="group" aria-label="Choose size">
-              {product.sizes.map(option => (
-                <Button key={option} variant="productSize" size="dot" aria-label={`Size ${option}`} aria-pressed={size === option} onClick={() => setSize(option)}>{option}</Button>
-              ))}
-            </div>
-          </div>
+            </div>}
+            {product.sizes.length > 0 && (
+              <div className="ls-product-group" role="group" aria-label="Choose size">
+                {product.sizes.map(option => (
+                  <Button key={option} variant="productSize" size="dot" aria-label={`Size ${option}`} aria-pressed={size === option} onClick={() => setSize(option)}>{option}</Button>
+                ))}
+              </div>
+            )}
+          </div>}
 
           <div className="ls-product-actions">
-            <Button variant="productSolid" size="pill" onClick={() => setAdded(value => !value)}>
-              {added ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}
-              {added ? "Added" : "Add to cart"}
-            </Button>
+            {/* A favourite from the bag is also wanted: hearting files the piece in the Want List too. Taking the heart off
+                leaves the Want List alone; the Wishlist button beside it is what removes it. */}
+            <LikeButton look="quick" kind="fashion" id={`product-${product.name}`} name={product.name} sub={product.price} image={color.image}
+              into="your favorites and Want List" onLike={liked => { if (liked && !saved) saveWish(); }} />
             <Button variant="productWish" size="pill" aria-pressed={Boolean(saved)} aria-label={saved ? "Remove from wishlist" : "Add to wishlist"} onClick={toggleWish}>
               <Heart aria-hidden="true" className={cn(saved && "fill-current")} />
               {saved ? "Wishlisted" : "Wishlist"}
