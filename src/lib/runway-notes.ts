@@ -97,6 +97,139 @@ export const RUNWAY_NOTE_EDITORIAL: readonly NoteEditorial[] = [
       { title: 'The Business of Fashion: Thom Browne Autumn/Winter 2017', url: 'https://www.businessoffashion.com/reviews/fashion-week/thom-browne-autumnwinter-2017/', checked: 'excerpt' },
     ],
   },
+  // Six more shows, researched 14 Nov 2026. As above: the venue, the music and the garments are from the pages under
+  // `sources`; the "why" lines and the three ways to wear it are ours. Spotify ids were checked against Spotify's own
+  // track pages. The two Rick Owens shows share a house and a year, so the season says which is which.
+  {
+    house: 'Rick Owens', season: 'Fall/Winter Men’s', year: 2025,
+    designers: [{ name: 'Rick Owens', wikipedia: 'https://en.wikipedia.org/wiki/Rick_Owens' }],
+    venue: 'Palais de Tokyo', city: 'Paris',
+    showstopper: 'Fringed leather boots, laser-cut and woven with the Parisian designer Victor Clavelly.',
+    summary: 'Rick Owens named the collection Concordians and showed it at the Palais de Tokyo. Hoodies and shawl-like tops were cut from white rubber into strips, and coats came covered in harnesses and straps. Hooded tunics, cropped leather jackets and Kiss boots filled out the line-up.',
+    why: 'One song for the whole show, sung in three languages: a soundtrack as single-minded as the clothes.',
+    tracks: [
+      { title: 'Heroes / Héros (French Album Version)', artist: 'David Bowie', part: 'As the models entered', spotifyId: '1tynrTT7vNjkBxiNtnKAyy', category: 'C', why: 'The familiar made strange: the same anthem, heard as if for the first time.' },
+      { title: 'Heroes / Helden (German Album Version)', artist: 'David Bowie', part: 'Second', spotifyId: '6A6TaKJfKIqmfjJjOX86o7', category: 'C', why: 'Bowie’s Berlin record in Berlin’s language, hard-edged like the rubber and the straps.' },
+      { title: 'Heroes', artist: 'David Bowie', part: 'Last', spotifyId: '7Jh1bpe76CNTCgdgAdBw4Z', category: 'C', why: 'The original closes it, so the show ends on the version everyone can sing.' },
+    ],
+    style: [
+      { text: 'A cropped black leather jacket, zipped high.' },
+      { text: 'A long hooded tunic or an oversized hoodie underneath, so the hem shows.' },
+      { text: 'Tall boots with real weight to them, worn over the trouser.' },
+    ],
+    sources: [
+      { title: 'Dazed: Rick Owens AW25 menswear', url: 'https://www.dazeddigital.com/fashion/article/65919/1/rick-owens-aw25-fw25-paris-fashion-week-mens-pfw-concordia', checked: 'read' },
+      { title: 'Hypebeast: Rick Owens “Concordians” FW25', url: 'https://hypebeast.com/2025/1/rick-owens-concordians-fw25-collection-is-autobiographical', checked: 'excerpt' },
+    ],
+  },
+  {
+    house: 'Rick Owens', season: 'Fall/Winter Women’s', year: 2025,
+    designers: [{ name: 'Rick Owens', wikipedia: 'https://en.wikipedia.org/wiki/Rick_Owens' }],
+    venue: 'Palais de Tokyo', city: 'Paris',
+    quote: { text: 'This cloistered life seems to be what it takes to be able to focus on reaching for something weird and wonderful.', by: 'Rick Owens', source: { title: 'Dazed: Rick Owens AW25 womenswear', url: 'https://www.dazeddigital.com/fashion/article/66311/1/rick-owens-aw25-fw25-paris-fashion-week-pfw-concordia', checked: 'read' } },
+    showstopper: 'Chain-link skirts and dresses, laser-cut from heavyweight cow leather and hand-woven into a lattice with Victor Clavelly.',
+    summary: 'The womenswear half of Concordians took its name from Concordia, a small industrial town in northern Italy. Black column gowns, hulking coats and cloaks with pointed shoulders led the show. Denim and leather trousers were cut down the seams into chaps, and white gowns came in sparkling fabrics.',
+    why: 'A factory rhythm from 1977 for a collection named after a factory town.',
+    tracks: [
+      { title: 'Mass Production', artist: 'Iggy Pop', spotifyId: '6vL86bSbZNDVyIr1VrSxm2', category: 'A', why: 'The last track on The Idiot grinds like machinery, and the gowns marched to it.' },
+    ],
+    style: [
+      { text: 'A black column dress or a long, narrow skirt.' },
+      { text: 'A coat with a strong, pointed shoulder over it.' },
+      { text: 'Slouched knee-high boots in place of a heel.' },
+    ],
+    sources: [
+      { title: 'Dazed: Rick Owens AW25 womenswear', url: 'https://www.dazeddigital.com/fashion/article/66311/1/rick-owens-aw25-fw25-paris-fashion-week-pfw-concordia', checked: 'read' },
+      { title: 'HERO: Rick Owens womenswear FW25', url: 'https://hero-magazine.com/shows/rick-owens-was-inspired-by-no-frills-serial-killer-hotels', checked: 'excerpt' },
+    ],
+  },
+  {
+    house: 'Bottega Veneta', season: 'Spring/Summer', year: 2026,
+    designers: [{ name: 'Louise Trotter', wikipedia: 'https://en.wikipedia.org/wiki/Louise_Trotter' }],
+    venue: 'Fabbrica Orobia', city: 'Milan',
+    quote: { text: 'I wanted to heighten people’s emotions, to make them more sensitive to the clothes.', by: 'Steve McQueen', source: { title: 'Highsnobiety: Steve McQueen and Bottega Veneta', url: 'https://www.highsnobiety.com/p/steve-mcqueen-bottega-veneta/', checked: 'read' } },
+    showstopper: 'The opening look: a sharply tailored peacoat with a strip of Intrecciato at the collar and knots for buttons, over a long-sleeved shirt, roomy trousers and running shoes.',
+    summary: 'Louise Trotter showed her first Bottega Veneta collection in a former zinc factory in Milan. Tailoring came oversized and nipped at the waist, beside nappa leather outerwear, fringed skirts and knitwear with sculpted shoulders. The shoes stayed flat and the Intrecciato bags were big enough to carry a working day.',
+    why: 'Two voices, ten years apart, singing one song to each other: a debut scored as a conversation with the past.',
+    musicCredit: 'Steve McQueen',
+    tracks: [
+      { title: 'Wild Is the Wind (1966 recording)', artist: 'Nina Simone', part: 'First voice', spotifyId: '3muwYfpLZGYsvrrssEzrxF', category: 'D', why: 'Simone holds every line until it aches, which is how the tailoring holds a shoulder.' },
+      { title: 'Wild Is the Wind (1976 recording)', artist: 'David Bowie', part: 'Mixed with Simone’s', spotifyId: '7ynwkFhXbrQqnMIWqFfRUS', category: 'D', why: 'Bowie answers her a decade later; the collection answers the house archive the same way.' },
+    ],
+    style: [
+      { text: 'A tailored peacoat, one size up, belted or nipped at the waist.' },
+      { text: 'A boxy shirt with the cuffs left long under the sleeve.' },
+      { text: 'Wide trousers with flat shoes: clogs, sandals or running shoes.' },
+    ],
+    sources: [
+      { title: 'W Magazine: Bottega Veneta Spring 2026', url: 'https://www.wmagazine.com/fashion/bottega-veneta-spring-2026-runway-show-photos', checked: 'read' },
+      { title: 'Highsnobiety: Steve McQueen and Bottega Veneta', url: 'https://www.highsnobiety.com/p/steve-mcqueen-bottega-veneta/', checked: 'read' },
+    ],
+  },
+  {
+    house: 'Louis Vuitton', season: 'Spring/Summer Men’s', year: 2024,
+    designers: [{ name: 'Pharrell Williams', wikipedia: 'https://en.wikipedia.org/wiki/Pharrell_Williams' }],
+    venue: 'Pont Neuf', city: 'Paris',
+    showstopper: 'The finale: the Virginia gospel choir Voices of Fire singing “Joy (Unspeakable)” on the bridge.',
+    summary: 'Pharrell Williams closed the Pont Neuf for his first Louis Vuitton show, and guests arrived by boat. He reworked the house’s Damier check into a pixelated camouflage he called Damouflage, across workwear, denim and knitwear. A varsity jacket read “LV Lovers”, and the artist Henry Taylor’s embroidery ran over tailoring, denim and accessories.',
+    why: 'A producer’s debut needed a hook, and he wrote one: a gospel finale made for the show.',
+    musicCredit: 'Pharrell Williams',
+    tracks: [
+      { title: 'JOY (Unspeakable)', artist: 'Voices of Fire, Pharrell Williams', part: 'Finale', spotifyId: '7cg5YxLOssunPw1hI1DUm4', category: 'B', why: 'Handclaps and a choir at full height: the sound of a house being handed to someone new.' },
+    ],
+    style: [
+      { text: 'A varsity jacket, worn open.' },
+      { text: 'Wide-leg denim in one check or camouflage print, top to bottom.' },
+      { text: 'A soft leather holdall carried by hand.' },
+    ],
+    sources: [
+      { title: 'Wallpaper*: Pharrell Williams’ first Louis Vuitton show', url: 'https://www.wallpaper.com/fashion-beauty/louis-vuitton-pharrell-williams-menswear-paris', checked: 'read' },
+      { title: 'Stereogum: Pharrell’s first Louis Vuitton men’s show', url: 'https://stereogum.com/?p=2227608', checked: 'excerpt' },
+    ],
+  },
+  {
+    house: 'Maison Margiela', season: 'Artisanal', year: 2024,
+    designers: [{ name: 'John Galliano', wikipedia: 'https://en.wikipedia.org/wiki/John_Galliano' }],
+    venue: 'Under the Pont Alexandre III', city: 'Paris',
+    showstopper: 'Gwendoline Christie in a vinyl corset dress.',
+    summary: 'John Galliano closed Paris Couture Week under the Pont Alexandre III. Guests gathered in a room dressed as a Belle Époque brasserie, and a film gave way to the show with rain playing over the speakers. Corsets, padded hips and translucent, rainbow-washed dresses followed, alongside dark suiting styled as if caught in the rain.',
+    why: 'A live singer and a choir before a single look: couture staged as a night at the theatre.',
+    tracks: [
+      { title: 'Now I Don’t Need Your Love', artist: 'Lucky Love', part: 'Opening, sung live with a choir', spotifyId: '03A5gVDTLYheQXOzogS2uy', category: 'D', why: 'A torch song to open on, so the room was already moved when the clothes arrived.' },
+      { title: 'Hometown Glory', artist: 'Adele', part: 'Its melody, through the show', why: 'A song about loving a hard city, for a collection set in the Paris nobody photographs.' },
+    ],
+    style: [
+      { text: 'A corset or a corseted top over a sheer layer.' },
+      { text: 'A dark tailored jacket, collar turned up as if against the rain.' },
+      { text: 'A long, translucent skirt that moves when you walk.' },
+    ],
+    sources: [
+      { title: 'W Magazine: Maison Margiela Artisanal, Spring 2024 couture', url: 'https://www.wmagazine.com/fashion/maison-margiela-couture-paris-spring-2024-john-galliano', checked: 'read' },
+      { title: 'nss magazine: the best runway soundtracks', url: 'https://www.nssmag.com/fr/fashion/41848/soundtrack-musique-defile-mode-meilleur-5', checked: 'read' },
+    ],
+  },
+  {
+    house: 'Wales Bonner', season: 'Autumn/Winter', year: 2024,
+    designers: [{ name: 'Grace Wales Bonner', wikipedia: 'https://en.wikipedia.org/wiki/Grace_Wales_Bonner' }],
+    venue: 'Conservatoire National des Arts et Métiers', city: 'Paris',
+    quote: { text: 'Yasiin is a guiding light.', by: 'Grace Wales Bonner', source: { title: 'AnOther: Wales Bonner’s ode to Howard University', url: 'https://www.anothermag.com/fashion-beauty/15376/wales-bonner-aw24-fw24-show-review-mos-def-howard-university-yasiin-bey', checked: 'read' } },
+    showstopper: 'Yasiin Bey stood up from the front row and recited bars from “Mathematics”.',
+    summary: 'Grace Wales Bonner called the collection Dream Study and built it on research into Howard University. Crew necks with Howard branding, corduroy varsity jackets, leather aviator jackets and satin baseball jerseys met silk-trimmed tuxedos and cashmere double-breasted coats. Brooches came in beads, freshwater pearls, lapis lazuli and amethyst.',
+    why: 'A campus wardrobe scored by the rapper who made scholarship sound like swagger.',
+    musicCredit: 'Rashad Ringo Smith and Yasiin Bey',
+    tracks: [
+      { title: 'Mathematics', artist: 'Mos Def', part: 'Recited live from the front row', spotifyId: '3gRlmtdCyNoKiyozn2pqc9', category: 'C', why: 'A lecture you can nod to, for clothes that treat the library as a style reference.' },
+    ],
+    style: [
+      { text: 'A corduroy varsity jacket.' },
+      { text: 'A college crew neck under tailoring.' },
+      { text: 'A double-breasted coat with one brooch on the lapel.' },
+    ],
+    sources: [
+      { title: 'AnOther: Wales Bonner’s ode to Howard University', url: 'https://www.anothermag.com/fashion-beauty/15376/wales-bonner-aw24-fw24-show-review-mos-def-howard-university-yasiin-bey', checked: 'read' },
+      { title: 'Wales Bonner: Dream Study', url: 'https://walesbonner.com/pages/dream-study', checked: 'excerpt' },
+    ],
+  },
 ];
 
 export type NoteTrack = {

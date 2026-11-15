@@ -13,6 +13,9 @@ const about = [
   'Tune in and just listen. The clothes come with the record: what was worn, why it was worn, and how it moved on the dance floor.',
 ];
 
+/** Scrolls the tuned station's row into its list's window (the list only scrolls on desktop). */
+const keepInView = (row: HTMLLIElement | null) => row?.scrollIntoView?.({ block: 'nearest' });
+
 /** Radio: a dial of subculture stations, each with the uniform its scene wore. */
 export function Radio() {
   const [station, setStation] = useState(1);
@@ -38,9 +41,20 @@ export function Radio() {
           </li>)}
         </ul>
       </div>
-      <div className={cn('hidden flex-col gap-3 border-b pb-3.5 pl-[27px] pr-8 pt-4 xl:flex', rule)}>
-        {about.map(paragraph => <p key={paragraph} className="text-[15px] font-medium leading-[0.95] tracking-[-0.005em] font-stretch-125%">{paragraph}</p>)}
-      </div>
+      {tuned.manifesto
+        ? <div aria-label="About this station" role="group" className={cn('flex flex-col gap-3 border-b px-[14px] pb-3.5 pt-4 xl:gap-2.5 xl:pb-3 xl:pl-[27px] xl:pr-8 xl:pt-3.5', rule)}>
+          <p className="text-[15px] font-medium leading-[1.05] tracking-[-0.005em] font-stretch-125%">{tuned.manifesto}</p>
+          {tuned.tracks && <ol className="m-0 list-none p-0">
+            {tuned.tracks.map(track => <li key={track.title} className="flex items-baseline justify-between gap-4 border-t border-stylus-paper/35 py-1.5">
+              <span className="text-[14px] font-semibold tracking-[-0.005em] font-stretch-115%">{track.title} <span className="font-medium text-stylus-paper/70">{track.artist}</span></span>
+              <span className="shrink-0 text-[10px] font-medium tracking-[0.16em] text-stylus-paper/70">{track.year}</span>
+            </li>)}
+          </ol>}
+          {tuned.note && <p className="text-[12px] font-medium leading-[1.2] text-stylus-paper/70 xl:hidden"><span className="tracking-[0.16em]">CURATOR’S NOTE</span> {tuned.note}</p>}
+        </div>
+        : <div className={cn('hidden flex-col gap-3 border-b pb-3.5 pl-[27px] pr-8 pt-4 xl:flex', rule)}>
+          {about.map(paragraph => <p key={paragraph} className="text-[15px] font-medium leading-[0.95] tracking-[-0.005em] font-stretch-125%">{paragraph}</p>)}
+        </div>}
     </section>
 
     <section aria-label="Tuner" className="relative flex flex-1 flex-col justify-center px-4 py-6 xl:col-[3/5] xl:row-[4] xl:justify-start xl:pb-0 xl:pl-[55px] xl:pr-14 xl:pt-8">
@@ -52,8 +66,9 @@ export function Radio() {
           : <span className={pill}>OFF AIR</span>}
       </div>
 
-      <ul className="m-0 mt-3.5 hidden list-none border-t border-stylus-paper/35 p-0 xl:block">
-        {RADIO_STATIONS.map((option, k) => <li key={option.name} className="border-b border-stylus-paper/35">
+      {/* The desktop frame is a fixed height, so the list shows five stations and scrolls; the tuned one is kept in view. */}
+      <ul className="m-0 mt-3.5 hidden max-h-[226px] list-none overflow-y-auto border-t border-stylus-paper/35 p-0 [scrollbar-width:thin] xl:block">
+        {RADIO_STATIONS.map((option, k) => <li key={option.name} className="border-b border-stylus-paper/35" ref={k === station ? keepInView : undefined}>
           <Button variant="tunerStation" aria-pressed={k === station} onClick={() => setStation(k)}
             className="group grid h-11 w-full grid-cols-[34px_minmax(0,1fr)_auto] justify-items-start gap-0 px-3 py-0 text-left">
             <span className="text-[11px] font-medium tracking-[0.16em] text-stylus-paper/70 group-aria-pressed:text-stylus-ink">{pad(k + 1)}</span>
@@ -85,6 +100,7 @@ export function Radio() {
         </Button>
         <Button variant="player" className={icon} aria-label="Next station" onClick={() => setStation((station + 1) % count)}><SkipForward strokeWidth={1.4} aria-hidden="true" /></Button>
       </div>
+      {tuned.note && <p className="mt-3 hidden text-[12px] font-medium leading-[1.2] text-stylus-paper/70 xl:block"><span className="tracking-[0.16em]">CURATOR’S NOTE</span> {tuned.note}</p>}
     </section>
   </SpinePage>;
 }

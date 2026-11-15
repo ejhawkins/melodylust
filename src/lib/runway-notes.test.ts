@@ -36,7 +36,10 @@ describe('Runway Notes', () => {
 
   it('adds the Thom Browne track to the end of the queue once, and never a piece without a named track', () => {
     const added = editorialSongs(sampler);
-    expect(added.map(track => [track.name, track.artist, track.house, track.spotifyUri])).toEqual([['The Dope Show', 'Marilyn Manson', 'Thom Browne', 'spotify:track:1wrIp2G2kEa2pt6jsUJ05A']]);
+    expect(added.map(track => [track.name, track.artist, track.house, track.spotifyUri])[0]).toEqual(['The Dope Show', 'Marilyn Manson', 'Thom Browne', 'spotify:track:1wrIp2G2kEa2pt6jsUJ05A']);
+    // Every written show adds only tracks that have a player; Adele's melody at Margiela has none, so it stays out.
+    expect(added.map(track => track.house)).toEqual(['Thom Browne', 'Rick Owens', 'Rick Owens', 'Rick Owens', 'Rick Owens', 'Bottega Veneta', 'Bottega Veneta', 'Louis Vuitton', 'Maison Margiela', 'Wales Bonner']);
+    expect(new Set(added.map(track => track.id)).size).toBe(added.length);
     expect(editorialSongs([...sampler, ...added])).toEqual([]);
   });
 
