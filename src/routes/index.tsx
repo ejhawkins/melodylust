@@ -401,7 +401,7 @@ function ListeningRoom() {
   const notes = stories.filter(s => category === "All" || s.category === category);
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
   const heroLeads = phone && view.kind !== "want" && view.kind !== "profile" && !look && !video && !ownList && !note && !board && view.kind !== "contents";
-  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : shelf === "reading" ? "reading" : shelf === "beat" ? "beat" : shelf === "boards" ? "boards" : undefined;
+  const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : shelf === "reading" ? "reading" : shelf === "featured" ? "featured" : shelf === "beat" ? "beat" : shelf === "boards" ? "boards" : undefined;
   const openReading = () => {
     setView({ kind: "feed" }); setShelf("reading");
     requestAnimationFrame(() => document.getElementById("reading-room")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
@@ -409,9 +409,9 @@ function ListeningRoom() {
   useEffect(() => { if (window.location.hash === "#reading-room") openReading(); }, []);
   const pickIssue = (tab: IssueTab) => {
     if (tab === "reading") return openReading();
-    if (tab === "beat" || tab === "boards") {
+    if (tab === "featured" || tab === "beat" || tab === "boards") {
       setView({ kind: "feed" }); setShelf(tab);
-      return requestAnimationFrame(() => document.getElementById(tab === "beat" ? "dressed-to-the-beat" : "style-boards")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
+      return requestAnimationFrame(() => document.getElementById(tab === "featured" ? "featured-playlist" : tab === "beat" ? "dressed-to-the-beat" : "style-boards")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
     }
     if (tab === "playlists") return open({ kind: "contents" }, "mix");
     if (tab === "want") return openWant();
@@ -510,6 +510,8 @@ function ListeningRoom() {
           ) : <>
             {!heroLeads && <ListenHero onPlayMix={playMix} onNotes={() => setFilmNotesOpen(true)} onFilmSound={() => setListening(false)}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero>}
 
+            {/* Playing from here keeps the stage in view: no Now Wearing panel, and the player sheet stays docked. */}
+            {shelf === "featured" && <ListenFeatured songs={mix} current={listening && queue === mix ? now : null} onPlay={i => { play(i); setWearingOpen(false); }} />}
             {shelf === "beat" && <DressedToTheBeat />}
             {shelf === "boards" && <ListenBoards />}
             {shelf === "fashion" && <ListenFashion onProfile={openProfile} playing={listening} />}
@@ -527,14 +529,13 @@ function ListeningRoom() {
             {(category === "Runway" || shelf === "runway") && <ListenRunway notes={runwayNoteList} songs={runway} playing={onRunway ? now : null} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />}
 
             <div className="ls-shelf-pills" role="group" aria-label="Notes">
-              {([["featured", "Featured"], ["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
+              {([["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
                 <Button key={id} variant="listenCategory" size="chip" aria-pressed={shelf === id} aria-expanded={shelf === id} onClick={() => {
                   setShelf(shelf === id ? null : id);
                   // Fashion opens well above this row (the others open beside it), so bring it into view.
                   if (id === "fashion" && shelf !== id) requestAnimationFrame(() => document.querySelector(".ls-fashion")?.scrollIntoView({ behavior: "smooth", block: "start" }));
                 }}>{label}</Button>)}
             </div>
-            {shelf === "featured" && <ListenFeatured songs={mix} playing={listening && !onRunway && !onStudio && !onList ? now : null} onPlay={play} />}
             {shelf === "music" && <section className="ls-section" aria-labelledby="ls-featured">
               <div className="ls-section-head"><h2 id="ls-featured">+ Music notes</h2></div>
               <ul className="ls-tiles">

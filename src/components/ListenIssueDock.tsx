@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 
-export type IssueTab = "playlists" | "runway" | "notes" | "fashion" | "reading" | "beat" | "boards" | "want";
+export type IssueTab = "playlists" | "runway" | "notes" | "fashion" | "reading" | "featured" | "beat" | "boards" | "want";
 const TABS: { id: IssueTab; label: string }[] = [
   { id: "playlists", label: "Playlists" },
   { id: "runway", label: "Runway" },
   { id: "notes", label: "Notes" },
   { id: "fashion", label: "Fashion" },
   { id: "reading", label: "Reading" },
+  { id: "featured", label: "Featured" },
   { id: "beat", label: "Celebrity" },
   { id: "boards", label: "Boards" },
 ];
