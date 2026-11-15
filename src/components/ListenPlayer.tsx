@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowUpRight, Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Disc3, Play, Shirt, SkipBack, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HammerTitle, SheetPostcard } from "@/components/SheetPostcard";
@@ -8,7 +8,7 @@ import { addWish, removeWish, useWishlist } from "@/lib/wishlist";
 
 /** The listening room's player bar. Playback is Spotify's own embedded player, loaded only once
  *  the reader presses play; before that nothing from Spotify loads on the page. */
-export function ListenPlayer({ song, listening, onListen, onPrev, onNext, wearingOpen, onWearingChange, sheet = false, shop }: {
+export function ListenPlayer({ song, listening, onListen, onPrev, onNext, wearingOpen, onWearingChange, sheet = false, autoOpen = true, shop }: {
   song: MixSong;
   listening: boolean;
   onListen: () => void;
@@ -18,6 +18,9 @@ export function ListenPlayer({ song, listening, onListen, onPrev, onNext, wearin
   onWearingChange: (open: boolean) => void;
   /** Phones: once a song plays, the bar slides up into a full-screen Now Playing sheet on the same page. */
   sheet?: boolean;
+  /** Whether a new song opens that sheet by itself. The Featured tab turns it off, so its covers stay in view; the
+   *  bar's own button still opens the sheet. */
+  autoOpen?: boolean;
   shop?: ReactNode;
 }) {
   const items = useWishlist();
@@ -29,7 +32,10 @@ export function ListenPlayer({ song, listening, onListen, onPrev, onNext, wearin
   const playing = listening && embed !== null;
   const [expanded, setExpanded] = useState(false);
   // Each new song opens the sheet again; the same element stays mounted, so Spotify keeps playing.
-  useEffect(() => { setExpanded(sheet && playing); }, [sheet, playing, song.caption]);
+  // Read through a ref: leaving the Featured tab mid-song must not throw the sheet open.
+  const auto = useRef(autoOpen);
+  auto.current = autoOpen;
+  useEffect(() => { setExpanded(sheet && playing && auto.current); }, [sheet, playing, song.caption]);
   const open = sheet && playing && expanded;
 
   return (

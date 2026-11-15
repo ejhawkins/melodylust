@@ -26,6 +26,7 @@ import { ListenPlaylist } from "@/components/ListenPlaylist";
 import { LikeButton } from "@/components/LikeButton";
 import { ListenProductCard } from "@/components/ListenProductCard";
 import { ListenVideo } from "@/components/ListenVideo";
+import { ListenFeatured } from "@/components/ListenFeatured";
 import { ListenPlayer } from "@/components/ListenPlayer";
 import { ListenRunway, NoteCard, useRunwayNotes, useRunwaySongs } from "@/components/ListenRunway";
 import { ListenRunwayNote } from "@/components/ListenRunwayNote";
@@ -319,7 +320,7 @@ function ListeningRoom() {
   const [filmNotesOpen, setFilmNotesOpen] = useState(false);
   const [onRunway, setOnRunway] = useState(false);
   // The feed's note shelves stay folded until a pill opens one.
-  const [shelf, setShelf] = useState<"music" | "runway" | "style" | "fashion" | "reading" | "beat" | "boards" | null>(null);
+  const [shelf, setShelf] = useState<"featured" | "music" | "runway" | "style" | "fashion" | "reading" | "beat" | "boards" | null>(null);
   const feed = useRef<HTMLElement>(null);
   const lead = useRef<HTMLDivElement>(null);
   useRoomMotion(feed);
@@ -526,13 +527,14 @@ function ListeningRoom() {
             {(category === "Runway" || shelf === "runway") && <ListenRunway notes={runwayNoteList} songs={runway} playing={onRunway ? now : null} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />}
 
             <div className="ls-shelf-pills" role="group" aria-label="Notes">
-              {([["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
+              {([["featured", "Featured"], ["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
                 <Button key={id} variant="listenCategory" size="chip" aria-pressed={shelf === id} aria-expanded={shelf === id} onClick={() => {
                   setShelf(shelf === id ? null : id);
                   // Fashion opens well above this row (the others open beside it), so bring it into view.
                   if (id === "fashion" && shelf !== id) requestAnimationFrame(() => document.querySelector(".ls-fashion")?.scrollIntoView({ behavior: "smooth", block: "start" }));
                 }}>{label}</Button>)}
             </div>
+            {shelf === "featured" && <ListenFeatured songs={mix} playing={listening && !onRunway && !onStudio && !onList ? now : null} onPlay={play} />}
             {shelf === "music" && <section className="ls-section" aria-labelledby="ls-featured">
               <div className="ls-section-head"><h2 id="ls-featured">+ Music notes</h2></div>
               <ul className="ls-tiles">
@@ -579,7 +581,7 @@ function ListeningRoom() {
 
       <ListenPlayer song={song} listening={listening} onListen={() => (onRunway ? playRunway(now) : onStudio && studioQueue ? playStudio(studioQueue, now) : onList && listId ? playList(listId, now) : play(now))}
         onPrev={() => go(step(queue.length, now, -1))} onNext={() => go(step(queue.length, now, 1))}
-        wearingOpen={wearingOpen} onWearingChange={setWearingOpen} sheet={phone}
+        wearingOpen={wearingOpen} onWearingChange={setWearingOpen} sheet={phone} autoOpen={shelf !== "featured"}
         shop={<ListenProductCard active={phone && listening} songKey={song.caption} />} />
 
       <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}

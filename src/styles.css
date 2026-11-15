@@ -3903,3 +3903,48 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 @media (prefers-reduced-motion: reduce) {
   :root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) { scroll-behavior: auto; }
 }
+
+/* The Featured tab (ListenFeatured): The Autumn Mix one cover at a time, a thumbnail strip, and a full-screen dialog. */
+.ls .ls-feat { --feat-ink: var(--color-chalk-white); --feat-ground: var(--color-fig-black); --feat-line: color-mix(in oklab, var(--feat-ink) 22%, transparent); color: var(--feat-ink); }
+.ls .ls-feat-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.ls .ls-feat-stage { position: relative; aspect-ratio: 1; width: 100%; max-width: 520px; background: var(--color-fig-900); touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.ls .ls-feat-cover { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ls .ls-feat-arrow { position: absolute; top: 50%; translate: 0 -50%; width: 44px; height: 44px; background: color-mix(in oklab, var(--color-fig-black) 72%, transparent); color: var(--color-chalk-white); }
+.ls .ls-feat-arrow:hover { background: var(--color-fig-black); color: var(--color-chalk-white); }
+.ls .ls-feat-prev { left: 8px; }
+.ls .ls-feat-next { right: 8px; }
+.ls .ls-feat-side { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 16px; }
+.ls .ls-feat-info { min-width: 0; }
+.ls .ls-feat-info p { margin: 0; }
+.ls .ls-feat-count { font-family: var(--font-ui); font-size: 12px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--color-lilac-fog); font-variant-numeric: tabular-nums; }
+.ls .ls-feat-now { color: var(--color-acid-lime); }
+.ls .ls-feat-title { margin-top: 6px; font-family: var(--font-section); font-weight: 400; font-size: clamp(32px, 9vw, 48px); line-height: .92; text-transform: uppercase; overflow-wrap: anywhere; }
+.ls .ls-feat-artist { margin-top: 6px; font-family: var(--font-ui); font-size: 15px; font-weight: 500; }
+.ls .ls-feat-next-up { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--feat-line); font-family: var(--font-ui); font-size: 13px; font-weight: 500; color: var(--color-lilac-fog); }
+.ls .ls-feat-next-up span { margin-right: 6px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--feat-ink); }
+.ls .ls-feat-actions { display: flex; align-items: center; gap: 8px; }
+.ls .ls-feat-tool { width: 44px; height: 44px; border: 1px solid var(--feat-line); color: var(--color-chalk-white); }
+.ls .ls-feat-tool:hover { border-color: var(--color-chalk-white); color: var(--color-chalk-white); }
+.ls .ls-feat-strip { position: relative; list-style: none; display: flex; gap: 8px; margin: 18px -20px 0; padding: 4px 20px 8px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; }
+.ls .ls-feat-strip::-webkit-scrollbar { display: none; }
+.ls .ls-feat-strip > li { flex: 0 0 64px; scroll-snap-align: center; }
+.ls .ls-feat-thumb { display: block; width: 64px; height: 64px; padding: 0; opacity: .5; transition: opacity .2s; }
+.ls .ls-feat-thumb:hover, .ls .ls-feat-thumb[aria-current="true"] { opacity: 1; }
+.ls .ls-feat-thumb[aria-current="true"] { outline: 2px solid var(--color-chalk-white); outline-offset: 2px; }
+.ls .ls-feat-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (min-width: 900px) {
+  .ls .ls-feat-body { grid-template-columns: minmax(0, 420px) minmax(0, 1fr); align-items: end; gap: 28px; }
+  .ls .ls-feat-side { grid-template-columns: minmax(0, 1fr); align-items: start; }
+}
+.ls dialog.ls-feat-full { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; border: 0; box-sizing: border-box; padding: max(12px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)); background: var(--color-fig-black); color: var(--color-chalk-white); overflow-y: auto; }
+.ls dialog.ls-feat-full[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; justify-items: center; gap: 16px; }
+.ls dialog.ls-feat-full::backdrop { background: var(--color-fig-black); }
+.ls .ls-feat-full-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ls .ls-feat-full-name { margin: 0; font-family: var(--font-section); font-size: 28px; line-height: 1; text-transform: uppercase; }
+.ls .ls-feat-full .ls-feat-stage { align-self: center; width: min(100%, 100dvh - 330px); max-width: 760px; min-width: 200px; }
+.ls .ls-feat-full-foot { width: 100%; max-width: 760px; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 16px; }
+@media (prefers-reduced-motion: no-preference) {
+  .ls .ls-feat-cover { animation: ls-feat-in .28s ease-out both; }
+  @keyframes ls-feat-in { from { opacity: 0; } to { opacity: 1; } }
+}
+.ls main .ls-section-head h2 .ls-two-face-xxx { font-family: var(--font-poster); font-style: normal; font-weight: 400; font-size: inherit; letter-spacing: inherit; text-transform: uppercase; color: inherit; }
