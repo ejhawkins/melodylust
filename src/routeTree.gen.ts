@@ -18,6 +18,9 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RadioRouteImport } from './routes/radio'
 import { Route as RunwaySamplerRouteImport } from './routes/runway-sampler'
 import { Route as RunwaySongsRouteImport } from './routes/runway-songs'
+import { Route as ApiIndexRouteImport } from './routes/api.index'
+import { Route as ApiCatalogRouteImport } from './routes/api.catalog'
+import { Route as ApiProductsRouteImport } from './routes/api.products'
 import { Route as BoardIdRouteImport } from './routes/board.$id'
 import { Route as InfluencerIdRouteImport } from './routes/influencer.$id'
 import { Route as SongIdRouteImport } from './routes/song.$id'
@@ -67,6 +70,21 @@ const RunwaySongsRoute = RunwaySongsRouteImport.update({
   path: '/runway-songs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiIndexRoute = ApiIndexRouteImport.update({
+  id: '/api/',
+  path: '/api/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCatalogRoute = ApiCatalogRouteImport.update({
+  id: '/api/catalog',
+  path: '/api/catalog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiProductsRoute = ApiProductsRouteImport.update({
+  id: '/api/products',
+  path: '/api/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BoardIdRoute = BoardIdRouteImport.update({
   id: '/board/$id',
   path: '/board/$id',
@@ -93,9 +111,12 @@ export interface FileRoutesByFullPath {
   '/radio': typeof RadioRoute
   '/runway-sampler': typeof RunwaySamplerRoute
   '/runway-songs': typeof RunwaySongsRoute
+  '/api/catalog': typeof ApiCatalogRoute
+  '/api/products': typeof ApiProductsRoute
   '/board/$id': typeof BoardIdRoute
   '/influencer/$id': typeof InfluencerIdRoute
   '/song/$id': typeof SongIdRoute
+  '/api/': typeof ApiIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -107,9 +128,12 @@ export interface FileRoutesByTo {
   '/radio': typeof RadioRoute
   '/runway-sampler': typeof RunwaySamplerRoute
   '/runway-songs': typeof RunwaySongsRoute
+  '/api/catalog': typeof ApiCatalogRoute
+  '/api/products': typeof ApiProductsRoute
   '/board/$id': typeof BoardIdRoute
   '/influencer/$id': typeof InfluencerIdRoute
   '/song/$id': typeof SongIdRoute
+  '/api': typeof ApiIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,9 +146,12 @@ export interface FileRoutesById {
   '/radio': typeof RadioRoute
   '/runway-sampler': typeof RunwaySamplerRoute
   '/runway-songs': typeof RunwaySongsRoute
+  '/api/catalog': typeof ApiCatalogRoute
+  '/api/products': typeof ApiProductsRoute
   '/board/$id': typeof BoardIdRoute
   '/influencer/$id': typeof InfluencerIdRoute
   '/song/$id': typeof SongIdRoute
+  '/api/': typeof ApiIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,9 +165,12 @@ export interface FileRouteTypes {
     | '/radio'
     | '/runway-sampler'
     | '/runway-songs'
+    | '/api/catalog'
+    | '/api/products'
     | '/board/$id'
     | '/influencer/$id'
     | '/song/$id'
+    | '/api/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,9 +182,12 @@ export interface FileRouteTypes {
     | '/radio'
     | '/runway-sampler'
     | '/runway-songs'
+    | '/api/catalog'
+    | '/api/products'
     | '/board/$id'
     | '/influencer/$id'
     | '/song/$id'
+    | '/api'
   id:
     | '__root__'
     | '/'
@@ -166,9 +199,12 @@ export interface FileRouteTypes {
     | '/radio'
     | '/runway-sampler'
     | '/runway-songs'
+    | '/api/catalog'
+    | '/api/products'
     | '/board/$id'
     | '/influencer/$id'
     | '/song/$id'
+    | '/api/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -181,9 +217,12 @@ export interface RootRouteChildren {
   RadioRoute: typeof RadioRoute
   RunwaySamplerRoute: typeof RunwaySamplerRoute
   RunwaySongsRoute: typeof RunwaySongsRoute
+  ApiCatalogRoute: typeof ApiCatalogRoute
+  ApiProductsRoute: typeof ApiProductsRoute
   BoardIdRoute: typeof BoardIdRoute
   InfluencerIdRoute: typeof InfluencerIdRoute
   SongIdRoute: typeof SongIdRoute
+  ApiIndexRoute: typeof ApiIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -251,6 +290,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RunwaySongsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/': {
+      id: '/api/'
+      path: '/api'
+      fullPath: '/api/'
+      preLoaderRoute: typeof ApiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/catalog': {
+      id: '/api/catalog'
+      path: '/api/catalog'
+      fullPath: '/api/catalog'
+      preLoaderRoute: typeof ApiCatalogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/products': {
+      id: '/api/products'
+      path: '/api/products'
+      fullPath: '/api/products'
+      preLoaderRoute: typeof ApiProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/board/$id': {
       id: '/board/$id'
       path: '/board/$id'
@@ -285,9 +345,12 @@ const rootRouteChildren: RootRouteChildren = {
   RadioRoute: RadioRoute,
   RunwaySamplerRoute: RunwaySamplerRoute,
   RunwaySongsRoute: RunwaySongsRoute,
+  ApiCatalogRoute: ApiCatalogRoute,
+  ApiProductsRoute: ApiProductsRoute,
   BoardIdRoute: BoardIdRoute,
   InfluencerIdRoute: InfluencerIdRoute,
   SongIdRoute: SongIdRoute,
+  ApiIndexRoute: ApiIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
