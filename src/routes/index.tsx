@@ -26,6 +26,7 @@ import { ListenPlaylist } from "@/components/ListenPlaylist";
 import { LikeButton } from "@/components/LikeButton";
 import { ListenProductCard } from "@/components/ListenProductCard";
 import { ListenVideo } from "@/components/ListenVideo";
+import { ListenEdition } from "@/components/ListenEdition";
 import { ListenFeatured } from "@/components/ListenFeatured";
 import { ListenPlayer } from "@/components/ListenPlayer";
 import { ListenRunway, NoteCard, useRunwayNotes, useRunwaySongs } from "@/components/ListenRunway";
@@ -45,6 +46,10 @@ import { FitCompass } from "@/components/FitCompass";
 import { ListenFashion } from "@/components/ListenFashion";
 import { categories, iconicSongs, playlist, stories, type Story } from "@/data/home";
 import { fromRunway, step, toMix, type MixSong } from "@/lib/listening-room";
+import { getGenreStories } from "@/lib/contentful.functions";
+import { editionStories, notesFor, songsFor } from "@/lib/genre-edition";
+import { useGenrePreference } from "@/lib/genre-preference";
+import { useQuery } from "@tanstack/react-query";
 import { usePlaylists } from "@/lib/playlists";
 import logo from "@/assets/melody-lust-logo.png";
 import heroRunway from "@/assets/hero-runway-2.jpg";
@@ -337,10 +342,21 @@ function ListeningRoom() {
     io.observe(target);
     return () => io.disconnect();
   }, [phone, view]);
-  const runwayShown = category === "Runway" || onRunway || shelf === "runway" || view.kind === "note";
+  // The reader's genre, kept on this device. A genre nets the stories, the runway pairings and the mix down to it.
+  const [genre, chooseGenre] = useGenrePreference();
+  // Contentful's stories for that genre; until it is connected (or if it is down) the bundled stories stand in.
+  const { data: remoteStories } = useQuery({
+    queryKey: ["edition-stories", genre],
+    queryFn: () => getGenreStories({ data: genre === "all" ? {} : { genre } }),
+    staleTime: 10 * 60 * 1000,
+  });
+  const edition = useMemo(() => editionStories<Story>(remoteStories?.stories, stories, genre), [remoteStories, genre]);
+  const editionSongs = useMemo(() => songsFor(mix, genre), [genre]);
+  const runwayShown = category === "Runway" || onRunway || shelf === "runway" || view.kind === "note" || genre !== "all";
   const runway = useRunwaySongs(runwayShown);
   const runwayMix = useMemo(() => runway.map(fromRunway), [runway]);
   const runwayNoteList = useRunwayNotes(runway, runwayShown);
+  const runwayEdition = useMemo(() => notesFor(runwayNoteList, runway, genre), [runwayNoteList, runway, genre]);
   // One of the reader's playlists, once it is played; it gives way to the mix if it is emptied or deleted.
   const [listId, setListId] = useState<string | null>(null);
   const playlists = usePlaylists();
@@ -398,7 +414,8 @@ function ListeningRoom() {
   const latestNote = runwayNoteList[0];
   const latestIndex = latestNote?.lead?.songId ? runway.findIndex(s => s.id === latestNote.lead?.songId) : -1;
   const runwayCard = latestNote && <NoteCard note={latestNote} index={latestIndex} active={onRunway && latestIndex >= 0 && latestIndex === now} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />;
-  const notes = stories.filter(s => category === "All" || s.category === category);
+  const notes = edition.filter(s => category === "All" || s.category === category);
+  const runwayListed = category === "Runway" || shelf === "runway";
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
   const heroLeads = phone && view.kind !== "want" && view.kind !== "profile" && !look && !video && !ownList && !note && !board && view.kind !== "contents";
   const issueTab: IssueTab | undefined = view.kind === "contents" ? "playlists" : view.kind === "want" ? "want" : shelf === "runway" ? "runway" : shelf === "style" ? "notes" : shelf === "fashion" ? "fashion" : shelf === "reading" ? "reading" : shelf === "featured" ? "featured" : shelf === "beat" ? "beat" : shelf === "boards" ? "boards" : undefined;
@@ -510,6 +527,18 @@ function ListeningRoom() {
           ) : <>
             {!heroLeads && <ListenHero onPlayMix={playMix} onNotes={() => setFilmNotesOpen(true)} onFilmSound={() => setListening(false)}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero>}
 
+            <ListenEdition choice={genre} onChoose={chooseGenre} stories={edition} songs={editionSongs}
+              playing={listening && queue === mix ? now : null} onPlay={play}
+              onRead={s => { setActive(`story-${s.id}`); setArticle(s); }}
+              // The same cards as "+ Runway Notes" below; when that list is open they show there instead, not twice.
+              pairings={!runwayListed && runwayEdition.length > 0 ? (
+                <ul className="ls-rn-cards">
+                  {runwayEdition.map(n => {
+                    const index = n.lead?.songId ? runway.findIndex(r => r.id === n.lead?.songId) : -1;
+                    return <li key={n.id}><NoteCard note={n} index={index} active={onRunway && index >= 0 && index === now} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} /></li>;
+                  })}
+                </ul>
+              ) : null} />
             {/* Playing from here keeps the stage in view: no Now Wearing panel, and the player sheet stays docked. */}
             {shelf === "featured" && <ListenFeatured songs={mix} current={listening && queue === mix ? now : null} onPlay={i => { play(i); setWearingOpen(false); }} />}
             {shelf === "beat" && <DressedToTheBeat />}
@@ -526,7 +555,7 @@ function ListeningRoom() {
 
             <ListenFavorites onStory={s => { setActive(`story-${s.id}`); setArticle(s); }} />
 
-            {(category === "Runway" || shelf === "runway") && <ListenRunway notes={runwayNoteList} songs={runway} playing={onRunway ? now : null} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />}
+            {runwayListed && <ListenRunway notes={runwayEdition} songs={runway} playing={onRunway ? now : null} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />}
 
             <div className="ls-shelf-pills" role="group" aria-label="Notes">
               {([["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
@@ -539,7 +568,7 @@ function ListeningRoom() {
             {shelf === "music" && <section className="ls-section" aria-labelledby="ls-featured">
               <div className="ls-section-head"><h2 id="ls-featured">+ Music notes</h2></div>
               <ul className="ls-tiles">
-                {mix.map((s, i) => <li key={s.caption}>
+                {editionSongs.map(({ song: s, index: i }) => <li key={s.caption}>
                   <Button variant="listenTile" size="block" className="ls-tile w-full" data-active={!onRunway && !onList && i === now} aria-label={`Play ${s.title} by ${s.artist}`} onClick={() => play(i)}>
                     <span className="ls-tile-art"><img src={s.art} alt="" width={300} height={300} loading="lazy" /><span className="ls-tile-play" aria-hidden><Play /></span></span>
                     <span className="ls-tile-title">{s.title}</span>

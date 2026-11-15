@@ -3952,3 +3952,32 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
   .ls .ls-feat-bg, .ls .ls-feat-art img, .ls .ls-feat-full { animation: none; }
   .ls .ls-feat-thumb { transition: none; }
 }
+
+/* The personal edition (ListenEdition): the "Curated for" badge, its genre choices, and the genre's lead story. */
+.ls .ls-edition { color: var(--foreground); }
+.ls .ls-edition[data-personal="true"] { padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.ls .ls-edition-badge { height: auto; min-height: 36px; padding: 8px 14px; gap: 8px; border-radius: 999px; border-color: color-mix(in oklab, var(--foreground) 28%, transparent); color: var(--foreground); font-family: var(--font-ui); font-size: 11px; letter-spacing: .14em; white-space: normal; text-align: left; }
+.ls .ls-edition-badge:hover, .ls .ls-edition-badge[aria-expanded="true"] { border-color: var(--foreground); background: transparent; color: var(--foreground); }
+.ls .ls-edition-for, .ls .ls-edition-hint { color: var(--muted-foreground); }
+.ls .ls-edition-choice { color: var(--primary); }
+.ls .ls-edition-hint::before { content: "/"; margin-right: 8px; }
+.ls .ls-edition-badge svg { width: 14px; height: 14px; transition: rotate .2s; }
+.ls .ls-edition-badge[aria-expanded="true"] svg { rotate: 180deg; }
+:root .ls .ls-edition-genres { --pill-ink: var(--color-chalk-white); --pill-ground: var(--color-fig-black); margin-top: 10px; }
+.ls .ls-edition .ls-section-head { margin-top: 22px; }
+.ls .ls-edition-lead { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; overflow: hidden; background: var(--card); color: var(--foreground); text-align: left; }
+.ls .ls-edition-lead:hover { background: var(--card); }
+.ls .ls-edition-lead img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
+.ls .ls-edition-lead-text { display: grid; gap: 8px; padding: 16px 16px 18px; }
+.ls .ls-edition-lead .ls-note-kicker { color: var(--primary); }
+.ls .ls-edition-lead-title { font-family: var(--font-poster); font-weight: 400; font-size: clamp(40px, 12vw, 64px); line-height: .9; text-transform: uppercase; overflow-wrap: anywhere; }
+.ls .ls-edition-lead .ls-note-intro { display: block; font-family: var(--font-ui); font-size: 15px; line-height: 1.45; color: color-mix(in oklab, var(--foreground) 82%, transparent); }
+.ls .ls-edition-more { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; }
+.ls .ls-edition-more > li + li { border-top: 1px solid var(--border); }
+.ls .ls-edition-sub { margin: 26px 0 12px; font-family: var(--font-section); font-weight: 400; font-size: 26px; line-height: 1; text-transform: uppercase; }
+@media (min-width: 900px) {
+  .ls .ls-edition-lead { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: end; }
+  .ls .ls-edition-lead img { height: 100%; aspect-ratio: auto; max-height: 420px; }
+  .ls .ls-edition-lead-text { padding: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .ls .ls-edition-badge svg { transition: none; } }
