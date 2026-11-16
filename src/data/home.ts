@@ -57,7 +57,8 @@ export const iconicSongs = [
   { image: iKnowWhatYouWant, alt: "I Know What You Want album art by Busta Rhymes", caption: "I Know What You Want — Busta Rhymes", link: "https://open.spotify.com/track/0xDxS2g775ttrfrwDQl9f8", genres: ["Hip-Hop", "R&B"] as const },
   { image: fashionWeek, alt: "Fashion Week album art by Wale featuring G-Eazy", caption: "Fashion Week — Wale", link: "https://open.spotify.com/track/0Vtvich3vkhne7Pzum3tXF", genres: ["Hip-Hop"] as const },
 ];
-export type Look = { name: string; note: string; price: string };
+/** A garment for a song. `house` and `image` are optional: a card without them shows its number and a silhouette tile. */
+export type Look = { name: string; note: string; price: string; house?: string; image?: string };
 export const songLooks: Record<string, Look[]> = {
   "Day 'N' Nite — Kid Cudi": [
     { name: "Moon-wash denim jacket", note: "Faded indigo, boxy cut", price: "$148" },
@@ -94,6 +95,16 @@ export const songLooks: Record<string, Look[]> = {
     { name: "Silk camp-collar shirt", note: "Abstract print", price: "$120" },
     { name: "Tinted aviators", note: "Amber lens", price: "$85" },
   ],
+};
+/** The stylist's pairing note for each song: how the garments' texture answers the record's sound. */
+export const songPairings: Record<string, string> = {
+  "Day 'N' Nite — Kid Cudi": "Washed denim and heavy fleece for a beat that hums more than it hits: soft, faded, built for walking home at 3am.",
+  "DANCE... — Slayyyter": "Liquid satin that catches the strobe the way her vocal catches the synth: all shine on top, a hard kick underneath.",
+  "WE ON GO II — BIA": "Supple leather against a stiff cargo twill: the bounce of the beat in the jacket, the bite of the bars in the chain.",
+  "Nicole Kidman — ADÉLA": "An ivory column gown and satin gloves move the way the vocal does: slow, lit from one side, never in a hurry.",
+  "The cover story": "Sheer layers over washed knit, as weightless as the film it sits on: nothing that would make a sound underwater.",
+  "I Know What You Want — Busta Rhymes": "Plush velour under a shearling parka: the warmth of the hook wrapped around the weight of the verse.",
+  "Fashion Week — Wale": "Sharp charcoal tailoring over printed silk: the clean snap of the drums, then the swagger that slides between them.",
 };
 export type PhotoCredit = { author: string; source: string; license: string; licenseUrl: string };
 export type PlaylistPhoto = { image: string; alt: string; width: number; height: number; credit: PhotoCredit };

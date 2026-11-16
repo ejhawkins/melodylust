@@ -16,13 +16,13 @@ import { DigitalZine } from "@/components/DigitalZine";
 import { MusicianCircles } from "@/components/MusicianCircles";
 import { GenreHeadingSelect } from "@/components/GenreHeadingSelect";
 import { StylingNotes } from "@/components/StylingNotes";
-import { SongStyleNotes } from "@/components/SongStyleNotes";
 import { GuidedStory, GuidedStoryQuote } from "@/components/GuidedStory";
 import { HowItWorks } from "@/components/HowItWorks";
 import { DesignerMusing } from "@/components/DesignerMusing";
 import { DuotoneFilter } from "@/components/DuotoneFilter";
 import { StoryDialog } from "@/components/StoryDialog";
-import { categories, iconicSongs, moodPool, playlist, songLooks, stories, type PhotoCredit, type Story } from "@/data/home";
+import { ShopTheSong } from "@/components/ShopTheSong";
+import { categories, iconicSongs, playlist, stories, type PhotoCredit, type Story } from "@/data/home";
 import glorillaMetaImage from "@/assets/glorilla-meta.jpg";
 import charliRockImage from "@/assets/charli-rock-music.webp";
 import skuzlandImage from "@/assets/skuzland.jpg";
@@ -37,7 +37,7 @@ const coverStory = { url: coverStoryImage };
 const coverStoryFilm = { url: "" };
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Search, ArrowDown, ArrowRight, Play, ArrowUp, ShoppingBag } from "lucide-react";
+import { ArrowUpRight, Search, ArrowDown, ArrowRight, Play, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Wishlist } from "@/components/Wishlist";
 import { StyleSearch } from "@/components/StyleSearch";
@@ -45,7 +45,6 @@ import { FashionMusicSearch } from "@/components/FashionMusicSearch";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { useStyleProfile } from "@/lib/use-style-profile";
 import { addWish } from "@/lib/wishlist";
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getTumblrPosts, TUMBLR_BLOG } from "@/lib/tumblr.functions";
@@ -463,37 +462,8 @@ function Index() {
         </div>
       )}
       <Button variant="railCta" className="to-top" data-show={showTop} aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}><ArrowUp /></Button>
-      <Sheet open={shopSong !== null} onOpenChange={open => { if (!open) setShopSong(null); }}>
-        <SheetContent className="shop-panel">
-          {shopSong && (() => {
-            const song = iconicSongs.find(x => x.caption === shopSong);
-            const pool = moodPool;
-            const k = iconicSongs.findIndex(x => x.caption === shopSong);
-            const looks = songLooks[shopSong] ?? [];
-            const referenceImages = [pool[(k * 2) % pool.length], pool[(k * 2 + 1) % pool.length]];
-            return <>
-              <span className="shop-panel-kicker">The song / Your edit</span>
-              <SheetTitle className="font-editorial text-3xl font-normal">{shopSong}</SheetTitle>
-              <SheetDescription>Three pieces that dress the track.</SheetDescription>
-              {song && <img src={song.image} alt="" className="shop-panel-art" />}
-              <p className="shop-mood-title">+ Moodboard</p>
-              <div className="shop-mood">{[0, 1, 2, 3, 4].map(j => <img key={j} src={pool[(k * 2 + j) % pool.length]} alt="" loading="lazy" />)}</div>
-              <ul className="shop-list">{looks.map(l => <li key={l.name}>
-                <div><p className="shop-name">{l.name}</p><p className="shop-note">{l.note}</p></div>
-                <span className="shop-price">{l.price}</span>
-                <Button variant="ghost" size="icon" className="shop-save" aria-label={`Add ${l.name} to Want List`} title="Add to Want List" onClick={() => addWish({ kind: "piece", name: l.name, detail: l.price, link: "", note: "", from: shopSong })}>+</Button>
-              </li>)}</ul>
-              <Button variant="outline" className="shop-panel-want" onClick={() => {
-                looks.forEach(l => addWish({ kind: "piece", name: l.name, detail: l.price, link: "", note: "", from: shopSong }));
-                if (song && "link" in song) addWish({ kind: "song", name: shopSong, detail: "", link: song.link, note: "" });
-                setShopSong(null);
-                setTimeout(() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" }), 300);
-              }}><ShoppingBag />Add to Want List</Button>
-              <SongStyleNotes key={shopSong} song={shopSong} references={referenceImages.flatMap((image, index) => image ? [{ image, quote: index === 0 ? "Start with one soft piece and one hard piece." : "Keep the pieces you love, and try wearing them differently." }] : [])} />
-            </>;
-          })()}
-        </SheetContent>
-      </Sheet>
+      <ShopTheSong song={shopSong} onClose={() => setShopSong(null)}
+        onViewList={() => { setShopSong(null); setTimeout(() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" }), 300); }} />
       <StoryDialog story={article} onClose={() => setArticle(null)} />
       <StyleProfileQuiz open={quiz} onOpenChange={setQuiz} profile={styleProfile} onSave={saveStyleProfile} onClear={clearStyleProfile} onRead={id => { setQuiz(false); setArticle(stories.find(story => story.id === id) ?? null); }} />
     </main>
