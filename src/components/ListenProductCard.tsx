@@ -1,6 +1,6 @@
 import { LikeButton } from "@/components/LikeButton";
-import { useEffect, useState } from "react";
-import { ChevronRight, Heart, ShoppingBag, X } from "lucide-react";
+import { useEffect, useState, type SVGProps } from "react";
+import { ChevronRight, ShoppingBag, X } from "lucide-react";
 import amber from "@/assets/shades-amber.webp";
 import black from "@/assets/shades-black.webp";
 import tortoise from "@/assets/shades-tortoise.webp";
@@ -179,7 +179,7 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
             <LikeButton look="quick" kind="fashion" id={`product-${product.name}`} name={product.name} sub={product.price} image={color.image}
               into="your favorites and Want List" onLike={liked => { if (liked && !saved) saveWish(); }} />
             <Button variant="productWish" size="pill" aria-pressed={Boolean(saved)} aria-label={saved ? "Remove from wishlist" : "Add to wishlist"} onClick={toggleWish}>
-              <Heart aria-hidden="true" className={cn(saved && "fill-current")} />
+              <Hanger aria-hidden="true" className={cn(saved && "is-saved")} />
               {saved ? "Wishlisted" : "Wishlist"}
             </Button>
           </div>
@@ -194,5 +194,17 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
         </div>
       </div>
     </aside>
+  );
+}
+
+/** A coat hanger in lucide's line style (lucide has none): the Want List's mark on the product card, so it reads apart
+ *  from the heart beside it. Saved, the hanger fills in. */
+function Hanger(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M9.5 6.5a2.5 2.5 0 1 1 3.6 2.24c-.66.32-1.1.98-1.1 1.71V11" />
+      <path d="M12 11 2.9 17.1A1 1 0 0 0 3.46 19h17.08a1 1 0 0 0 .56-1.9z" className="ls-hanger-body" />
+    </svg>
   );
 }

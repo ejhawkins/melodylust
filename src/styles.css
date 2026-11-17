@@ -2904,7 +2904,10 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 }
 /* The shop's controls and labels use Isidora. */
 .ls-product, .ls-product button, .ls-product-bag { font-family: var(--font-isidora); }
-.ls-product .ls-product-name { font-family: var(--font-headline); font-weight: 400; text-transform: uppercase; letter-spacing: -0.03em; } /* the piece's name in Bodoni Moda, the editorial headline face */
+.ls-product .ls-product-name { font-family: var(--font-headline); font-weight: 400; text-transform: uppercase; letter-spacing: -0.03em; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; text-wrap: balance; font-size: clamp(15px, 4.4vw, 18px); line-height: 1.1; } /* the piece's name in Bodoni Moda, the editorial headline face */
+.ls-product-actions button[aria-label$="wishlist"] { font-family: var(--font-hammer); font-size: 18px; font-weight: 400; letter-spacing: 0.02em; line-height: 1; } /* Wishlist set in WTF Hammer, the poster face */
+.ls-product .ls-hanger-body { transition: fill .2s ease; }
+.ls-product .is-saved .ls-hanger-body { fill: currentColor; } /* saved, the hanger fills in */
 .ls-product button { font-weight: 500; }
 @media (max-width: 600px) { .ls-player[data-expanded="true"] .ls-player-song { flex: none; } }
 /* Your Library's playlists as a magazine contents page: Didot masthead, numbered features, contact-sheet covers, dotted index. */
