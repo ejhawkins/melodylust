@@ -4039,6 +4039,8 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls .ls-edition-badge svg { width: 14px; height: 14px; transition: rotate .2s; }
 .ls .ls-edition-badge[aria-expanded="true"] svg { rotate: 180deg; }
 :root .ls .ls-edition-genres { --pill-ink: var(--color-chalk-white); --pill-ground: var(--color-fig-black); margin-top: 10px; }
+/* Only four choices: they wrap so every genre is in reach, with no sideways scroll or edge fade hiding the last one. */
+:root .ls .ls-edition-genres { flex-wrap: wrap; overflow-x: visible; scroll-snap-type: none; padding-inline: 3px; -webkit-mask-image: none; mask-image: none; }
 .ls .ls-edition .ls-section-head { margin-top: 22px; }
 .ls .ls-edition-lead { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0; overflow: hidden; background: var(--card); color: var(--foreground); text-align: left; }
 .ls .ls-edition-lead:hover { background: var(--card); }
