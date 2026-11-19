@@ -4,16 +4,20 @@ import { Button } from "@/components/ui/button";
 import { choiceLabel, EDITION_GENRES, type GenreChoice } from "@/lib/genre-edition";
 import type { MixSong } from "@/lib/listening-room";
 import type { Story } from "@/data/home";
+import type { GoodRead } from "@/lib/good-reads";
 
 const CHOICES: readonly GenreChoice[] = ["all", ...EDITION_GENRES];
 
 /** The room's personal edition. A quiet badge says which genre the room is curated for and opens the choices; with a
- *  genre chosen it leads with that genre's newest story, then the rest, the runway pairings and the mix's songs for it.
+ *  genre chosen it leads with that genre's newest story, then the rest, its Good Reads from Contentful, the runway
+ *  pairings and the mix's songs for it.
  *  The stories arrive already netted out (Contentful's when connected, the bundled ones otherwise). */
-export function ListenEdition({ choice, onChoose, stories, songs, playing, onPlay, onRead, pairings }: {
+export function ListenEdition({ choice, onChoose, stories, reads = [], songs, playing, onPlay, onRead, pairings }: {
   choice: GenreChoice;
   onChoose: (choice: GenreChoice) => void;
   stories: readonly Story[];
+  /** The Good Reads filed under the chosen genre in Contentful: links out, each with its thumbnail. */
+  reads?: readonly GoodRead[];
   songs: readonly { song: MixSong; index: number }[];
   /** The mix song the player holds while it plays, or null. */
   playing: number | null;
@@ -43,7 +47,7 @@ export function ListenEdition({ choice, onChoose, stories, songs, playing, onPla
       {personal && <>
         <div className="ls-section-head">
           <h2>The {choice} <span className="ls-two-face-xxx">Edition</span></h2>
-          <span>{stories.length} {stories.length === 1 ? "story" : "stories"}{songs.length > 0 && ` · ${songs.length} ${songs.length === 1 ? "song" : "songs"}`}</span>
+          <span>{stories.length} {stories.length === 1 ? "story" : "stories"}{reads.length > 0 && ` · ${reads.length} ${reads.length === 1 ? "good read" : "good reads"}`}{songs.length > 0 && ` · ${songs.length} ${songs.length === 1 ? "song" : "songs"}`}</span>
         </div>
 
         {lead ? (
@@ -69,6 +73,25 @@ export function ListenEdition({ choice, onChoose, stories, songs, playing, onPla
             </li>)}
           </ul>
         )}
+
+        {reads.length > 0 && <>
+          <h3 className="ls-edition-sub">Good reads</h3>
+          <ol className="good-reads-list ls-edition-reads">
+            {reads.map(read => <li key={read.id}>
+              <a href={read.url} target="_blank" rel="noopener noreferrer">
+                {read.image
+                  ? <img className="good-reads-thumb" src={read.image} alt="" width={160} height={200} loading="lazy" />
+                  : <span className="good-reads-thumb" aria-hidden>{read.source.charAt(0)}</span>}
+                <span className="good-reads-text">
+                  <span className="good-reads-source">{read.source}</span>
+                  <span className="good-reads-title">{read.title}</span>
+                  {read.note && <span className="good-reads-desc">{read.note}</span>}
+                </span>
+                <span className="good-reads-arrow" aria-hidden>↗</span>
+              </a>
+            </li>)}
+          </ol>
+        </>}
 
         {pairings && <>
           <h3 className="ls-edition-sub">Runway pairings</h3>

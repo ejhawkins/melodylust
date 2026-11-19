@@ -1,5 +1,5 @@
 // Adds a `goodRead` content type to the space, for the Reading Room's Good Reads list: a title, the publication it's
-// from, a one-line note, the link, a thumbnail and an optional order (lowest number shows first). Run once, and again
+// from, a one-line note, the link, its genre (for the Listening Room's edition), a thumbnail and an optional order (lowest number shows first). Run once, and again
 // after a field is added here:
 //   npx tsx scripts/contentful/create-good-reads.ts
 // Reads CONTENTFUL_SPACE_ID and CONTENTFUL_MANAGEMENT_TOKEN from .env; the token travels only in headers and is never
@@ -37,6 +37,7 @@ const FIELDS = [
   { id: 'source', name: 'Source', type: 'Symbol', required: false, localized: false, validations: [{ size: { max: 60 } }] },
   { id: 'note', name: 'Note', type: 'Symbol', required: false, localized: false, validations: [{ size: { max: 200 } }] },
   { id: 'url', name: 'Link', type: 'Symbol', required: true, localized: false, validations: [{ regexp: { pattern: '^https?://\\S+$' }, message: 'A full web address, starting with https://' }] },
+  { id: 'genre', name: 'Genre', type: 'Symbol', required: false, localized: false, validations: [{ in: ['Hip-Hop', 'Pop', 'R&B', 'Electronic', 'Rock', 'Indie', 'Jazz', 'Country'] }] },
   { id: 'image', name: 'Thumbnail', type: 'Link', linkType: 'Asset', required: false, localized: false, validations: [{ linkMimetypeGroup: ['image'] }] },
   { id: 'order', name: 'Order', type: 'Integer', required: false, localized: false },
 ];

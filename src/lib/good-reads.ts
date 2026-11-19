@@ -1,13 +1,14 @@
 // The Reading Room's Good Reads: links worth a reader's time, kept in Contentful as `goodRead` entries (title, source,
 // note, url, a thumbnail and an order). Nothing here holds a credential or makes a request: good-reads.functions.ts does that on the
 // server and hands the raw reply to readGoodReads.
-import { assetUrl, entriesRoot } from './contentful';
+import { assetUrl, entriesRoot, journalGenre } from './contentful';
 
-/** `image` is the read's thumbnail, or empty when the editor added none. */
-export type GoodRead = { id: string; source: string; title: string; note: string; url: string; image: string };
+/** `image` is the read's thumbnail and `genre` the edition it's filed under ("Hip-Hop"); either is empty when unset. */
+export type GoodRead = { id: string; source: string; title: string; note: string; url: string; image: string; genre: string };
 
-/** The most reads the zine's list shows. */
-export const GOOD_READS_LIMIT = 8;
+/** The most reads asked for: enough for every genre's edition. The zine's own list shows the first ZINE_READS. */
+export const GOOD_READS_LIMIT = 24;
+export const ZINE_READS = 8;
 
 /** Every published good read, the editor's order first (lowest number on top), then the newest. */
 export const goodReadsUrl = (place: { base?: string; space: string; environment?: string | undefined }) =>
@@ -45,6 +46,6 @@ export function readGoodReads(payload: unknown): GoodRead[] {
     seen.add(url);
     const source = text(fields?.['source'], 60) || new URL(url).hostname.replace(/^www\./, '');
     const image = assetUrl(assets.get(text(bag(bag(fields?.['image'])?.['sys'])?.['id'], 200)), 400);
-    return [{ id, title, url, source, note: text(fields?.['note'], 200), image }];
+    return [{ id, title, url, source, note: text(fields?.['note'], 200), image, genre: journalGenre(text(fields?.['genre'], 60)) }];
   }).slice(0, GOOD_READS_LIMIT);
 }

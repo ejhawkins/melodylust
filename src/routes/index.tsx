@@ -48,7 +48,8 @@ import { categories, iconicSongs, playlist, stories, type Story } from "@/data/h
 import { fromRunway, step, toMix, type MixSong } from "@/lib/listening-room";
 import { getGenreStories } from "@/lib/contentful.functions";
 import { getSongLook } from "@/lib/contentful-looks.functions";
-import { editionStories, notesFor, songsFor } from "@/lib/genre-edition";
+import { getGoodReads } from "@/lib/good-reads.functions";
+import { editionStories, notesFor, songsFor, storiesFor } from "@/lib/genre-edition";
 import { useGenrePreference } from "@/lib/genre-preference";
 import { useQuery } from "@tanstack/react-query";
 import { usePlaylists } from "@/lib/playlists";
@@ -352,6 +353,9 @@ function ListeningRoom() {
     staleTime: 10 * 60 * 1000,
   });
   const edition = useMemo(() => editionStories<Story>(remoteStories?.stories, stories, genre), [remoteStories, genre]);
+  // Contentful's Good Reads filed under the chosen genre (the same list the Reading Room shows), for the edition.
+  const { data: goodReads } = useQuery({ queryKey: ["good-reads"], queryFn: () => getGoodReads(), staleTime: 10 * 60 * 1000 });
+  const editionReads = useMemo(() => (genre === "all" ? [] : storiesFor(goodReads?.reads ?? [], genre)), [goodReads, genre]);
   const editionSongs = useMemo(() => songsFor(mix, genre), [genre]);
   const runwayShown = category === "Runway" || onRunway || shelf === "runway" || view.kind === "note" || genre !== "all";
   const runway = useRunwaySongs(runwayShown);
@@ -536,7 +540,7 @@ function ListeningRoom() {
           ) : <>
             {!heroLeads && <ListenHero onPlayMix={playMix} onNotes={() => setFilmNotesOpen(true)} onFilmSound={() => setListening(false)}><ListenIssueDock variant="hero" current={issueTab} onPick={pickIssue} /></ListenHero>}
 
-            <ListenEdition choice={genre} onChoose={chooseGenre} stories={edition} songs={editionSongs}
+            <ListenEdition choice={genre} onChoose={chooseGenre} stories={edition} reads={editionReads} songs={editionSongs}
               playing={listening && queue === mix ? now : null} onPlay={play}
               onRead={s => { setActive(`story-${s.id}`); setArticle(s); }}
               // The same cards as "+ Runway Notes" below; when that list is open they show there instead, not twice.

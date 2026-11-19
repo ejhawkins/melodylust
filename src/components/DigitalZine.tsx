@@ -15,6 +15,7 @@ import { addWish, useWishlist } from "@/lib/wishlist";
 import { drawCard } from "./ListenStudio";
 import type { StudioTrack } from "@/lib/studio";
 import { getGoodReads } from "@/lib/good-reads.functions";
+import { ZINE_READS } from "@/lib/good-reads";
 
 const PAGE_COUNT = 7;
 
@@ -41,7 +42,7 @@ export function DigitalZine({ tone, nowReadingWith }: { tone?: "room"; nowReadin
   // The Good Reads list from Contentful; the sample links stand in until it has some.
   const { data: remoteReads } = useQuery({ queryKey: ["good-reads"], queryFn: () => getGoodReads(), staleTime: 10 * 60 * 1000 });
   const live = Boolean(remoteReads?.reads.length);
-  const reads = live ? remoteReads!.reads : SAMPLE_READS;
+  const reads = live ? remoteReads!.reads.slice(0, ZINE_READS) : SAMPLE_READS;
   const readFrom = live ? "Reading Room · Good read" : "Reading Room · Sample read";
   const [sharing, setSharing] = useState(false);
   const [shareMessage, setShareMessage] = useState("");

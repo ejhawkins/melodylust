@@ -6,20 +6,20 @@ const entry = (id: string, fields: Record<string, unknown>) => ({ sys: { id }, f
 describe('good reads', () => {
   it('asks Contentful for good reads in the editor’s order, with no token in the URL', () => {
     expect(goodReadsUrl({ space: 'abc', environment: 'master' })).toBe(
-      'https://cdn.contentful.com/spaces/abc/environments/master/entries?content_type=goodRead&include=1&order=fields.order,-sys.createdAt&limit=8');
+      'https://cdn.contentful.com/spaces/abc/environments/master/entries?content_type=goodRead&include=1&order=fields.order,-sys.createdAt&limit=24');
   });
 
   it('reads entries as links, naming the site when the editor names no source', () => {
     const reads = readGoodReads({
       items: [
-        entry('a', { title: 'The return of the music magazine', source: 'The Face', note: 'Print’s quiet comeback.', url: 'https://theface.com/read', image: { sys: { id: 'pic' } } }),
+        entry('a', { title: 'The return of the music magazine', source: 'The Face', note: 'Print’s quiet comeback.', url: 'https://theface.com/read', genre: 'hip-hop', image: { sys: { id: 'pic' } } }),
         entry('b', { title: 'Tour wardrobes', url: 'https://www.vogue.com/article/tour' }),
       ],
       includes: { Asset: [{ sys: { id: 'pic' }, fields: { file: { url: '//images.ctfassets.net/s/pic/x.jpg', contentType: 'image/jpeg' } } }] },
     });
-    expect(reads[0]).toMatchObject({ id: 'a', title: 'The return of the music magazine', source: 'The Face', note: 'Print’s quiet comeback.', url: 'https://theface.com/read' });
+    expect(reads[0]).toMatchObject({ genre: 'Hip-Hop', id: 'a', title: 'The return of the music magazine', source: 'The Face', note: 'Print’s quiet comeback.', url: 'https://theface.com/read' });
     expect(reads[0]!.image).toMatch(/^https:\/\/images\.ctfassets\.net\/s\/pic\/x\.jpg\?.*w=400/);
-    expect(reads[1]).toEqual({ id: 'b', title: 'Tour wardrobes', source: 'vogue.com', note: '', url: 'https://www.vogue.com/article/tour', image: '' });
+    expect(reads[1]).toEqual({ id: 'b', title: 'Tour wardrobes', source: 'vogue.com', note: '', url: 'https://www.vogue.com/article/tour', image: '', genre: '' });
   });
 
   it('leaves out reads with no title, no web link or a repeated link', () => {
