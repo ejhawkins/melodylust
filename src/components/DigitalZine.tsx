@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { PageFlip, SizeType } from "page-flip";
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,12 @@ import { useReadingBook } from "./useReadingBook";
 import { addWish, useWishlist } from "@/lib/wishlist";
 import { drawCard } from "./ListenStudio";
 import type { StudioTrack } from "@/lib/studio";
+import { getGoodReads } from "@/lib/good-reads.functions";
 
 const PAGE_COUNT = 7;
 
-// Sample links — swap in the real reads.
-const GOOD_READS = [
+// Sample links, shown only until Contentful has good reads published (content type `goodRead`).
+const SAMPLE_READS = [
   { source: "Sample read", title: "Why every pop star wants a uniform again", note: "On stage style as a signature.", url: "https://example.com/read-1" },
   { source: "Sample read", title: "The return of the music magazine", note: "Print's quiet comeback.", url: "https://example.com/read-2" },
   { source: "Sample read", title: "How a tour wardrobe gets built", note: "From fitting to opening night.", url: "https://example.com/read-3" },
@@ -32,6 +34,11 @@ export function DigitalZine({ tone, nowReadingWith }: { tone?: "room"; nowReadin
   const reading = useReadingBook(room, source, mount);
   const wishes = useWishlist();
   const touch = useRef<number | null>(null);
+  // The Good Reads list from Contentful; the sample links stand in until it has some.
+  const { data: remoteReads } = useQuery({ queryKey: ["good-reads"], queryFn: () => getGoodReads(), staleTime: 10 * 60 * 1000 });
+  const live = Boolean(remoteReads?.reads.length);
+  const reads = live ? remoteReads!.reads : SAMPLE_READS;
+  const readFrom = live ? "Reading Room · Good read" : "Reading Room · Sample read";
   const [sharing, setSharing] = useState(false);
   const [shareMessage, setShareMessage] = useState("");
   const heading = useRef<HTMLHeadingElement>(null);
@@ -138,16 +145,16 @@ export function DigitalZine({ tone, nowReadingWith }: { tone?: "room"; nowReadin
     </div>
     <aside className="good-reads" aria-labelledby="good-reads-heading">
       <h3 id="good-reads-heading">GOOD READS</h3>
-      <p className="good-reads-note">Links worth your time, from around the web. Sample picks — the real list is on its way.</p>
+      <p className="good-reads-note">Links worth your time, from around the web.{live ? "" : " Sample picks — the real list is on its way."}</p>
       <ol className="good-reads-list">
-        {GOOD_READS.map(read => <li key={read.url}>
+        {reads.map(read => <li key={read.url}>
           <a href={read.url} target="_blank" rel="noopener noreferrer">
             <span className="good-reads-source">{read.source}</span>
             <span className="good-reads-title">{read.title}</span>
             <span className="good-reads-desc">{read.note}</span>
             <span className="good-reads-arrow" aria-hidden>↗</span>
           </a>
-          {room && <Button variant="listenOutline" size="bar" onClick={() => addWish({ kind: "piece", name: read.title, detail: read.source, link: read.url, note: read.note, from: "Reading Room · Sample read" })}>{wishes.some(w => w.name === read.title && w.from === "Reading Room · Sample read") ? "In Want List" : "+ Want List"}</Button>}
+          {room && <Button variant="listenOutline" size="bar" onClick={() => addWish({ kind: "piece", name: read.title, detail: read.source, link: read.url, note: read.note, from: readFrom })}>{wishes.some(w => w.name === read.title && w.from === readFrom) ? "In Want List" : "+ Want List"}</Button>}
         </li>)}
       </ol>
     </aside>
