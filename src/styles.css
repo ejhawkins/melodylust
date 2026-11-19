@@ -117,6 +117,9 @@
 .good-reads-source { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-foreground); }
 .good-reads-title { font-family: var(--font-cover); font-weight: 900; font-size: 17px; line-height: 1.15; letter-spacing: -.01em; }
 .good-reads-desc { font-family: var(--font-editorial); font-style: italic; font-size: 13px; color: var(--muted-foreground); }
+.good-reads-list a { flex-direction: row; align-items: flex-start; gap: 14px; } /* thumbnail beside the text */
+.good-reads-text { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 3px; }
+.good-reads-thumb { flex: none; width: 64px; aspect-ratio: 4 / 5; height: auto; object-fit: cover; border: 1px solid color-mix(in oklab, var(--foreground) 15%, transparent); display: grid; place-items: center; font-family: var(--font-editorial); font-style: italic; font-size: 26px; color: var(--muted-foreground); background: color-mix(in oklab, var(--foreground) 6%, transparent); }
 .good-reads-arrow { position: absolute; top: 14px; right: 2px; font-size: 14px; color: var(--primary); transition: transform .2s ease; }
 .good-reads-list a:hover .good-reads-arrow { transform: translate(2px, -2px); }
 @media (max-width: 600px) {
@@ -3775,6 +3778,8 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 @keyframes swivel-breathe { 50% { box-shadow: 0 0 12px color-mix(in oklab, var(--color-acid-lime) 25%, transparent); } }
 @media (prefers-reduced-motion: reduce) { .ls .swivel-piece { transition: none; } }
 @media (max-width: 600px) { .ls .ls-swivel { --swivel-radius: 112px; --swivel-card-width: 120px; } .ls .ls-swivel h3 { font-size: 48px; } }
+/* Phones: Good Reads takes the zine's place; the page-flip booklet is for wider screens. */
+@media (max-width: 900px) { .ls .zine-main { display: none; } .ls .good-reads-thumb { width: 72px; } }
 @media (min-width: 1100px) {
   .ls .zine-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 260px); }
 }

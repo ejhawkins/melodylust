@@ -5,6 +5,10 @@ import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import cover from "@/assets/grunge-cover.jpg";
 import street from "@/assets/street-style.jpg";
+import pick1 from "@/assets/editorial-pick-1.jpg";
+import pick2 from "@/assets/editorial-pick-2.jpg";
+import pick3 from "@/assets/editorial-pick-3.jpg";
+import pick4 from "@/assets/editorial-pick-4.jpg";
 import { LikeButton } from "./LikeButton";
 import { useReadingBook } from "./useReadingBook";
 import { addWish, useWishlist } from "@/lib/wishlist";
@@ -16,10 +20,10 @@ const PAGE_COUNT = 7;
 
 // Sample links, shown only until Contentful has good reads published (content type `goodRead`).
 const SAMPLE_READS = [
-  { source: "Sample read", title: "Why every pop star wants a uniform again", note: "On stage style as a signature.", url: "https://example.com/read-1" },
-  { source: "Sample read", title: "The return of the music magazine", note: "Print's quiet comeback.", url: "https://example.com/read-2" },
-  { source: "Sample read", title: "How a tour wardrobe gets built", note: "From fitting to opening night.", url: "https://example.com/read-3" },
-  { source: "Sample read", title: "Thrift culture and the new It-girl", note: "Second-hand, first choice.", url: "https://example.com/read-4" },
+  { source: "Sample read", title: "Why every pop star wants a uniform again", note: "On stage style as a signature.", url: "https://example.com/read-1", image: pick1 },
+  { source: "Sample read", title: "The return of the music magazine", note: "Print's quiet comeback.", url: "https://example.com/read-2", image: pick2 },
+  { source: "Sample read", title: "How a tour wardrobe gets built", note: "From fitting to opening night.", url: "https://example.com/read-3", image: pick3 },
+  { source: "Sample read", title: "Thrift culture and the new It-girl", note: "Second-hand, first choice.", url: "https://example.com/read-4", image: pick4 },
 ];
 
 export function DigitalZine({ tone, nowReadingWith }: { tone?: "room"; nowReadingWith?: StudioTrack }) {
@@ -149,9 +153,14 @@ export function DigitalZine({ tone, nowReadingWith }: { tone?: "room"; nowReadin
       <ol className="good-reads-list">
         {reads.map(read => <li key={read.url}>
           <a href={read.url} target="_blank" rel="noopener noreferrer">
-            <span className="good-reads-source">{read.source}</span>
-            <span className="good-reads-title">{read.title}</span>
-            <span className="good-reads-desc">{read.note}</span>
+            {read.image
+              ? <img className="good-reads-thumb" src={read.image} alt="" width={160} height={200} loading="lazy" />
+              : <span className="good-reads-thumb" aria-hidden>{read.source.charAt(0)}</span>}
+            <span className="good-reads-text">
+              <span className="good-reads-source">{read.source}</span>
+              <span className="good-reads-title">{read.title}</span>
+              {read.note && <span className="good-reads-desc">{read.note}</span>}
+            </span>
             <span className="good-reads-arrow" aria-hidden>↗</span>
           </a>
           {room && <Button variant="listenOutline" size="bar" onClick={() => addWish({ kind: "piece", name: read.title, detail: read.source, link: read.url, note: read.note, from: readFrom })}>{wishes.some(w => w.name === read.title && w.from === readFrom) ? "In Want List" : "+ Want List"}</Button>}

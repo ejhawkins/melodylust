@@ -1,16 +1,17 @@
 // The Reading Room's Good Reads: links worth a reader's time, kept in Contentful as `goodRead` entries (title, source,
-// note, url, and an order). Nothing here holds a credential or makes a request: good-reads.functions.ts does that on the
+// note, url, a thumbnail and an order). Nothing here holds a credential or makes a request: good-reads.functions.ts does that on the
 // server and hands the raw reply to readGoodReads.
-import { entriesRoot } from './contentful';
+import { assetUrl, entriesRoot } from './contentful';
 
-export type GoodRead = { id: string; source: string; title: string; note: string; url: string };
+/** `image` is the read's thumbnail, or empty when the editor added none. */
+export type GoodRead = { id: string; source: string; title: string; note: string; url: string; image: string };
 
 /** The most reads the zine's list shows. */
 export const GOOD_READS_LIMIT = 8;
 
 /** Every published good read, the editor's order first (lowest number on top), then the newest. */
 export const goodReadsUrl = (place: { base?: string; space: string; environment?: string | undefined }) =>
-  `${entriesRoot(place)}?content_type=goodRead&order=fields.order,-sys.createdAt&limit=${GOOD_READS_LIMIT}`;
+  `${entriesRoot(place)}?content_type=goodRead&include=1&order=fields.order,-sys.createdAt&limit=${GOOD_READS_LIMIT}`;
 
 type Bag = Record<string, unknown>;
 const bag = (value: unknown): Bag | null => (value && typeof value === 'object' && !Array.isArray(value) ? value as Bag : null);
@@ -27,10 +28,13 @@ export function webLink(value: unknown): string {
   }
 }
 
-/** A Content Delivery reply as good reads. Entries missing a title or a usable link are left out, and the source falls
- *  back to the link's site ("vogue.com") when the editor names none. */
+/** A Content Delivery reply as good reads, each thumbnail resolved to a 400px image URL. Entries missing a title or a
+ *  usable link are left out, and the source falls back to the link's site ("vogue.com") when the editor names none. */
 export function readGoodReads(payload: unknown): GoodRead[] {
-  const items = bag(payload)?.['items'];
+  const reply = bag(payload);
+  const items = reply?.['items'];
+  const included = bag(reply?.['includes'])?.['Asset'];
+  const assets = new Map((Array.isArray(included) ? included : []).map(asset => [text(bag(bag(asset)?.['sys'])?.['id'], 200), asset] as const));
   const seen = new Set<string>();
   return (Array.isArray(items) ? items : []).flatMap(item => {
     const fields = bag(bag(item)?.['fields']);
@@ -40,6 +44,7 @@ export function readGoodReads(payload: unknown): GoodRead[] {
     if (!id || !title || !url || seen.has(url)) return [];
     seen.add(url);
     const source = text(fields?.['source'], 60) || new URL(url).hostname.replace(/^www\./, '');
-    return [{ id, title, url, source, note: text(fields?.['note'], 200) }];
+    const image = assetUrl(assets.get(text(bag(bag(fields?.['image'])?.['sys'])?.['id'], 200)), 400);
+    return [{ id, title, url, source, note: text(fields?.['note'], 200), image }];
   }).slice(0, GOOD_READS_LIMIT);
 }
