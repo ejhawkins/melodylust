@@ -1,23 +1,19 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Play } from "lucide-react";
 import { LikeButton } from "@/components/LikeButton";
-import coverChihiro from "@/assets/sleeve-chihiro.jpg";
-import coverBanks from "@/assets/sleeve-banks.jpg";
-import coverCudi from "@/assets/sleeve-cudi.jpg";
-import coverSolange from "@/assets/sleeve-solange.jpg";
-import coverWeeknd from "@/assets/sleeve-weeknd.jpg";
 
 type Video = { id: string; artist: string; title: string; credit: string; url: string; cover: string; creditLink?: { label: string; href: string }; stylist?: { name: string; role: string; href?: string }; tags: string[]; theme: string };
 
+// Thom Browne runway shows, newest first. The films are FF Channel's full-show uploads; the stills are YouTube's own.
 const videos: Video[] = [
-  { id: "BY_XwvKogC8", artist: "Billie Eilish", title: "CHIHIRO", credit: "Official Music Video · Styling by", cover: coverChihiro, creditLink: { label: "Andrew Mukamal", href: "https://www.streeters.com/artists/styling/andrew-mukamal" }, url: "https://www.youtube.com/watch?v=BY_XwvKogC8", stylist: { name: "Andrew Mukamal", role: "Stylist", href: "https://www.streeters.com/artists/styling/andrew-mukamal" }, tags: ["Album", "2024"], theme: "The Ivy League" },
-  { id: "5n8qzxUKQIs", artist: "BANKS", title: "This Is What It Feels Like", credit: "Goddess: Unplugged · ℗ 2024", cover: coverBanks, url: "https://music.youtube.com/watch?v=5n8qzxUKQIs", tags: ["Session", "2024"], theme: "Red Room" },
-  { id: "VrDfSZ_6f4U", artist: "Kid Cudi", title: "Day 'N' Nite", credit: "Official Music Video · 2009", cover: coverCudi, url: "https://www.youtube.com/watch?v=VrDfSZ_6f4U", tags: ["Single", "2009"], theme: "Night Drive" },
-  { id: "S0qrinhNnOM", artist: "Solange", title: "Cranes in the Sky", credit: "A Seat at the Table · 2016 · Styling by", cover: coverSolange, creditLink: { label: "Shiona Turini", href: "https://www.thefader.com/2016/10/07/solange-stylist-looks-seat-at-the-table-videos-cranes-dont-touch-my-hair" }, url: "https://www.youtube.com/watch?v=S0qrinhNnOM", stylist: { name: "Shiona Turini", role: "Stylist", href: "https://www.thefader.com/2016/10/07/solange-stylist-looks-seat-at-the-table-videos-cranes-dont-touch-my-hair" }, tags: ["Album", "2016"], theme: "Paper Sun" },
-  { id: "4NRXx6U8ABQ", artist: "The Weeknd", title: "Blinding Lights", credit: "After Hours · 2020", cover: coverWeeknd, url: "https://www.youtube.com/watch?v=4NRXx6U8ABQ", tags: ["Album", "2020"], theme: "Neon Rush" },
+  { id: "pugO1dAMq5E", artist: "Thom Browne", title: "Spring/Summer 2027", credit: "Milan Fashion Week Men’s · Full show", cover: `https://i.ytimg.com/vi/pugO1dAMq5E/maxresdefault.jpg`, url: "https://www.youtube.com/watch?v=pugO1dAMq5E", stylist: { name: "Thom Browne", role: "Designer", href: "https://www.thombrowne.com" }, tags: ["Milan", "SS27"], theme: "Grey Flannel" },
+  { id: "dK2dCW1jOgI", artist: "Thom Browne", title: "Fall/Winter 2026/2027", credit: "New York Fashion Week · Full show", cover: `https://i.ytimg.com/vi/dK2dCW1jOgI/maxresdefault.jpg`, url: "https://www.youtube.com/watch?v=dK2dCW1jOgI", stylist: { name: "Thom Browne", role: "Designer", href: "https://www.thombrowne.com" }, tags: ["New York", "FW26"], theme: "Four Bar" },
+  { id: "iPQqOrdFUJI", artist: "Thom Browne", title: "Spring/Summer 2026", credit: "Paris Fashion Week · Full show", cover: `https://i.ytimg.com/vi/iPQqOrdFUJI/maxresdefault.jpg`, url: "https://www.youtube.com/watch?v=iPQqOrdFUJI", stylist: { name: "Thom Browne", role: "Designer", href: "https://www.thombrowne.com" }, tags: ["Paris", "SS26"], theme: "Tricolor" },
+  { id: "CyKFxnAo1S0", artist: "Thom Browne", title: "Fall/Winter 2025/2026", credit: "New York Fashion Week · Full show", cover: `https://i.ytimg.com/vi/CyKFxnAo1S0/maxresdefault.jpg`, url: "https://www.youtube.com/watch?v=CyKFxnAo1S0", stylist: { name: "Thom Browne", role: "Designer", href: "https://www.thombrowne.com" }, tags: ["New York", "FW25"], theme: "Shrunken Suit" },
+  { id: "Pgy33LVp7-A", artist: "Thom Browne", title: "Fall/Winter 2024/2025", credit: "New York Fashion Week · Full show", cover: `https://i.ytimg.com/vi/Pgy33LVp7-A/maxresdefault.jpg`, url: "https://www.youtube.com/watch?v=Pgy33LVp7-A", stylist: { name: "Thom Browne", role: "Designer", href: "https://www.thombrowne.com" }, tags: ["New York", "FW24"], theme: "Cropped Trouser" },
 ];
 
-/** The music videos of "This is a mood", also listed in the listening room's library. */
+/** The runway films of "This is a mood", also listed in the listening room's library. */
 export { videos as moodVideos, type Video as MoodVideo };
 
 /** `likes` adds a heart that files the film under Your Favorites (the listening room). */
@@ -47,7 +43,7 @@ export function RecordStack({ likes = false }: { likes?: boolean }) {
 
   return (
     <div className="records" ref={root} data-in={inView}>
-      <div className="records-stack" role="tablist" aria-label="Music videos" onKeyDown={onKey}>
+      <div className="records-stack" role="tablist" aria-label="Runway shows" onKeyDown={onKey}>
         {videos.map((r, i) => {
           const offset = (i - active + videos.length) % videos.length;
           return (
@@ -70,7 +66,7 @@ export function RecordStack({ likes = false }: { likes?: boolean }) {
             >
               <span className="record-disc" aria-hidden />
               <span className="record-sleeve">
-                <img src={r.cover} alt={`Album cover artwork for ${r.title} by ${r.artist}`} loading="lazy" width={1024} height={1024} />
+                <img src={r.cover} alt={`${r.artist} ${r.title} runway show`} loading="lazy" width={1024} height={1024} />
               </span>
             </button>
           );

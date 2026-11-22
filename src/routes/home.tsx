@@ -12,6 +12,7 @@ import street from "@/assets/street-style.jpg";
 import matrixShoeImage from "@/assets/style-matrix-shoe.png";
 import { FitCompass } from "@/components/FitCompass";
 import { ShopSection } from "@/components/ShopSection";
+import { HomeListenShelf } from "@/components/HomeListenShelf";
 import { DigitalZine } from "@/components/DigitalZine";
 import { GenreHeadingSelect } from "@/components/GenreHeadingSelect";
 import { StylingNotes } from "@/components/StylingNotes";
@@ -460,6 +461,7 @@ function Index() {
         </div>
       )}
       <Button variant="railCta" className="to-top" data-show={showTop} aria-label="Scroll to top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}><ArrowUp /></Button>
+      <HomeListenShelf />
       <ShopTheSong song={shopSong} onClose={() => setShopSong(null)}
         onViewList={() => { setShopSong(null); setTimeout(() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" }), 300); }} />
       <StoryDialog story={article} onClose={() => setArticle(null)} />

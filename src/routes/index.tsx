@@ -46,6 +46,7 @@ import { FitCompass } from "@/components/FitCompass";
 import { ListenFashion } from "@/components/ListenFashion";
 import { categories, iconicSongs, playlist, stories, type Story } from "@/data/home";
 import { fromRunway, step, toMix, type MixSong } from "@/lib/listening-room";
+import { runwayFromSearch, runwayShelf } from "@/lib/runway-shelf";
 import { getGenreStories } from "@/lib/contentful.functions";
 import { getSongLook } from "@/lib/contentful-looks.functions";
 import { getGoodReads } from "@/lib/good-reads.functions";
@@ -437,6 +438,15 @@ function ListeningRoom() {
     requestAnimationFrame(() => document.getElementById("reading-room")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
   };
   useEffect(() => { if (window.location.hash === "#reading-room") openReading(); }, []);
+  // A runway song handed over by the home page's listen shelf (/?runway=…) plays on in the player, with the shelf's
+  // running order (Thom Browne's featured first) as its queue; the address then drops it.
+  useEffect(() => {
+    const queue = runwayShelf();
+    const index = runwayFromSearch(window.location.search, queue);
+    if (index < 0) return;
+    playStudio(queue, index);
+    window.history.replaceState(window.history.state, "", window.location.pathname + window.location.hash);
+  }, []);
   const pickIssue = (tab: IssueTab) => {
     if (tab === "reading") return openReading();
     if (tab === "featured" || tab === "beat" || tab === "boards") {
