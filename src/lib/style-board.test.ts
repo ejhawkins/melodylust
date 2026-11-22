@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { boardId, isBoardId, sectionOf, toBoardItems } from "./style-board";
+import { boardId, boardMissingReason, isBoardId, sectionOf, toBoardItems } from "./style-board";
 
 describe("style board", () => {
   it("sorts Want List saves into fashion, music and good reads", () => {
@@ -34,4 +34,12 @@ t2("portfolio keeps titled https photos, drops unsafe links, caps at 12", () => 
   expect(cleanPortfolio([ok, { title: "", image: "https://x.com/b.jpg", link: "" }, { title: "Bad", image: "http://x.com/c.jpg", link: "" }]))
     .toEqual([{ ...ok, link: "" }]);
   expect(cleanPortfolio(Array(15).fill({ ...ok, link: "" })).length).toBe(12);
+});
+
+it("explains in one line why a board link found nothing", () => {
+  expect(boardMissingReason("")).toMatch(/no board code/);
+  expect(boardMissingReason("D9VDG2BMPR")).toBe("Board codes are lowercase. Try /board/d9vdg2bmpr.");
+  expect(boardMissingReason("d9vdg2")).toMatch(/^"d9vdg2" isn't a board code/);
+  expect(boardMissingReason("x".repeat(80))).toContain(`"${"x".repeat(24)}"`);
+  expect(boardMissingReason("d9vdg2bmpr")).toMatch(/No public board has the code d9vdg2bmpr\. It may still be waiting for review/);
 });

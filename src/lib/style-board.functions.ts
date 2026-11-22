@@ -4,6 +4,9 @@ import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import { boardId, cleanPortfolio, isBoardId, type BoardItem, type PortfolioPiece } from "@/lib/style-board";
+import { fetchLinkPreview } from "@/lib/link-preview.server";
+import type { LinkPreview } from "@/lib/link-preview";
+import { briefSchema, isEmptyBrief, readBrief, type StylistBrief } from "@/lib/stylist-brief";
 
 const url = z.string().max(500).refine(v => v === "" || /^https?:\/\//i.test(v));
 const boardInput = z.object({
@@ -14,6 +17,7 @@ const boardInput = z.object({
     section: z.enum(["fashion", "music", "read"]), name: z.string().trim().min(1).max(160),
     detail: z.string().max(200), link: url, image: url,
   }).strict()).min(1).max(24),
+  brief: briefSchema.optional(),
 }).strict();
 
 export const createStyleBoard = createServerFn({ method: "POST" })
@@ -21,16 +25,23 @@ export const createStyleBoard = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => boardInput.parse(input))
   .handler(async ({ data, context }) => {
     const id = boardId();
-    const { error } = await context.supabase.from("style_boards").insert({
-      id, owner_id: context.userId, author_display_name: data.displayName, title: data.title, note: data.note, items: data.items,
-    });
+    const row = { id, owner_id: context.userId, author_display_name: data.displayName, title: data.title, note: data.note, items: data.items };
+    const brief = data.brief && !isEmptyBrief(data.brief) ? data.brief : null;
+    // The generated table types learn about brief only once Lovable regenerates them after migration 0014.
+    let { error } = await context.supabase.from("style_boards").insert((brief ? { ...row, brief } : row) as typeof row);
+    // Until the brief column's migration has run, save the board without it rather than lose the board.
+    if (error && brief && /brief/.test(`${error.message} ${error.details ?? ""}`)) {
+      console.warn("style_boards.brief is not in the database yet; saved the board without its brief.");
+      ({ error } = await context.supabase.from("style_boards").insert(row));
+    }
     if (error) { console.error(error); throw new Error("Your board couldn't be saved. Please try again."); }
     return { id };
   });
 
-export type StyleBoard = { id: string; author: string; title: string; note: string; items: BoardItem[]; createdAt: string };
-type PublicRow = { id: string; author_display_name: string; title: string; note: string; items: unknown; created_at: string };
-const toBoard = (r: PublicRow): StyleBoard => ({ id: r.id, author: r.author_display_name, title: r.title, note: r.note, items: r.items as BoardItem[], createdAt: r.created_at });
+export type StyleBoard = { id: string; author: string; title: string; note: string; items: BoardItem[]; createdAt: string; brief: StylistBrief | null };
+/** brief is absent from rows read before its migration, and from list_style_boards. */
+type PublicRow = { id: string; author_display_name: string; title: string; note: string; items: unknown; created_at: string; brief?: unknown };
+const toBoard = (r: PublicRow): StyleBoard => ({ id: r.id, author: r.author_display_name, title: r.title, note: r.note, items: r.items as BoardItem[], createdAt: r.created_at, brief: readBrief(r.brief) });
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
@@ -53,6 +64,27 @@ export const getStyleBoard = createServerFn({ method: "GET" })
     const { data: rows, error } = await publicClient().rpc("get_style_board", { _id: data.id });
     if (error) { console.error(error); throw new Error("This board is unavailable right now."); }
     return rows?.[0] ? toBoard(rows[0]) : null;
+  });
+
+/** Share-card previews (image, site, summary) for an approved board's good reads, keyed by link. It only ever fetches
+ *  links already on a public board, so it can't be used to fetch arbitrary pages. */
+const PREVIEW_TTL = 6 * 60 * 60 * 1000;
+const previewCache = new Map<string, { at: number; preview: Promise<LinkPreview | null> }>();
+function cachedPreview(link: string) {
+  const hit = previewCache.get(link);
+  if (hit && Date.now() - hit.at < PREVIEW_TTL) return hit.preview;
+  if (previewCache.size >= 500) previewCache.delete(previewCache.keys().next().value!); // drop the oldest
+  const preview = fetchLinkPreview(link);
+  previewCache.set(link, { at: Date.now(), preview });
+  return preview;
+}
+export const getBoardReadPreviews = createServerFn({ method: "GET" })
+  .inputValidator((input: { id: string }) => ({ id: String(input.id) }))
+  .handler(async ({ data }): Promise<Record<string, LinkPreview>> => {
+    const board = await getStyleBoard({ data });
+    const links = [...new Set((board?.items ?? []).filter(i => i.section === "read" && /^https?:\/\//i.test(i.link)).map(i => i.link))].slice(0, 8);
+    const previews = await Promise.all(links.map(cachedPreview));
+    return Object.fromEntries(links.flatMap((link, n) => (previews[n] ? [[link, previews[n]!]] : [])));
   });
 
 export const listStyleBoards = createServerFn({ method: "GET" }).handler(async (): Promise<{ boards: StyleBoard[] }> => {

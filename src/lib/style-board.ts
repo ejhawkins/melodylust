@@ -24,6 +24,16 @@ export function boardId(random: (n: number) => Uint8Array = n => crypto.getRando
 }
 export const isBoardId = (id: string) => /^[a-z2-9]{10}$/.test(id);
 
+/** Why a board link found nothing, in one short line for the not-found page. A well-formed code that finds nothing is
+ *  a real board that isn't public: the lookup only returns approved boards. */
+export function boardMissingReason(id: string): string {
+  const code = id.trim();
+  if (!code) return "This link has no board code at the end.";
+  if (code !== code.toLowerCase() && isBoardId(code.toLowerCase())) return `Board codes are lowercase. Try /board/${code.toLowerCase()}.`;
+  if (!isBoardId(code)) return `"${code.slice(0, 24)}" isn't a board code. Codes are 10 lowercase letters and numbers, so this link may be cut off or mistyped.`;
+  return `No public board has the code ${code}. It may still be waiting for review, or it was declined or removed.`;
+}
+
 /** Spotify track id from an open.spotify.com track link, for embedding real playback. */
 export function spotifyTrackId(link?: string | null): string | null {
   const m = link?.match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?track\/([A-Za-z0-9]{22})/);

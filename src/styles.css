@@ -2691,6 +2691,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-board-cover { display: block; width: 160px; height: 160px; border-radius: 50%; object-fit: cover; }
 .ls-board .ls-kicker { color: var(--ls-ink-muted); }
 .ls-board-title { margin: 0; font-family: var(--font-didot); font-weight: 400; font-size: 52px; line-height: 1.05; letter-spacing: 0; overflow-wrap: anywhere; }
+.ls-board-diagnosis { max-width: 36ch; margin: 10px auto 0; font-size: 12px; line-height: 1.45; opacity: .65; overflow-wrap: anywhere; }
 .ls-board-meta { margin: 8px 0 0; font-size: 13px; color: var(--ls-ink-muted); }
 .ls-palette { list-style: none; margin: 12px 0 0; padding: 0; display: flex; gap: 6px; }
 .ls-palette li { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--ls-ink-line); }
@@ -3119,6 +3120,19 @@ body { background: var(--background); color: var(--foreground); font-family: var
    with the headings' .01em YOU KNOW wraps onto two lines, and in Couturier the YOUR word runs off the cover. */
 .site-frame .cover-title { letter-spacing: 0; }
 .site-frame .cover-em { font-family: inherit; font-style: normal; font-weight: inherit; }
+/* The cover (#cover) in red and gold: a red headline, gold for EXPERIENCE / GET READY, the nav, the buttons and the
+   caption. The wash goes from purple to a deep oxblood and the runway photo is toned near-black red to gold, because red
+   on the purple read muddy (too little contrast for the headline). */
+.site-frame .cover {
+  --cover-red: oklch(0.63 0.24 27);  /* headline red */
+  --cover-gold: oklch(0.8 0.12 86);  /* accent gold */
+  --cover-plum: oklch(0.2 0.06 22);  /* oxblood wash over the runway */
+  --cover-duo-shadow: oklch(0.14 0.04 20);
+  --cover-duo-light: oklch(0.6 0.11 80);
+  --cover-plum-ink: var(--cover-red);
+  --cover-type: var(--cover-gold);
+}
+.site-frame .cover-subtitle { color: var(--cover-gold); }
 /* How it works and the quote stand on the fig ground now, so their type turns chalk white instead of the paper's ink. */
 .site-frame :is(.gs-pin, .gs-quote).gs-paper { color: var(--color-chalk-white); }
 .site-frame .iconic-title span { color: var(--color-acid-lime); }
@@ -3865,6 +3879,7 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls-board-make { margin-top: 32px; padding: 20px; border: 1px solid var(--border); border-radius: 16px; font-family: var(--font-isidora, inherit); display: grid; gap: 12px; }
 .ls-board-make h2, .ls-board-title, .ls-board-h2 { font-family: var(--font-hammer); text-transform: uppercase; line-height: .95; }
 .ls-board-make h2 { font-size: 32px; }
+.ls-board-page .ls-board-title { font-family: var(--font-headline); font-weight: 400; letter-spacing: -0.02em; line-height: 1; } /* the shared board's title in Bodoni Moda, the editorial headline face */
 .ls-board-form, .ls-board-done { display: grid; gap: 12px; }
 .ls-board-form label { display: grid; gap: 6px; font-size: 14px; }
 .ls-board-form input:not([type=checkbox]), .ls-board-form textarea { background: var(--background); color: var(--foreground); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font: inherit; min-height: 44px; }
@@ -3878,6 +3893,37 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 /* Add an item straight into a board: pick a section, find a real piece with its photo or type your own. */
 .ls-board-add { display: grid; gap: 10px; padding: 12px; border: 1px dashed var(--border); border-radius: 12px; }
 .ls-board-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+/* The good reads on a board: article cards with a thumbnail */
+.ls-board-items li.ls-board-read { display: block; }
+.ls-board-items .ls-board-read > a, .ls-board-items .ls-board-read > div { display: grid; grid-template-columns: 128px 1fr; gap: 14px; align-items: start; color: inherit; text-decoration: none; padding: 10px; border: 1px solid var(--border); border-radius: 14px; transition: border-color .15s; }
+.ls-board-items .ls-board-read > a:hover { border-color: color-mix(in oklab, var(--foreground) 45%, transparent); }
+.ls-board-items .ls-board-read > a:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 3px; }
+.ls-board-items .ls-board-read-thumb { display: grid; place-items: center; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px; background: color-mix(in oklab, var(--foreground) 10%, transparent); }
+.ls-board-items .ls-board-read-thumb img { width: 100%; height: 100%; flex: initial; object-fit: cover; border-radius: 0; }
+.ls-board-items .ls-board-read-thumb > span { font-family: var(--font-headline); font-size: 34px; opacity: .7; }
+.ls-board-items .ls-board-read-text { display: grid; gap: 4px; min-width: 0; }
+.ls-board-items .ls-board-read-site { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .65; }
+.ls-board-items .ls-board-read-summary { font-size: 14px; line-height: 1.45; opacity: .8; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ls-board-items .ls-board-read-cta { font-size: 14px; text-decoration: underline; text-underline-offset: 3px; color: var(--color-acid-lime, currentColor); }
+@media (max-width: 480px) { .ls-board-items .ls-board-read > a, .ls-board-items .ls-board-read > div { grid-template-columns: 96px 1fr; gap: 12px; } }
+/* The stylist brief: toggles in the composer, a labelled list on the board page */
+.ls-brief-fields { border-top: 1px solid var(--border) !important; padding-top: 14px !important; }
+.ls-brief-fields legend span, .ls-brief-hint { opacity: .65; font-size: 13px; }
+.ls-brief-hint { margin: 0; }
+.ls-brief-q { display: grid; gap: 6px; }
+.ls-brief-label { margin: 0; font-size: 14px; }
+.ls-brief-label em { font-style: normal; opacity: .7; }
+.ls-brief-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.ls-brief-swatch { width: 32px; height: 32px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--foreground) 30%, transparent); cursor: pointer; }
+.ls-brief-swatch[aria-checked="true"] { outline: 2px solid var(--foreground); outline-offset: 3px; }
+.ls-brief-swatch:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 3px; }
+.ls-board-form .ls-brief-switch { display: flex; align-items: center; gap: 10px; min-height: 32px; }
+.ls-board-form .ls-brief-switch label { display: inline; }
+.ls-brief dl { display: grid; gap: 0; margin: 12px 0 0; }
+.ls-brief dl > div { display: grid; grid-template-columns: minmax(96px, 30%) 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+.ls-brief dt { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .65; padding-top: 3px; }
+.ls-brief dd { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.ls-brief-dot { width: 14px; height: 14px; border-radius: 999px; flex: none; border: 1px solid color-mix(in oklab, var(--foreground) 30%, transparent); }
 .ls-board-shop { display: grid; gap: 10px; }
 .ls-board-results { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
 .ls-board-results button { display: grid; gap: 4px; width: 100%; padding: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.3; color: inherit; background: none; border: 0; cursor: pointer; }
@@ -4058,3 +4104,55 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
   .ls .ls-edition-lead-text { padding: 28px; }
 }
 @media (prefers-reduced-motion: reduce) { .ls .ls-edition-badge svg { transition: none; } }
+
+/* ===== Home (/home) after the cover: white paper, plum headings =====
+   Everything below #cover turns light. Rather than restyle each section, the fig & lime tokens are swapped for that
+   part of the page: fig grounds become white paper and soft plum-tinted panels, chalk-white type becomes fig ink, lilac
+   fog becomes a readable muted plum, and acid lime (accents, active pills, buttons) becomes plum. Headings are plum.
+   The cover and masthead keep their own colours, and the zine's printed pages keep theirs. One layer, so it can be
+   taken back out in one piece. */
+.site-frame { --home-plum: oklch(0.38 0.15 332); }
+.site-frame:has(> .cover), body:has(> * .site-frame > .cover), body:has(.site-frame > .cover) { background: oklch(1 0 0); }
+.site-frame > .cover ~ * {
+  --color-fig-black: oklch(1 0 0);           /* ground: white */
+  --color-fig-950: oklch(0.985 0.006 330);   /* raised panels: a breath of plum */
+  --color-fig-900: oklch(0.965 0.01 330);
+  --color-fig-800: oklch(0.88 0.02 330);     /* rules and borders */
+  --color-chalk-white: #0B040B;              /* type: the old fig black */
+  --color-lilac-fog: oklch(0.45 0.05 330);   /* secondary type */
+  --color-acid-lime: var(--home-plum);       /* accents */
+  --color-acid-muted: oklch(0.5 0.12 332);
+  --background: oklch(1 0 0); --foreground: #0B040B; --card: oklch(1 0 0); --card-foreground: #0B040B;
+  --muted-foreground: oklch(0.45 0.05 330); --border: oklch(0.88 0.02 330); --primary: var(--home-plum); --primary-foreground: oklch(1 0 0);
+  --cover-type: #0B040B; --cover-paper: oklch(1 0 0); --cover-ink: #0B040B;
+}
+/* Zero specificity: a section's own palette (Musician Circles, the stylus search) still wins over these. */
+:where(.site-frame > .cover ~ *) { color: #0B040B; --stylus-ink: oklch(1 0 0); --stylus-paper: #0B040B; --stylus-accent: var(--home-plum); }
+/* Sections with a palette of their own: their dark panel turns to plum-white paper with fig ink and plum accents. */
+.site-frame > .cover ~ .wishlist, .site-frame > .cover ~ * .wishlist {
+  --want-paper: oklch(0.975 0.008 330); --want-ink: #0B040B; --want-green: var(--home-plum); --want-green-hover: oklch(0.45 0.16 332);
+  --want-rule: oklch(0.85 0.02 330); --want-muted: oklch(0.45 0.05 330); --want-field: oklch(1 0 0); --want-field-ink: #0B040B;
+  --want-field-muted: oklch(0.5 0.03 330); --want-panel: oklch(0.95 0.012 330);
+  --foreground: #0B040B; --muted-foreground: oklch(0.45 0.05 330); --border: oklch(0.85 0.02 330);
+}
+.site-frame > .cover ~ .styling-notes, .site-frame > .cover ~ * .styling-notes { --notes-ink: oklch(1 0 0); --notes-paper: #0B040B; --notes-accent: var(--home-plum); }
+.site-frame > .cover ~ * :is(h1, h2, h3):not(.zine-book *), .site-frame > .cover ~ :is(h1, h2, h3) { color: var(--home-plum); }
+.site-frame > .cover ~ * .brand-mark { filter: none; }
+/* The zine's pages are printed artwork: they keep the original fig & lime. */
+.site-frame > .cover ~ * .zine-book {
+  --color-fig-black: #0B040B; --color-fig-950: #140713; --color-fig-900: #1F0D1E; --color-fig-800: #2D142B;
+  --color-chalk-white: #FAF9F6; --color-lilac-fog: #8E788C; --color-acid-lime: #D4FF32; --color-acid-muted: #8EAE1C;
+  --background: #0B040B; --foreground: #FAF9F6; --border: #2D142B; --card: #1F0D1E; --card-foreground: #FAF9F6;
+  --muted-foreground: #8E788C; --primary: #D4FF32; --primary-foreground: #0B040B;
+  --cover-ink: #FAF9F6; --cover-type: #FAF9F6; --cover-paper: #0B040B;
+  --stylus-ink: oklch(0.1 0.015 320); --stylus-paper: oklch(0.91 0.006 90); --stylus-accent: oklch(0.68 0.22 32);
+}
+/* Fields stay white with fig type (the site-wide rule reads the swapped tokens), with a rule so they show on white. */
+.site-frame > .cover ~ * :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="button"], [type="submit"], [type="reset"], [type="hidden"], [type="image"]), textarea, select) {
+  background-color: oklch(1 0 0) !important; color: #0B040B !important; caret-color: #0B040B; border: 1px solid oklch(0.8 0.03 330);
+}
+.site-frame > .cover ~ * :is(input, textarea)::placeholder { color: oklch(0.5 0.03 330) !important; }
+.site-frame > .cover ~ * .zine-book :is(input, textarea, select) { border: revert; }
+/* How it works switches its feature card dark on steps 1 and 3; on the white page that dark step is solid plum. */
+.site-frame > .cover ~ * :is(.gs-features[data-step="0"], .gs-features[data-step="2"]) { background: var(--home-plum); border-top-color: var(--home-plum); color: oklch(1 0 0); }
+.site-frame > .cover ~ * :is(.gs-features[data-step="0"], .gs-features[data-step="2"]) :is(h3, p, span) { color: oklch(1 0 0); }

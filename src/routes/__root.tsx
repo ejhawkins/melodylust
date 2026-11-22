@@ -15,6 +15,7 @@ import { AppShell } from "@/components/AppShell";
 import { VercelAnalytics } from "@/components/VercelAnalytics";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { stylesheetRetryScript } from "@/lib/stylesheet-retry";
 
 function NotFoundComponent() {
   return (
@@ -119,6 +120,8 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Runs before the stylesheet links so it hears if the site's CSS fails (a page saved before a deploy). */}
+        <script dangerouslySetInnerHTML={{ __html: stylesheetRetryScript }} />
         <HeadContent />
       </head>
       <body>

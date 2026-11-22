@@ -13,7 +13,6 @@ import matrixShoeImage from "@/assets/style-matrix-shoe.png";
 import { FitCompass } from "@/components/FitCompass";
 import { ShopSection } from "@/components/ShopSection";
 import { DigitalZine } from "@/components/DigitalZine";
-import { MusicianCircles } from "@/components/MusicianCircles";
 import { GenreHeadingSelect } from "@/components/GenreHeadingSelect";
 import { StylingNotes } from "@/components/StylingNotes";
 import { GuidedStory, GuidedStoryQuote } from "@/components/GuidedStory";
@@ -337,6 +336,10 @@ function Index() {
           <p className="genre-note" role="tabpanel" key={genre}>{genres.find(g => g.name === genre)?.note}</p>
         </div>
       </section>
+      {/* The Reading Room (the zine) is the first section under the hero.
+          No rule of its own: the Zine's top border sits right below and underlines it. */}
+      <MoodHeading text="Runway report" className="runway-head" rule={false} />
+      <DigitalZine />
       {/* The chapter opens on "This is a mood", How it works runs under it, then the record stack plays the films. */}
       <section className="film film-intro" id="film" ref={moodRef} data-inview={moodIn} aria-label="This is a mood">
         <div className="film-head">
@@ -362,9 +365,6 @@ function Index() {
           <div><h3>The cover story</h3>{filmConsent !== "yes" && <Button variant="editorial" onClick={() => setFilm(true)}><Play aria-hidden /> Play the film</Button>}</div>
         </article>
       </section>
-      <section className="circles-section" id="circles" aria-label="Musician Circles">
-        <MusicianCircles />
-      </section>
       <GenreHeadingSelect genres={genres.map(g => g.name)} />
       <section className="journal" ref={journal} id="journal" hidden>{/* Hidden for now; remove `hidden` to bring The latest notes back. */}
         <div className="section-heading"><h2>The latest notes</h2><span className="text-xs uppercase">Fashion. Music. A point of view.</span></div>
@@ -386,9 +386,6 @@ function Index() {
         </article>)}</div>
         {filtered.length === 0 && <p className="py-10 text-muted-foreground">{category === "Music" && musicGenre !== "All genres" ? `Nothing filed under ${musicGenre} yet. Try another sound.` : "No stories found. Try another word or category."}</p>}
       </section>
-      {/* No rule of its own: the Zine's top border sits right below and underlines it. */}
-      <MoodHeading text="Runway report" className="runway-head" rule={false} />
-      <DigitalZine />
       <StyleSearch profile={styleProfile} onEditProfile={() => setQuiz(true)} />
       <section className="playlist" id="playlist" aria-label="Playlist">
         <h2 className="iconic-title"><span>+ Playlist</span></h2>
@@ -404,7 +401,8 @@ function Index() {
             <span className="leaderboard-kicker">+ Melody Lust</span>
             <p className="leaderboard-line">Dress loud. Listen louder.</p>
             <a className="leaderboard-link" href="#journal">Read the journal</a>
-            <a className="leaderboard-link leaderboard-link--circles" href="#circles">Browse Musician Circles</a>
+            {/* Musician Circles left /home; the link goes to its own page. */}
+            <Link className="leaderboard-link leaderboard-link--circles" to="/circles">Browse Musician Circles</Link>
           </div>
         </div>
       </section>

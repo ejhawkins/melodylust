@@ -9,6 +9,8 @@ import { lookupProducts } from "@/lib/products.functions";
 import { getSpotifyTrack } from "@/lib/spotify-track.functions";
 import { sectionOf, spotifyTrackId, toBoardItems, type BoardSection } from "@/lib/style-board";
 import { createStyleBoard } from "@/lib/style-board.functions";
+import { StylistBriefFields } from "@/components/StylistBrief";
+import { emptyBrief, type StylistBrief } from "@/lib/stylist-brief";
 import { AuthDialog } from "@/components/StylingNotes";
 
 const LABEL = { fashion: "Fashion", music: "Music", read: "Good reads" } as const;
@@ -26,6 +28,7 @@ export function StyleBoardComposer({ onCreated }: { onCreated?: () => void }) {
   const create = useServerFn(createStyleBoard);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({ displayName: "", title: "", note: "" });
+  const [brief, setBrief] = useState<StylistBrief>(emptyBrief);
   const [signedIn, setSignedIn] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -90,7 +93,7 @@ export function StyleBoardComposer({ onCreated }: { onCreated?: () => void }) {
     if (!chosen.length) return setStatus("Pick at least one item from your Want List.");
     setBusy(true); setStatus("");
     try {
-      const { id } = await create({ data: { ...form, items: toBoardItems(chosen) } });
+      const { id } = await create({ data: { ...form, items: toBoardItems(chosen), brief } });
       setLink(`${window.location.origin}/board/${id}`); onCreated?.();
     } catch (err) { setStatus(err instanceof Error ? err.message : "Your board couldn't be saved."); }
     finally { setBusy(false); }
@@ -102,12 +105,14 @@ export function StyleBoardComposer({ onCreated }: { onCreated?: () => void }) {
       <p><Check aria-hidden /> Sent for review. Your link works once a moderator approves it:</p>
       <span className="ls-board-link">{link}</span>
       <div className="ls-board-row">
-        <Button variant="listenOutline" size="bar" onClick={() => { setLink(""); setPicked(new Set()); setForm(f => ({ ...f, title: "", note: "" })); }}>Make another</Button>
+        <Button variant="listenOutline" size="bar" onClick={() => { setLink(""); setPicked(new Set()); setForm(f => ({ ...f, title: "", note: "" })); setBrief(emptyBrief()); }}>Make another</Button>
       </div>
     </div> : <form onSubmit={e => void submit(e)} className="ls-board-form">
       <label>Your name<input required maxLength={60} value={form.displayName} onChange={e => setForm({ ...form, displayName: e.target.value })} /></label>
       <label>Board title<input required minLength={3} maxLength={120} value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Sunday record-shop fit" /></label>
       <label>Style note<textarea required minLength={10} maxLength={2000} rows={4} value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} placeholder="How you'd wear it, and why the songs fit." /></label>
+      {/* The stylist brief: optional toggles for occasion, dress level, colour, silhouette, shoes and season */}
+      <StylistBriefFields value={brief} onChange={setBrief} />
       <fieldset><legend>On the board</legend>
         <div className="ls-board-add" role="group" aria-label="Add an item">
           <div className="ls-board-tabs" role="radiogroup" aria-label="Section">

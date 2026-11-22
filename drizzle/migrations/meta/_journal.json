@@ -99,6 +99,13 @@
       "when": 1794578680660,
       "tag": "0013_stylist_profile",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795364700000,
+      "tag": "0014_style_board_brief",
+      "breakpoints": true
     }
   ]
 }
