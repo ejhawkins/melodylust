@@ -39,3 +39,7 @@ dist-ssr
 
 # Supabase CLI cache
 supabase/.temp/
+
+# Local secrets (the tracked copy only holds public Supabase values; run `git rm --cached .env` to stop tracking it)
+.env
+!.env.example
