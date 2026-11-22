@@ -17,6 +17,7 @@
     "designers:import": "node --env-file-if-exists=.env scripts/import-vogue-designers.ts",
     "designers:scout-songs": "node --env-file-if-exists=.env scripts/scout-runway-songs.ts",
     "designers:review-songs": "node --env-file-if-exists=.env scripts/review-runway-songs.ts",
+    "contentful:model": "npx --yes tsx --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/contentful/export-model.ts",
     "designers:show-notes": "tsx --env-file-if-exists=.env scripts/show-notes.ts"
   },
   "overrides": {

@@ -16,14 +16,15 @@ let cache: { at: number; songs: RunwaySong[] } | null = null;
  */
 export const getRunwayArchive = createServerFn({ method: 'GET' }).handler(async (): Promise<RunwayArchive> => {
   const space = process.env['CONTENTFUL_SPACE_ID'];
-  const token = process.env['CONTENTFUL_DELIVERY_TOKEN'];
+  // The rest of the site reads its delivery token as CONTENTFUL_API_KEY; either name works here.
+  const token = process.env['CONTENTFUL_DELIVERY_TOKEN'] || process.env['CONTENTFUL_API_KEY'];
   if (!space || !token) return { songs: [], connected: false };
 
   if (cache && Date.now() - cache.at < CACHE_MS) return { songs: cache.songs, connected: true };
 
   const environment = process.env['CONTENTFUL_ENVIRONMENT'] || 'master';
   const endpoint =
-    `https://cdn.contentful.com/spaces/${encodeURIComponent(space)}/environments/${encodeURIComponent(environment)}/entries` +
+    `${(process.env['CONTENTFUL_API_URL'] || 'https://cdn.contentful.com').replace(/\/$/, '')}/spaces/${encodeURIComponent(space)}/environments/${encodeURIComponent(environment)}/entries` +
     '?content_type=runwaySong&include=3&limit=1000';
 
   try {
