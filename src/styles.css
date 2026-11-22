@@ -4165,9 +4165,6 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
   .site-frame > .cover .cover-subtitle { margin-bottom: auto; }
   .site-frame > .cover + .runway-head { margin-top: clamp(48px, 7vw, 96px); }
 }
-  .site-frame > .cover .cover-subtitle { margin-bottom: auto; }
-  .site-frame > .cover + .runway-head { margin-top: clamp(48px, 7vw, 96px); }
-}
 
 /* The runway film theme title (Grey Flannel, Four Bar…) runs as large as "This is a mood" above it, in the same
    type and at the same width at every screen size. */
