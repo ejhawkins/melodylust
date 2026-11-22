@@ -81,7 +81,7 @@ export const Route = createFileRoute("/home")({
   ] }),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(tumblrQueryOptions),
-    context.queryClient.ensureQueryData(hot100QueryOptions),
+    // context.queryClient.ensureQueryData(hot100QueryOptions), // back on with the broadsheet
   ]),
   component: Index,
 });
@@ -391,7 +391,7 @@ function Index() {
         <h2 className="iconic-title"><span>+ Playlist</span></h2>
         <PlaylistBoard pick={playlistPick} setPick={setPlaylistPick} />
       </section>
-      <BillboardBroadsheet />
+      {/* The Hot 100 broadsheet is hidden for now; put <BillboardBroadsheet /> back here to show it again. */}
       <MoodHeading text="Fashion music" className="music-head" />
       <section className="leaderboard" id="leaderboard" aria-label="Featured banner">
         <div className="leaderboard-band">
@@ -437,7 +437,7 @@ function Index() {
           </article>)}
         </div>
       </section>
-      <ShopSection />
+      {/* Shop the moodboard is hidden for now; put <ShopSection /> back here to show it again. */}
       <Wishlist />
       <MoodHeading text="Reader looks" className="notes-head" stacked />
       <Link to="/influencers" className="ml-stylists-link font-isidora underline">Style Influencers — follow reader stylists and their approved boards →</Link>
