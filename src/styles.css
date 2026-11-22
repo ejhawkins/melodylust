@@ -4156,3 +4156,12 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 /* How it works switches its feature card dark on steps 1 and 3; on the white page that dark step is solid plum. */
 .site-frame > .cover ~ * :is(.gs-features[data-step="0"], .gs-features[data-step="2"]) { background: var(--home-plum); border-top-color: var(--home-plum); color: oklch(1 0 0); }
 .site-frame > .cover ~ * :is(.gs-features[data-step="0"], .gs-features[data-step="2"]) :is(h3, p, span) { color: oklch(1 0 0); }
+
+/* /home hero, tablet and up: the cover fills the screen, with the title at the top and the Start here / Take a quiz
+   row on the bottom edge; "Runway report" then gets air below it instead of touching the cover. Phones keep their sizing. */
+@media (min-width: 601px) {
+  .site-frame > .cover { display: flex; flex-direction: column; min-height: max(520px, 100svh); }
+  .site-frame > .cover > .cover-content { flex: 1 0 auto; height: auto; }
+  .site-frame > .cover .cover-subtitle { margin-bottom: auto; }
+  .site-frame > .cover + .runway-head { margin-top: clamp(48px, 7vw, 96px); }
+}
