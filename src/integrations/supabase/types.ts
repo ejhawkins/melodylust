@@ -231,7 +231,9 @@ export type Database = {
         Row: {
           author_display_name: string
           created_at: string
+          extra_notes: string
           id: string
+          kind: string
           owner_id: string
           photo_alts: string[]
           photo_paths: string[]
@@ -245,12 +247,15 @@ export type Database = {
           styling_idea: string
           tags: string[]
           title: string
+          topic: string
           updated_at: string
         }
         Insert: {
           author_display_name: string
           created_at?: string
+          extra_notes?: string
           id?: string
+          kind?: string
           owner_id: string
           photo_alts: string[]
           photo_paths: string[]
@@ -264,12 +269,15 @@ export type Database = {
           styling_idea: string
           tags?: string[]
           title: string
+          topic?: string
           updated_at?: string
         }
         Update: {
           author_display_name?: string
           created_at?: string
+          extra_notes?: string
           id?: string
+          kind?: string
           owner_id?: string
           photo_alts?: string[]
           photo_paths?: string[]
@@ -283,6 +291,7 @@ export type Database = {
           styling_idea?: string
           tags?: string[]
           title?: string
+          topic?: string
           updated_at?: string
         }
         Relationships: [

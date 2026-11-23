@@ -8,6 +8,7 @@ const note = (over: Partial<StylingNoteView> = {}): StylingNoteView => ({
   styling_idea: 'A camel coat over a grey hoodie, straight denim and loafers. Big headphones, small earrings.',
   tags: ['fall'], song_artist: 'Billie Eilish', song_track: 'CHIHIRO', song_reason: 'Slow build, soft layers.',
   photo_paths: ['u1/a.jpg'], photo_alts: ['Camel coat over a grey hoodie'], photo_urls: ['https://example.supabase.co/a.jpg?token=1'],
+  kind: 'look', topic: '', extra_notes: '',
   rejection_reason: null, reviewed_at: '2026-10-18T09:00:00Z', reviewed_by: 'mod', created_at: '2026-10-18T08:00:00Z', updated_at: '2026-10-18T09:00:00Z',
   ...over,
 });

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Play } from "lucide-react";
 import { LikeButton } from "@/components/LikeButton";
+import { useSilentMode } from "@/lib/silent-mode";
 import { Button } from "@/components/ui/button";
 import type { MoodVideo } from "@/components/RecordStack";
 
@@ -9,6 +10,7 @@ import type { MoodVideo } from "@/components/RecordStack";
  *  as the mood section is hidden there. */
 export function ListenVideo({ video, onBack }: { video: MoodVideo; onBack: () => void }) {
   const [playing, setPlaying] = useState(false);
+  const silent = useSilentMode();
   return (
     <section className="ls-board ls-video" aria-labelledby="ls-video-title">
       <div className="ls-board-head">
@@ -24,7 +26,7 @@ export function ListenVideo({ video, onBack }: { video: MoodVideo; onBack: () =>
       <div className="ls-look-part">
         <div className="ls-video-frame">
           {playing ? (
-            <iframe src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0`} title={`${video.artist} — ${video.title}`}
+            <iframe src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0${silent ? "&mute=1" : ""}`} title={`${video.artist} — ${video.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen />
           ) : (
             <button type="button" className="film-poster" onClick={() => setPlaying(true)} aria-label={`Play ${video.artist} — ${video.title}`}>

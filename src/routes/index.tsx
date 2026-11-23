@@ -5,10 +5,13 @@ import { gsap } from "gsap";
 import { flushSync } from "react-dom";
 import { prefersReducedMotion, useRoomMotion } from "@/components/useRoomMotion";
 import { useHeroParallax } from "@/components/useHeroParallax";
+import { setSoundChoice, useSilentMode } from "@/lib/silent-mode";
 import { ArrowLeft, House, Play, Search, SlidersHorizontal, Square, Volume2, VolumeX, RotateCcw, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { StylingNotes } from "@/components/StylingNotes";
+import { RunwayOpinionComposer } from "@/components/RunwayOpinionComposer";
+import { HERO_FILM_TOPIC } from "@/lib/runway-opinion";
 import { ListenBoards } from "@/components/ListenBoards";
 import { DressedToTheBeat } from "@/components/DressedToTheBeat";
 import { DigitalZine } from "@/components/DigitalZine";
@@ -107,7 +110,7 @@ function MaskedWords({ text }: { text: string }) {
 }
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-/** YOU KNOW over a YOUR line that changes every few seconds, once through, then the whole headline fades away. Its own component, so the timer re-renders only the headline.
+/** YOU KNOW over a YOUR line that changes every few seconds, round and round; the headline stays on the cover. Its own component, so the timer re-renders only the headline.
  *  With motion allowed, GSAP reveals it word by word through masks once the cover is in view, then each change lifts the
  *  old line out of the top of its masks as the new one rises from below. Reduced motion keeps the plain crossfade. */
 function HeroTitle() {
@@ -115,15 +118,9 @@ function HeroTitle() {
   const title = useRef<HTMLHeadingElement>(null);
   const shown = useRef(index);
   const ready = useRef(false);
-  // One pass through the words, each held for a beat; after the last one the headline fades away and leaves the cover to the show.
-  const [faded, setFaded] = useState(false);
+  // Each word held for a beat, then the next, back to the first after the last; the headline never leaves the cover.
   useEffect(() => {
-    let shownWord = 0;
-    const id = window.setInterval(() => {
-      shownWord += 1;
-      if (shownWord < heroWords.length) setIndex(shownWord);
-      else { window.clearInterval(id); setFaded(true); }
-    }, 4600);
+    const id = window.setInterval(() => setIndex(current => (current + 1) % heroWords.length), 4600);
     return () => window.clearInterval(id);
   }, []);
 
@@ -162,7 +159,7 @@ function HeroTitle() {
   }, [index]);
 
   return (
-    <h1 ref={title} id="ls-hero-title" className="ls-hero-title" data-faded={faded} style={{ "--ls-slot-em": heroWords[index]?.em, "--ls-tallest-em": heroTallestEm } as CSSProperties}>
+    <h1 ref={title} id="ls-hero-title" className="ls-hero-title" style={{ "--ls-slot-em": heroWords[index]?.em, "--ls-tallest-em": heroTallestEm } as CSSProperties}>
       <span className="ls-hero-know" aria-hidden="true"><MaskedWords text="YOU KNOW" /></span>
       <span className="ls-hero-slot" aria-hidden="true">
         {heroWords.map((w, i) => <span key={w.word} className="ls-hero-word" data-active={i === index} style={{ "--word-em": w.em } as CSSProperties}><MaskedWords text={`YOUR ${w.word}`} /></span>)}
@@ -192,9 +189,11 @@ function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: 
   const shown = on && playing;
   const wanted = useRef(on);
   const soundWanted = useRef(false);
+  const silent = useSilentMode();
 
   const toggleSound = () => {
     const next = !muted;
+    if (!next && silent) setSoundChoice("sound");
     soundWanted.current = !next;
     setMuted(next);
     if (!next) { onFilmSound(); setOn(true); }
@@ -273,7 +272,7 @@ function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: 
             <Button variant="listenCaption" size="caption" title={muted ? "Turn film sound on" : "Mute film"} aria-label={muted ? "Turn film sound on" : "Mute film"} aria-pressed={!muted} onClick={toggleSound}>{muted ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}</Button>
             <Button variant="listenCaption" size="caption" title="Restart film" aria-label="Restart film" onClick={restart}><RotateCcw aria-hidden /></Button>
           </>}
-          <Button variant="listenCaption" size="caption" title="Leave a style note" aria-label="Leave a style note" onClick={() => { setOn(false); onNotes(); }}><PenLine aria-hidden /><span className="ls-film-note-label">Style note</span></Button>
+          <Button variant="listenCaption" size="caption" title="Share a runway style opinion" aria-label="Share a runway style opinion" onClick={() => { setOn(false); onNotes(); }}><PenLine aria-hidden /><span className="ls-film-note-label">Runway Style Opinion?</span></Button>
           </div>
           {shown && <a className="ls-hero-credit" href={heroShow.url} target="_blank" rel="noreferrer">{heroShow.credit} ↗</a>}
         </div>
@@ -464,7 +463,7 @@ function ListeningRoom() {
   return (
     <div className="ls">
       <header className="ls-head">
-        <Link to="/" className="ls-logo-link" aria-label="Melody Lust home"><img src={logo} alt="" className="ls-logo" width={448} height={209} /></Link>
+        <Link to="/" className="ls-logo-link" aria-label="Melodylust home"><img src={logo} alt="" className="ls-logo" width={448} height={209} /></Link>
         <div className="ls-head-center">
           <Button variant="listenHome" size="roundLg" className="ls-home" aria-label="Listening room home" title="Home" onClick={goHome}><House /></Button>
           <Button variant="listenSearch" size="field" className="ls-search" aria-haspopup="dialog" aria-expanded={findOpen} onClick={() => setFindOpen(true)}>
@@ -642,9 +641,9 @@ function ListeningRoom() {
       <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} tone="room" />
       <Dialog open={filmNotesOpen} onOpenChange={setFilmNotesOpen}>
         <DialogContent className="ls-film-notes">
-          <DialogTitle>Thom Browne · FW17</DialogTitle>
-          <DialogDescription>Your take on the film, the clothes and the sound. Notes join the community edit after review.</DialogDescription>
-          {filmNotesOpen && <StylingNotes context={{ title: "Thom Browne FW17 — my style note", tags: ["thom browne", "fw17", "runway film"] }} />}
+          <DialogTitle>Runway Style Opinion?</DialogTitle>
+          <DialogDescription>Your take on the film, the clothes or the sound. Opinions are reviewed before they're published.</DialogDescription>
+          {filmNotesOpen && <RunwayOpinionComposer topic={HERO_FILM_TOPIC} onDone={() => setFilmNotesOpen(false)} />}
         </DialogContent>
       </Dialog>
       <AnalyticsGate tone="room" />

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { canModerate as hasModeratorRole, reviewChange, runwayOpinionInput, runwayOpinionRow } from "@/lib/runway-opinion";
 
 type NoteRow = Database["public"]["Tables"]["styling_notes"]["Row"];
 export type StylingNoteView = NoteRow & { photo_urls: string[] };
@@ -39,7 +40,7 @@ async function withSignedPhotos(rows: NoteRow[]): Promise<StylingNoteView[]> {
 export const listApprovedStylingNotes = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin.from("styling_notes")
-    .select("*").eq("status", "approved").order("created_at", { ascending: false }).limit(60);
+    .select("*").eq("status", "approved").eq("kind", "look").order("created_at", { ascending: false }).limit(60);
   if (error) throw new Error("Styling Notes are unavailable.");
   return { notes: await withSignedPhotos(data) };
 });
@@ -53,7 +54,7 @@ export const getStylingNotesWorkspace = createServerFn({ method: "GET" })
       context.supabase.from("styling_notes").select("*").eq("owner_id", context.userId).order("created_at", { ascending: false }),
     ]);
     if (error) throw new Error("Your submissions could not be loaded.");
-    const canModerate = roles?.some(entry => entry.role === "moderator" || entry.role === "admin") ?? false;
+    const canModerate = hasModeratorRole((roles ?? []).map(entry => entry.role));
     let queue: NoteRow[] = [];
     if (canModerate) {
       const { data } = await context.supabase.from("styling_notes").select("*").eq("status", "pending").order("created_at", { ascending: true });
@@ -88,7 +89,7 @@ export const saveStylingNote = createServerFn({ method: "POST" })
     const profileResult = await context.supabase.from("profiles").update({ display_name: data.displayName, updated_at: new Date().toISOString() }).eq("id", context.userId);
     if (profileResult.error) throw new Error("Your display name could not be saved.");
     const result = data.id
-      ? await context.supabase.from("styling_notes").update(values).eq("id", data.id).eq("owner_id", context.userId).select("id").single()
+      ? await context.supabase.from("styling_notes").update(values).eq("id", data.id).eq("owner_id", context.userId).eq("kind", "look").select("id").single()
       : await context.supabase.from("styling_notes").insert(values).select("id").single();
     if (result.error) throw new Error("Your Styling Note could not be submitted.");
     return { id: result.data.id };
@@ -113,12 +114,22 @@ export const reviewStylingNote = createServerFn({ method: "POST" })
     const { data: allowed } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "moderator" });
     const { data: admin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
     if (!allowed && !admin) throw new Error("Moderator access is required.");
-    const { error } = await context.supabase.from("styling_notes").update({
-      status: data.decision,
-      rejection_reason: data.decision === "rejected" ? data.reason ?? "Not approved." : null,
-      reviewed_by: context.userId,
-      reviewed_at: new Date().toISOString(),
-    }).eq("id", data.id).eq("status", "pending");
+    const { error } = await context.supabase.from("styling_notes")
+      .update(reviewChange(data.decision, data.reason, context.userId, new Date())).eq("id", data.id).eq("status", "pending");
     if (error) throw new Error("This review could not be saved.");
     return { ok: true };
+  });
+/** A Runway Style Opinion: saved as a pending Styling Note owned by the signed-in visitor, under the show the page
+ *  names. The author's public name is their profile's; editing one sends it back to review. */
+export const saveRunwayOpinion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => runwayOpinionInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: profile } = await context.supabase.from("profiles").select("display_name").eq("id", context.userId).maybeSingle();
+    const values = runwayOpinionRow(data, context.userId, profile?.display_name ?? "");
+    const result = data.id
+      ? await context.supabase.from("styling_notes").update(values).eq("id", data.id).eq("owner_id", context.userId).eq("kind", "runway_opinion").select("id").single()
+      : await context.supabase.from("styling_notes").insert(values).select("id").single();
+    if (result.error) throw new Error("Your Runway Style Opinion could not be submitted.");
+    return { id: result.data.id };
   });

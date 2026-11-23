@@ -6,6 +6,7 @@ import { findWish, spotifyEmbed, type MixSong } from "@/lib/listening-room";
 import { spotifyTrackId, useAlbumArt } from "@/lib/album-art";
 import { addWish, removeWish, useWishlist } from "@/lib/wishlist";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 /** The listening room's player bar. Playback is Spotify's own embedded player, loaded only once
  *  the reader presses play; before that nothing from Spotify loads on the page. */
 export function ListenPlayer({ song, listening, onListen, onPrev, onNext, wearingOpen, onWearingChange, sheet = false, autoOpen = true, shop }: {
@@ -61,7 +62,7 @@ export function ListenPlayer({ song, listening, onListen, onPrev, onNext, wearin
         <div className="ls-player-controls">
           <Button variant="listenIcon" size="round" aria-label="Previous song" onClick={onPrev}><SkipBack /></Button>
           {listening && embed
-            ? <iframe key={embed} className="ls-spotify" title={`${song.title} by ${song.artist} on Spotify`} src={embed} width="100%" height={80} allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" />
+            ? <SpotifyFrame key={embed} className="ls-spotify" title={`${song.title} by ${song.artist} on Spotify`} src={embed} width="100%" height={80} allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" />
             : <Button variant="listenPlay" size="round" aria-label={`Play ${song.title} by ${song.artist}`} onClick={onListen}><Play /></Button>}
           <Button variant="listenIcon" size="round" aria-label="Next song" onClick={onNext}><SkipForward /></Button>
         </div>

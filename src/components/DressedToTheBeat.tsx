@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { addWish, removeWish, useWishlist } from "@/lib/wishlist";
 import { celebrityCover as cover, celebrityLooks as looks, isLookSaved, lookChips, LOOK_FROM, photoCredits, trackLook, type CelebrityLook } from "@/lib/celebrity-looks";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 function Photo({ src, alt, eager }: { src: string; alt: string; eager?: boolean }) {
   const [failed, setFailed] = useState(!src);
   return <div className="dtb-photo">
@@ -43,7 +44,7 @@ function Look({ look, n, size }: { look: CelebrityLook; n: number; size: "lead" 
       {(look.song || look.spotifyTrackId) && <>
         <p className="dtb-mono dtb-sub">The sound</p>
         {look.song && <p className="dtb-body">{look.song}{look.artist && ` — ${look.artist}`}</p>}
-        {look.spotifyTrackId && <iframe data-look={look.id} title={`Spotify preview: ${look.song} by ${look.artist}`} src={`https://open.spotify.com/embed/track/${look.spotifyTrackId}?utm_source=generator&theme=0`} width="100%" height="152" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="dtb-embed" />}
+        {look.spotifyTrackId && <SpotifyFrame data-look={look.id} title={`Spotify preview: ${look.song} by ${look.artist}`} src={`https://open.spotify.com/embed/track/${look.spotifyTrackId}?utm_source=generator&theme=0`} width="100%" height="152" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="dtb-embed" />}
       </>}
       {look.whyItFits && <p className="dtb-why">{look.whyItFits}</p>}
       {chips.length > 0 && <ul className="dtb-chips">{chips.map(c => <li key={c}>{c}</li>)}</ul>}

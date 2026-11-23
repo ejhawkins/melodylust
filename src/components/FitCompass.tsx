@@ -8,6 +8,7 @@ import { STYLE_GENRES, type StyleGenre } from "@/lib/style-profile";
 import { AXES, FIT_ITEMS, fitWishName, newVoterId, quadrantPoles, voteShares, type FitLook, type Quadrant } from "@/lib/fit-compass";
 import { castStyleVote, getStyleVotes } from "@/lib/style-votes.functions";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 const ORDER: Quadrant[] = ["tl", "tr", "bl", "br"];
 const VOTER_KEY = "fit-compass-voter";
 let visitVoter = "";
@@ -121,7 +122,7 @@ export function FitCompass({ compact = false }: { compact?: boolean }) {
               {votes.mine === active.id ? <Check /> : <Trophy />}{votes.mine === active.id ? "Your way to wear it" : "My way to wear it"}</Button>
           </div>
           <p className="fc-song">♪ {active.song.title} — {active.song.artist}</p>
-          {playing === active.id && <iframe title={`${active.song.title} on Spotify`} src={`https://open.spotify.com/embed/track/${active.song.spotify}?utm_source=generator&theme=0&autoplay=1`} width="100%" height="80" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="fc-player" />}
+          {playing === active.id && <SpotifyFrame title={`${active.song.title} on Spotify`} src={`https://open.spotify.com/embed/track/${active.song.spotify}?utm_source=generator&theme=0&autoplay=1`} width="100%" height="80" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="fc-player" />}
           {total > 0 && <p className="fc-votes">{shares[active.id]}% of {total} {total === 1 ? "vote" : "votes"} pick this way</p>}
         </article>
       </div>

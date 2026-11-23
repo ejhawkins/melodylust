@@ -7,6 +7,7 @@ import { spotifyEmbed } from "@/lib/listening-room";
 import { SECTION_TAGS, SECTION_TITLES, type NoteSection, type NoteTrack, type RunwayNote } from "@/lib/runway-notes";
 import type { RunwaySong } from "@/lib/runway-songs";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 type Props = { note: RunwayNote; songs: readonly RunwaySong[]; playing: number | null; onPlay: (index: number) => void; onBack: () => void };
 
 /** A Runway Note opened from its card into the feed: Report, then Music Notes, then Style Notes, each only when it has
@@ -96,7 +97,7 @@ function Music({ note, songs, playing, onPlay }: { note: RunwayNote; songs: read
         {only.title && <p className="ls-rn-track-by">{only.artist}</p>}
         {only.why && <p>{only.why}</p>}
         {embed
-          ? <iframe className="ls-rn-embed" src={embed} title={`${trackName(only)}${only.title ? ` by ${only.artist}` : ""} on Spotify`} loading="lazy" height={152} allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture" />
+          ? <SpotifyFrame className="ls-rn-embed" src={embed} title={`${trackName(only)}${only.title ? ` by ${only.artist}` : ""} on Spotify`} loading="lazy" height={152} allow="clipboard-write; encrypted-media; fullscreen; picture-in-picture" />
           : <p className="ls-rn-aside">Not on Spotify.</p>}
       </div>
     </>;

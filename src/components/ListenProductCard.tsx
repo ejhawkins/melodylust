@@ -126,7 +126,7 @@ export function ListenProductCard({ active, products = sessionProducts, songKey 
 
   if (!open) {
     return (
-      <Button variant="productBag" size="roundMd" className="ls-product-bag" aria-label="Show featured product" title="Show featured product" onClick={show}>
+      <Button variant="listenHeart" size="round" className="ls-product-bag" aria-label="Show featured product" title="Show featured product" onClick={show}>
         <ShoppingBag aria-hidden="true" />
       </Button>
     );

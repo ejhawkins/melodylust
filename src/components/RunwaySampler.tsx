@@ -11,6 +11,7 @@ import {
 } from '@/lib/runway-sampler';
 import { useSamplerEdits } from '@/lib/runway-sampler-store';
 
+import { SpotifyFrame } from '@/components/SpotifyFrame';
 type Update = (change: (current: SamplerEdits) => SamplerEdits) => void;
 
 const eyebrow = 'text-[10px] font-semibold uppercase tracking-[0.2em]';
@@ -53,7 +54,7 @@ export function RunwaySampler() {
           <h2 id="listen" className={eyebrow}>Listen</h2>
           <a href={SAMPLER_PLAYLIST.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1 text-sm hover:text-stylus-accent">Open in Spotify <ArrowUpRight className="size-4" aria-hidden="true" /></a>
         </div>
-        <iframe title={`Spotify playlist: ${SAMPLER_PLAYLIST.title}`} src={SAMPLER_PLAYLIST.embedUrl} className="mt-3 h-[352px] w-full border-0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" />
+        <SpotifyFrame title={`Spotify playlist: ${SAMPLER_PLAYLIST.title}`} src={SAMPLER_PLAYLIST.embedUrl} className="mt-3 h-[352px] w-full border-0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" />
         <p className="mt-2 text-xs text-stylus-paper/60">The Spotify playlist is the sourced running order. Your edits below are saved on this device only and don’t change it.</p>
       </section>
 

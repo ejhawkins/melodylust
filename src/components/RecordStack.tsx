@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Play } from "lucide-react";
 import { LikeButton } from "@/components/LikeButton";
+import { useSilentMode } from "@/lib/silent-mode";
 
 type Video = { id: string; artist: string; title: string; credit: string; url: string; cover: string; creditLink?: { label: string; href: string }; stylist?: { name: string; role: string; href?: string }; tags: string[]; theme: string };
 
@@ -20,6 +21,7 @@ export { videos as moodVideos, type Video as MoodVideo };
 export function RecordStack({ likes = false }: { likes?: boolean }) {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState<number | null>(null);
+  const silent = useSilentMode();
   const v = videos[active] ?? videos[0]!;
   const root = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
@@ -77,7 +79,7 @@ export function RecordStack({ likes = false }: { likes?: boolean }) {
           {playing === active ? (
             <iframe
               key={v.id}
-              src={`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`}
+              src={`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0${silent ? "&mute=1" : ""}`}
               title={`${v.artist} — ${v.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { getSpotifyTrack } from "@/lib/spotify-track.functions";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 export const Route = createFileRoute("/song/$id")({
   loader: async ({ params }) => {
     if (!/^[A-Za-z0-9]{22}$/.test(params.id)) throw notFound();
@@ -34,7 +35,7 @@ function SongPage() {
         <p className="ls-studio-sub">Now playing, shared from the Studio</p>
         {t.art && <img src={t.art} alt={`${t.title} cover`} className="aspect-square w-full rounded-3xl object-cover shadow-2xl" />}
         <div><h1 className="ls-studio-title break-words">{t.title}</h1><p className="mt-1 text-lg text-muted-foreground">{t.artist}</p></div>
-        <iframe title={`${t.title} on Spotify`} src={`https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`} width="100%" height="152" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="block rounded-xl border-0" />
+        <SpotifyFrame title={`${t.title} on Spotify`} src={`https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`} width="100%" height="152" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="block rounded-xl border-0" />
         <div className="flex flex-wrap gap-2">
           <a href={t.url} target="_blank" rel="noopener noreferrer" className="rounded-full bg-primary px-5 py-2 font-isidora text-sm text-primary-foreground">Open in Spotify</a>
           <Link to="/" className="rounded-full bg-secondary px-5 py-2 font-isidora text-sm text-secondary-foreground">Explore the Listening Room</Link>

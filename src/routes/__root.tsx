@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AppShell } from "@/components/AppShell";
 import { VercelAnalytics } from "@/components/VercelAnalytics";
+import { InAppAdvisory } from "@/components/InAppAdvisory";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { stylesheetRetryScript } from "@/lib/stylesheet-retry";
@@ -141,6 +142,7 @@ function RootComponent() {
       <Outlet />
       <VercelAnalytics />
       <AppShell />
+      <InAppAdvisory />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

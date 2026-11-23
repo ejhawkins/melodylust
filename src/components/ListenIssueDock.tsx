@@ -17,7 +17,7 @@ export function ListenIssueDock({ variant, docked = false, current, onPick }: { 
   return (
     <nav className={`ls-issue-tabs ls-issue-${variant}`} data-docked={docked} aria-label={variant === "hero" ? "Sections" : "Sections, pinned"} aria-hidden={variant === "dock" && !docked} inert={variant === "dock" && !docked ? true : undefined}>
       {TABS.map(t => (
-        <Button key={t.id} variant="ghost" size="sm" className="ls-issue-tab" aria-pressed={current === t.id} onClick={() => onPick(t.id)}>{t.label}</Button>
+        <Button key={t.id} variant="ghost" size="sm" className="ls-issue-tab" data-tab={t.id} aria-pressed={current === t.id} onClick={() => onPick(t.id)}>{t.label}</Button>
       ))}
     </nav>
   );

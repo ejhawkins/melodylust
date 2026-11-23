@@ -11,6 +11,7 @@ import { CATEGORY_LABELS, clock, hiddenTracks, nextIndex, previousIndex, RESTART
 import { useSavedSongs } from '@/lib/runway-songs-store';
 import { showKey, type ShowNotes } from '@/lib/show-notes';
 import { useSpotifyEmbed } from '@/lib/spotify-embed';
+import { useSilentMode } from '@/lib/silent-mode';
 import { cn } from '@/lib/utils';
 
 const eyebrow = 'text-[11px] font-medium tracking-[0.2em] text-stylus-paper/70 xl:text-xs';
@@ -41,7 +42,8 @@ export function RunwaySongs({ archive = noArchive, showNotes = noNotes }: { arch
   const [saved, toggleSaved] = useSavedSongs();
   const current = Math.min(index, Math.max(songs.length - 1, 0));
   const song = songs[current] ?? null;
-  const embed = useSpotifyEmbed(song?.spotifyUri ?? null, () => {
+  const silent = useSilentMode();
+  const embed = useSpotifyEmbed(silent ? null : song?.spotifyUri ?? null, () => {
     if (repeat) embed.restart(true);
     else setIndex(nextIndex(current, songs.length, shuffle));
   });
@@ -52,6 +54,7 @@ export function RunwaySongs({ archive = noArchive, showNotes = noNotes }: { arch
   const longHouse = song ? textWidthEm(song.house) * 50 > 252 : false;
 
   const togglePlay = () => {
+    if (silent && song) { window.open(song.spotifyUrl, '_blank', 'noopener,noreferrer'); return; }
     if (!embed.toggle() && failed && song) window.open(song.spotifyUrl, '_blank', 'noopener,noreferrer');
   };
   const previous = () => {
@@ -143,7 +146,7 @@ export function RunwaySongs({ archive = noArchive, showNotes = noNotes }: { arch
           {shuffle && <span aria-hidden="true" className="absolute bottom-0.5 left-5 size-1 rounded-full bg-stylus-paper" />}
         </Button>
         <Button variant="player" className={icon} aria-label="Previous" onClick={previous}><SkipBack strokeWidth={1.4} aria-hidden="true" /></Button>
-        <Button variant="playerPlay" className="size-[76px] p-0 [&_svg]:size-[26px] xl:size-[92px] xl:[&_svg]:size-[30px]" aria-label={paused ? 'Play' : 'Pause'} onClick={togglePlay}>
+        <Button variant="playerPlay" className="size-[76px] p-0 [&_svg]:size-[26px] xl:size-[92px] xl:[&_svg]:size-[30px]" aria-label={silent ? 'Open in Spotify' : paused ? 'Play' : 'Pause'} onClick={togglePlay}>
           {paused ? <Play strokeWidth={1.3} className="ml-[3px] xl:ml-1" aria-hidden="true" /> : <Pause strokeWidth={1.3} aria-hidden="true" />}
         </Button>
         <Button variant="player" className={icon} aria-label="Next" onClick={() => setIndex(nextIndex(current, songs.length, shuffle))}><SkipForward strokeWidth={1.4} aria-hidden="true" /></Button>

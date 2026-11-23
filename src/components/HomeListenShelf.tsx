@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { spotifyEmbed } from "@/lib/listening-room";
 import { runwayRoomLink, runwayShelf } from "@/lib/runway-shelf";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 /** The home page's listen shelf. A play button on the left edge pulls up a shelf of runway songs, Thom Browne's featured
  *  first, each on a card naming the house and show, in Spotify's own player (loaded only once the reader presses play,
  *  as in the Listening Room). Its link carries the same song and running order into the Listening Room. */
@@ -53,7 +54,7 @@ export function HomeListenShelf() {
         <div className="home-shelf-controls">
           <Button variant="listenIcon" size="round" aria-label="Previous song" onClick={() => step(-1)}><SkipBack /></Button>
           {listening && embed
-            ? <iframe key={embed} className="home-shelf-spotify" title={`${song.title} by ${song.artist} on Spotify`} src={embed} width="100%" height={80} allow="autoplay; clipboard-write; encrypted-media" loading="lazy" />
+            ? <SpotifyFrame key={embed} className="home-shelf-spotify" title={`${song.title} by ${song.artist} on Spotify`} src={embed} width="100%" height={80} allow="autoplay; clipboard-write; encrypted-media" loading="lazy" />
             : <Button variant="listenPlay" size="round" aria-label={`Play ${song.title} by ${song.artist}`} onClick={() => setListening(true)}><Play /></Button>}
           <Button variant="listenIcon" size="round" aria-label="Next song" onClick={() => step(1)}><SkipForward /></Button>
         </div>

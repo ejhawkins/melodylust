@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState, type ImgHTMLAttributes, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bookmark, Disc3, GitFork, Heart, Sunrise, PanelLeftClose, PanelLeftOpen, Plus, Shirt, SlidersHorizontal } from "lucide-react";
+import { Bookmark, Disc3, GitFork, Heart, ListMusic, Sunrise, PanelLeftClose, PanelLeftOpen, Plus, Shirt, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GenreMark } from "@/components/GenreMark";
 import { ListenContents } from "@/components/ListenContents";
@@ -11,6 +11,7 @@ import type { MixSong } from "@/lib/listening-room";
 import { blendName, mixGenres, type GenreWeights } from "@/lib/genre-shapes";
 import { useLikes } from "@/lib/likes";
 import { NAME_MAX, createPlaylist, usePlaylists } from "@/lib/playlists";
+import { useStudio } from "@/lib/studio";
 import { useWishlist } from "@/lib/wishlist";
 
 const KINDS = ["Playlists", "Moodboards", "Looks", "Videos", "Stories", "Capsule"] as const;
@@ -67,15 +68,21 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
   const saved = useWishlist();
   const likes = useLikes();
   const playlists = usePlaylists();
+  const studio = useStudio();
   const blend = useMemo(() => mixGenres(mix), [mix]);
   // Each playlist's own shape, from the genres of the songs in it.
   const blends = useMemo(() => new Map(playlists.map(p => [p.id, mixGenres(p.songs.flatMap(c => mix.filter(s => s.caption === c)))])), [playlists, mix]);
   const navigate = useNavigate();
   const latest = [...saved].reverse().find(item => item.image)?.image;
+  // A playlist, runway or fashion like has no page of its own, so its row goes to the feed's Your favourites shelf.
+  const toFavourites = () => document.getElementById("ls-favs")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const toStudio = () => document.querySelector(".ls-studio")?.scrollIntoView({ behavior: "smooth", block: "start" });
   const rows: Row[] = [
     { id: "mix", kind: "Playlists", title: "The Autumn Mix", meta: `Playlist · ${songCount(mix.length)}`, blend, act: onPlayMix },
     { id: "runway-songs", kind: "Playlists", title: "Runway Songs", meta: "Playlist · Fashion-show soundtracks", icon: <Disc3 />, act: () => void navigate({ to: "/runway-songs" }) },
     ...playlists.map((p): Row => ({ id: `playlist-${p.id}`, kind: "Playlists", title: p.name, meta: `Your playlist · ${songCount(p.songs.length)}`, blend: blends.get(p.id) ?? {}, own: true, act: () => onPlaylist(p.id) })),
+    // Playlists made in the Studio, so a song added there shows up here too.
+    ...studio.playlists.map((p): Row => ({ id: `studio-${p.id}`, kind: "Playlists", title: p.name, meta: `Studio playlist · ${songCount(p.trackIds.length)}`, icon: <ListMusic />, own: true, act: toStudio })),
     { id: "want", kind: "Looks", title: "Want List", meta: `Saved pieces and songs · ${saved.length}`, ...(latest ? { art: latest } : {}), act: onWant },
     { id: "profile", kind: "Looks", title: "Style profile", meta: "Curator dossier · Style DNA", icon: <SlidersHorizontal />, act: onProfile },
     { id: "day", kind: "Looks", title: "Build a day", meta: "Playlist · From your taste profile", icon: <Sunrise />, act: onDay },
@@ -85,9 +92,6 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
     { id: "capsule", kind: "Capsule", title: "The Capsule map", meta: "Sound · Style · Play next", icon: <GitFork />, act: onCapsule },
     ...[...saved].reverse().filter(item => item.kind === "piece").map((item): Row => ({ id: `piece-${item.id}`, kind: "Capsule", title: item.name, meta: item.detail ? `Piece · ${item.detail}` : "Piece", ...(item.image ? { art: item.image } : {}), icon: <Shirt />, own: true, act: onCapsule })),
   ];
-  // Folded, the library is the reader's favourites. A playlist, runway or fashion like has no page in the library, so its
-  // thumbnail goes to the feed's Your favourites shelf, where it sits.
-  const toFavourites = () => document.getElementById("ls-favs")?.scrollIntoView({ behavior: "smooth", block: "start" });
   const favourites = likes.flatMap((like): Row[] => {
     const row = likeRow(like);
     if (row.length || like.kind === "look" || like.kind === "video" || like.kind === "board" || like.kind === "story") return row;
@@ -108,10 +112,17 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
         const board = moodboards.find(b => b.id === like.key);
         return board ? [{ id: `board-${board.id}`, kind: "Moodboards", title: board.title, meta: `Moodboard · ${board.genres.join(", ")}`, ...(board.images[0] ? { art: board.images[0].src, focus: board.images[0].focus } : {}), ...(board.palette[0] ? { swatch: board.palette[0] } : {}), round: true, own: true, act: () => onBoard(board.id) }] : [];
       }
+      // Hearted playlists and runway songs sit with Playlists, hearted fashion with Looks; each opens Your favourites.
+      if (like.kind === "playlist" || like.kind === "runway" || like.kind === "fashion") {
+        const label = like.kind === "playlist" ? "Saved playlist" : like.kind === "runway" ? "Runway" : "Fashion";
+        return [{ id: `fav-${like.kind}-${like.key}`, kind: like.kind === "fashion" ? "Looks" : "Playlists", title: like.title ?? like.key, meta: like.sub ? `${label} · ${like.sub}` : label, ...(like.image ? { art: like.image } : {}), icon: <Heart />, own: true, act: toFavourites }];
+      }
       const story = stories.find(st => String(st.id) === like.key);
       return story ? [{ id: `story-${story.id}`, kind: "Stories", title: story.title, meta: `Story · ${story.category}`, art: story.image, own: true, act: () => onRead(story) }] : [];
   }
   // Every block in the filters' order (or just the one chosen), each under its own title, even before it holds anything.
+  // The contents spread above lists the mix, Runway Songs and the reader's playlists, so the Playlists block below it holds
+  // only what the spread doesn't: Studio playlists and hearted playlists and runway songs, and shows only when there are some.
   const groups = KINDS.filter(k => !kind || k === kind).map(k => ({ kind: k, rows: rows.filter(row => row.kind === k) }));
 
   const thumb = (row: Row) => row.blend
@@ -131,8 +142,8 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
         <div className="ls-lib-head">
           <div className="ls-lib-title">
             <Button variant="listenIcon" size="round" aria-label="Collapse your library" title="Collapse your library" onClick={() => onOpenChange(false)}><PanelLeftClose /></Button>
-            <h2>The Issue</h2>
-            {/* Phones: the Style profile sits beside The Issue, set like the Want List (the top bar's copy is hidden there). */}
+            <h2>Runway Report</h2>
+            {/* Phones: the Style profile sits beside Runway Report, set like the Want List (the top bar's copy is hidden there). */}
             <Button variant="listenSolid" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-expanded={active === "profile"} onClick={onProfile}><span>Style profile</span></Button>
           </div>
           <div className="ls-filters" role="group" aria-label="Filter your library">
@@ -143,7 +154,7 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
         {!contentsShown && (!kind || kind === "Playlists") && <ListenContents mix={mix} playlists={playlists} nowPlaying={nowPlaying} onPlayMix={onPlaySong} onPlayList={onPlayListSong}
           onRunway={() => void navigate({ to: "/runway-songs" })} onPlaylist={onPlaylist} footer={<NewPlaylist onCreated={onPlaylist} />} runwayCard={runwayCard} />}
         <ul>
-          {groups.filter(group => group.kind !== "Playlists").map(group => (
+          {groups.map(group => (group.kind === "Playlists" ? { ...group, rows: group.rows.filter(row => row.id.startsWith("studio-") || row.id.startsWith("fav-")) } : group)).filter(group => group.kind !== "Playlists" || group.rows.length > 0).map(group => (
             <li key={group.kind} className="ls-lib-group">
               <h3 className="ls-lib-kind">{group.kind}</h3>
               {group.rows.length > 0 && <ul>{group.rows.map(row => item(row, false))}</ul>}
@@ -155,7 +166,7 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
       </> : <>
         <div className="ls-rail-head">
           <Button variant="listenIcon" size="round" aria-label="Expand your library" title="Expand your library" onClick={() => onOpenChange(true)}><PanelLeftOpen /></Button>
-          <button type="button" className="ls-rail-label" tabIndex={-1} aria-hidden="true" onClick={() => onOpenChange(true)}>The Issue</button>
+          <button type="button" className="ls-rail-label" tabIndex={-1} aria-hidden="true" onClick={() => onOpenChange(true)}>Runway Report</button>
           <Button variant="listenSolid" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-expanded={active === "profile"} onClick={onProfile}><span>Style profile</span></Button>
         </div>
         {favourites.length > 0

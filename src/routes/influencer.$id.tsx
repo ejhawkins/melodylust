@@ -4,6 +4,7 @@ import { getInfluencerBoards, getStylistProfile } from "@/lib/style-board.functi
 import { spotifyTrackId } from "@/lib/style-board";
 import { FollowButton } from "@/components/FollowButton";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 export const Route = createFileRoute("/influencer/$id")({
   loader: async ({ params }) => {
     const [page, profile] = await Promise.all([getInfluencerBoards({ data: { id: params.id } }), getStylistProfile({ data: { id: params.id } })]);
@@ -72,7 +73,7 @@ function InfluencerPage() {
         </li>)}</ul></section>}
       {music.length > 0 && <section aria-labelledby="inf-music"><h2 id="inf-music" className="ls-board-h2">The music</h2>
         <ul className="ls-inf-music">{music.map((i, n) => { const t = spotifyTrackId(i.link); return <li key={n}>
-          {t ? <iframe title={`${i.name} on Spotify`} src={`https://open.spotify.com/embed/track/${t}`} width="100%" height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" />
+          {t ? <SpotifyFrame title={`${i.name} on Spotify`} src={`https://open.spotify.com/embed/track/${t}`} width="100%" height="80" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" />
             : <p><span className="ls-board-item-name">{i.name}</span>{i.detail ? ` — ${i.detail}` : ""} {i.link && <a href={i.link} target="_blank" rel="noopener noreferrer nofollow">Listen</a>}</p>}
         </li>; })}</ul></section>}
       {reads.length > 0 && <section aria-labelledby="inf-reads"><h2 id="inf-reads" className="ls-board-h2">Good reads</h2>

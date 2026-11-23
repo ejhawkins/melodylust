@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { availableGoogleFlow, signInWithGoogle, type GoogleFlow } from "@/lib/google-sign-in";
 import { authMessage } from "@/lib/auth-messages";
 import { addWish } from "@/lib/wishlist";
+import { topicLabel } from "@/lib/runway-opinion";
 import {
   deleteStylingNote, getStylingNotesWorkspace, listApprovedStylingNotes,
   reviewStylingNote, saveStylingNote, type StylingNoteView,
@@ -119,7 +120,7 @@ export function StylingNotes({ context }: { context?: { title: string; tags: str
       : notes.length ? <div className="styling-notes-grid">{notes.map((note, index) => <NoteCard key={note.id} note={note} index={index} saveable />)}</div>
       : <div className="styling-empty"><span>Issue 001</span><h3>The first page is yours.</h3><p>No Styling Notes have been approved yet.</p><Button variant="outline" onClick={() => openComposer()}><Plus />Submit the first look</Button></div>}
 
-    {session && workspace && <section className="styling-workspace" aria-labelledby="my-styling-notes"><div className="styling-section-label"><h3 id="my-styling-notes">My submissions</h3><span>{workspace.own.length}</span></div>{workspace.own.length ? <div className="styling-submission-list">{workspace.own.map(note => <article key={note.id}><span className="styling-state" data-status={note.status}>{note.status}</span><div><h4>{note.title}</h4>{note.rejection_reason && <p>{note.rejection_reason}</p>}</div><Button size="icon" variant="ghost" aria-label={`Edit ${note.title}`} onClick={() => openComposer(note)}><PenLine /></Button><Button size="icon" variant="ghost" aria-label={`Delete ${note.title}`} onClick={async () => { if (!window.confirm("Delete this Styling Note?")) return; await removeNote({ data: { id: note.id } }); await refreshWorkspace(); }}><Trash2 /></Button></article>)}</div> : <p className="styling-workspace-empty">Nothing submitted yet.</p>}</section>}
+    {session && workspace && <section className="styling-workspace" aria-labelledby="my-styling-notes"><div className="styling-section-label"><h3 id="my-styling-notes">My submissions</h3><span>{workspace.own.length}</span></div>{workspace.own.length ? <div className="styling-submission-list">{workspace.own.map(note => <article key={note.id}><span className="styling-state" data-status={note.status}>{note.status}</span><div><h4>{note.title}</h4>{note.rejection_reason && <p>{note.rejection_reason}</p>}</div>{note.kind === "look" && <Button size="icon" variant="ghost" aria-label={`Edit ${note.title}`} onClick={() => openComposer(note)}><PenLine /></Button>}<Button size="icon" variant="ghost" aria-label={`Delete ${note.title}`} onClick={async () => { if (!window.confirm("Delete this Styling Note?")) return; await removeNote({ data: { id: note.id } }); await refreshWorkspace(); }}><Trash2 /></Button></article>)}</div> : <p className="styling-workspace-empty">Nothing submitted yet.</p>}</section>}
 
     {workspace?.canModerate && <section className="styling-workspace" aria-labelledby="review-queue"><div className="styling-section-label"><h3 id="review-queue">Review queue</h3><span>{workspace.queue.length}</span></div>{workspace.queue.map(note => <article className="styling-review-row" key={note.id}><NoteCard note={note} index={0} /><div><Button onClick={async () => { await reviewNote({ data: { id: note.id, decision: "approved" } }); await refreshWorkspace(); await refreshPublic(); }}><Check />Approve</Button><Button variant="outline" onClick={async () => { const reason = window.prompt("Reason for the author?"); if (!reason) return; await reviewNote({ data: { id: note.id, decision: "rejected", reason } }); await refreshWorkspace(); }}><X />Reject</Button></div></article>)}</section>}
 
@@ -148,6 +149,12 @@ function saveNoteToWantList(note: StylingNoteView) {
 }
 
 function NoteCard({ note, index, saveable = false }: { note: StylingNoteView; index: number; saveable?: boolean }) {
+  // A Runway Style Opinion (in the review queue) has no photos or song: it names its show and carries optional notes.
+  if (note.kind === "runway_opinion") return <article className="styling-note styling-note--opinion">
+    <div className="styling-note-folio"><span>By {note.author_display_name}</span><span>Runway Style Opinion · {topicLabel(note.topic)}</span></div>
+    <h3>{note.title}</h3><p>{note.styling_idea}</p>
+    {note.extra_notes && <p className="styling-note-extra">{note.extra_notes}</p>}
+  </article>;
   return <article className="styling-note" style={{ "--note-delay": `${Math.min(index, 8) * 70}ms` } as React.CSSProperties}>
     <div className="styling-note-images" data-count={note.photo_urls.length}>{note.photo_urls.map((url, imageIndex) => url && <img key={url} src={url} alt={note.photo_alts[imageIndex] ?? note.title} loading="lazy" />)}</div>
     <div className="styling-note-folio"><span>By {note.author_display_name}</span><span>{new Date(note.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span></div>

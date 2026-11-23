@@ -12,6 +12,11 @@ import { NOTE_STATUS, dossierRole, dossierStats, editFromHash, memberSince, shar
 import { updateDisplayName } from "@/lib/profile.functions";
 import { getStylingNotesWorkspace } from "@/lib/styling-notes.functions";
 import { useStyleProfile } from "@/lib/use-style-profile";
+import { moodboards } from "@/components/StyleMatrix";
+import { iconicSongs } from "@/data/home";
+import { useLikes } from "@/lib/likes";
+import { toMix } from "@/lib/listening-room";
+import { tasteSignals, type TasteSignal, type TasteSignals } from "@/lib/taste-signals";
 import { addWish, clearWishlist, exportWishlist, removeWish, useWishlist, type WishItem } from "@/lib/wishlist";
 
 export const DOSSIER_TABS = [
@@ -34,7 +39,10 @@ type Workspace = Awaited<ReturnType<typeof getStylingNotesWorkspace>>;
  */
 export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void; embedded?: boolean }) {
   const wishes = useWishlist();
+  const likes = useLikes();
   const { profile, save, clear } = useStyleProfile();
+  // What the reader's hearts and Want List songs say, shown beside the quiz's answers.
+  const signals = tasteSignals({ likes, wishes, songs: SONGS, boards: moodboards });
   const [session, setSession] = useState<Session | null>(null);
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [notesState, setNotesState] = useState<"idle" | "loading" | "error">("idle");
@@ -99,7 +107,7 @@ export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: Do
       {tab === "edits" && <EditsPanel wishes={wishes} />}
       {tab === "library" && <MusicLibraryPanel />}
       {tab === "playlist" && <AiPlaylistPanel genres={styleDna(profile).genres} />}
-      {tab === "dna" && <DnaPanel dna={styleDna(profile)} onRecalibrate={() => setQuizOpen(true)} />}
+      {tab === "dna" && <DnaPanel dna={styleDna(profile)} signals={signals} onRecalibrate={() => setQuizOpen(true)} />}
       {tab === "notes" && <NotesPanel signedIn={!!session} state={notesState} notes={workspace?.own ?? []} onSignIn={() => setAuthOpen(true)} onRetry={loadWorkspace} />}
       {tab === "account" && <AccountPanel session={session} displayName={workspace?.displayName ?? ""} canRename={!!workspace} onRename={rename}
         wishCount={wishes.length} onClearWishes={clearWishlist} onClearDna={clear} onSignIn={() => setAuthOpen(true)} onSignOut={() => void supabase.auth.signOut()} />}
@@ -214,10 +222,26 @@ function EditsPanel({ wishes }: { wishes: WishItem[] }) {
   </div>;
 }
 
-function DnaPanel({ dna, onRecalibrate }: { dna: ReturnType<typeof styleDna>; onRecalibrate: () => void }) {
+const SONGS = toMix(iconicSongs);
+
+/** The genres the reader's saves point to, with how many saves each came from. */
+function SavesRows({ signals }: { signals: TasteSignals }) {
+  if (!signals.music.length && !signals.style.length) return null;
+  const row = (label: string, values: TasteSignal[]) => values.length > 0 && <div className="dossier-dna-row">
+    <h3>{label}</h3><ul>{values.map(v => <li key={v.label} className="dossier-chip">{v.label}<span className="dossier-chip-count"> · {v.count}</span></li>)}</ul>
+  </div>;
+  return <div className="dossier-dna-saves">
+    <p className="dossier-dna-note">From what you've hearted and saved ({signals.saves} {signals.saves === 1 ? "save" : "saves"})</p>
+    {row("Music you save", signals.music)}
+    {row("Styles you save", signals.style)}
+  </div>;
+}
+
+function DnaPanel({ dna, signals, onRecalibrate }: { dna: ReturnType<typeof styleDna>; signals: TasteSignals; onRecalibrate: () => void }) {
   if (dna.empty) return <div className="dossier-empty">
     <h2>No Style DNA yet.</h2>
     <p>Take the style quiz and Stylist AI will read your genres, palette and fits into every search.</p>
+    <SavesRows signals={signals} />
     <Button variant="dossierSolid" onClick={onRecalibrate}>Take the style quiz</Button>
   </div>;
   const row = (label: string, values: string[]) => values.length > 0 && <div className="dossier-dna-row">
@@ -228,6 +252,7 @@ function DnaPanel({ dna, onRecalibrate }: { dna: ReturnType<typeof styleDna>; on
     {dna.palette.length > 0 && <div className="dossier-dna-row"><h3>Palette</h3><ul>{dna.palette.map(c => <li key={c.name} className="dossier-swatch"><span style={{ background: c.hex }} aria-hidden />{c.name}</li>)}</ul></div>}
     {row("Preferred fits", dna.fits)}
     {dna.more.map(m => row(m.label, m.values))}
+    <SavesRows signals={signals} />
     <Button variant="dossierSolid" onClick={onRecalibrate}>Recalibrate Style DNA</Button>
   </div>;
 }

@@ -18,6 +18,8 @@ import { UNPLAYABLE } from "@/lib/capsule-tree";
 import { FIT_ITEMS, fitWishName } from "@/lib/fit-compass";
 import { stories } from "@/data/home";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
+import { PlaylistCover } from "@/components/PlaylistCover";
 type Tab = "library" | "explore" | "import";
 const pill = "rounded-full px-4 py-1.5 text-sm transition-colors";
 
@@ -108,13 +110,11 @@ export function ListenStudio({ onPlay, nowPlaying }: { onPlay?: (queue: MixSong[
       {tab === "library" && !list && (
         <ul className="grid grid-cols-2 gap-3 pb-4 sm:grid-cols-4">
           {studio.playlists.map(p => {
-            // Up to four of its songs' album covers: their own, or fetched from Spotify for songs that came in without one.
-            const covers = p.trackIds.flatMap(i => byId.get(i) ?? []).filter(t => t.art || t.spotify).slice(0, 4);
+            // Its own sleeve: the name in Bodoni Moda, with the first song that has album art faded in behind.
+            const first = p.trackIds.flatMap(i => byId.get(i) ?? []).find(t => t.art || t.spotify);
             return <li key={p.id}>
               <button type="button" onClick={() => setOpenList(p.id)} className="group w-full text-left">
-                <div className="grid aspect-square grid-cols-2 overflow-hidden rounded-2xl bg-secondary transition-transform group-hover:-translate-y-0.5">
-                  {covers.length ? covers.map(t => <span key={t.id} className={`block size-full bg-secondary ${covers.length === 1 ? "col-span-2 row-span-2" : ""}`}><TrackArt t={t} /></span>) : <ListMusic className="col-span-2 m-auto size-8 text-muted-foreground" />}
-                </div>
+                <div className="transition-transform group-hover:-translate-y-0.5"><PlaylistCover name={p.name} count={p.trackIds.length} art={first?.art} spotify={first?.spotify} /></div>
                 <p className="mt-2 truncate font-medium">{p.name}</p>
                 <p className="text-xs text-muted-foreground">{p.trackIds.length} {p.trackIds.length === 1 ? "song" : "songs"}</p>
               </button>
@@ -158,7 +158,7 @@ export function ListenStudio({ onPlay, nowPlaying }: { onPlay?: (queue: MixSong[
             <span className="flex items-center gap-2 text-primary"><Eq on />Now previewing · {playing.title}</span>
             <button type="button" aria-label="Close preview" onClick={() => setPlaying(null)}><X className="size-4" /></button>
           </div>
-          <iframe key={playing.spotify} title={`Spotify preview: ${playing.title}`} src={`https://open.spotify.com/embed/track/${playing.spotify}?utm_source=generator&theme=0`} width="100%" height="152" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="block border-0" />
+          <SpotifyFrame key={playing.spotify} title={`Spotify preview: ${playing.title}`} src={`https://open.spotify.com/embed/track/${playing.spotify}?utm_source=generator&theme=0`} width="100%" height="152" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="block border-0" />
         </div>
       )}
 
@@ -246,7 +246,7 @@ function Importer({ onDone }: { onDone: (playlistId: string) => void }) {
           <input value={link} onChange={e => setLink(e.target.value)} placeholder="https://open.spotify.com/playlist/…" aria-label="Spotify or YouTube link" className="min-w-0 flex-1 rounded-lg bg-secondary px-3 py-2 text-sm" />
           <Button size="sm" onClick={() => void readLink()}><Play className="size-4" />Play</Button>
         </div>
-        {embed && <iframe title="Imported link preview" src={embed} width="100%" height="352" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="rounded-xl border-0" />}
+        {embed && <SpotifyFrame title="Imported link preview" src={embed} width="100%" height="352" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" className="rounded-xl border-0" />}
         {found && <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border p-3">
           {found.art && <img src={found.art} alt="" className="size-11 rounded-lg object-cover" />}
           <div className="min-w-0 flex-1"><p className="truncate font-medium text-foreground">{found.title}</p><p className="truncate text-xs text-muted-foreground">{found.artist}</p></div>

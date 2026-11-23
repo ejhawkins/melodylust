@@ -40,10 +40,21 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
         <p className="ls-toc-dek">Every playlist, one spread.</p>
       </header>
       <ol className="ls-toc-list">
+        {/* The runway report leads the contents: Runway Songs and its latest card come first. */}
+        <li className="ls-toc-chapter">
+          <button type="button" className="ls-toc-head ls-toc-runway" onClick={onRunway}>
+            <span className="ls-toc-num" aria-hidden>01</span>
+            <span className="min-w-0 text-left">
+              <span className="ls-toc-dekline">Special report</span>
+              <span className="ls-toc-name"><span className="ls-toc-mix"><span className="ls-toc-mix-autumn">Runway</span> <span className="ls-toc-mix-mix">Songs</span></span></span>
+            </span>
+          </button>
+          {runwayCard && <div className="ls-toc-runway-card">{runwayCard}</div>}
+        </li>
         {chapters.map((ch, n) => (
           <li key={ch.id} className="ls-toc-chapter">
             <div className="ls-toc-head">
-              <span className="ls-toc-num" aria-hidden>{String(n + 1).padStart(2, "0")}</span>
+              <span className="ls-toc-num" aria-hidden>{String(n + 2).padStart(2, "0")}</span>
               <div className="min-w-0">
                 <p className="ls-toc-dekline">{ch.dek} · {ch.songs.length} {ch.songs.length === 1 ? "song" : "songs"}</p>
                 {ch.open ? <button type="button" className="ls-toc-name" onClick={ch.open}>{ch.title}</button> : <h3 className="ls-toc-name">{ch.id === "mix" ? <MixTitle /> : ch.title}</h3>}
@@ -72,17 +83,7 @@ export function ListenContents({ mix, playlists, nowPlaying, onPlayMix, onPlayLi
             </> : <p className="ls-toc-empty">Add songs from any look to fill this feature.</p>}
           </li>
         ))}
-        <li className="ls-toc-chapter">
-          <button type="button" className="ls-toc-head ls-toc-runway" onClick={onRunway}>
-            <span className="ls-toc-num" aria-hidden>{String(chapters.length + 1).padStart(2, "0")}</span>
-            <span className="min-w-0 text-left">
-              <span className="ls-toc-dekline">Special report</span>
-              <span className="ls-toc-name"><span className="ls-toc-mix"><span className="ls-toc-mix-autumn">Runway</span> <span className="ls-toc-mix-mix">Songs</span></span></span>
-            </span>
-          </button>
-          {runwayCard && <div className="ls-toc-runway-card">{runwayCard}</div>}
-        </li>
-        {onReading && <li className="ls-toc-chapter"><Button variant="listenTile" size="block" className="ls-toc-head ls-toc-runway" onClick={onReading}>
+        {onReading && <li className="ls-toc-chapter ls-toc-reading"><Button variant="listenTile" size="block" className="ls-toc-head ls-toc-runway" onClick={onReading}>
           <span className="ls-toc-num" aria-hidden>{String(chapters.length + 2).padStart(2, "0")}</span>
           <span className="min-w-0 text-left"><span className="ls-toc-dekline">The Zine · Sample issue 01</span><span className="ls-toc-name">Reading Room</span></span>
         </Button></li>}

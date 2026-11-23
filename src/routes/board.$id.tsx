@@ -5,6 +5,7 @@ import { BoardReadCard } from "@/components/BoardReadCard";
 import { boardMissingReason, spotifyTrackId, type BoardSection } from "@/lib/style-board";
 import { StylistBriefPanel } from "@/components/StylistBrief";
 
+import { SpotifyFrame } from "@/components/SpotifyFrame";
 export const Route = createFileRoute("/board/$id")({
   loader: async ({ params }) => {
     const board = await getStyleBoard({ data: { id: params.id } });
@@ -73,7 +74,7 @@ function BoardPage() {
         return items.length ? <section key={s.id} aria-labelledby={`b-${s.id}`}>
           <h2 id={`b-${s.id}`} className="ls-board-h2">{s.label}</h2>
           {/* Here Spotify widgets are identified and embedded with the music that the user enjoys */}
-          <ul className="ls-board-items">{items.map((i, n) => s.id === "music" && spotifyTrackId(i.link) ? <li key={n} className="ls-board-embed"><iframe title={`${i.name} on Spotify`} src={`https://open.spotify.com/embed/track/${spotifyTrackId(i.link)}`} width="100%" height="80" loading="lazy" style={{ border: 0, borderRadius: 12 }} allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" /></li> : s.id === "read" ? <li key={n} className="ls-board-read"><BoardReadCard item={i} preview={previews?.[i.link]} /></li> : <li key={n}>
+          <ul className="ls-board-items">{items.map((i, n) => s.id === "music" && spotifyTrackId(i.link) ? <li key={n} className="ls-board-embed"><SpotifyFrame title={`${i.name} on Spotify`} src={`https://open.spotify.com/embed/track/${spotifyTrackId(i.link)}`} width="100%" height="80" loading="lazy" style={{ border: 0, borderRadius: 12 }} allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" /></li> : s.id === "read" ? <li key={n} className="ls-board-read"><BoardReadCard item={i} preview={previews?.[i.link]} /></li> : <li key={n}>
             {i.image && <img src={i.image} alt={i.name} loading="lazy" width={96} height={96} />}
             {/* Item list that includes the product and/or the music link */}
             <div><p className="ls-board-item-name">{i.name}</p>{i.detail && <p className="ls-board-item-detail">{i.detail}</p>}
