@@ -4426,3 +4426,9 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
   .case-cell:nth-child(n) { padding-left: 0; padding-right: 0; border-left: 0; }
   .site-frame #the-case .case-cell--solution { margin: 0 -18px; padding: 28px 18px 32px; }
 }
+
+/* With the YOU KNOW headline hidden, phones size the room's cover from the photo instead: a tall frame (4:5, kept
+   under most of the screen) so the runway look still reads. Tablet and up already fill the screen. */
+@media (max-width: 600px) {
+  .ls-hero-cover { min-height: min(125vw, 68svh); display: flex; flex-direction: column; justify-content: space-between; }
+}

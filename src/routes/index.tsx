@@ -255,7 +255,9 @@ function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: 
             {loaded && <span className="ls-hero-show" data-on={shown} aria-hidden="true"><iframe ref={frame} src={`${heroShowSrc}&origin=${encodeURIComponent(window.location.origin)}`} title={heroShow.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" tabIndex={-1} onLoad={e => { e.currentTarget.dataset["loaded"] = "true"; }} /></span>}
           </div>
           <p className="ls-hero-kicker">Music and style notes · By Erica Hawkins</p>
-          <HeroTitle />
+          {/* The YOU KNOW YOUR MUSIC / STYLE / FASHION headline is hidden for now so the runway photos carry the cover;
+              crawlers and screen readers still get the title. Put <HeroTitle /> back here to bring it back. */}
+          <h1 id="ls-hero-title" className="sr-only">You know your music</h1>
           <div className="ls-film-controls" role="group" aria-label="Runway film controls">
           {refused ? (
             // The film will not play in this page, so the button sends the reader to it on YouTube instead.
