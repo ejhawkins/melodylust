@@ -39,7 +39,7 @@ export function useHeroParallax(cover: RefObject<HTMLElement | null>) {
       const top = scroller === window ? 0 : (scroller as HTMLElement).getBoundingClientRect().top;
       const box = el.getBoundingClientRect();
       const p = exitProgress(box.top, box.height, top);
-      if (back) back.style.transform = `translateY(${p * HERO_BACK * 100}%) scale(${1 + p * 0.06})`;
+      if (back) back.style.transform = `translateY(${p * HERO_BACK * 100}%) scale(${1 + p * 0.18})`;
       for (const f of front) { f.style.transform = `translateY(${p * HERO_FRONT * 100}%)`; f.style.opacity = String(1 - p * 0.8); }
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(paint); };
