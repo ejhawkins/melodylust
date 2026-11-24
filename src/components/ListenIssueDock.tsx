@@ -1,4 +1,4 @@
-import { useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -13,8 +13,9 @@ const TABS: { id: IssueTab; label: string }[] = [
   { id: "beat", label: "Celebrity" },
   { id: "boards", label: "Boards" },
 ];
+const PER_PAGE = 4;
 
-// Match the existing Reading Room breakpoint without offering a hidden slide on phones.
+// Match the existing Reading Room breakpoint without offering a hidden tile on phones.
 const readingHidden = "(max-width: 600px)";
 const phoneTabs = TABS.filter(t => t.id !== "reading");
 function subscribeToReadingVisibility(notify: () => void) {
@@ -24,95 +25,72 @@ function subscribeToReadingVisibility(notify: () => void) {
 }
 const getReadingHidden = () => window.matchMedia(readingHidden).matches;
 const getServerReadingHidden = () => false;
-type StepDirection = -1 | 1;
+const smooth = () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Browse one section at a time. Swiping changes the tile, while pressing it opens the section. */
+/** Four section tiles at a time on a native, snapping swipe track; pressing a tile opens its section. */
 export function ListenIssueDock({ variant, docked = false, current, onPick }: { variant: "hero" | "dock"; docked?: boolean; current?: IssueTab | undefined; onPick: (tab: IssueTab) => void }) {
   const hideReading = useSyncExternalStore(subscribeToReadingVisibility, getReadingHidden, getServerReadingHidden);
   const tabs = hideReading ? phoneTabs : TABS;
-  const [browse, setBrowse] = useState<{ from: IssueTab | undefined; id: IssueTab; previous: string; direction: StepDirection; offset: number }>();
-  const displayId = browse && browse.from === current ? browse.id : current;
-  const index = Math.max(0, tabs.findIndex(t => t.id === displayId));
-  const tab = tabs[index];
-  const pointer = useRef<{ id: number; x: number; y: number; offset: number } | null>(null);
-  const suppressClick = useRef(false);
+  const pages = Math.ceil(tabs.length / PER_PAGE);
+  const fillers = pages * PER_PAGE - tabs.length;
+  const track = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(0);
   const inactive = variant === "dock" && !docked;
-  const motion = browse?.from === current && browse?.id === tab.id ? browse : undefined;
-  const move = (direction: StepDirection, offset = 0) => setBrowse({
-    from: current,
-    id: tabs[(index + direction + tabs.length) % tabs.length].id,
-    previous: tab.label,
-    direction,
-    offset,
-  });
-  const release = (button: HTMLButtonElement, snapBack: boolean) => {
-    pointer.current = null;
-    if (snapBack && button.dataset["dragging"]) button.dataset["settling"] = "true";
-    delete button.dataset["dragging"];
-    button.style.removeProperty("--issue-drag");
+
+  const pageWidth = (el: HTMLDivElement) => el.clientWidth + parseFloat(getComputedStyle(el).columnGap || "0");
+  const goTo = (next: number, behavior: ScrollBehavior = smooth() ? "smooth" : "auto") => {
+    const el = track.current;
+    if (!el) return;
+    const target = Math.max(0, Math.min(pages - 1, next));
+    el.scrollTo({ left: target * pageWidth(el), behavior });
   };
 
+  // Open on the page that holds the current section.
+  useEffect(() => {
+    const at = tabs.findIndex(t => t.id === current);
+    if (at >= 0) goTo(Math.floor(at / PER_PAGE), "auto");
+  }, [current, tabs.length]);
+
   return (
-    <nav className={`ls-issue-tabs ls-issue-${variant}`} data-docked={docked} aria-label={variant === "hero" ? "Sections" : "Sections, pinned"} aria-hidden={inactive} inert={inactive}
-      onKeyDown={event => {
-        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-        event.preventDefault();
-        move(event.key === "ArrowLeft" ? -1 : 1);
-      }}
-    >
-      <Button type="button" variant="ghost" size="icon" className="ls-issue-step" aria-label="Previous section" onClick={() => move(-1)}><ChevronLeft aria-hidden /></Button>
-      <Button type="button" variant="ghost" className="ls-issue-tab" data-tab={tab.id} aria-label={tab.label} aria-pressed={current === tab.id}
-        onPointerDown={event => {
-          suppressClick.current = false;
-          if (!event.isPrimary || event.pointerType === "mouse") return;
-          delete event.currentTarget.dataset["settling"];
-          pointer.current = { id: event.pointerId, x: event.clientX, y: event.clientY, offset: 0 };
+    <nav className={`ls-issue-tabs ls-issue-${variant}`} data-docked={docked} aria-label={variant === "hero" ? "Sections" : "Sections, pinned"} aria-hidden={inactive} inert={inactive}>
+      <div ref={track} className="ls-issue-track"
+        onScroll={event => {
+          const el = event.currentTarget;
+          const next = Math.round(el.scrollLeft / pageWidth(el));
+          if (next !== page) setPage(next);
         }}
-        onPointerMove={event => {
-          const start = pointer.current;
-          if (!start || start.id !== event.pointerId) return;
-          const dx = event.clientX - start.x;
-          const dy = event.clientY - start.y;
-          const button = event.currentTarget;
-          if (!button.dataset["dragging"] && (Math.abs(dx) < 8 || Math.abs(dx) <= Math.abs(dy))) return;
-          const limit = button.clientWidth * .65;
-          start.offset = Math.max(-limit, Math.min(dx, limit));
-          button.dataset["dragging"] = "true";
-          button.style.setProperty("--issue-drag", `${start.offset}px`);
-        }}
-        onPointerCancel={event => {
-          if (pointer.current?.id === event.pointerId) release(event.currentTarget, true);
-        }}
-        onPointerUp={event => {
-          const start = pointer.current;
-          if (!start || start.id !== event.pointerId) return;
-          const dx = event.clientX - start.x;
-          const dy = event.clientY - start.y;
-          const advance = Math.abs(dx) >= 32 && Math.abs(dx) > Math.abs(dy);
-          release(event.currentTarget, !advance);
-          if (start.offset !== 0) suppressClick.current = true;
-          if (!advance) return;
-          suppressClick.current = true;
-          move(dx < 0 ? 1 : -1, start.offset);
-        }}
-        onClick={event => {
-          if (!suppressClick.current || event.detail === 0) onPick(tab.id);
-          suppressClick.current = false;
+        onKeyDown={event => {
+          if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+          const buttons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>(".ls-issue-tab")];
+          const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
+          if (at < 0) return;
+          event.preventDefault();
+          const next = buttons[(at + (event.key === "ArrowLeft" ? -1 : 1) + buttons.length) % buttons.length];
+          if (!next) return;
+          next.focus({ preventScroll: true });
+          goTo(Math.floor(buttons.indexOf(next) / PER_PAGE));
         }}
       >
-        <span className="ls-issue-labels" aria-hidden="true">
-          <span key={tab.id} className="ls-issue-slide" data-previous-label={motion?.previous} data-direction={motion && (motion.direction > 0 ? "next" : "previous")}
-            style={motion ? { "--issue-release": `${motion.offset}px` } as CSSProperties : undefined}>
+        {tabs.map((tab, i) => (
+          <Button key={tab.id} type="button" variant="ghost" className="ls-issue-tab" data-tab={tab.id} aria-pressed={current === tab.id}
+            onFocus={() => goTo(Math.floor(i / PER_PAGE))} onClick={() => onPick(tab.id)}>
+            <span className="ls-issue-num" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
             <span className="ls-issue-label">{tab.label}</span>
-          </span>
-        </span>
-      </Button>
-      <Button type="button" variant="ghost" size="icon" className="ls-issue-step" aria-label="Next section" onClick={() => move(1)}><ChevronRight aria-hidden /></Button>
-      <p className="ls-issue-position" aria-live="polite" aria-atomic="true">
-        <span className="sr-only">{tab.label}, section {index + 1} of {tabs.length}</span>
-        <span aria-hidden>{String(index + 1).padStart(2, "0")} / {String(tabs.length).padStart(2, "0")}</span>
-        <span className="ls-issue-swipe" aria-hidden>Swipe to browse</span>
-      </p>
+          </Button>
+        ))}
+        {Array.from({ length: fillers }, (_, i) => <span key={i} className="ls-issue-filler" aria-hidden />)}
+      </div>
+      <div className="ls-issue-foot">
+        <Button type="button" variant="ghost" size="icon" className="ls-issue-step" aria-label="Previous sections" disabled={page === 0} onClick={() => goTo(page - 1)}><ChevronLeft aria-hidden /></Button>
+        <div className="ls-issue-pager" aria-hidden>
+          {Array.from({ length: pages }, (_, i) => <span key={i} data-on={i === page} />)}
+        </div>
+        <p className="ls-issue-position" aria-live="polite">
+          <span className="sr-only">Sections {page * PER_PAGE + 1} to {Math.min(tabs.length, (page + 1) * PER_PAGE)} of {tabs.length}</span>
+          <span aria-hidden>{String(page + 1).padStart(2, "0")} / {String(pages).padStart(2, "0")}</span>
+        </p>
+        <Button type="button" variant="ghost" size="icon" className="ls-issue-step" aria-label="Next sections" disabled={page >= pages - 1} onClick={() => goTo(page + 1)}><ChevronRight aria-hidden /></Button>
+      </div>
     </nav>
   );
 }
