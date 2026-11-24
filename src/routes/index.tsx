@@ -446,6 +446,14 @@ function ListeningRoom() {
     playStudio(queue, index);
     window.history.replaceState(window.history.state, "", window.location.pathname + window.location.hash);
   }, []);
+  // "Read the report" opens the Runway Report panel (the library) and brings it into view, on phones too.
+  const openReport = () => {
+    setLibraryOpen(true);
+    requestAnimationFrame(() => {
+      const panel = document.getElementById("ls-runway-report");
+      panel?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+    });
+  };
   const pickIssue = (tab: IssueTab) => {
     if (tab === "reading") return openReading();
     if (tab === "featured" || tab === "beat" || tab === "boards") {
@@ -627,7 +635,7 @@ function ListeningRoom() {
           </>}
         </main>
 
-        {wearingOpen && <NowWearing onProfile={openProfile} nowPlaying={runway[0]} />}
+        {wearingOpen && <NowWearing onProfile={openProfile} onReport={openReport} nowPlaying={runway[0]} />}
       </div>
 
       {/* The sticky issue dock was retired: the in-hero buttons are the only issue nav. */}

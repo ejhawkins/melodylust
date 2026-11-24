@@ -103,7 +103,7 @@ export function ListenStudio({ onPlay, nowPlaying }: { onPlay?: (queue: MixSong[
         <nav className="flex gap-1 rounded-full bg-secondary p-1" aria-label="Studio">
           {([["library", "My Library"], ["explore", "Explore"], ["import", "Import Music"]] as const).map(([id, label]) =>
             <button key={id} type="button" aria-pressed={tab === id} onClick={() => { setTab(id); setOpenList(null); }}
-              className={`${pill} ${tab === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{label}</button>)}
+              className={`${pill} ${tab === id ? "bg-primary text-primary-foreground" : "text-foreground/80 hover:text-foreground"}`}>{label}</button>)}
         </nav>
       </header>
 
@@ -457,7 +457,7 @@ function AIPlaylistCard({ tracks, onMade }: { tracks: readonly StudioTrack[]; on
       <div className="mt-auto flex items-center gap-2">
         <div className="flex gap-1 rounded-full bg-secondary p-0.5" role="group" aria-label="Playlist length">
           {AI_PLAYLIST_LENGTHS.map(n => <button key={n} type="button" aria-pressed={length === n} onClick={() => setLength(n)}
-            className={`rounded-full px-2.5 py-1 text-xs ${length === n ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{n}</button>)}
+            className={`rounded-full px-2.5 py-1 text-xs ${length === n ? "bg-primary text-primary-foreground" : "text-foreground/80 hover:text-foreground"}`}>{n}</button>)}
         </div>
         <Button type="submit" size="sm" className="ml-auto" disabled={busy || prompt.trim().length < 2}>
           {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Sparkles className="size-4" aria-hidden />}<span className="ls-ai-go">{busy ? "Making…" : "Generate"}</span>

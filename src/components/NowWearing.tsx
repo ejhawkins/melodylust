@@ -3,11 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
 /** "Now wearing", the listening room's right panel: three front-row calls to action, set in WTF Hammer. The runway
- *  report opens the home page's Zine, Runway Radio opens /radio (its card names the first of the room's Runway Songs as
- *  now playing) and the profile opens the Style profile in the feed.
- *  The report link is a full page load on purpose: the home page settles its layout as it loads, and an in-app hop scrolled
- *  to #zine before that and stopped short. The player bar's Now wearing button still opens and closes the panel. */
-export function NowWearing({ onProfile, nowPlaying }: { onProfile: () => void; nowPlaying?: { name: string; artist: string } | undefined }) {
+ *  report opens the room's Runway Report panel (the library on the left), Runway Radio opens /radio (its card names the
+ *  first of the room's Runway Songs as now playing) and the profile opens the Style profile in the feed.
+ *  The player bar's Now wearing button still opens and closes this panel. */
+export function NowWearing({ onProfile, onReport, nowPlaying }: { onProfile: () => void; onReport: () => void; nowPlaying?: { name: string; artist: string } | undefined }) {
   const song = nowPlaying?.name ?? "Runway Radio";
   return (
     <aside className="ls-panel ls-right ls-wear" id="now-wearing" aria-label="Now wearing">
@@ -17,7 +16,7 @@ export function NowWearing({ onProfile, nowPlaying }: { onProfile: () => void; n
         <span className="ls-wear-num">01 · The runway report</span>
         <h2 id="ls-wear-report" className="ls-wear-title">Hear what played. <em>Thom Browne <span className="ls-wear-xxx">F/W 2017</span></em></h2>
         <p className="ls-wear-copy">The season's shows, read for the sound behind the clothes. A zine worth keeping.</p>
-        <Button asChild variant="listenSolid" size="bar"><a href="/#zine"><span className="ls-wear-btn-hammer">Read <span className="ls-wear-xxx">the</span> report</span></a></Button>
+        <Button variant="listenSolid" size="bar" aria-controls="ls-runway-report" onClick={onReport}><span className="ls-wear-btn-hammer">Read <span className="ls-wear-xxx">the</span> report</span></Button>
       </section>
 
       <section className="ls-wear-cta" aria-labelledby="ls-wear-radio">

@@ -1,4 +1,5 @@
 import { useEffect, useSyncExternalStore } from "react";
+import { reloadOnceForChunkError } from "@/lib/chunk-retry";
 
 const subscribe = (notify: () => void) => {
   window.addEventListener("online", notify);
@@ -28,6 +29,15 @@ export function AppShell() {
         registration.active?.postMessage({ type: "save", page: location.href, urls });
       })
       .catch(() => { /* the site works the same without it */ });
+  }, []);
+
+  // Vite reports a script it couldn't preload (a file renamed by a later deploy) before the import fails: reload once.
+  useEffect(() => {
+    const onPreloadError = (event: Event) => {
+      if (reloadOnceForChunkError((event as Event & { payload?: unknown }).payload)) event.preventDefault();
+    };
+    window.addEventListener("vite:preloadError", onPreloadError);
+    return () => window.removeEventListener("vite:preloadError", onPreloadError);
   }, []);
 
   if (online) return null;

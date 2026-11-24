@@ -17,6 +17,7 @@ import { InAppAdvisory } from "@/components/InAppAdvisory";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { stylesheetRetryScript } from "@/lib/stylesheet-retry";
+import { reloadOnceForChunkError } from "@/lib/chunk-retry";
 
 function NotFoundComponent() {
   return (
@@ -44,6 +45,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
+    // A tab open across a deploy asks for script files that are gone: reload once for the current ones.
+    if (reloadOnceForChunkError(error)) return;
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 

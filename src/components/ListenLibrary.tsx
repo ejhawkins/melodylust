@@ -137,7 +137,7 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
   };
 
   return (
-    <nav className="ls-panel ls-left" data-open={open} aria-label="Your library">
+    <nav id="ls-runway-report" className="ls-panel ls-left" data-open={open} aria-label="Your library">
       {open ? <>
         <div className="ls-lib-head">
           <div className="ls-lib-title">

@@ -2756,6 +2756,12 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .ls-want .want-playlist li { border-bottom-color: var(--want-rule); }
 @container (max-width: 900px) { .ls-want .want-output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ls-want .want-playlist { grid-column: 1 / -1; } }
 @container (max-width: 560px) { .ls-want .want-output-grid { grid-template-columns: minmax(0, 1fr); } .ls-want .wishlist { padding: 32px 16px 40px; } }
+/* Each view's closing Back to the feed sits on the room's dark ground, so its outline button takes chalk ink. */
+.ls-profile, .ls-want, .ls-contents-stage, .ls-board { --cover-type: var(--color-chalk-white); --cover-paper: var(--color-fig-black); }
+/* The dossier's solid buttons are "foreground ground, background type"; the room's background token is transparent,
+   which left their words invisible (a blank white box), so they take fig ink here and lime on hover. */
+.ls-profile .dossier .bg-foreground.text-background { color: var(--color-fig-black); }
+.ls-profile .dossier .bg-foreground.text-background:hover { background: var(--color-acid-lime); }
 /* The profile: /profile's Curator Dossier without its masthead, inked pure black and sized to the feed. */
 .ls-profile .dossier { width: 100%; max-width: none; margin: 0; padding: 0;
   /* The room's tokens, named outright: the feed flips --ls-ink to chalk, which had left this page white on white. */
