@@ -58,9 +58,8 @@ import { useGenrePreference } from "@/lib/genre-preference";
 import { useQuery } from "@tanstack/react-query";
 import { usePlaylists } from "@/lib/playlists";
 import logo from "@/assets/melody-lust-logo.png";
-import heroRunway from "@/assets/hero-runway-2.jpg";
-import heroRunway3 from "@/assets/hero-runway-3.jpg";
-import heroRunway4 from "@/assets/hero-runway-4.jpg";
+import heroThomBrowne1 from "@/assets/hero-thom-browne-1.jpg";
+import heroThomBrowne2 from "@/assets/hero-thom-browne-2.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -251,7 +250,8 @@ function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: 
           <DuotoneFilter id="ls-hero-duotone" />
           {/* The back layer: the runway photos and the film together, so the parallax reads with the film on as well. */}
           <div className="ls-hero-depth">
-            {[heroRunway3, heroRunway, heroRunway4, heroRunway].map((src, i) => <span key={i} className={`cover-slide cover-slide-${i + 1} ls-hero-slide`} aria-hidden="true"><img className="ls-hero-img" src={src} alt="" width={1200} height={1600} loading={i === 0 ? undefined : "lazy"} /></span>)}
+            {/* Thom Browne runway looks, the loop-knit coat first, alternating through the four slide slots. */}
+            {[heroThomBrowne2, heroThomBrowne1, heroThomBrowne2, heroThomBrowne1].map((src, i) => <span key={i} className={`cover-slide cover-slide-${i + 1} ls-hero-slide`} aria-hidden="true"><img className="ls-hero-img" src={src} alt="" width={1000} height={1500} loading={i === 0 ? undefined : "lazy"} /></span>)}
             {loaded && <span className="ls-hero-show" data-on={shown} aria-hidden="true"><iframe ref={frame} src={`${heroShowSrc}&origin=${encodeURIComponent(window.location.origin)}`} title={heroShow.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" tabIndex={-1} onLoad={e => { e.currentTarget.dataset["loaded"] = "true"; }} /></span>}
           </div>
           <p className="ls-hero-kicker">Music and style notes · By Erica Hawkins</p>
