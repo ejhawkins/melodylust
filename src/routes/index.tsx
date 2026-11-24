@@ -329,7 +329,7 @@ function ListeningRoom() {
   const [filmNotesOpen, setFilmNotesOpen] = useState(false);
   const [onRunway, setOnRunway] = useState(false);
   // The feed's note shelves stay folded until a pill opens one.
-  const [shelf, setShelf] = useState<"featured" | "music" | "runway" | "style" | "fashion" | "reading" | "beat" | "boards" | null>(null);
+  const [shelf, setShelf] = useState<"featured" | "runway" | "style" | "fashion" | "reading" | "beat" | "boards" | null>(null);
   const feed = useRef<HTMLElement>(null);
   const lead = useRef<HTMLDivElement>(null);
   useRoomMotion(feed);
@@ -465,7 +465,7 @@ function ListeningRoom() {
     if (tab === "playlists") return open({ kind: "contents" }, "mix");
     if (tab === "want") return openWant();
     setView({ kind: "feed" });
-    setShelf(tab === "notes" ? "style" : tab === "runway" ? "runway" : tab === "fashion" ? "fashion" : "music");
+    setShelf(tab === "notes" ? "style" : tab === "runway" ? "runway" : "fashion");
     // Fashion and Runway Songs open above the pill row, so go to the section itself; the notes open right under the row.
     requestAnimationFrame(() => document.querySelector(tab === "fashion" ? ".ls-fashion" : tab === "runway" ? "section[aria-labelledby='ls-runway']" : ".ls-shelf-pills")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
@@ -591,28 +591,13 @@ function ListeningRoom() {
             {runwayListed && <ListenRunway notes={runwayEdition} songs={runway} playing={onRunway ? now : null} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />}
 
             <div className="ls-shelf-pills" role="group" aria-label="Notes">
-              {([["runway", "Runway Notes"], ["music", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
+              {([["runway", "Runway Notes"], ["featured", "Music Notes"], ["style", "Style Matrix Notes"], ["fashion", "Fashion"]] as const).map(([id, label]) =>
                 <Button key={id} variant="listenCategory" size="chip" aria-pressed={shelf === id} aria-expanded={shelf === id} onClick={() => {
                   setShelf(shelf === id ? null : id);
-                  // Fashion opens well above this row (the others open beside it), so bring it into view.
-                  if (id === "fashion" && shelf !== id) requestAnimationFrame(() => document.querySelector(".ls-fashion")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+                  // Fashion and Music Notes (the Featured playlist) open well above this row, so bring them into view.
+                  if ((id === "fashion" || id === "featured") && shelf !== id) requestAnimationFrame(() => document.querySelector(id === "fashion" ? ".ls-fashion" : "#featured-playlist")?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }));
                 }}>{label}</Button>)}
             </div>
-            {shelf === "music" && <section className="ls-section" aria-labelledby="ls-featured">
-              <div className="ls-section-head"><h2 id="ls-featured">+ Music notes</h2></div>
-              <ul className="ls-tiles">
-                {editionSongs.map(({ song: s, index: i }) => <li key={s.caption}>
-                  <Button variant="listenTile" size="block" className="ls-tile w-full" data-active={!onRunway && !onList && i === now} aria-label={`Play ${s.title} by ${s.artist}`} onClick={() => play(i)}>
-                    <span className="ls-tile-art"><img src={s.art} alt="" width={300} height={300} loading="lazy" /><span className="ls-tile-play" aria-hidden><Play /></span></span>
-                    <span className="ls-tile-title">{s.title}</span>
-                    <span className="ls-tile-artist">{s.artist}</span>
-                  </Button>
-                  {/* A quick like for the song's look, beside the tile (a button can't sit inside another). */}
-                  <LikeButton look="quick" kind="look" id={s.caption} name={`The ${s.title} look`} sub={s.artist} image={s.art} className="ls-quick-like" />
-                </li>)}
-              </ul>
-            </section>}
-
             {shelf === "style" && <section className="ls-section" aria-labelledby="ls-notes">
               <div className="ls-section-head"><h2 id="ls-notes">+ Style matrix notes</h2><span>Fashion. Music. A point of view.</span></div>
               <FitCompass compact />
