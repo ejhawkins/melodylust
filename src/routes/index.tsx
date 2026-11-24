@@ -160,10 +160,10 @@ function HeroTitle() {
 
   return (
     <h1 ref={title} id="ls-hero-title" className="ls-hero-title" style={{ "--ls-slot-em": heroWords[index]?.em, "--ls-tallest-em": heroTallestEm } as CSSProperties}>
-      <span className="ls-hero-know" aria-hidden="true"><MaskedWords text="YOU KNOW" /></span>
+      <span className="ls-hero-know" aria-hidden="true"><MaskedWords text="YOU KNOW" /></span>{" "}
       <span className="ls-hero-slot" aria-hidden="true">
-        {heroWords.map((w, i) => <span key={w.word} className="ls-hero-word" data-active={i === index} style={{ "--word-em": w.em } as CSSProperties}><MaskedWords text={`YOUR ${w.word}`} /></span>)}
-      </span>
+        {heroWords.map((w, i) => <span key={w.word} className="ls-hero-word" data-active={i === index} style={{ "--word-em": w.em } as CSSProperties}><MaskedWords text={`YOUR ${w.word}`} /></span>).flatMap((word, i) => i ? [" ", word] : [word])}
+      </span>{" "}
       <span className="sr-only">YOU KNOW YOUR MUSIC</span>
     </h1>
   );

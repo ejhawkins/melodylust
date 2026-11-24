@@ -131,7 +131,7 @@ export function ListenLibrary({ open, onOpenChange, mix, active, nowPlaying, onP
     ? <PhotoOr swatch={row.swatch} className="ls-thumb" data-round={row.round === true} src={row.art} alt="" width={48} height={48} loading="lazy" style={row.focus ? { objectPosition: row.focus } : undefined} />
     : <span className="ls-thumb ls-thumb-empty" aria-hidden>{row.icon ?? <Bookmark />}</span>;
   const item = (row: Row, rail: boolean) => {
-    const body = rail ? thumb(row) : <>{thumb(row)}<span className="ls-row-text"><span className="ls-row-title">{row.title}</span><span className="ls-row-meta">{row.meta}</span></span></>;
+    const body = rail ? thumb(row) : <>{thumb(row)}<span className="ls-row-text"><span className="ls-row-title">{row.title}</span>{" "}<span className="ls-row-meta">{row.meta}</span></span></>;
     const label = rail ? { "aria-label": row.title, title: row.title } : {};
     return <li key={row.id}><Button variant="listenRow" size="block" className={rail ? "" : "w-full"} data-active={active === row.id} onClick={row.act} {...label}>{body}</Button></li>;
   };

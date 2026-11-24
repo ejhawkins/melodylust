@@ -24,7 +24,7 @@ export function NowWearing({ onProfile, onReport, nowPlaying }: { onProfile: () 
         <h2 id="ls-wear-radio" className="ls-wear-title">Tune in. <em className="ls-wear-now" title={nowPlaying ? `${nowPlaying.name} by ${nowPlaying.artist}` : undefined}><span className="ls-wear-xxx">Now playing:</span>{" "}
           {/* The song runs past as a ticker: two copies, the second a hidden repeat, so the loop has no seam. */}
           <span className="ls-wear-song" style={{ "--ticker-chars": song.length } as CSSProperties}>
-            <span className="ls-wear-ticker"><span className="ls-wear-tick">{song}</span><span className="ls-wear-tick" aria-hidden="true">{song}</span></span>
+            <span className="ls-wear-ticker"><span className="ls-wear-tick">{song}</span>{" "}<span className="ls-wear-tick" aria-hidden="true">{song}</span></span>
           </span>
         </em></h2>
         <p className="ls-wear-copy">Stations from Mod to Grunge, each one playing in the uniform its scene wore.</p>

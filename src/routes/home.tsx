@@ -4,9 +4,8 @@ import { MobileParallax } from "@/components/MobileParallax";
 import { ScrollFadeUp } from "@/components/ScrollFadeUp";
 import cover from "@/assets/grunge-cover.jpg";
 import coverWide from "@/assets/grunge-cover-wide.jpg";
-import heroRunway from "@/assets/hero-runway-2.jpg";
-import heroRunway3 from "@/assets/hero-runway-3.jpg";
-import heroRunway4 from "@/assets/hero-runway-4.jpg";
+import heroThomBrowne1 from "@/assets/hero-thom-browne-1.jpg";
+import heroThomBrowne2 from "@/assets/hero-thom-browne-2.jpg";
 
 import street from "@/assets/street-style.jpg";
 import matrixShoeImage from "@/assets/style-matrix-shoe.png";
@@ -18,6 +17,7 @@ import { GenreHeadingSelect } from "@/components/GenreHeadingSelect";
 import { StylingNotes } from "@/components/StylingNotes";
 import { GuidedStory, GuidedStoryQuote } from "@/components/GuidedStory";
 import { HowItWorks } from "@/components/HowItWorks";
+import { ProductCase } from "@/components/ProductCase";
 import { DesignerMusing } from "@/components/DesignerMusing";
 import { DuotoneFilter } from "@/components/DuotoneFilter";
 import { StoryDialog } from "@/components/StoryDialog";
@@ -316,7 +316,8 @@ function Index() {
       <section className="cover" id="cover" ref={coverRef} aria-label="Fashion meets music">
         <div className="cover-backdrop" aria-hidden="true">
           <DuotoneFilter id="cover-duotone" />
-          {[heroRunway3, heroRunway, heroRunway4, heroRunway].map((src, i) => <span key={i} className={`cover-slide cover-slide-${i + 1}`}><img className="cover-photo" src={src} alt="" width={1200} height={1600} fetchPriority={i === 0 ? "high" : undefined} loading={i === 0 ? undefined : "lazy"} /></span>)}
+          {/* Thom Browne runway looks, alternating through the four slide slots. */}
+          {[heroThomBrowne1, heroThomBrowne2, heroThomBrowne1, heroThomBrowne2].map((src, i) => <span key={i} className={`cover-slide cover-slide-${i + 1}`}><img className="cover-photo" src={src} alt="" width={1000} height={1500} fetchPriority={i === 0 ? "high" : undefined} loading={i === 0 ? undefined : "lazy"} /></span>)}
         </div>
         <div className="cover-content" style={{ "--slot-em": coverWords[coverWord]?.em, "--tallest-em": tallestEm } as React.CSSProperties}>
           <nav className="cover-nav" aria-label="Journal categories">
@@ -444,6 +445,7 @@ function Index() {
       <Link to="/influencers" className="ml-stylists-link font-isidora underline">Style Influencers — follow reader stylists and their approved boards →</Link>
       <StylingNotes />
       <GuidedStory />
+      <ProductCase />
       <section className="manifesto"><h2>GOOD STYLE.<br />GREAT MUSIC. YOUR RULES.</h2><p>For the clothes you live in. The records you return to. And the moments when the two come together.</p></section>
       <footer className="footer"><a href="/" aria-label="Melody Lust home" className="brand"><img src={logo.url} alt="" className="brand-mark" width={448} height={209} /></a>{analyticsEnabled() && <button type="button" className="footer-link" onClick={() => setAnalytics("ask")}>Analytics settings</button>}<span className="text-muted-foreground">Independent in style. Always.<br />© 2026 Melody Lust</span></footer>
       <AnalyticsConsent consent={analytics} onChoose={chooseAnalytics} />

@@ -33,8 +33,8 @@ export function ListenEdition({ choice, onChoose, stories, reads = [], songs, pl
   return (
     <section className="ls-section ls-edition" aria-label={personal ? `Your ${choice} edition` : "Your edition"} data-personal={personal}>
       <Button variant="listenCategory" size="chip" className="ls-edition-badge" aria-expanded={open} aria-controls="ls-edition-genres" onClick={() => setOpen(v => !v)}>
-        <span className="ls-edition-for">Curated for:</span>
-        <span className="ls-edition-choice">{choiceLabel(choice)}</span>
+        <span className="ls-edition-for">Curated for:</span>{" "}
+        <span className="ls-edition-choice">{choiceLabel(choice)}</span>{" "}
         <span className="ls-edition-hint">Tap to change</span>
         <ChevronDown aria-hidden />
       </Button>
@@ -83,8 +83,8 @@ export function ListenEdition({ choice, onChoose, stories, reads = [], songs, pl
                   ? <img className="good-reads-thumb" src={read.image} alt="" width={160} height={200} loading="lazy" />
                   : <span className="good-reads-thumb" aria-hidden>{read.source.charAt(0)}</span>}
                 <span className="good-reads-text">
-                  <span className="good-reads-source">{read.source}</span>
-                  <span className="good-reads-title">{read.title}</span>
+                  <span className="good-reads-source">{read.source}</span>{" "}
+                  <span className="good-reads-title">{read.title}</span>{" "}
                   {read.note && <span className="good-reads-desc">{read.note}</span>}
                 </span>
                 <span className="good-reads-arrow" aria-hidden>↗</span>

@@ -12,8 +12,8 @@ export function PlaylistCover({ name, count, art, spotify }: { name: string; cou
   return (
     <div className="playlist-cover" style={style} aria-hidden="true">
       {behind && <img className="playlist-cover-art" src={behind} alt="" loading="lazy" />}
-      <span className="playlist-cover-mark">Melody Lust</span>
-      <span className="playlist-cover-title" data-size={coverTitleSize(name)}>{name}</span>
+      <span className="playlist-cover-mark">Melody Lust</span>{" "}
+      <span className="playlist-cover-title" data-size={coverTitleSize(name)}>{name}</span>{" "}
       <span className="playlist-cover-count">{count} {count === 1 ? "song" : "songs"}</span>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { Fragment, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { Play } from "lucide-react";
 import { LikeButton } from "@/components/LikeButton";
 import { useSilentMode } from "@/lib/silent-mode";
@@ -92,7 +92,7 @@ export function RecordStack({ likes = false }: { likes?: boolean }) {
           )}
         </div>
         <p className="records-credit">
-          <a className="film-link" href={v.url} target="_blank" rel="noreferrer">{v.title} · {v.artist}</a>
+          <a className="film-link" href={v.url} target="_blank" rel="noreferrer">{v.title} · {v.artist}</a>{" "}
           {/* Every film names who styled it; where no styling credit has been published, it says so rather than guessing. */}
           <span>{v.credit}{v.creditLink ? <> <a className="film-link" href={v.creditLink.href} target="_blank" rel="noreferrer">{v.creditLink.label}</a></> : " · Stylist not credited"}</span>
         </p>
@@ -100,8 +100,8 @@ export function RecordStack({ likes = false }: { likes?: boolean }) {
       </div>
       <div className="records-spec">
         <h3 className="records-row">
-          <span className="records-row-main">{v.stylist ? <>{v.stylist.href ? <a className="film-link" href={v.stylist.href} target="_blank" rel="noreferrer">{v.stylist.name}</a> : v.stylist.name}, {v.stylist.role}</> : "Stylist not listed"}</span>
-          <span className="records-pills">{v.tags.map(t => <span className="records-pill" key={t}>{t}</span>)}</span>
+          <span className="records-row-main">{v.stylist ? <>{v.stylist.href ? <a className="film-link" href={v.stylist.href} target="_blank" rel="noreferrer">{v.stylist.name}</a> : v.stylist.name}, {v.stylist.role}</> : "Stylist not listed"}</span>{" "}
+          <span className="records-pills">{v.tags.map((t, i) => <Fragment key={t}>{i > 0 && " "}<span className="records-pill">{t}</span></Fragment>)}</span>
         </h3>
         <h3 className="records-row"><span className="records-row-main">{v.title}</span></h3>
         <h3 className="records-row"><span className="records-row-main">{v.artist}</span></h3>
