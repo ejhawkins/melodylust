@@ -3014,8 +3014,8 @@ h3.ls-toc-name { cursor: default; }
 
 /* ===== The Issue: one square section tile, with swipe, chevrons and keyboard browsing ===== */
 .ls-issue-tabs {
-  --issue-tile-size: clamp(112px, 24vw, 136px);
-  display: grid; grid-template-columns: 44px var(--issue-tile-size) 44px;
+  --issue-tile-size: clamp(196px, 65vw, 264px);
+  display: grid; grid-template-columns: 44px minmax(0, var(--issue-tile-size)) 44px;
   justify-content: center; align-items: center; gap: 0;
   padding: 0 0 8px; color: var(--color-chalk-white);
   background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800);
@@ -3026,8 +3026,8 @@ h3.ls-toc-name { cursor: default; }
   width: 100%; height: auto; aspect-ratio: 1; padding: 0; border-radius: 0;
   border: 1px solid color-mix(in oklab, var(--color-chalk-white) 48%, transparent);
   border-top-width: 0; background: transparent; color: var(--color-chalk-white); overflow: hidden;
-  font-family: var(--font-editorial); font-size: clamp(18px, 4.25vw, 22px); font-weight: 600;
-  line-height: 1; letter-spacing: .02em; text-transform: uppercase;
+  font-family: var(--font-editorial); font-size: clamp(28px, 8.5vw, 44px); font-weight: 500;
+  font-optical-sizing: auto; line-height: 1; letter-spacing: -.045em; text-transform: uppercase;
   touch-action: pan-y pinch-zoom; user-select: none; cursor: pointer;
 }
 .ls-issue-labels, .ls-issue-slide { display: grid; width: 100%; position: relative; }
@@ -3074,7 +3074,7 @@ h3.ls-toc-name { cursor: default; }
   .ls-issue-dock[data-docked="true"] {
     display: grid; position: fixed; inset: auto 0 calc(72px + env(safe-area-inset-bottom)); z-index: 6;
   }
-  .ls:has(.ls-issue-dock[data-docked="true"]) .ls-body { padding-bottom: calc(48px + clamp(112px, 24vw, 136px)); }
+  .ls:has(.ls-issue-dock[data-docked="true"]) .ls-body { padding-bottom: calc(48px + clamp(196px, 65vw, 264px)); }
 }
 
 .ls .ls-wear-title em, .ls .ls-wear-title em .ls-wear-xxx { color: var(--color-acid-lime); }
