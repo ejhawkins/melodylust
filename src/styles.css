@@ -3039,7 +3039,7 @@ h3.ls-toc-name { cursor: default; }
   color: color-mix(in oklab, currentColor 62%, transparent);
 }
 .ls-issue-label {
-  display: block; text-align: left; font-family: var(--font-editorial); font-weight: 500; font-optical-sizing: auto;
+  display: block; text-align: left; white-space: normal; font-family: var(--font-editorial); font-weight: 500; font-optical-sizing: auto;
   font-size: clamp(11px, 100cqi / 5.5, 24px); line-height: .9; letter-spacing: -.045em; text-transform: uppercase;
 }
 .ls-issue-tabs .ls-issue-tab[aria-pressed="true"] { background: var(--color-chalk-white); color: var(--color-fig-black); border-color: var(--color-chalk-white); }
