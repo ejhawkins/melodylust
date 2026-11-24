@@ -250,11 +250,13 @@ function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: 
           <DuotoneFilter id="ls-hero-duotone" />
           {/* The back layer: the runway photos and the film together, so the parallax reads with the film on as well. */}
           <div className="ls-hero-depth">
-            {/* Thom Browne runway looks, the loop-knit coat first, alternating through the four slide slots. */}
-            {[heroThomBrowne2, heroThomBrowne1, heroThomBrowne2, heroThomBrowne1].map((src, i) => <span key={i} className={`cover-slide cover-slide-${i + 1} ls-hero-slide`} aria-hidden="true"><img className="ls-hero-img" src={src} alt="" width={1000} height={1500} loading={i === 0 ? undefined : "lazy"} /></span>)}
+            {/* Thom Browne runway looks, the loop-knit coat first, alternating through the four slide slots, each framed on the face. */}
+            {[heroThomBrowne2, heroThomBrowne1, heroThomBrowne2, heroThomBrowne1].map((src, i) => <span key={i} className={`cover-slide cover-slide-${i + 1} ls-hero-slide`} aria-hidden="true"><img className="ls-hero-img" data-look={src === heroThomBrowne1 ? "coat" : "loops"} src={src} alt="" width={1000} height={1500} loading={i === 0 ? undefined : "lazy"} /></span>)}
             {loaded && <span className="ls-hero-show" data-on={shown} aria-hidden="true"><iframe ref={frame} src={`${heroShowSrc}&origin=${encodeURIComponent(window.location.origin)}`} title={heroShow.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" tabIndex={-1} onLoad={e => { e.currentTarget.dataset["loaded"] = "true"; }} /></span>}
           </div>
           <p className="ls-hero-kicker">Music and style notes · By Erica Hawkins</p>
+          {/* A Bodoni caption opposite the close-up, on wider covers; it steps aside while the film plays. */}
+          <p className="ls-hero-look" aria-hidden="true">The look<br />F/W 17</p>
           {/* The YOU KNOW YOUR MUSIC / STYLE / FASHION headline is hidden for now so the runway photos carry the cover;
               crawlers and screen readers still get the title. Put <HeroTitle /> back here to bring it back. */}
           <h1 id="ls-hero-title" className="sr-only">You know your music</h1>
