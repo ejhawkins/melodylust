@@ -3014,20 +3014,43 @@ h3.ls-toc-name { cursor: default; }
 
 /* ===== The Issue: one square section tile, with swipe, chevrons and keyboard browsing ===== */
 .ls-issue-tabs {
-  --issue-tile-size: clamp(112px, 24vw, 136px);
-  display: grid; grid-template-columns: 44px var(--issue-tile-size) 44px;
-  justify-content: center; align-items: center; gap: 8px;
-  padding: 12px 0; color: var(--color-chalk-white);
+  --issue-tile-size: clamp(196px, 65vw, 264px);
+  display: grid; grid-template-columns: 44px minmax(0, var(--issue-tile-size)) 44px;
+  justify-content: center; align-items: center; gap: 0;
+  padding: 0 0 8px; color: var(--color-chalk-white);
+  background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800);
 }
 .ls-issue-hero { margin-inline: auto; }
 .ls-issue-dock { display: none; }
 .ls-issue-tabs .ls-issue-tab {
-  width: 100%; height: auto; aspect-ratio: 1; padding: 0 4px; border-radius: 0;
+  width: 100%; height: auto; aspect-ratio: 1; padding: 0; border-radius: 0;
   border: 1px solid color-mix(in oklab, var(--color-chalk-white) 48%, transparent);
-  background: var(--color-fig-950); color: var(--color-chalk-white);
-  font-family: var(--font-editorial); font-size: clamp(18px, 4.25vw, 22px); font-weight: 600;
-  line-height: 1; letter-spacing: .02em; text-transform: uppercase;
+  border-top-width: 0; background: transparent; color: var(--color-chalk-white); overflow: hidden;
+  font-family: var(--font-editorial); font-size: clamp(28px, 8.5vw, 44px); font-weight: 500;
+  font-optical-sizing: auto; line-height: 1; letter-spacing: -.045em; text-transform: uppercase;
   touch-action: pan-y pinch-zoom; user-select: none; cursor: pointer;
+}
+.ls-issue-labels, .ls-issue-slide { display: grid; width: 100%; position: relative; }
+.ls-issue-label, .ls-issue-slide::before { grid-area: 1 / 1; padding: 3px 4px; text-align: center; }
+.ls-issue-labels { pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .ls-issue-labels { transform: translateX(var(--issue-drag, 0px)); }
+  .ls-issue-tab[data-settling="true"] .ls-issue-labels { transition: transform 220ms cubic-bezier(.2,.75,.25,1); }
+  .ls-issue-slide[data-direction="next"] { --issue-enter: 100%; --issue-exit: -100%; }
+  .ls-issue-slide[data-direction="previous"] { --issue-enter: -100%; --issue-exit: 100%; }
+  .ls-issue-slide[data-direction] .ls-issue-label { animation: ls-issue-enter 260ms cubic-bezier(.2,.75,.25,1) both; }
+  .ls-issue-slide[data-direction]::before {
+    content: attr(data-previous-label);
+    animation: ls-issue-exit 260ms cubic-bezier(.2,.75,.25,1) both;
+  }
+}
+@keyframes ls-issue-enter {
+  from { transform: translateX(calc(var(--issue-enter) + var(--issue-release))); opacity: .35; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes ls-issue-exit {
+  from { transform: translateX(var(--issue-release)); opacity: 1; }
+  to { transform: translateX(var(--issue-exit)); opacity: 0; visibility: hidden; }
 }
 .ls-issue-tabs .ls-issue-tab[aria-pressed="true"] {
   background: var(--color-chalk-white); color: var(--color-fig-black); border-color: var(--color-chalk-white);
@@ -3042,18 +3065,16 @@ h3.ls-toc-name { cursor: default; }
   .ls-issue-tabs .ls-issue-step:hover { color: var(--color-acid-lime); }
 }
 .ls-issue-position {
-  grid-column: 1 / -1; display: flex; justify-content: center; gap: 8px; margin: 0;
+  grid-column: 1 / -1; display: flex; justify-content: center; gap: 8px; margin: 8px 0 0;
   color: var(--color-lilac-fog); font: 500 12px/1.3 var(--font-ui); font-variant-numeric: tabular-nums;
 }
 .ls-issue-swipe { display: none; }
 @media (any-pointer: coarse) { .ls-issue-swipe { display: inline; } }
 @media (max-width: 900px) {
-  .ls-issue-hero { background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800); }
   .ls-issue-dock[data-docked="true"] {
     display: grid; position: fixed; inset: auto 0 calc(72px + env(safe-area-inset-bottom)); z-index: 6;
-    background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800);
   }
-  .ls:has(.ls-issue-dock[data-docked="true"]) .ls-body { padding-bottom: calc(48px + clamp(112px, 24vw, 136px)); }
+  .ls:has(.ls-issue-dock[data-docked="true"]) .ls-body { padding-bottom: calc(48px + clamp(196px, 65vw, 264px)); }
 }
 
 .ls .ls-wear-title em, .ls .ls-wear-title em .ls-wear-xxx { color: var(--color-acid-lime); }
