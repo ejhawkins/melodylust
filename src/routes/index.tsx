@@ -561,6 +561,7 @@ function ListeningRoom() {
             <ListenEdition choice={genre} onChoose={chooseGenre} stories={edition} reads={editionReads} songs={editionSongs}
               playing={listening && queue === mix ? now : null} onPlay={play}
               onRead={s => { setActive(`story-${s.id}`); setArticle(s); }}
+              pairingCount={runwayEdition.length}
               // The same cards as "+ Runway Notes" below; when that list is open they show there instead, not twice.
               pairings={!runwayListed && runwayEdition.length > 0 ? (
                 <ul className="ls-rn-cards">

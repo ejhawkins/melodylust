@@ -8,11 +8,15 @@ import type { GoodRead } from "@/lib/good-reads";
 
 const CHOICES: readonly GenreChoice[] = ["all", ...EDITION_GENRES];
 
+/** For now a genre edition holds only its runway cards; set this to false to bring back its stories, Good Reads and
+ *  songs, which are still passed in. */
+const RUNWAY_CARDS_ONLY = true;
+
 /** The room's personal edition. A quiet badge says which genre the room is curated for and opens the choices; with a
- *  genre chosen it leads with that genre's newest story, then the rest, its Good Reads from Contentful, the runway
- *  pairings and the mix's songs for it.
+ *  genre chosen it shows that genre's runway pairings (and, with RUNWAY_CARDS_ONLY off, leads with its newest story,
+ *  then the rest, its Good Reads from Contentful and the mix's songs for it).
  *  The stories arrive already netted out (Contentful's when connected, the bundled ones otherwise). */
-export function ListenEdition({ choice, onChoose, stories, reads = [], songs, playing, onPlay, onRead, pairings }: {
+export function ListenEdition({ choice, onChoose, stories, reads = [], songs, playing, onPlay, onRead, pairings, pairingCount = 0 }: {
   choice: GenreChoice;
   onChoose: (choice: GenreChoice) => void;
   stories: readonly Story[];
@@ -25,6 +29,8 @@ export function ListenEdition({ choice, onChoose, stories, reads = [], songs, pl
   onRead: (story: Story) => void;
   /** The genre's Runway Note cards, or null when it has none (or they are already on the page below). */
   pairings: ReactNode;
+  /** How many runway cards the genre has, wherever they show. */
+  pairingCount?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [lead, ...rest] = stories;
@@ -44,7 +50,15 @@ export function ListenEdition({ choice, onChoose, stories, reads = [], songs, pl
         </div>
       )}
 
-      {personal && <>
+      {personal && RUNWAY_CARDS_ONLY && <>
+        <div className="ls-section-head">
+          <h2>The {choice} <span className="ls-two-face-xxx">Edition</span></h2>
+          <span>{pairingCount} runway {pairingCount === 1 ? "card" : "cards"}</span>
+        </div>
+        {pairings ?? <p className="ls-empty">{pairingCount > 0 ? `The ${choice} runway cards are in Runway Notes below.` : `No ${choice} runway cards filed yet.`}</p>}
+      </>}
+
+      {personal && !RUNWAY_CARDS_ONLY && <>
         <div className="ls-section-head">
           <h2>The {choice} <span className="ls-two-face-xxx">Edition</span></h2>
           <span>{stories.length} {stories.length === 1 ? "story" : "stories"}{reads.length > 0 && ` · ${reads.length} ${reads.length === 1 ? "good read" : "good reads"}`}{songs.length > 0 && ` · ${songs.length} ${songs.length === 1 ? "song" : "songs"}`}</span>
