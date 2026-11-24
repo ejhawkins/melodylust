@@ -3012,17 +3012,49 @@ h3.ls-toc-name { cursor: default; }
 .styling-auth.ls-quiz h2 { padding-right: 32px; font-size: clamp(30px, 8.4vw, 44px); } /* clear of the close button */
 .styling-auth.ls-quiz form button[type="submit"] { font-family: var(--font-hammer); font-size: 20px; letter-spacing: .02em; text-transform: uppercase; }
 
-/* ===== The Issue: section row in the hero, pinned above the player after it (phones) ===== */
-.ls-issue-tabs { display: none; }
-@media (max-width: 900px) {
-  .ls-issue-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding: 6px 12px; font-family: var(--font-body); }
-  .ls-issue-tabs::-webkit-scrollbar { display: none; }
-  .ls-issue-hero { background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800); }
-  .ls-issue-dock { position: fixed; left: 0; right: 0; bottom: calc(72px + env(safe-area-inset-bottom)); z-index: 6; height: 44px; align-items: center; background: color-mix(in oklab, var(--color-fig-950) 94%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--color-fig-800); transform: translateY(calc(100% + 80px)); opacity: 0; pointer-events: none; transition: transform .35s cubic-bezier(.16,1,.3,1), opacity .25s ease; }
-  .ls-issue-dock[data-docked="true"] { transform: none; opacity: 1; pointer-events: auto; }
-  .ls:has(.ls-issue-dock[data-docked="true"]) .ls-body { padding-bottom: 44px; }
+/* ===== The Issue: one square section tile, with swipe, chevrons and keyboard browsing ===== */
+.ls-issue-tabs {
+  --issue-tile-size: clamp(112px, 24vw, 136px);
+  display: grid; grid-template-columns: 44px var(--issue-tile-size) 44px;
+  justify-content: center; align-items: center; gap: 8px;
+  padding: 12px 0; color: var(--color-chalk-white);
 }
-@media (prefers-reduced-motion: reduce) { .ls-issue-dock { transition: none; } }
+.ls-issue-hero { margin-inline: auto; }
+.ls-issue-dock { display: none; }
+.ls-issue-tabs .ls-issue-tab {
+  width: 100%; height: auto; aspect-ratio: 1; padding: 0 4px; border-radius: 0;
+  border: 1px solid color-mix(in oklab, var(--color-chalk-white) 48%, transparent);
+  background: var(--color-fig-950); color: var(--color-chalk-white);
+  font-family: var(--font-editorial); font-size: clamp(18px, 4.25vw, 22px); font-weight: 600;
+  line-height: 1; letter-spacing: .02em; text-transform: uppercase;
+  touch-action: pan-y pinch-zoom; user-select: none; cursor: pointer;
+}
+.ls-issue-tabs .ls-issue-tab[aria-pressed="true"] {
+  background: var(--color-chalk-white); color: var(--color-fig-black); border-color: var(--color-chalk-white);
+}
+.ls-issue-tabs .ls-issue-step {
+  width: 44px; height: 44px; padding: 0; border-radius: 0;
+  background: transparent; color: var(--color-chalk-white); cursor: pointer;
+}
+.ls-issue-tabs :is(.ls-issue-tab, .ls-issue-step):focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 2px; }
+@media (hover: hover) {
+  .ls-issue-tabs .ls-issue-tab:hover { border-color: var(--color-acid-lime); }
+  .ls-issue-tabs .ls-issue-step:hover { color: var(--color-acid-lime); }
+}
+.ls-issue-position {
+  grid-column: 1 / -1; display: flex; justify-content: center; gap: 8px; margin: 0;
+  color: var(--color-lilac-fog); font: 500 12px/1.3 var(--font-ui); font-variant-numeric: tabular-nums;
+}
+.ls-issue-swipe { display: none; }
+@media (any-pointer: coarse) { .ls-issue-swipe { display: inline; } }
+@media (max-width: 900px) {
+  .ls-issue-hero { background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800); }
+  .ls-issue-dock[data-docked="true"] {
+    display: grid; position: fixed; inset: auto 0 calc(72px + env(safe-area-inset-bottom)); z-index: 6;
+    background: var(--color-fig-950); border-top: 1px solid var(--color-fig-800);
+  }
+  .ls:has(.ls-issue-dock[data-docked="true"]) .ls-body { padding-bottom: calc(48px + clamp(112px, 24vw, 136px)); }
+}
 
 .ls .ls-wear-title em, .ls .ls-wear-title em .ls-wear-xxx { color: var(--color-acid-lime); }
 
@@ -3368,9 +3400,6 @@ body { background: var(--background); color: var(--foreground); font-family: var
 
 .ls-share-extra-label { font-family: var(--font-accent); font-style: italic; font-weight: 900; font-size: 12px; color: var(--color-acid-lime); }
 .ls-share-extra-title { font-family: var(--font-heading); font-size: 20px; line-height: 1; text-transform: uppercase; color: var(--color-chalk-white); }
-
-/* Issue buttons as one cohesive segmented pill (not sticky). */
-.ls-issue-tabs.ls-issue-hero { display: flex; width: max-content; margin-inline: auto; /* centred under the hero when its pills are narrower than the card */ }
 
 /* Favourites shelf + hearts on runway rows, playlists and the product card. */
 .ls-fav { cursor: default; text-align: left; }
@@ -4039,7 +4068,7 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
    it reads as "there's more". One shared pill: slim, hairline when idle, inverted when chosen.
    A group sets --pill-ink / --pill-ground when it sits on something other than the page colours. */
 :where(.pill-rail, .ls-filters) { display: flex; } /* the other groups already say when they show */
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) {
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) {
   --pill-ink: var(--foreground); --pill-ground: var(--background);
   flex-wrap: nowrap; align-items: center; gap: 8px; min-width: 0; max-width: 100%;
   overflow-x: auto; overscroll-behavior-x: contain; white-space: nowrap; scroll-behavior: smooth;
@@ -4049,11 +4078,11 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
   mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
 }
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs)::-webkit-scrollbar { display: none; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters)::-webkit-scrollbar { display: none; }
 :root :is(.stylus-moods, .gs-tablist, .pill-rail[data-tone="stylus"]) { --pill-ink: var(--stylus-paper); --pill-ground: var(--stylus-ink); }
-:root .ls :is(.ls-shelf-pills, .ls-filters, .ls-issue-tabs) { --pill-ink: var(--color-chalk-white); --pill-ground: var(--color-fig-black); }
+:root .ls :is(.ls-shelf-pills, .ls-filters) { --pill-ink: var(--color-chalk-white); --pill-ground: var(--color-fig-black); }
 
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a) {
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) > :is(button, a) {
   flex: none; scroll-snap-align: start; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   height: 34px; min-height: 34px; padding: 0 16px; border-radius: 999px;
   border: 1px solid color-mix(in oklab, var(--pill-ink) 32%, transparent);
@@ -4061,15 +4090,15 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
   font-family: var(--font-ui); font-size: 11px; font-weight: 500; line-height: 1; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
   cursor: pointer; transition: border-color 200ms ease, background-color 200ms ease, color 200ms ease, scale 200ms ease;
 }
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):hover { border-color: var(--pill-ink); color: var(--pill-ink); background: transparent; }
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):is([aria-pressed="true"], [aria-selected="true"], [data-active="true"]) {
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) > :is(button, a):hover { border-color: var(--pill-ink); color: var(--pill-ink); background: transparent; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) > :is(button, a):is([aria-pressed="true"], [aria-selected="true"], [data-active="true"]) {
   border-color: var(--pill-ink); background: var(--pill-ink); color: var(--pill-ground); box-shadow: 0 1px 2px rgb(0 0 0 / .25);
 }
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):active { scale: .98; }
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):focus-visible { outline: 1px solid var(--ring); outline-offset: 2px; }
-:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) > :is(button, a):disabled { opacity: .4; cursor: default; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) > :is(button, a):active { scale: .98; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) > :is(button, a):focus-visible { outline: 1px solid var(--ring); outline-offset: 2px; }
+:root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) > :is(button, a):disabled { opacity: .4; cursor: default; }
 @media (prefers-reduced-motion: reduce) {
-  :root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters, .ls-issue-tabs) { scroll-behavior: auto; }
+  :root :is(.pill-rail, .stylus-moods, .mood-pills, .circles-genre-filter, .gs-tablist, .ls-shelf-pills, .ls-filters) { scroll-behavior: auto; }
 }
 
 /* The Featured tab (ListenFeatured): The Autumn Mix one cover at a time over a blurred wash of the same cover, a
@@ -4293,8 +4322,8 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .rso-sent p { margin: 0; }
 .styling-note--opinion .styling-note-extra { opacity: .75; font-size: .92em; }
 
-/* Phones: no Reading Room in the Listening Room, and no Reading tab or contents entry leading to it. */
-@media (max-width: 600px) { .zine-section[data-tone="room"], .ls-issue-tab[data-tab="reading"], .ls-toc-reading { display: none !important; } }
+/* Phones: no Reading Room in the Listening Room or contents entry leading to it. The selector skips Reading too. */
+@media (max-width: 600px) { .zine-section[data-tone="room"], .ls-toc-reading { display: none !important; } }
 
 /* Silent mode (in-app browsers only): the card a Spotify embed becomes, and the one-time advisory. */
 .spotify-silent { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; min-height: 44px; padding: 8px 12px; border: 1px solid color-mix(in oklab, currentColor 35%, transparent); border-radius: 10px; font-size: 13px; line-height: 1.2; }
