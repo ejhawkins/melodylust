@@ -2084,6 +2084,8 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
 .styling-notes-head > div p { margin: 0; }
 /* Room under the Want List's masthead row, and subheads kept below the heading they sit under. */
 .want-heading { margin-top: 18px; }
+/* The Want List's title set in Bodoni Moda, the italic serif of the playlist covers. */
+.wishlist .want-heading { font-family: "Bodoni Moda", serif; font-style: italic; font-weight: 400; text-transform: none; letter-spacing: -.01em; line-height: .95; }
 .styling-empty h3 { font-size: clamp(30px, 4.5vw, 56px); }
 .section-heading, .manifesto { gap: 0; }
 
@@ -2750,7 +2752,7 @@ main .iconic-card.fu .iconic-caption, main .iconic-card.fu .iconic-listen { opac
   --font-editorial: var(--font-isidora); --font-iconic: var(--font-isidora); --font-cover: var(--font-hammer); }
 .ls-want :is(.want-deck, .wish-empty) { font-style: normal; }
 .ls-want :is(.want-row-number, .want-look h4, .want-playlist-heading h3, .want-signals h4) { font-family: var(--font-hammer); text-transform: uppercase; letter-spacing: .01em; line-height: 1; }
-.ls-want .want-heading { font-size: clamp(48px, 12cqi, 132px); }
+.ls-want .want-heading { font-size: clamp(72px, 18cqi, 198px); }
 .ls-want .want-playlist li { border-bottom-color: var(--want-rule); }
 @container (max-width: 900px) { .ls-want .want-output-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ls-want .want-playlist { grid-column: 1 / -1; } }
 @container (max-width: 560px) { .ls-want .want-output-grid { grid-template-columns: minmax(0, 1fr); } .ls-want .wishlist { padding: 32px 16px 40px; } }
@@ -3313,6 +3315,50 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .fc-collage { grid-template-rows: repeat(2, minmax(0, 1fr)); overflow: hidden; }
 .fc-collage img { min-height: 0; }
 .fc-collage[data-count="1"] img:first-child { grid-column: span 2; }
+
+/* The look's moodboard: its song as the header (album art plays it), then a squarer collage — one tall lead image and
+   two stacked beside it at 3:2 — with the picked style's accessory pinned to the top corner. */
+.fc-board { margin-top: 16px; padding: 6px; border-radius: 18px; background: var(--color-fig-900); border: 1px solid var(--color-fig-800); }
+.fc-sound { display: flex; align-items: center; gap: 12px; width: 100%; padding: 6px 8px 12px 6px; text-align: left; color: var(--color-chalk-white); cursor: pointer; }
+.fc-sound-art { position: relative; flex: none; display: grid; place-items: center; width: 64px; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: var(--color-fig-800); box-shadow: 0 10px 24px -12px #000; }
+.fc-sound-art > img { width: 100%; height: 100%; object-fit: cover; }
+.fc-sound-art > svg { width: 28px; height: 28px; color: var(--color-lilac-fog); }
+.fc-sound-play { position: absolute; inset: auto 4px 4px auto; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--color-acid-lime); color: var(--color-fig-black); }
+.fc-sound-play svg { width: 12px; height: 12px; fill: currentColor; }
+.fc-sound-text { display: grid; min-width: 0; }
+.fc-sound-kicker { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--color-lilac-fog); }
+.fc-sound-title { font-family: var(--font-heading); font-size: 20px; line-height: 1; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 3px; }
+.fc-sound-artist { font-size: 13px; color: var(--color-lilac-fog); margin-top: 2px; }
+.fc-sound[aria-pressed="true"] .fc-sound-title { color: var(--color-acid-lime); }
+.fc-sound:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 2px; border-radius: 10px; }
+.fc-board .fc-collage { position: relative; margin-top: 0; height: auto; aspect-ratio: 1; max-height: 480px; gap: 6px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); grid-template-rows: minmax(0, 3fr) minmax(0, 2fr); }
+.fc-board .fc-collage img { border-radius: 12px; }
+.fc-accent { position: absolute; bottom: 10px; right: 10px; z-index: 2; width: min(44%, 170px); padding: 0 0 8px;
+  border-radius: 12px; background: var(--color-chalk-white); color: var(--color-fig-black); transform: rotate(-3deg);
+  box-shadow: 0 18px 30px -14px #000; animation: fc-accent-in .4s cubic-bezier(.22,1,.36,1); overflow: hidden; }
+@keyframes fc-accent-in { from { opacity: 0; transform: rotate(-8deg) translateY(-8px) scale(.92); } }
+/* One slide per style; the drawing trails its card by 40% of the swipe and the words lead slightly, for depth. */
+.fc-accent-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; touch-action: pan-x pan-y; }
+.fc-accent-track::-webkit-scrollbar { display: none; }
+.fc-accent-track:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: -2px; border-radius: 12px; }
+.fc-accent-slide { --p: 0; --a: 0; flex: 0 0 100%; scroll-snap-align: center; display: grid; justify-items: start; padding: 10px 10px 4px; overflow: hidden; }
+.fc-accent-slide > .fc-accent-motif { transform: translateX(calc(var(--p) * -40%)) rotate(calc(var(--p) * -12deg)); opacity: calc(1 - var(--a, 0) * 1.2); }
+.fc-accent-slide > :is(.fc-accent-kicker, .fc-accent-name) { transform: translateX(calc(var(--p) * 18%)); }
+.fc-accent-motif { width: 100%; height: auto; max-height: 64px; color: var(--color-fig-black); }
+.fc-accent-kicker { margin-top: 4px; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; opacity: .7; }
+.fc-accent-name { font-family: var(--font-heading); font-size: 17px; line-height: 1; text-transform: uppercase; }
+.fc-accent-actions { display: flex; gap: 6px; margin-top: 8px; }
+.fc-accent-actions :is(button, a) { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--color-fig-black); color: var(--color-fig-black); }
+.fc-accent-actions button[aria-pressed="true"] { background: var(--color-acid-lime); border-color: transparent; }
+.fc-accent-actions svg { width: 14px; height: 14px; }
+.fc-accent-dots { display: flex; justify-content: center; gap: 4px; }
+.fc-accent-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--color-fig-black); opacity: .2; transition: opacity .2s, width .2s; }
+.fc-accent-dots i[data-on="true"] { width: 12px; border-radius: 3px; opacity: .8; }
+@media (prefers-reduced-motion: reduce) { .fc-accent-slide > * { transform: none !important; opacity: 1 !important; } }
+.fc-look .fc-look-art { position: absolute; inset: 10px 10px auto auto; z-index: 2; width: 34px; height: 34px; border-radius: 6px; object-fit: cover; box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-chalk-white) 40%, transparent), 0 6px 14px -6px #000; filter: none !important; transform: none !important; }
+@media (min-width: 901px) { .fc-look[data-q="tr"] .fc-look-art { inset: 10px auto auto 10px; } }
+@media (prefers-reduced-motion: reduce) { .fc-accent { animation: none; } }
 
 .ls-share-extra-label { font-family: var(--font-accent); font-style: italic; font-weight: 900; font-size: 12px; color: var(--color-acid-lime); }
 .ls-share-extra-title { font-family: var(--font-heading); font-size: 20px; line-height: 1; text-transform: uppercase; color: var(--color-chalk-white); }

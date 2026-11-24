@@ -157,6 +157,32 @@ export const CONTENT_MODEL: ModelType[] = [
       { id: 'order', type: 'Integer' },
     ],
   },
+  {
+    id: 'musicalReference', name: 'Musical reference', feature: 'Playlists: one piece of music cited as a reference',
+    readBy: '(not read by the site yet)', createdBy: 'scripts/contentful/create-playlists.ts',
+    fields: [
+      { id: 'title', type: 'Symbol', required: true },
+      { id: 'artist', type: 'Symbol', required: true },
+      { id: 'kind', type: 'Symbol', note: 'Song, Album, Artist, Score, Sample, Live recording or Mix' },
+      { id: 'year', type: 'Integer' },
+      { id: 'note', type: 'Symbol', note: 'Why it’s here, in a line' },
+      { id: 'spotifyUrl', type: 'Symbol', note: 'An open.spotify.com link' },
+      { id: 'link', type: 'Symbol', note: 'Any other http or https link' },
+    ],
+  },
+  {
+    id: 'playlist', name: 'Playlist', feature: 'Playlists: an editorial playlist of musical references',
+    readBy: '(not read by the site yet)', createdBy: 'scripts/contentful/create-playlists.ts',
+    fields: [
+      { id: 'title', type: 'Symbol', required: true },
+      { id: 'slug', type: 'Symbol', required: true, note: 'Unique; lowercase words joined by hyphens' },
+      { id: 'description', type: 'Text' },
+      { id: 'cover', type: 'Link', link: 'Asset' },
+      { id: 'genre', type: 'Symbol', note: `One of ${MODEL_GENRES.join(', ')}` },
+      { id: 'references', type: 'Array', required: true, link: 'Entry', to: ['musicalReference', 'song', 'runwaySong'], note: 'In play order, 1 to 100' },
+      { id: 'order', type: 'Integer', note: 'Lowest first' },
+    ],
+  },
 ];
 
 type Bag = Record<string, unknown>;

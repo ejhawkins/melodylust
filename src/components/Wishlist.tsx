@@ -100,9 +100,7 @@ export function Wishlist() {
 
   return <section className="wishlist" id="wishlist" aria-label="Your wishlist">
     <header className="want-masthead">
-      <div className="want-folio"><span>Stylus</span><span>Issue No. 010</span><span>Music + wardrobe</span></div>
-      <h2 className="want-heading">The Want List</h2>
-      <p className="want-deck">On repeat. In rotation. In your wardrobe.</p>
+      <h2 className="want-heading">Want List</h2>
     </header>
     <form className="want-rotation" aria-label="Your rotation" onSubmit={async event => {
       event.preventDefault();

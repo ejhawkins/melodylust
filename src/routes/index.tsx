@@ -518,7 +518,8 @@ function ListeningRoom() {
           ) : view.kind === "profile" ? (
             // The profile page, loaded right here under the room's own header.
             <div className="ls-profile">
-              <CuratorDossier embedded tab={view.tab} onTabChange={tab => setView({ kind: "profile", tab })} />
+              <CuratorDossier embedded tab={view.tab} onTabChange={tab => setView({ kind: "profile", tab })}
+                capsule={<ListenCapsule mix={mix} nowPlaying={listening ? song.caption : undefined} onPlay={playStudio} onWantList={openWant} onBack={goHome} />} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
             </div>
           ) : look && view.kind === "look" ? (

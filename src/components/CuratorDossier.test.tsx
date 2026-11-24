@@ -173,3 +173,24 @@ describe('Curator Dossier, signed in', () => {
     expect(await screen.findByRole('heading', { name: "Your notes can't be loaded right now." })).toBeInTheDocument();
   });
 });
+
+describe('Curator Dossier, Capsule canvas', () => {
+  it('leaves the Capsule canvas tab out where no capsule is passed', async () => {
+    renderDossier();
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByRole('tab', { name: /Capsule canvas/ })).toBeNull();
+  });
+
+  it('shows the capsule as the second tab inside the listening room', async () => {
+    const onTabChange = vi.fn();
+    render(<CuratorDossier embedded tab="capsule" onTabChange={onTabChange} capsule={<p>The capsule canvas</p>} />);
+    const tab = await screen.findByRole('tab', { name: '02. Capsule canvas' });
+    expect(tab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('The capsule canvas');
+  });
+
+  it('falls back to the Want List tab when asked for the capsule without one', async () => {
+    renderDossier('capsule');
+    expect(await screen.findByRole('tab', { name: /Want list & edits/ })).toHaveAttribute('aria-selected', 'true');
+  });
+});

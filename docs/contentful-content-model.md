@@ -27,6 +27,8 @@ Song looks       song ──artist──▶ artist ──similarArtists──▶
                  styleTag is linked from artist, song and clothingItem
 
 Runway Songs     runwaySong ──show──▶ runwayShow ──designers──▶ runwayDesigner
+
+Playlists        playlist ──references──▶ musicalReference, song or runwaySong
 ```
 
 A song look is found by the song's `caption` ("Title — Artist", with an em dash), which must match the Listening Room
@@ -193,6 +195,34 @@ Runway Songs: a song a show played. Read by `src/lib/runway-archive.ts`; created
 | sources | Array |  |  |
 | order | Integer |  |  |
 
+### Musical reference (`musicalReference`)
+
+Playlists: one piece of music cited as a reference. Not read by the site yet; created by `scripts/contentful/create-playlists.ts`.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| title | Symbol | yes |  |
+| artist | Symbol | yes |  |
+| kind | Symbol |  | Song, Album, Artist, Score, Sample, Live recording or Mix |
+| year | Integer |  |  |
+| note | Symbol |  | Why it’s here, in a line |
+| spotifyUrl | Symbol |  | An open.spotify.com link |
+| link | Symbol |  | Any other http or https link |
+
+### Playlist (`playlist`)
+
+Playlists: an editorial playlist of musical references. Not read by the site yet; created by `scripts/contentful/create-playlists.ts`.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| title | Symbol | yes |  |
+| slug | Symbol | yes | Unique; lowercase words joined by hyphens |
+| description | Text |  |  |
+| cover | Link → Asset |  |  |
+| genre | Symbol |  | One of Hip-Hop, Pop, R&B, Electronic, Rock, Indie, Jazz, Country |
+| references | Array → Entry (musicalReference, song, runwaySong) | yes | In play order, 1 to 100 |
+| order | Integer |  | Lowest first |
+
 ## Scripts
 
 | Script | What it does |
@@ -202,6 +232,7 @@ Runway Songs: a song a show played. Read by `src/lib/runway-archive.ts`; created
 | `npx tsx --env-file-if-exists=.env.local scripts/contentful/create-good-reads.ts` | Creates `goodRead`, or adds the fields it lacks |
 | `npx tsx --env-file-if-exists=.env.local scripts/contentful/seed-song-looks.ts` | Creates `genre`, `styleTag`, `artist`, `clothingItem` and `song`, then seeds the Autumn Mix |
 | `npx tsx --env-file-if-exists=.env.local scripts/contentful/extend-clothing-items.ts` | Adds `colorway` and the product-card fields on `clothingItem` |
+| `npx tsx --env-file-if-exists=.env.local scripts/contentful/create-playlists.ts` | Creates `musicalReference` and `playlist`, or adds the fields they lack |
 | `npx contentful-cli space migration … runway-music-archive.cjs` | Creates `runwayDesigner`, `runwayShow` and `runwaySong` |
 
 The create scripts only add. None of them deletes or renames a field.

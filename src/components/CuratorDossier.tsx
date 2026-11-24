@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { ArrowLeft, Check, Download, Link2, LogOut, Music2, Pencil, Trash2, X } from "lucide-react";
 import logoImage from "@/assets/melody-lust-logo.png";
@@ -21,6 +21,7 @@ import { addWish, clearWishlist, exportWishlist, removeWish, useWishlist, type W
 
 export const DOSSIER_TABS = [
   { id: "edits", label: "Want list & edits" },
+  { id: "capsule", label: "Capsule canvas" },
   { id: "library", label: "Music library" },
   { id: "playlist", label: "AI playlist" },
   { id: "dna", label: "Style DNA" },
@@ -37,7 +38,11 @@ type Workspace = Awaited<ReturnType<typeof getStylingNotesWorkspace>>;
  * device and work signed out; notes and the account need a sign-in. `embedded` sets it inside
  * another page (the listening room) as a section under that page's header, without the masthead.
  */
-export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void; embedded?: boolean }) {
+export function CuratorDossier({ tab: asked, onTabChange, embedded = false, capsule }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void; embedded?: boolean;
+  /** The Capsule canvas, which plays through the listening room's bar, so only the room passes it; without it the tab is left out. */
+  capsule?: ReactNode }) {
+  const tabs = capsule ? DOSSIER_TABS : DOSSIER_TABS.filter(t => t.id !== "capsule");
+  const tab = tabs.some(t => t.id === asked) ? asked : "edits";
   const wishes = useWishlist();
   const likes = useLikes();
   const { profile, save, clear } = useStyleProfile();
@@ -101,10 +106,11 @@ export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: Do
       </dl>
     </section>
 
-    <Tabs tab={tab} onTabChange={onTabChange} />
+    <Tabs tabs={tabs} tab={tab} onTabChange={onTabChange} />
 
     <section className="dossier-panel" role="tabpanel" id={`dossier-panel-${tab}`} aria-labelledby={`dossier-tab-${tab}`}>
       {tab === "edits" && <EditsPanel wishes={wishes} />}
+      {tab === "capsule" && capsule}
       {tab === "library" && <MusicLibraryPanel />}
       {tab === "playlist" && <AiPlaylistPanel genres={styleDna(profile).genres} />}
       {tab === "dna" && <DnaPanel dna={styleDna(profile)} signals={signals} onRecalibrate={() => setQuizOpen(true)} />}
@@ -118,18 +124,18 @@ export function CuratorDossier({ tab, onTabChange, embedded = false }: { tab: Do
   </Root>;
 }
 
-function Tabs({ tab, onTabChange }: { tab: DossierTab; onTabChange: (tab: DossierTab) => void }) {
+function Tabs({ tabs, tab, onTabChange }: { tabs: readonly (typeof DOSSIER_TABS)[number][]; tab: DossierTab; onTabChange: (tab: DossierTab) => void }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const move = (e: KeyboardEvent, i: number) => {
-    const next = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? DOSSIER_TABS.length - 1 : null;
+    const next = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : null;
     if (next === null) return;
     e.preventDefault();
-    const n = (next + DOSSIER_TABS.length) % DOSSIER_TABS.length;
-    onTabChange(DOSSIER_TABS[n]!.id);
+    const n = (next + tabs.length) % tabs.length;
+    onTabChange(tabs[n]!.id);
     refs.current[n]?.focus();
   };
   return <div className="dossier-tabs" role="tablist" aria-label="Dossier">
-    {DOSSIER_TABS.map((t, i) => <Button key={t.id} variant="dossierTab" role="tab" id={`dossier-tab-${t.id}`} aria-controls={`dossier-panel-${t.id}`}
+    {tabs.map((t, i) => <Button key={t.id} variant="dossierTab" role="tab" id={`dossier-tab-${t.id}`} aria-controls={`dossier-panel-${t.id}`}
       aria-selected={tab === t.id} tabIndex={tab === t.id ? 0 : -1} ref={el => { refs.current[i] = el; }}
       onClick={() => onTabChange(t.id)} onKeyDown={e => move(e, i)}>{`0${i + 1}. ${t.label}`}</Button>)}
   </div>;
