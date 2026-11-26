@@ -4501,6 +4501,12 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ri-shows { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .ri-show { display: grid; gap: 6px; padding: 12px 0; border-top: 1px solid var(--color-fig-800); }
 .ri-show-title { margin: 0; font-family: var(--font-editorial); font-size: 20px; }
+.ri-show-songs { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.ri-show-songs li { font-size: 15px; line-height: 1.35; }
+.ri-show-songs a, .ri-show-songs li > span:first-child { display: inline-flex; align-items: baseline; gap: 2px; font-weight: 600; color: var(--color-acid-lime); }
+.ri-show-songs a:hover { color: var(--color-chalk-white); }
+.ri-show-songs svg { width: 13px; height: 13px; }
+.ri-show-artist { color: var(--color-lilac-fog); }
 .ri-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .ri-chip { padding: 2px 10px; border: 1px solid var(--color-fig-800); border-radius: 999px; font-size: 12px; }
 .ri-chip.is-match { border-color: var(--color-acid-lime); color: var(--color-acid-lime); }

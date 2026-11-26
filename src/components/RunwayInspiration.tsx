@@ -89,7 +89,19 @@ export function RunwayInspiration({ profile, notes, songs, onRetake }: { profile
           {shows.map(show => (
             <li key={show.note.id} className="ri-show">
               <p className="ri-show-title">{show.label}</p>
-              <p className="ri-meta">{show.designers.map(d => d.name).join(" & ")}{show.tracks.length > 0 && <> · {show.tracks.map(t => `“${t.title}” by ${t.artist}`).join(", ")}</>}</p>
+              {show.tracks.length > 0 && (
+                <ul className="ri-show-songs" aria-label={`Songs at ${show.label}`}>
+                  {show.tracks.map(t => (
+                    <li key={`${t.title}|${t.artist}`}>
+                      {t.spotifyId
+                        ? <a href={spotify(t.spotifyId)} target="_blank" rel="noopener noreferrer">{t.title}<ArrowUpRight aria-hidden /></a>
+                        : <span>{t.title}</span>}
+                      <span className="ri-show-artist"> · {t.artist}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="ri-meta">{show.designers.map(d => d.name).join(" & ")}</p>
               <ul className="ri-tags" aria-label="Tags">
                 {show.tags.map(tag => (
                   <li key={tagKey(tag)} className={show.matched.some(m => tagKey(m) === tagKey(tag)) ? "ri-chip is-match" : "ri-chip"}>
