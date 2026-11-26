@@ -124,7 +124,7 @@ describe("leaving the listening room", () => {
     await room.leave();
     expect(sdk.player.disconnect).toHaveBeenCalled();
     expect(deps.forget).toHaveBeenCalled();
-    expect(room.getState()).toEqual({ mode: { kind: "silence", notice: null }, playing: null });
+    expect(room.getState()).toEqual({ mode: { kind: "silence", notice: null }, playing: null, flash: null });
   });
 });
 
@@ -137,6 +137,76 @@ describe("reading playback", () => {
     sdk.fire("player_state_changed", state);
     expect(room.getState().playing).toEqual({ paused: false, trackUri: "spotify:track:1", title: "Song", artist: "A, B" });
     expect(readPlayerState(null)).toBeNull();
+  });
+});
+
+describe("playback control", () => {
+  async function listening(fetchRoutes: Record<string, () => Response> = {}) {
+    const calls: { path: string; method: string; body: unknown }[] = [];
+    const routes: Record<string, () => Response> = { "/me": () => json({ product: "premium" }), "/me/player/play": () => new Response(null, { status: 204 }), ...fetchRoutes };
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input));
+      const path = url.pathname.replace("/v1", "");
+      calls.push({ path: path + url.search, method: init?.method ?? "GET", body: init?.body ? JSON.parse(String(init.body)) : null });
+      return (routes[path] ?? (() => new Response(null, { status: 404 })))();
+    });
+    const made = makeRoom({ fetchImpl: fetchImpl as unknown as typeof fetch });
+    await made.room.enter();
+    await flush();
+    made.sdk.fire("ready", { device_id: "device 1" });
+    return { ...made, calls };
+  }
+
+  it("starts the queue on this browser's device, after activating audio", async () => {
+    const { room, sdk, calls } = await listening();
+    await room.playQueue({ uris: ["spotify:track:a", "spotify:track:b"], offset: 1 });
+    expect(sdk.player.activateElement).toHaveBeenCalled();
+    expect(calls.at(-1)).toEqual({ path: "/me/player/play?device_id=device%201", method: "PUT", body: { uris: ["spotify:track:a", "spotify:track:b"], offset: { position: 1 } } });
+  });
+
+  it("pauses, skips and goes back through the SDK", async () => {
+    const { room, sdk } = await listening();
+    await room.togglePlay();
+    await room.next();
+    await room.previous();
+    expect(sdk.player.togglePlay).toHaveBeenCalledTimes(1);
+    expect(sdk.player.nextTrack).toHaveBeenCalledTimes(1);
+    expect(sdk.player.previousTrack).toHaveBeenCalledTimes(1);
+  });
+
+  it("does nothing in silence", async () => {
+    const { room, sdk } = makeRoom();
+    await room.playQueue({ uris: ["spotify:track:a"], offset: 0 });
+    await room.togglePlay();
+    expect(sdk.player.activateElement).not.toHaveBeenCalled();
+    expect(sdk.player.togglePlay).not.toHaveBeenCalled();
+  });
+
+  it("keeps listening when one song won't play, but leaves on the invite-only cap", async () => {
+    const restricted = await listening({ "/me/player/play": () => json({ error: { status: 403, message: "Player command failed: Restriction violated" } }, 403) });
+    await restricted.room.playQueue({ uris: ["spotify:track:a"], offset: 0 });
+    expect(restricted.room.getState().mode.kind).toBe("listening");
+    expect(restricted.room.getState().flash).toBe("playback");
+
+    const capped = await listening({ "/me/player/play": () => json({ error: { status: 403, message: "the user may not be registered" } }, 403) });
+    await capped.room.playQueue({ uris: ["spotify:track:a"], offset: 0 });
+    expect(capped.room.getState().mode).toEqual({ kind: "silence", notice: "invite_only" });
+  });
+
+  it("retries once with a fresh token when Spotify says it expired", async () => {
+    let first = true;
+    const { room, calls, deps } = await listening({ "/me/player/play": () => { if (first) { first = false; return new Response(null, { status: 401 }); } return new Response(null, { status: 204 }); } });
+    await room.playQueue({ uris: ["spotify:track:a"], offset: 0 });
+    expect(calls.filter(c => c.path.startsWith("/me/player/play"))).toHaveLength(2);
+    expect(deps.refresh).toHaveBeenCalledTimes(2);
+    expect(room.getState().mode.kind).toBe("listening");
+  });
+
+  it("treats the SDK's playback_error as a passing note", async () => {
+    const { room, sdk } = await listening();
+    sdk.fire("playback_error", { message: "Failed to perform playback" });
+    expect(room.getState().mode.kind).toBe("listening");
+    expect(room.getState().flash).toBe("playback");
   });
 });
 

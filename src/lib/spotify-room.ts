@@ -3,7 +3,7 @@
 // Everything it talks to is passed in, so tests drive it with a fake SDK and a fake Spotify.
 import { useSyncExternalStore } from "react";
 import { SILENCE, isPremium, nextMode, sdkErrorNotice, type ListeningMode, type ModeEvent, type Notice } from "./listening-mode";
-import { createSpotifyApi, SpotifyApiError, type SpotifyApi } from "./spotify-api";
+import { createSpotifyApi, SpotifyApiError, type PlayRequest, type SpotifyApi } from "./spotify-api";
 import { createTokenStore, type RefreshResult, type SpotifyToken, type TokenStore } from "./spotify-auth";
 import { readPlayerState, type NowPlaying, type SdkErrorEvent, type SpotifyPlayer, type SpotifySdk } from "./spotify-player";
 
@@ -11,6 +11,8 @@ export type RoomState = {
   mode: ListeningMode;
   /** What this browser's player holds, once Spotify reports it. */
   playing: NowPlaying | null;
+  /** A passing problem that doesn't end listening (one song wouldn't play). Cleared by the next action. */
+  flash: Notice | null;
 };
 
 export type RoomDeps = {
@@ -30,7 +32,7 @@ const noticeOf = (error: unknown): Notice => (error instanceof SpotifyApiError ?
 export function createSpotifyRoom(deps: RoomDeps) {
   const tokens: TokenStore = createTokenStore({ refresh: deps.refresh, ...(deps.now ? { now: deps.now } : {}) });
   const api: SpotifyApi = createSpotifyApi({ tokens, ...(deps.fetchImpl ? { fetchImpl: deps.fetchImpl } : {}) });
-  let state: RoomState = { mode: SILENCE, playing: null };
+  let state: RoomState = { mode: SILENCE, playing: null, flash: null };
   let player: SpotifyPlayer | null = null;
   const listeners = new Set<() => void>();
 
@@ -53,9 +55,18 @@ export function createSpotifyRoom(deps: RoomDeps) {
   function fail(notice: Notice) {
     dropPlayer();
     if (notice === "signed_out" || notice === "invite_only" || notice === "not_premium") tokens.clear();
-    emit({ playing: null });
+    emit({ playing: null, flash: null });
     dispatch({ type: "fail", notice });
   }
+
+  /** A failed call: a song that won't play is a passing note; anything else (sign-in, quota, Premium) ends listening. */
+  function trouble(error: unknown) {
+    const notice = noticeOf(error);
+    if (notice === "playback") emit({ flash: notice }); else fail(notice);
+  }
+
+  /** The player, once listening and connected; null otherwise. */
+  const live = () => (state.mode.kind === "listening" && state.mode.ready ? player : null);
 
   /** Signed in: check the account can play, then load the SDK and connect this browser as a player. */
   async function connect() {
@@ -74,7 +85,7 @@ export function createSpotifyRoom(deps: RoomDeps) {
       p.addListener("ready", ({ device_id }) => dispatch({ type: "ready", deviceId: device_id }));
       p.addListener("not_ready", () => dispatch({ type: "not_ready" }));
       p.addListener("player_state_changed", s => emit({ playing: readPlayerState(s) }));
-      for (const event of SDK_ERRORS) p.addListener(event, ({ message }) => fail(sdkErrorNotice(event, message)));
+      for (const event of SDK_ERRORS) p.addListener(event, ({ message }) => { const notice = sdkErrorNotice(event, message); if (notice === "playback") emit({ flash: notice }); else fail(notice); });
       if (!(await p.connect())) fail("unsupported");
     } catch (error) {
       fail(error instanceof SpotifyApiError ? error.notice : "unsupported");
@@ -113,16 +124,41 @@ export function createSpotifyRoom(deps: RoomDeps) {
       try { return await api.playbackState(); } catch (error) { if (noticeOf(error) !== "playback") fail(noticeOf(error)); return null; }
     },
 
+    /**
+     * Plays `request` on this browser. Call it from a click: activateElement() needs that gesture on phones, and
+     * browsers only allow audio a reader asked for.
+     */
+    async playQueue(request: PlayRequest) {
+      const p = live();
+      if (!p || state.mode.kind !== "listening") return;
+      emit({ flash: null });
+      try {
+        await p.activateElement();
+        await api.play(state.mode.deviceId, request);
+      } catch (error) { trouble(error); }
+    },
+
+    /** Pause or resume this browser's player. */
+    async togglePlay() {
+      const p = live();
+      if (!p) return;
+      emit({ flash: null });
+      try { await p.togglePlay(); } catch (error) { trouble(error); }
+    },
+
+    async next() { const p = live(); if (p) { emit({ flash: null }); try { await p.nextTrack(); } catch (error) { trouble(error); } } },
+    async previous() { const p = live(); if (p) { emit({ flash: null }); try { await p.previousTrack(); } catch (error) { trouble(error); } } },
+
     /** "Leave the listening room": disconnect, forget the tokens and the cookie, back to silence. */
     async leave() {
       dropPlayer();
       tokens.clear();
-      emit({ playing: null });
+      emit({ playing: null, flash: null });
       dispatch({ type: "leave" });
       await deps.forget().catch(() => undefined);
     },
 
-    dismiss() { dispatch({ type: "dismiss" }); },
+    dismiss() { emit({ flash: null }); dispatch({ type: "dismiss" }); },
   };
 }
 
@@ -141,7 +177,7 @@ export function spotifyRoom(): SpotifyRoom {
   return room;
 }
 
-const SERVER_STATE: RoomState = { mode: SILENCE, playing: null };
+const SERVER_STATE: RoomState = { mode: SILENCE, playing: null, flash: null };
 
 /** The room's state for React. Always silence while rendering on the server. */
 export function useSpotifyRoom(): RoomState {
