@@ -19,13 +19,15 @@ export interface RoomTheme {
     loadingCaptions: string[];
   };
   content: {
+    // Same genre names as song-recommendations.ts: R&B, Hip-hop, Pop, Rock, Electronic.
     genres: string[];
     garmentKeywords: string[];
     evidenceStrengthMin: "contextual" | "quoted-together" | "verified";
     approvedOnly: true;
   };
-  // Track IDs only, from our own catalog or FreqBlog. Never populated from Spotify API responses.
-  setlist: { slot: "opener" | "walk-out" | "mid" | "closer"; trackId: string; why: string }[];
+  // catalogKey is "Title|Artist" and must match an entry in songCatalog (song-recommendations.ts).
+  // Never populated from Spotify API responses.
+  setlist: { slot: "opener" | "walk-out" | "mid" | "closer"; catalogKey: string; why: string }[];
 }
 
 export const hiphopRunway: RoomTheme = {
@@ -44,12 +46,17 @@ export const hiphopRunway: RoomTheme = {
     loadingCaptions: ["silver chains, pulled tight", "oversized tailoring, front row", "boots on the runway"],
   },
   content: {
-    genres: ["hip hop", "rap", "trap"],
+    genres: ["Hip-hop", "R&B"],
     garmentKeywords: ["chain", "leather jacket", "tailored coat", "boots", "silver"],
     evidenceStrengthMin: "quoted-together",
     approvedOnly: true,
   },
-  setlist: [],
+  setlist: [
+    { slot: "opener", catalogKey: "Love in This Club|Usher feat. Young Jeezy", why: "Late night, Smooth. R&B and Hip-hop." },
+    { slot: "walk-out", catalogKey: "Yeah!|Usher feat. Lil Jon & Ludacris", why: "Hype. Documented Off-White moment: the crystal biker suit at the 2024 Super Bowl halftime show." },
+    { slot: "mid", catalogKey: "Hollaback Girl|Gwen Stefani", why: "Hype, Rebellious. Pop and Hip-hop." },
+    { slot: "closer", catalogKey: "Confessions Part II|Usher", why: "Moody, Late night. R&B." },
+  ],
 };
 
 export const autumnTartan: RoomTheme = {
@@ -68,12 +75,17 @@ export const autumnTartan: RoomTheme = {
     loadingCaptions: ["knitwear, softly worn in", "tartan, cut to the beat", "silver belts, pulled tight"],
   },
   content: {
-    genres: ["indie", "pop", "alternative"],
+    genres: ["Pop", "Rock"],
     garmentKeywords: ["knitwear", "tartan", "belt", "scarf"],
     evidenceStrengthMin: "contextual",
     approvedOnly: true,
   },
-  setlist: [],
+  setlist: [
+    { slot: "opener", catalogKey: "vampire|Olivia Rodrigo", why: "Moody, Rebellious. Pop and Rock." },
+    { slot: "walk-out", catalogKey: "Just a Girl|No Doubt", why: "Rebellious, Hype. Rock and Pop." },
+    { slot: "mid", catalogKey: "Don't Speak|No Doubt", why: "Moody, Romantic. Rock and Pop." },
+    { slot: "closer", catalogKey: "good 4 u|Olivia Rodrigo", why: "Rebellious, Hype. Pop and Rock." },
+  ],
 };
 
 export const ROOM_THEMES: Record<ThemeId, RoomTheme> = {
