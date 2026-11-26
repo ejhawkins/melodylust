@@ -33,6 +33,11 @@ export const songCatalog: Song[] = [
   { title: 'Hollaback Girl', album: 'Love. Angel. Music. Baby.', artist: 'Gwen Stefani', artists: ['Gwen Stefani'], year: 2005, genres: ['Pop', 'Hip-hop'], moods: ['Hype', 'Rebellious'] },
   { title: 'good 4 u', album: 'SOUR', artist: 'Olivia Rodrigo', artists: ['Olivia Rodrigo'], year: 2021, genres: ['Pop', 'Rock'], moods: ['Rebellious', 'Hype'] },
   { title: 'vampire', album: 'GUTS', artist: 'Olivia Rodrigo', artists: ['Olivia Rodrigo'], year: 2023, genres: ['Pop', 'Rock'], moods: ['Moody', 'Rebellious'] },
+  { title: 'Sweet Dreams (Are Made of This)', album: 'Smells Like Children', artist: 'Marilyn Manson', artists: ['Marilyn Manson'], year: 1995, genres: ['Rock'], moods: ['Moody', 'Late night'] },
+  { title: 'The Beautiful People', album: 'Antichrist Superstar', artist: 'Marilyn Manson', artists: ['Marilyn Manson'], year: 1996, genres: ['Rock'], moods: ['Rebellious', 'Hype'] },
+  { title: 'The Dope Show', album: 'Mechanical Animals', artist: 'Marilyn Manson', artists: ['Marilyn Manson'], year: 1998, genres: ['Rock'], moods: ['Moody', 'Rebellious'],
+    moment: { designer: 'Thom Browne', note: "The third and last movement of Thom Browne's Fall/Winter 2017 show, after Wagner and Kraftwerk" } },
+  { title: 'Disposable Teens', album: 'Holy Wood (In the Shadow of the Valley of Death)', artist: 'Marilyn Manson', artists: ['Marilyn Manson'], year: 2000, genres: ['Rock'], moods: ['Rebellious', 'Hype'] },
 ];
 
 /** Editor's read of each house's sound — the "style" half of a designer × music pairing. */

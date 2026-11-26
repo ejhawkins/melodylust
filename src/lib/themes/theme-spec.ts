@@ -75,16 +75,16 @@ export const autumnTartan: RoomTheme = {
     loadingCaptions: ["knitwear, softly worn in", "tartan, cut to the beat", "silver belts, pulled tight"],
   },
   content: {
-    genres: ["Pop", "Rock"],
+    genres: ["Rock"],
     garmentKeywords: ["knitwear", "tartan", "belt", "scarf"],
     evidenceStrengthMin: "contextual",
     approvedOnly: true,
   },
   setlist: [
-    { slot: "opener", catalogKey: "vampire|Olivia Rodrigo", why: "Moody, Rebellious. Pop and Rock." },
-    { slot: "walk-out", catalogKey: "Just a Girl|No Doubt", why: "Rebellious, Hype. Rock and Pop." },
-    { slot: "mid", catalogKey: "Don't Speak|No Doubt", why: "Moody, Romantic. Rock and Pop." },
-    { slot: "closer", catalogKey: "good 4 u|Olivia Rodrigo", why: "Rebellious, Hype. Pop and Rock." },
+    { slot: "opener", catalogKey: "Sweet Dreams (Are Made of This)|Marilyn Manson", why: "Moody, Late night. Rock." },
+    { slot: "walk-out", catalogKey: "The Beautiful People|Marilyn Manson", why: "Rebellious, Hype. Rock." },
+    { slot: "mid", catalogKey: "The Dope Show|Marilyn Manson", why: "Moody, Rebellious. Documented runway moment: the last movement of Thom Browne's Fall/Winter 2017 show." },
+    { slot: "closer", catalogKey: "Disposable Teens|Marilyn Manson", why: "Rebellious, Hype. Rock." },
   ],
 };
 
