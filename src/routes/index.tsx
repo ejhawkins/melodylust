@@ -41,6 +41,7 @@ import { NowWearing } from "@/components/NowWearing";
 import { useStyleChoice } from "@/lib/themes/style-choice";
 import { themeStyle } from "@/lib/themes/theme-css";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
+import { RunwayInspiration } from "@/components/RunwayInspiration";
 import { useStyleProfile } from "@/lib/use-style-profile";
 import { StoryDialog } from "@/components/StoryDialog";
 import { Wishlist } from "@/components/Wishlist";
@@ -365,7 +366,7 @@ function ListeningRoom() {
   const { data: goodReads } = useQuery({ queryKey: ["good-reads"], queryFn: () => getGoodReads(), staleTime: 10 * 60 * 1000 });
   const editionReads = useMemo(() => (genre === "all" ? [] : storiesFor(goodReads?.reads ?? [], genre)), [goodReads, genre]);
   const editionSongs = useMemo(() => songsFor(mix, genre), [genre]);
-  const runwayShown = category === "Runway" || onRunway || shelf === "runway" || view.kind === "note" || genre !== "all";
+  const runwayShown = category === "Runway" || onRunway || shelf === "runway" || view.kind === "note" || genre !== "all" || (roomStyle.enabled && view.kind === "profile");
   const runway = useRunwaySongs(runwayShown);
   const runwayMix = useMemo(() => runway.map(fromRunway), [runway]);
   const runwayNoteList = useRunwayNotes(runway, runwayShown);
@@ -534,6 +535,7 @@ function ListeningRoom() {
           ) : view.kind === "profile" ? (
             // The profile page, loaded right here under the room's own header.
             <div className="ls-profile">
+              {roomStyle.enabled && <RunwayInspiration key={JSON.stringify(styleProfile.profile)} profile={styleProfile.profile} notes={runwayNoteList} songs={runway} onRetake={() => setQuizOpen(true)} />}
               <CuratorDossier embedded tab={view.tab} onTabChange={tab => setView({ kind: "profile", tab })}
                 capsule={<ListenCapsule mix={mix} nowPlaying={listening ? song.caption : undefined} onPlay={playStudio} onWantList={openWant} onBack={goHome} />} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
@@ -638,7 +640,7 @@ function ListeningRoom() {
         wearingOpen={wearingOpen} onWearingChange={setWearingOpen} sheet={phone} autoOpen={shelf !== "featured"}
         shop={<ListenProductCard active={phone && listening} songKey={song.caption} {...(songLook?.pieces.length ? { products: songLook.pieces } : {})} />} />
 
-      <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}
+      <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={saved => { const ok = styleProfile.save(saved); if (ok && roomStyle.enabled) openProfile(); return ok; }} onClear={styleProfile.clear}
         onRead={id => { setQuizOpen(false); const story = stories.find(s => s.id === id); if (story) { setActive(`story-${story.id}`); setArticle(story); } }} />
       <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} tone="room" />
       <Dialog open={filmNotesOpen} onOpenChange={setFilmNotesOpen}>

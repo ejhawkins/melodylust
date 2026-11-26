@@ -98,3 +98,21 @@ Its mode machine, its `VITE_ENABLE_SPOTIFY_LISTENING_ROOM` flag (off by default)
 
 - **Fastest.** Unset `VITE_ENABLE_AI_STYLE_PERSONALIZATION`, or set it to anything but `true`, and redeploy. The picker disappears, no style is applied or sent, and cache keys return to the old ones.
 - **Code.** Each step is its own commit on `feature/ai-style-personalization`; `git revert` any of them. The choice and the look, the picker, the loader, the AI constraints, the client wiring and the guard test are separate commits.
+
+## Runway inspiration (after the style quiz)
+
+With `VITE_ENABLE_AI_STYLE_PERSONALIZATION=true`, saving the style quiz opens the room's Style profile view with a
+**Runway inspiration** panel (`src/components/RunwayInspiration.tsx`, logic in `src/lib/runway-inspiration.ts`).
+
+- **Tag cloud.** Music, aesthetic, season and house tags in the quiz's own vocabulary (`style-profile.ts`), seeded from the
+  saved profile; the reader can toggle tags to refine without changing their profile.
+- **Tags on shows.** Season and house are read off the show. Music genre (per artist, `ARTIST_GENRES`) and aesthetic (per
+  show, `SHOW_AESTHETICS`) are Melody Lust's read and are labelled "our read" on the page. Artists outside the quiz's
+  genres (Wagner, Tallis, a gospel choir) stay untagged rather than forced in.
+- **Sources.** A show appears only with at least one source on file: its runway note's reviews, or the sampler's article
+  for each sampler track. Approved database songs join the room's runway list but need a note or sampler source to appear.
+- **Designers.** The designers behind the matched shows, each with the show(s) and tags that brought them in, and a portrait:
+  the curated one, else Wikipedia's free lead photo credited from Commons (`getDesignerPortraits`), else an initial.
+- **Playlists.** Stacked suggestions from those shows' soundtracks only: the reader's runway mix, then one per tag with at
+  least two songs. Nothing is saved until the reader taps **Save to my library** (the device-stored Studio library).
+- To add tags: extend `ARTIST_GENRES` / `SHOW_AESTHETICS` (values must be quiz options; a test enforces this).
