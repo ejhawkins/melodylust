@@ -4471,3 +4471,4 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ls-style-option input { accent-color: var(--color-acid-lime); }
 .ls-style-option small { display: block; font-size: 12px; opacity: .75; }
 @media (prefers-reduced-motion: no-preference) { .ls[data-room-style] { transition: background-color var(--room-motion-ms) ease; } }
+@media (max-width: 900px) { .ls-style .ls-style-current { display: none; } } /* phones: the palette icon alone; its name is in the label */

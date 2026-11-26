@@ -38,6 +38,9 @@ import { ListenCapsule } from "@/components/ListenCapsule";
 import { ListenDayPlaylist } from "@/components/ListenDayPlaylist";
 import { moodVideos } from "@/components/RecordStack";
 import { NowWearing } from "@/components/NowWearing";
+import { StylePicker } from "@/components/StylePicker";
+import { useStyleChoice } from "@/lib/themes/style-choice";
+import { themeStyle } from "@/lib/themes/theme-css";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { useStyleProfile } from "@/lib/use-style-profile";
 import { StoryDialog } from "@/components/StoryDialog";
@@ -322,6 +325,8 @@ function ListeningRoom() {
   const [wearingOpen, setWearingOpen] = useState(true);
   // Phones hide the Style profile button, so the style quiz gets its own place in the top bar there.
   const [quizOpen, setQuizOpen] = useState(false);
+  // The room style (Hip Hop x Runway, Autumn Tartan…): off unless VITE_ENABLE_AI_STYLE_PERSONALIZATION is "true".
+  const roomStyle = useStyleChoice();
   const styleProfile = useStyleProfile();
   const [active, setActive] = useState("mix");
   const [view, setView] = useState<View>({ kind: "feed" });
@@ -473,7 +478,7 @@ function ListeningRoom() {
   };
 
   return (
-    <div className="ls">
+    <div className="ls" data-room-style={roomStyle.theme?.id} style={themeStyle(roomStyle.theme)}>
       <header className="ls-head">
         <Link to="/" className="ls-logo-link" aria-label="Melodylust home"><img src={logo} alt="" className="ls-logo" width={448} height={209} /></Link>
         <div className="ls-head-center">
@@ -483,6 +488,7 @@ function ListeningRoom() {
           </Button>
         </div>
         <div className="ls-head-end">
+          {roomStyle.enabled && <StylePicker selection={roomStyle.selection} onChoose={roomStyle.choose} />}
           <Button variant="listenOutline" size="bar" className="ls-hide-sm" aria-expanded={view.kind === "profile"} onClick={openProfile}><SlidersHorizontal aria-hidden />Style profile</Button>
           <Button variant="listenOutline" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-haspopup="dialog" onClick={() => setQuizOpen(true)}><span>Style quiz</span></Button>
           <Button variant="listenSolid" size="bar" className="ls-want-btn" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
