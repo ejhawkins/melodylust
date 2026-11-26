@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
-import { AI_STYLE_PROMPT, aiStyleCacheKey, aiStyleInputSchema, readAIStyle, type AIStyleResponse } from './ai-style';
+import { AI_STYLE_PROMPT, aiStyleCacheKey, aiStyleInputSchema, aiStylePayload, readAIStyle, type AIStyleResponse } from './ai-style';
 import { createRateLimiter } from './rate-limit';
 
 // Each answer costs AI credit: one per artist + songs + articles + preferences for a day (memory,
@@ -27,7 +27,8 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
       const { getRequest } = await import('@tanstack/react-start/server');
       // The model now and then returns text that isn't valid JSON; one more try usually answers, so the reader gets
       // ideas from the articles rather than the generic fallback outfit.
-      const ask = () => readAIJSON(AI_STYLE_PROMPT, data, getRequest());
+      // The style id becomes its constraints from the theme spec here, on the server.
+      const ask = () => readAIJSON(AI_STYLE_PROMPT, aiStylePayload(data), getRequest());
       return ask().catch(failure => {
         // Only malformed JSON benefits from another attempt; provider failures do not.
         if (!(failure instanceof SyntaxError)) throw failure;
@@ -47,7 +48,7 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
 
     function readResult(payload: unknown): AIStyleResponse {
       const suggestions = readAIStyle(payload, data);
-      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, coverage: data.coverage.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, inspired: suggestions.filter(s => s.inspiration).length, brands: suggestions.flatMap(s => s.pieces.flatMap(p => p.brand ? [`${p.brand} ${p.item}`] : [])), elapsedMs: Date.now() - started });
+      if (debug) console.info('[AI style]', { provider, artist: data.artist, style: data.style ?? null, articles: data.articles.length, coverage: data.coverage.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, inspired: suggestions.filter(s => s.inspiration).length, brands: suggestions.flatMap(s => s.pieces.flatMap(p => p.brand ? [`${p.brand} ${p.item}`] : [])), elapsedMs: Date.now() - started });
       return suggestions.length ? { status: 'ok', suggestions, provider } : { status: 'unavailable', suggestions: [], provider };
     }
   });
