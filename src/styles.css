@@ -3571,7 +3571,7 @@ body { background: var(--background); color: var(--foreground); font-family: var
 
 /* Contents: the chapter numbers and "The Autumn Mix" in the Hammer cuts (each is 400 only). These outrank the Isidora rule
    above, which sets everything in the list. */
-.ls .ls-toc-list .ls-toc-num { font-family: var(--font-hammer); font-weight: 400; font-size: 64px; line-height: .8; letter-spacing: .01em; opacity: 1; }
+.ls .ls-toc-list .ls-toc-num { font-family: var(--font-editorial); font-weight: 400; font-size: 64px; line-height: .8; letter-spacing: 0; color: #fff; opacity: 1; }
 .ls .ls-toc-list .ls-toc-name .ls-toc-mix { white-space: nowrap; font-size: 34px; line-height: .95; text-transform: uppercase; letter-spacing: .01em; }
 .ls .ls-toc-list .ls-toc-name .ls-toc-mix-autumn { font-family: var(--font-hammer); font-weight: 400; }
 .ls .ls-toc-list .ls-toc-name .ls-toc-mix-mix { font-family: var(--font-hammer-xxx); font-weight: 400; }
