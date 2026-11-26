@@ -86,9 +86,11 @@ function Motif({
       </svg>
     );
   }
-  // belt-and-record
+  // belt-and-record: the record and tonearm (the arm drops when ready), and a leather belt whose tip threads
+  // through a silver buckle as the room gets ready: progress is how far the strap has passed through.
+  const tip = 16 + (progress / 100) * 128;
   return (
-    <svg viewBox="0 0 160 160" width="160" height="160" aria-hidden="true">
+    <svg viewBox="0 0 160 200" width="160" height="200" aria-hidden="true">
       <g
         style={{
           transformOrigin: "80px 80px",
@@ -108,6 +110,12 @@ function Motif({
         strokeWidth={4}
         strokeLinecap="round"
       />
+      <g data-part="belt">
+        <rect x={8} y={172} width={Math.max(0, tip - 8)} height={12} rx={3} fill={highlight} />
+        {[24, 40, 56].filter(x => x < tip - 6).map(x => <circle key={x} cx={x} cy={178} r={1.6} fill={ink} />)}
+        <rect data-part="buckle" x={86} y={166} width={18} height={24} rx={4} fill="none" stroke="#d9dde3" strokeWidth={3} />
+        <line x1={95} y1={169} x2={95} y2={187} stroke="#d9dde3" strokeWidth={2} />
+      </g>
     </svg>
   );
 }
