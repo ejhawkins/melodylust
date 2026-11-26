@@ -16,8 +16,12 @@ const spotify = (id: string) => `https://open.spotify.com/track/${id}`;
  * After the style quiz: the runways that fit the reader's tags, the designers behind them and stacked playlists from
  * those shows' soundtracks. The agent only suggests; a playlist is saved to the reader's library when they tap.
  */
-export function RunwayInspiration({ profile, notes, songs, onRetake }: { profile: StyleProfile; notes: readonly RunwayNote[]; songs: readonly RunwaySong[]; onRetake: () => void }) {
-  const [selected, setSelected] = useState<Tag[]>(() => profileTags(profile));
+export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag }: {
+  profile: StyleProfile; notes: readonly RunwayNote[]; songs: readonly RunwaySong[]; onRetake: () => void;
+  /** A tap in the cloud: the room saves it to the profile, so every pane follows the same tags. */
+  onToggleTag: (tag: Tag, on: boolean) => void;
+}) {
+  const selected = useMemo(() => profileTags(profile), [profile]);
   const [saved, setSaved] = useState<Record<string, string>>({});
   const { shows, designers, playlists } = useMemo(() => inspire(selected, notes, songs), [selected, notes, songs]);
 
@@ -30,7 +34,7 @@ export function RunwayInspiration({ profile, notes, songs, onRetake }: { profile
   });
   const withPortrait = (designer: Designer) => designer.photo ? designer : portraits?.find(p => p.name === designer.name) ?? designer;
 
-  const toggle = (tag: Tag) => setSelected(now => now.some(t => tagKey(t) === tagKey(tag)) ? now.filter(t => tagKey(t) !== tagKey(tag)) : [...now, tag]);
+  const toggle = (tag: Tag) => onToggleTag(tag, !selected.some(t => tagKey(t) === tagKey(tag)));
   const save = (playlist: InspiredPlaylist) => {
     const list = createStudioPlaylist(playlist.title);
     const count = importTracks(list.id, playlist.tracks.map(t => ({ title: t.title, artist: t.artist, ...(t.spotifyId ? { spotify: t.spotifyId } : {}) })));
@@ -41,7 +45,7 @@ export function RunwayInspiration({ profile, notes, songs, onRetake }: { profile
     <section className="ri" aria-labelledby="ri-title">
       <p className="ri-kicker">Runway inspiration</p>
       <h2 id="ri-title" className="ri-title">Runways for your taste</h2>
-      <p className="ri-dek">Shows picked by your tags. Every song is placed at its show by the sources cited; genre and aesthetic tags are our read.</p>
+      <p className="ri-dek">Shows picked by your tags, which the whole room follows and saves on this device. Every song is placed at its show by the sources cited; genre and aesthetic tags are our read.</p>
 
       <fieldset className="ri-cloud">
         <legend className="ri-label">Your tags</legend>

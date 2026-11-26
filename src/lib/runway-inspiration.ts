@@ -155,3 +155,31 @@ export function inspire(selected: Tag[], notes: readonly RunwayNote[], songs: re
   }
   return { shows, designers: [...designers.values()], playlists };
 }
+
+/** The tag the reader tapped last, kept on their device so the room still leads with it after a reload. */
+export const LEAD_TAG_KEY = 'ml-lead-tag-v1';
+export function readLeadTag(): Tag | null {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(LEAD_TAG_KEY) ?? 'null') as Partial<Tag> | null;
+    return raw && TAG_KINDS.includes(raw.kind as TagKind) && typeof raw.value === 'string' ? { kind: raw.kind as TagKind, value: raw.value } : null;
+  } catch { return null; }
+}
+export function writeLeadTag(tag: Tag | null) {
+  try { if (tag) window.localStorage.setItem(LEAD_TAG_KEY, JSON.stringify(tag)); else window.localStorage.removeItem(LEAD_TAG_KEY); } catch { /* storage unavailable */ }
+}
+
+/** A profile with one tag switched on or off; tags live in the quiz's own fields, so the quiz and the cloud agree. */
+export function withTag<P extends Pick<StyleProfile, TagKind>>(profile: P, tag: Tag, on: boolean): P {
+  const now = profile[tag.kind];
+  return { ...profile, [tag.kind]: on ? (now.includes(tag.value) ? now : [...now, tag.value]) : now.filter(v => v !== tag.value) };
+}
+
+/**
+ * The runway to feature for the reader: among sourced shows sharing their tags, the best match for the tag they tapped
+ * last, else the best match overall. Null when nothing matches, so the room keeps its usual pick.
+ */
+export function featuredShow(selected: Tag[], notes: readonly RunwayNote[], lead: Tag | null = null): InspiredShow | null {
+  const { shows } = inspire(selected, notes);
+  const leading = lead && selected.some(t => tagKey(t) === tagKey(lead)) ? shows.find(show => show.matched.some(m => tagKey(m) === tagKey(lead))) : undefined;
+  return leading ?? shows[0] ?? null;
+}

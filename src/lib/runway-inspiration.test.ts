@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { editorialSongs, runwayNotes } from './runway-notes';
 import { emptySamplerEdits, resolveSampler } from './runway-sampler';
 import { runwaySongs } from './runway-songs';
-import { inspire, profileTags, seasonTag, showSources, showTags, tagKey, trackGenres, type Tag } from './runway-inspiration';
+import { featuredShow, inspire, profileTags, seasonTag, showSources, showTags, tagKey, trackGenres, withTag, type Tag } from './runway-inspiration';
 import { emptyStyleProfile, profileFields } from './style-profile';
 
 const sampler = runwaySongs(resolveSampler(emptySamplerEdits()));
@@ -68,5 +68,23 @@ describe('inspire', () => {
     expect(rock.tracks.map(t => t.title)).toContain('The Dope Show');
     const runwayTitles = new Set(notes.flatMap(n => n.music?.tracks ?? []).map(t => t.title));
     for (const p of playlists) for (const t of p.tracks) expect(runwayTitles.has(t.title)).toBe(true);
+  });
+});
+
+describe('featured runway', () => {
+  const tags: Tag[] = [{ kind: 'music', value: 'Rock' }, { kind: 'music', value: 'Hip-hop' }, { kind: 'aesthetic', value: 'Preppy' }];
+  it('leads with the tag tapped last', () => {
+    expect(featuredShow(tags, notes, { kind: 'music', value: 'Hip-hop' })?.note.id).toBe('wales-bonner-autumn-winter-2024');
+    expect(featuredShow(tags, notes, { kind: 'music', value: 'Rock' })?.note.id).toBe('thom-browne-fall-winter-2017');
+  });
+  it('falls back to the best match, and to nothing without tags', () => {
+    expect(featuredShow(tags, notes)?.note.id).toBe('thom-browne-fall-winter-2017');
+    expect(featuredShow(tags, notes, { kind: 'music', value: 'Jazz' })?.note.id).toBe('thom-browne-fall-winter-2017'); // Jazz isn't selected
+    expect(featuredShow([], notes)).toBeNull();
+  });
+  it('switches a tag on and off in the quiz’s own field', () => {
+    const on = withTag(emptyStyleProfile(), { kind: 'music', value: 'Hip-hop' }, true);
+    expect(on.music).toEqual(['Hip-hop']);
+    expect(withTag(on, { kind: 'music', value: 'Hip-hop' }, false).music).toEqual([]);
   });
 });

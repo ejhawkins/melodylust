@@ -42,6 +42,7 @@ import { useStyleChoice } from "@/lib/themes/style-choice";
 import { themeStyle } from "@/lib/themes/theme-css";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { RunwayInspiration } from "@/components/RunwayInspiration";
+import { featuredShow, profileTags, readLeadTag, withTag, writeLeadTag, type Tag } from "@/lib/runway-inspiration";
 import { useStyleProfile } from "@/lib/use-style-profile";
 import { StoryDialog } from "@/components/StoryDialog";
 import { Wishlist } from "@/components/Wishlist";
@@ -371,6 +372,10 @@ function ListeningRoom() {
   const runwayMix = useMemo(() => runway.map(fromRunway), [runway]);
   const runwayNoteList = useRunwayNotes(runway, runwayShown);
   const runwayEdition = useMemo(() => notesFor(runwayNoteList, runway, genre), [runwayNoteList, runway, genre]);
+  // The reader's tag-picked runway for the contents card, leading with the tag they tapped last (see runwayCard).
+  const [leadTag, setLeadTag] = useState<Tag | null>(null);
+  useEffect(() => setLeadTag(readLeadTag()), []);
+  const forYou = useMemo(() => (roomStyle.enabled ? featuredShow(profileTags(styleProfile.profile), runwayNoteList, leadTag) : null), [roomStyle.enabled, styleProfile.profile, runwayNoteList, leadTag]);
   // One of the reader's playlists, once it is played; it gives way to the mix if it is emptied or deleted.
   const [listId, setListId] = useState<string | null>(null);
   const playlists = usePlaylists();
@@ -432,10 +437,20 @@ function ListeningRoom() {
   const video = view.kind === "video" ? moodVideos[view.index] : undefined;
   const ownList = view.kind === "playlist" ? playlists.find(p => p.id === view.id) : undefined;
   const note = view.kind === "note" ? runwayNoteList.find(n => n.id === view.id) : undefined;
-  // The latest Runway Note (the editor lists the newest first), as a card under Runway Songs in the contents.
-  const latestNote = runwayNoteList[0];
+  // The card under Runway Songs in the contents: with personalization on, the runway that best fits the reader's tags
+  // (leading with the tag they tapped last); otherwise, or when nothing fits, the latest Runway Note (newest first).
+  const toggleTag = (tag: Tag, on: boolean) => {
+    if (!styleProfile.save(withTag(styleProfile.profile, tag, on))) return;
+    const lead = on ? tag : leadTag && leadTag.kind === tag.kind && leadTag.value === tag.value ? null : leadTag;
+    setLeadTag(lead);
+    writeLeadTag(lead);
+  };
+  const latestNote = forYou?.note ?? runwayNoteList[0];
   const latestIndex = latestNote?.lead?.songId ? runway.findIndex(s => s.id === latestNote.lead?.songId) : -1;
-  const runwayCard = latestNote && <NoteCard note={latestNote} index={latestIndex} active={onRunway && latestIndex >= 0 && latestIndex === now} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />;
+  const runwayCard = latestNote && <>
+    {forYou && <p className="ls-for-tags">For your tags · {forYou.matched.map(t => t.value).join(" · ")}</p>}
+    <NoteCard key={latestNote.id} note={latestNote} index={latestIndex} active={onRunway && latestIndex >= 0 && latestIndex === now} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />
+  </>;
   const notes = edition.filter(s => category === "All" || s.category === category);
   const runwayListed = category === "Runway" || shelf === "runway";
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
@@ -535,7 +550,7 @@ function ListeningRoom() {
           ) : view.kind === "profile" ? (
             // The profile page, loaded right here under the room's own header.
             <div className="ls-profile">
-              {roomStyle.enabled && <RunwayInspiration key={JSON.stringify(styleProfile.profile)} profile={styleProfile.profile} notes={runwayNoteList} songs={runway} onRetake={() => setQuizOpen(true)} />}
+              {roomStyle.enabled && <RunwayInspiration profile={styleProfile.profile} notes={runwayNoteList} songs={runway} onRetake={() => setQuizOpen(true)} onToggleTag={toggleTag} />}
               <CuratorDossier embedded tab={view.tab} onTabChange={tab => setView({ kind: "profile", tab })}
                 capsule={<ListenCapsule mix={mix} nowPlaying={listening ? song.caption : undefined} onPlay={playStudio} onWantList={openWant} onBack={goHome} />} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
