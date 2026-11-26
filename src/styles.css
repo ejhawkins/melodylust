@@ -4522,3 +4522,6 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 @media (max-width: 600px) { .ri { padding: 16px; } .ri-cloud-kind { width: 100%; } }
 /* Contents: the tag-picked runway's label above its card. */
 .ls-for-tags { margin: 0 0 8px; font-family: var(--font-isidora); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--color-acid-lime); }
+/* Player bar: the song title set large in Bodoni Moda beside the album art (the open sheet keeps its own type). */
+.ls-player:not([data-expanded="true"]) .ls-player-title { font-family: var(--font-editorial); font-weight: 500; font-size: clamp(22px, 2vw, 40px); line-height: 1.05; letter-spacing: -.01em; padding-bottom: .06em; }
+@media (max-width: 600px) { .ls-player:not([data-expanded="true"]) .ls-player-title { font-size: 22px; } }
