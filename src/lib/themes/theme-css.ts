@@ -24,8 +24,33 @@ export function themeVariables(theme: RoomTheme): Record<`--${string}`, string> 
     '--room-display-style': theme.type.display_style === 'italic' ? 'italic' : 'normal',
     '--room-body-font': `${theme.type.body}, var(--font-sans)`,
     '--room-motion-ms': `${motionMs(theme)}ms`,
-    // The room's existing tokens, so every panel, button and highlight follows the style.
+    // The room is built on the Fig & Acid Lime palette: every panel, rule, text colour and button reads these
+    // tokens, so re-pointing the palette re-themes the whole room in one place.
+    ...roomPalette(theme),
     '--ls-ink': ink, '--ls-paper': text, '--color-acid-lime': highlight,
+  };
+}
+
+/** Mix two #rrggbb colours: `amount` of b into a, in sRGB. */
+export function mixHex(a: string, b: string, amount: number) {
+  const channels = (hex: string) => [0, 2, 4].map(i => parseInt(hex.slice(1 + i, 3 + i), 16));
+  const [ca, cb] = [channels(a), channels(b)];
+  return `#${ca.map((c, i) => Math.round(c + (cb[i]! - c) * amount).toString(16).padStart(2, '0')).join('')}`;
+}
+
+/** The Fig & Acid Lime tokens for a theme: grounds, raised panels, rules, type, secondary type and accents. */
+export function roomPalette(theme: RoomTheme): Record<`--${string}`, string> {
+  const { ink, surface, accent, highlight, text } = theme.palette;
+  return {
+    '--color-fig-black': ink,                          // ground
+    '--color-fig-950': surface,                        // raised panels
+    '--color-fig-900': mixHex(surface, accent, 0.18),  // cards
+    '--color-fig-800': mixHex(surface, accent, 0.4),   // rules and borders
+    '--color-chalk-white': text,                       // type
+    '--color-lilac-fog': mixHex(text, surface, 0.3),   // secondary type
+    '--color-acid-muted': mixHex(highlight, ink, 0.35),
+    '--cover-paper': text,                             // the solid "paper" buttons (Read the report, Want list…)
+    '--cover-type': ink,
   };
 }
 
@@ -52,5 +77,9 @@ export const themeTextPairs = (theme: RoomTheme) => {
     { use: 'text on surface (texture)', fg: text, bg: surface },
     { use: 'highlight on ink (accents, links)', fg: highlight, bg: ink },
     { use: 'ink on highlight (solid buttons)', fg: ink, bg: highlight },
+    { use: 'highlight on surface (loader status, setlist heading)', fg: highlight, bg: surface },
+    { use: 'secondary type on panels', fg: roomPalette(theme)['--color-lilac-fog']!, bg: surface },
+    { use: 'secondary type on ground', fg: roomPalette(theme)['--color-lilac-fog']!, bg: ink },
+    { use: 'text on cards', fg: text, bg: roomPalette(theme)['--color-fig-900']! },
   ];
 };

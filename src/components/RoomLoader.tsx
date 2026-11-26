@@ -148,7 +148,7 @@ export function RoomLoader({ themeId, progress, onEnter, onStaySilent }: RoomLoa
       className="flex min-h-[70vh] flex-col items-center justify-center gap-6 p-8 text-center"
     >
       <style>{`@keyframes ml-spin{to{transform:rotate(360deg)}}`}</style>
-      <p className="text-xs uppercase tracking-[0.3em]" style={{ color: theme.palette.accent }}>
+      <p className="text-xs uppercase tracking-[0.3em]" style={{ color: theme.palette.highlight }}>
         {ready ? `${theme.copy.listeningLabel} ready` : theme.copy.silenceLabel}
       </p>
       <h1
@@ -168,7 +168,7 @@ export function RoomLoader({ themeId, progress, onEnter, onStaySilent }: RoomLoa
         aria-valuemax={100}
         aria-valuenow={pct}
         className="h-2 w-64 overflow-hidden rounded-full"
-        style={{ background: `${theme.palette.accent}33` }}
+        style={{ background: `${theme.palette.text}40` }}
       >
         <div
           className="h-full"
@@ -196,7 +196,7 @@ export function RoomLoader({ themeId, progress, onEnter, onStaySilent }: RoomLoa
             type="button"
             onClick={onStaySilent}
             className="rounded-full border px-6 py-2 focus-visible:outline focus-visible:outline-2"
-            style={{ borderColor: theme.palette.accent, color: theme.palette.text }}
+            style={{ borderColor: `${theme.palette.text}80`, color: theme.palette.text }}
           >
             Stay in {theme.copy.silenceLabel.toLowerCase()}
           </button>

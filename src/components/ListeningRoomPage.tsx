@@ -38,7 +38,7 @@ export function ListeningRoomPage({ themeId }: { themeId: ThemeId }) {
         onEnter={() => setEntered(true)}
         onStaySilent={() => void navigate({ to: "/" })}
       />
-      <div className="flex flex-wrap items-start justify-center gap-6 p-6" style={{ background: theme.palette.ink, color: theme.palette.text }}>
+      <div className="flex flex-wrap items-start justify-center gap-6 p-6" style={{ background: theme.palette.surface, color: theme.palette.text }}>
         {style.enabled && <StyleOptions selection={{ primary: activeId }} onChoose={next => style.choose(next)} includeDefault={false} />}
         <section aria-labelledby="ml-setlist" className="max-w-md">
           <h2 id="ml-setlist" className="mb-2 text-xs uppercase tracking-[0.3em]" style={{ color: theme.palette.highlight }}>Setlist · {theme.label}</h2>
