@@ -5,7 +5,7 @@ import { gsap } from "gsap";
 import { flushSync } from "react-dom";
 import { prefersReducedMotion, useRoomMotion } from "@/components/useRoomMotion";
 import { useHeroParallax } from "@/components/useHeroParallax";
-import { setSoundChoice, useSilentMode } from "@/lib/silent-mode";
+import { setSoundChoice, useInAppBrowser, useSilentMode } from "@/lib/silent-mode";
 import { ArrowLeft, House, Play, Search, SlidersHorizontal, Square, Volume2, VolumeX, RotateCcw, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -32,6 +32,10 @@ import { ListenVideo } from "@/components/ListenVideo";
 import { ListenEdition } from "@/components/ListenEdition";
 import { ListenFeatured } from "@/components/ListenFeatured";
 import { ListenPlayer } from "@/components/ListenPlayer";
+import { ListenRoomSwitch } from "@/components/ListenRoomSwitch";
+import { listeningRoomEnabled } from "@/lib/listening-mode";
+import { playRequest, trackUri } from "@/lib/spotify-api";
+import { spotifyRoom, useSpotifyRoom } from "@/lib/spotify-room";
 import { ListenRunway, NoteCard, useRunwayNotes, useRunwaySongs } from "@/components/ListenRunway";
 import { ListenRunwayNote } from "@/components/ListenRunwayNote";
 import { ListenCapsule } from "@/components/ListenCapsule";
@@ -378,6 +382,20 @@ function ListeningRoom() {
   // The player bar plays The Autumn Mix, or Runway Songs once a runway row is pressed, or a playlist of the reader's.
   const queue = onRunway && runwayMix.length > 0 ? runwayMix : onStudio && studioQueue ? studioQueue : onList ? listMix : mix;
   const song = queue[Math.min(now, queue.length - 1)];
+  // The listening room (VITE_ENABLE_SPOTIFY_LISTENING_ROOM): Spotify Premium readers can sign in and hear full songs
+  // here. With the flag off none of it shows, and the bar's embed works exactly as before. In-app browsers keep their
+  // own silent mode and aren't offered the room (Spotify's player doesn't run there).
+  const roomOn = listeningRoomEnabled();
+  const roomState = useSpotifyRoom();
+  const inApp = useInAppBrowser();
+  const full = roomOn && roomState.mode.kind === "listening" && roomState.mode.ready;
+  // Spotify moves on by itself at the end of a song: the bar follows it through the queue.
+  const playingUri = roomState.playing?.trackUri;
+  useEffect(() => {
+    if (!full || !playingUri) return;
+    const i = queue.findIndex(s => trackUri(s.link) === playingUri);
+    if (i >= 0 && i !== now) setNow(i);
+  }, [full, playingUri]); // eslint-disable-line react-hooks/exhaustive-deps -- only when Spotify's track changes
   // The pieces Contentful links to this song (else its artist, else its genre). Asked for only once the phone's product
   // card can show; with none, the card keeps its built-in line-up.
   const { data: songLook } = useQuery({
@@ -388,11 +406,16 @@ function ListeningRoom() {
   });
   if (!song) return null;
 
-  const go = (index: number) => { setNow(index); setActive(onRunway ? "runway-songs" : onStudio ? "studio" : onList ? `playlist-${listId}` : `look-${index}`); };
-  const play = (index: number) => { setOnRunway(false); setStudioQueue(null); setListId(null); setNow(index); setActive(`look-${index}`); setWearingOpen(true); setListening(true); };
-  const playRunway = (index: number) => { setOnRunway(true); setStudioQueue(null); setListId(null); setNow(index); setActive("runway-songs"); setListening(true); };
-  const playStudio = (songs: MixSong[], index: number) => { setOnRunway(false); setListId(null); setStudioQueue(songs); setNow(index); setActive("studio"); setListening(true); };
-  const playList = (id: string, index: number) => { setOnRunway(false); setStudioQueue(null); setListId(id); setNow(index); setActive(`playlist-${id}`); setListening(true); };
+  // Full playback starts only from these click handlers, never by itself: browsers allow audio a reader asked for.
+  const fullPlay = (q: readonly MixSong[], index: number) => {
+    const request = full ? playRequest(q, index) : null;
+    if (request) void spotifyRoom().playQueue(request);
+  };
+  const go = (index: number) => { fullPlay(queue, index); setNow(index); setActive(onRunway ? "runway-songs" : onStudio ? "studio" : onList ? `playlist-${listId}` : `look-${index}`); };
+  const play = (index: number) => { fullPlay(mix, index); setOnRunway(false); setStudioQueue(null); setListId(null); setNow(index); setActive(`look-${index}`); setWearingOpen(true); setListening(true); };
+  const playRunway = (index: number) => { fullPlay(runwayMix, index); setOnRunway(true); setStudioQueue(null); setListId(null); setNow(index); setActive("runway-songs"); setListening(true); };
+  const playStudio = (songs: MixSong[], index: number) => { fullPlay(songs, index); setOnRunway(false); setListId(null); setStudioQueue(songs); setNow(index); setActive("studio"); setListening(true); };
+  const playList = (id: string, index: number) => { fullPlay((playlists.find(p => p.id === id)?.songs ?? []).flatMap(c => mix.filter(s => s.caption === c)), index); setOnRunway(false); setStudioQueue(null); setListId(id); setNow(index); setActive(`playlist-${id}`); setListening(true); };
   const playMix = () => { play(0); setActive("mix"); };
   // Back to the top of the feed, once the new view is on the page. On phones the feed is part of the page (the hero leads it
   // on the feed, the rest of it under the library), so the page scrolls to wherever it now starts.
@@ -632,7 +655,13 @@ function ListeningRoom() {
       <ListenPlayer song={song} listening={listening} onListen={() => (onRunway ? playRunway(now) : onStudio && studioQueue ? playStudio(studioQueue, now) : onList && listId ? playList(listId, now) : play(now))}
         onPrev={() => go(step(queue.length, now, -1))} onNext={() => go(step(queue.length, now, 1))}
         wearingOpen={wearingOpen} onWearingChange={setWearingOpen} sheet={phone} autoOpen={shelf !== "featured"}
-        shop={<ListenProductCard active={phone && listening} songKey={song.caption} {...(songLook?.pieces.length ? { products: songLook.pieces } : {})} />} />
+        shop={<ListenProductCard active={phone && listening} songKey={song.caption} {...(songLook?.pieces.length ? { products: songLook.pieces } : {})} />}
+        {...(roomOn ? { room: {
+          state: roomState,
+          onToggle: () => { void spotifyRoom().togglePlay(); },
+          switcher: <ListenRoomSwitch room={roomState} onEnter={inApp ? null : () => { void spotifyRoom().enter("/"); }}
+            onLeave={() => { setListening(false); void spotifyRoom().leave(); }} onDismiss={() => spotifyRoom().dismiss()} />,
+        } } : {})} />
 
       <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}
         onRead={id => { setQuizOpen(false); const story = stories.find(s => s.id === id); if (story) { setActive(`story-${story.id}`); setArticle(story); } }} />
