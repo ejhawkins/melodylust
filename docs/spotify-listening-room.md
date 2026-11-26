@@ -86,6 +86,8 @@ Keep the production app (`https://www.melodylust.fashion/auth/callback`) separat
 
 The Spotify app runs in **development mode**, so only the Spotify accounts listed under **User Management** can sign in. This app is capped at **5**; check the dashboard for the current number. Anyone else gets "The listening room is invite-only right now" and keeps the embed. This is a documented limitation, not a crash.
 
+That notice also offers **Join the waitlist** (`src/components/ListenWaitlist.tsx`). For now it's a **mockup**: it's labelled "Preview", sends nothing and stores nothing, and tells the reader so after they press Join. Connecting it to a real list (a form service or a table) is a separate change.
+
 **Opening it to everyone** requires Spotify's extended quota mode: on the dashboard, open the app → **Request extension**. Spotify reviews these by hand and has tightened who qualifies; it has recently been aimed at registered businesses with an established audience, so check the current criteria before applying. Until it's granted, keep the room invite-only, or keep the flag off in production.
 
 ## Turning it off
