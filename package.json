@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "scout": "node --env-file-if-exists=.env scripts/scout-articles.ts",
     "db:articles": "node --env-file-if-exists=.env scripts/db-articles.ts",
+    "db:embed": "node --env-file-if-exists=.env scripts/embed-articles.ts",
     "designers:import": "node --env-file-if-exists=.env scripts/import-vogue-designers.ts",
     "designers:scout-songs": "node --env-file-if-exists=.env scripts/scout-runway-songs.ts",
     "designers:review-songs": "node --env-file-if-exists=.env scripts/review-runway-songs.ts",

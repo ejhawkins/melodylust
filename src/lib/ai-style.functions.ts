@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
-import { AI_STYLE_PROMPT, aiStyleCacheKey, aiStyleInputSchema, readAIStyle, type AIStyleResponse } from './ai-style';
+import { AI_STYLE_PROMPT, aiStyleCacheKey, aiStyleInputSchema, readAIStyle, type AIStyleInput, type AIStyleResponse } from './ai-style';
+import { NO_RETRIEVAL, styleRetrievalQuery, withRetrieval, type Retrieval } from './article-retrieval';
 import { createRateLimiter } from './rate-limit';
 
 // Each answer costs AI credit: one per artist + songs + articles + preferences for a day (memory,
@@ -16,18 +17,35 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
     const { getAIProvider, readAIJSON } = await import('./ai/read-json.server');
     const provider = getAIProvider() ?? '';
     if (!provider) return { status: 'not_configured', suggestions: [], provider };
-    const key = aiStyleCacheKey(data);
+    const { clientKey } = await import('./client-key.server');
+    const visitor = await clientKey();
+    // Semantic retrieval over approved articles adds a ranking signal to the articles the search found. It
+    // never throws: without embeddings, or when they fail, the keyword/evidence ranking is used alone.
+    let retrieval: Retrieval = NO_RETRIEVAL;
+    try {
+      const { retrieveForQuery } = await import('./article-retrieval.server');
+      retrieval = await retrieveForQuery(styleRetrievalQuery(data), visitor);
+    } catch (failure) {
+      console.error('[RAG] retrieval unavailable; using the keyword ranking', failure instanceof Error ? failure.message : failure);
+    }
+    let input: AIStyleInput;
+    // Refuses a request carrying Spotify content (links, URIs): nothing from Spotify goes into the prompt.
+    try { input = withRetrieval(data, retrieval); }
+    catch (failure) {
+      console.error('[AI style] refused', failure instanceof Error ? failure.message : failure);
+      return { status: 'unavailable', suggestions: [], provider };
+    }
+    const key = aiStyleCacheKey(input, retrieval.chunkIds);
     const saved = answers.get(key);
     if (saved && Date.now() - saved.at < DAY_MS) return saved.answer;
     // Registered before any await, so a request arriving a moment later shares this answer instead of paying again.
     const started = Date.now();
     const answer = (async (): Promise<AIStyleResponse> => {
-      const { clientKey } = await import('./client-key.server');
-      if (!limiter.allow(await clientKey())) return { status: 'rate_limited', suggestions: [], provider };
+      if (!limiter.allow(visitor)) return { status: 'rate_limited', suggestions: [], provider };
       const { getRequest } = await import('@tanstack/react-start/server');
       // The model now and then returns text that isn't valid JSON; one more try usually answers, so the reader gets
       // ideas from the articles rather than the generic fallback outfit.
-      const ask = () => readAIJSON(AI_STYLE_PROMPT, data, getRequest());
+      const ask = () => readAIJSON(AI_STYLE_PROMPT, input, getRequest());
       return ask().catch(failure => {
         // Only malformed JSON benefits from another attempt; provider failures do not.
         if (!(failure instanceof SyntaxError)) throw failure;
@@ -46,8 +64,9 @@ export const styleArtistWithAI = createServerFn({ method: 'POST' })
     return result;
 
     function readResult(payload: unknown): AIStyleResponse {
-      const suggestions = readAIStyle(payload, data);
-      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: data.articles.length, coverage: data.coverage.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, inspired: suggestions.filter(s => s.inspiration).length, brands: suggestions.flatMap(s => s.pieces.flatMap(p => p.brand ? [`${p.brand} ${p.item}`] : [])), elapsedMs: Date.now() - started });
+      // Evidence quotes are still checked word for word against the articles sent, retrieved ones included.
+      const suggestions = readAIStyle(payload, input);
+      if (debug) console.info('[AI style]', { provider, artist: data.artist, articles: input.articles.length, retrieval: retrieval.status, retrieved: retrieval.articles.length, coverage: data.coverage.length, kept: suggestions.length, evidence: suggestions.filter(s => s.basis === 'evidence').length, inspired: suggestions.filter(s => s.inspiration).length, brands: suggestions.flatMap(s => s.pieces.flatMap(p => p.brand ? [`${p.brand} ${p.item}`] : [])), elapsedMs: Date.now() - started });
       return suggestions.length ? { status: 'ok', suggestions, provider } : { status: 'unavailable', suggestions: [], provider };
     }
   });
