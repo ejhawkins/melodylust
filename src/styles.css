@@ -4456,3 +4456,18 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 @media (max-width: 600px) {
   .ls-hero-cover { min-height: min(125vw, 68svh); display: flex; flex-direction: column; justify-content: space-between; }
 }
+
+/* Room styles (docs/ai-style-personalization.md). A chosen theme sets --room-* on .ls and re-points --ls-ink,
+   --ls-paper and --color-acid-lime (src/lib/themes/theme-css.ts), so the existing room follows it. No style: unchanged. */
+.ls[data-room-style] { background: var(--room-texture); font-family: var(--room-body-font); }
+.ls[data-room-style] .ls-toc-title { font-family: var(--room-display-font); font-style: var(--room-display-style); }
+.ls-style { position: relative; }
+.ls-style-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid currentColor; flex: none; }
+.ls-style-panel { display: grid; gap: 6px; min-width: 260px; padding: 14px; border: 1px solid var(--ls-line, #3a2a39); border-radius: 4px; background: var(--ls-ink, #0B040B); color: var(--ls-paper, #FAF9F6); }
+.ls-style-panel legend { margin-bottom: 6px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+.ls-style-option { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
+.ls-style-option:has(input:checked) { border-color: var(--color-acid-lime); }
+.ls-style-option:has(input:focus-visible) { outline: 2px solid var(--color-acid-lime); outline-offset: 2px; }
+.ls-style-option input { accent-color: var(--color-acid-lime); }
+.ls-style-option small { display: block; font-size: 12px; opacity: .75; }
+@media (prefers-reduced-motion: no-preference) { .ls[data-room-style] { transition: background-color var(--room-motion-ms) ease; } }

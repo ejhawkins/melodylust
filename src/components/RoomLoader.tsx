@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { ROOM_THEMES, type ThemeId, type RoomTheme } from "@/lib/themes/theme-spec";
+import { TEXTURES } from "@/lib/themes/theme-css";
 
 // Themed loading screen for the listening room.
 // Reads palette, texture, motion.loader and copy.loadingCaptions from the theme spec.
@@ -36,17 +37,6 @@ function usePrefersReducedMotion(): boolean {
   }, []);
   return reduced;
 }
-
-const TEXTURES: Record<RoomTheme["texture"], (t: RoomTheme) => string> = {
-  tartan: (t) =>
-    `repeating-linear-gradient(0deg, ${t.palette.accent}55 0 12px, transparent 12px 36px), repeating-linear-gradient(90deg, ${t.palette.accent}55 0 12px, transparent 12px 36px), ${t.palette.surface}`,
-  chrome: (t) =>
-    `linear-gradient(135deg, ${t.palette.surface}, ${t.palette.ink} 45%, ${t.palette.accent}22 60%, ${t.palette.ink})`,
-  knit: (t) =>
-    `repeating-linear-gradient(45deg, ${t.palette.accent}22 0 4px, transparent 4px 8px), ${t.palette.surface}`,
-  concrete: (t) =>
-    `radial-gradient(${t.palette.accent}11 1px, transparent 1px) 0 0/6px 6px, ${t.palette.surface}`,
-};
 
 function Motif({
   theme,
