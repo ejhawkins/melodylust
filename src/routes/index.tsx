@@ -38,7 +38,6 @@ import { ListenCapsule } from "@/components/ListenCapsule";
 import { ListenDayPlaylist } from "@/components/ListenDayPlaylist";
 import { moodVideos } from "@/components/RecordStack";
 import { NowWearing } from "@/components/NowWearing";
-import { StylePicker } from "@/components/StylePicker";
 import { useStyleChoice } from "@/lib/themes/style-choice";
 import { themeStyle } from "@/lib/themes/theme-css";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
@@ -488,7 +487,6 @@ function ListeningRoom() {
           </Button>
         </div>
         <div className="ls-head-end">
-          {roomStyle.enabled && <StylePicker selection={roomStyle.selection} onChoose={roomStyle.choose} />}
           <Button variant="listenOutline" size="bar" className="ls-hide-sm" aria-expanded={view.kind === "profile"} onClick={openProfile}><SlidersHorizontal aria-hidden />Style profile</Button>
           <Button variant="listenOutline" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-haspopup="dialog" onClick={() => setQuizOpen(true)}><span>Style quiz</span></Button>
           <Button variant="listenSolid" size="bar" className="ls-want-btn" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
