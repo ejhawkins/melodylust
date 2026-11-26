@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
+import { z } from 'zod';
 import { commonsPhotosUrl, knownDesigner, portraitDesigners, readCommonsPhotos, readWikipediaPages, wikipediaPagesUrl } from './designer-portraits';
 import { designerRadioSongs, rowDirectors, type DesignerRadioRow } from './designer-radio';
 import type { Designer, RunwaySong } from './runway-songs';
@@ -55,3 +56,14 @@ export const getDesignerRadio = createServerFn({ method: 'GET' }).handler(async 
   const rows = (data ?? []) as unknown as DesignerRadioRow[];
   return { songs: designerRadioSongs(rows, await lookUpPortraits(rowDirectors(rows))), connected: true };
 });
+
+/** Portraits (curated, else Wikipedia's free lead photo credited from Commons) for named designers, e.g. runway inspiration's. */
+export const getDesignerPortraits = createServerFn({ method: 'GET' })
+  .inputValidator((input: unknown) => z.object({ names: z.array(z.string().trim().min(2).max(80)).max(20) }).strict().parse(input))
+  .handler(async ({ data }): Promise<Designer[]> => {
+    const looked = await lookUpPortraits(data.names);
+    return data.names.flatMap(name => {
+      const designer = knownDesigner(name) ?? looked.get(name);
+      return designer ? [designer] : [];
+    });
+  });
