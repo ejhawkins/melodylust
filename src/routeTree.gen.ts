@@ -21,6 +21,8 @@ import { Route as RunwaySongsRouteImport } from './routes/runway-songs'
 import { Route as ApiIndexRouteImport } from './routes/api.index'
 import { Route as ApiCatalogRouteImport } from './routes/api.catalog'
 import { Route as ApiProductsRouteImport } from './routes/api.products'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as BoardIdRouteImport } from './routes/board.$id'
 import { Route as InfluencerIdRouteImport } from './routes/influencer.$id'
 import { Route as SongIdRouteImport } from './routes/song.$id'
@@ -85,6 +87,16 @@ const ApiProductsRoute = ApiProductsRouteImport.update({
   path: '/api/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BoardIdRoute = BoardIdRouteImport.update({
   id: '/board/$id',
   path: '/board/$id',
@@ -113,6 +125,8 @@ export interface FileRoutesByFullPath {
   '/runway-songs': typeof RunwaySongsRoute
   '/api/catalog': typeof ApiCatalogRoute
   '/api/products': typeof ApiProductsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/login': typeof AuthLoginRoute
   '/board/$id': typeof BoardIdRoute
   '/influencer/$id': typeof InfluencerIdRoute
   '/song/$id': typeof SongIdRoute
@@ -130,6 +144,8 @@ export interface FileRoutesByTo {
   '/runway-songs': typeof RunwaySongsRoute
   '/api/catalog': typeof ApiCatalogRoute
   '/api/products': typeof ApiProductsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/login': typeof AuthLoginRoute
   '/board/$id': typeof BoardIdRoute
   '/influencer/$id': typeof InfluencerIdRoute
   '/song/$id': typeof SongIdRoute
@@ -148,6 +164,8 @@ export interface FileRoutesById {
   '/runway-songs': typeof RunwaySongsRoute
   '/api/catalog': typeof ApiCatalogRoute
   '/api/products': typeof ApiProductsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/auth/login': typeof AuthLoginRoute
   '/board/$id': typeof BoardIdRoute
   '/influencer/$id': typeof InfluencerIdRoute
   '/song/$id': typeof SongIdRoute
@@ -167,6 +185,8 @@ export interface FileRouteTypes {
     | '/runway-songs'
     | '/api/catalog'
     | '/api/products'
+    | '/auth/callback'
+    | '/auth/login'
     | '/board/$id'
     | '/influencer/$id'
     | '/song/$id'
@@ -184,6 +204,8 @@ export interface FileRouteTypes {
     | '/runway-songs'
     | '/api/catalog'
     | '/api/products'
+    | '/auth/callback'
+    | '/auth/login'
     | '/board/$id'
     | '/influencer/$id'
     | '/song/$id'
@@ -201,6 +223,8 @@ export interface FileRouteTypes {
     | '/runway-songs'
     | '/api/catalog'
     | '/api/products'
+    | '/auth/callback'
+    | '/auth/login'
     | '/board/$id'
     | '/influencer/$id'
     | '/song/$id'
@@ -219,6 +243,8 @@ export interface RootRouteChildren {
   RunwaySongsRoute: typeof RunwaySongsRoute
   ApiCatalogRoute: typeof ApiCatalogRoute
   ApiProductsRoute: typeof ApiProductsRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthLoginRoute: typeof AuthLoginRoute
   BoardIdRoute: typeof BoardIdRoute
   InfluencerIdRoute: typeof InfluencerIdRoute
   SongIdRoute: typeof SongIdRoute
@@ -311,6 +337,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/board/$id': {
       id: '/board/$id'
       path: '/board/$id'
@@ -347,6 +387,8 @@ const rootRouteChildren: RootRouteChildren = {
   RunwaySongsRoute: RunwaySongsRoute,
   ApiCatalogRoute: ApiCatalogRoute,
   ApiProductsRoute: ApiProductsRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthLoginRoute: AuthLoginRoute,
   BoardIdRoute: BoardIdRoute,
   InfluencerIdRoute: InfluencerIdRoute,
   SongIdRoute: SongIdRoute,

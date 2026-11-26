@@ -4456,3 +4456,44 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 @media (max-width: 600px) {
   .ls-hero-cover { min-height: min(125vw, 68svh); display: flex; flex-direction: column; justify-content: space-between; }
 }
+
+/* ===== Listening room: Silence / Listening (VITE_ENABLE_SPOTIFY_LISTENING_ROOM) =====
+   The mode line under the player controls: a dot and the mode's name, the way in or out, and a plain notice when the room
+   falls back to silence. Silence's dot is muted; Listening's is the room's acid lime and breathes (still under reduced
+   motion). Only rendered with the flag on. */
+.ls-player-room { grid-column: 2; min-width: 0; margin-top: -6px; padding-bottom: 4px; }
+@media (max-width: 900px) { .ls-player-room { grid-column: 1 / -1; margin-top: -4px; } }
+.ls-room { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 12px; font-family: var(--font-isidora); }
+.ls-room-mode { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--ls-paper); }
+.ls-room-sub { color: var(--ls-muted); }
+.ls-room-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ls-muted); }
+.ls-room[data-mode="listening"] .ls-room-dot { background: var(--color-acid-lime); box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-acid-lime) 25%, transparent); }
+.ls-room[data-mode="signing_in"] .ls-room-dot, .ls-room[data-mode="connecting"] .ls-room-dot { background: var(--ls-paper); }
+@media (prefers-reduced-motion: no-preference) {
+  .ls-room[data-mode="listening"] .ls-room-dot { animation: ls-room-breathe 2.4s ease-in-out infinite; }
+  .ls-room[data-mode="signing_in"] .ls-room-dot, .ls-room[data-mode="connecting"] .ls-room-dot { animation: ls-room-breathe .9s ease-in-out infinite; }
+}
+@keyframes ls-room-breathe { 50% { opacity: .35; } }
+.ls-room-btn { gap: 6px; height: 30px; padding-inline: 10px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.ls-room-btn svg { width: 14px; height: 14px; }
+.ls-room-btn:focus-visible, .ls-room-dismiss:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 2px; }
+.ls-room-notice { flex-basis: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; margin: 0; font-size: 12px; line-height: 1.4; color: var(--ls-paper); text-align: center; }
+.ls-room-dismiss svg { width: 14px; height: 14px; }
+/* The sign-in hand-off pages: one quiet line on the room's ink. */
+.ls-auth { min-height: 100svh; display: grid; place-items: center; padding: 24px; background: #0B040B; color: #FAF9F6; font-family: var(--font-isidora); font-size: 15px; letter-spacing: .04em; }
+.ls-auth a { text-decoration: underline; }
+/* The waitlist (mockup) offered when the room is at Spotify's development-mode cap: the room's ink card, poster title,
+   acid-lime kicker and a plainly labelled Preview badge. */
+.ls-waitlist { --wl-ink: #0B040B; --wl-paper: #FAF9F6; background: var(--wl-ink); color: var(--wl-paper); border: 1px solid rgb(250 249 246 / .16); border-radius: 4px; padding: 28px; max-width: 26rem; gap: 14px; font-family: var(--font-isidora); }
+.ls-waitlist-kicker { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--color-acid-lime); }
+.ls-waitlist-badge { padding: 2px 6px; border: 1px solid currentColor; border-radius: 2px; font-size: 10px; letter-spacing: .12em; }
+.ls-waitlist .ls-waitlist-title { margin: 0; font-family: var(--font-poster); font-weight: 400; font-size: 44px; line-height: .9; text-transform: uppercase; color: var(--wl-paper); }
+.ls-waitlist .ls-waitlist-text { margin: 0; font-size: 14px; line-height: 1.6; color: rgb(250 249 246 / .76); }
+.ls-waitlist-form { display: grid; gap: 8px; margin-top: 4px; }
+.ls-waitlist-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgb(250 249 246 / .7); }
+.ls-waitlist-input { height: 44px; padding: 0 12px; border: 1px solid rgb(250 249 246 / .3); border-radius: 2px; background: transparent; color: var(--wl-paper); font-size: 15px; }
+.ls-waitlist-input::placeholder { color: rgb(250 249 246 / .4); }
+.ls-waitlist-input:focus-visible, .ls-waitlist-cta:focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 2px; }
+.ls-waitlist-cta { width: 100%; text-transform: uppercase; letter-spacing: .1em; }
+.ls-waitlist-fine { margin: 0; font-size: 12px; color: rgb(250 249 246 / .55); }
+.ls-waitlist [data-radix-dialog-close], .ls-waitlist > button:last-child { color: var(--wl-paper); }
