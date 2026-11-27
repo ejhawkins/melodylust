@@ -4525,4 +4525,5 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 /* Player bar: the song title and artist set large in Bodoni Moda beside the album art (the open sheet keeps its own type). */
 .ls-player:not([data-expanded="true"]) .ls-player-title { font-family: var(--font-editorial); font-weight: 500; font-size: clamp(28.6px, 2.6vw, 52px); line-height: 1.05; letter-spacing: -1px; padding-bottom: .06em; }
 .ls-player:not([data-expanded="true"]) .ls-player-artist { font-family: var(--font-editorial); font-weight: 400; font-size: 15.6px; letter-spacing: -1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 600px) { .ls-player:not([data-expanded="true"]) .ls-player-title { font-size: 28.6px; } }
+/* Phones: the title column is narrow beside the controls, so the title wraps to two lines rather than cutting to "WE O…". */
+@media (max-width: 600px) { .ls-player:not([data-expanded="true"]) .ls-player-title { font-size: 22px; line-height: 1; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; } }
