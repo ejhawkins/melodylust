@@ -293,8 +293,6 @@ function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: 
           <span className="ls-hero-by ls-hide-sm" role="img" aria-label="Melody Lust" style={{ "--logo": `url(${logo})` } as CSSProperties} />
         </div>
       </section>
-      {/* The issue's line, in the home page's eyebrow style ("How it works"), above the tagline. */}
-      <p className="gs-eyebrow ls-hero-eyebrow">The First Issue Featuring: Musing from Fashion Designer Thom Browne</p>
       <p className="ls-hero-tagline">This is a mood</p>
       {children}
     </div>

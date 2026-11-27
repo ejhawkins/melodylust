@@ -3446,10 +3446,8 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-hero-tagline { --hero-inset: 24px; margin: 14px var(--hero-inset) 4px; font-family: var(--font-hammer-xxx); font-weight: 400; /* its one real weight: 900 makes Safari smear a fake bold */ text-transform: uppercase; font-size: clamp(5.9rem, (100cqi - 2 * var(--hero-inset)) / 2.86, 14.75rem); line-height: .9; letter-spacing: .01em; color: var(--color-chalk-white); }
 /* Above it, the issue's line in the home page's eyebrow style (.gs-eyebrow: 12px, tracked, uppercase, as "How it works" is
    set), centred like that one and kept to the hero's width. It runs two lines on phones, so its breaks are balanced. */
-.ls-hero-eyebrow { --hero-inset: 24px; margin: 16px var(--hero-inset) 0; text-align: center; text-wrap: balance; color: var(--color-chalk-white); }
-.ls-hero-eyebrow + .ls-hero-tagline { margin-top: 8px; }
-@media (max-width: 900px) { .ls-hero-tagline, .ls-hero-eyebrow { color: var(--color-fig-black); } }
-@media (max-width: 600px) { .ls-hero-tagline, .ls-hero-eyebrow { --hero-inset: 16px; } } /* the hero's margins narrow here too */
+@media (max-width: 900px) { .ls-hero-tagline { color: var(--color-fig-black); } }
+@media (max-width: 600px) { .ls-hero-tagline { --hero-inset: 16px; } } /* the hero's margins narrow here too */
 
 /* Listening Room Fashion tab */
 .ls-fashion { display: grid; gap: 20px; }
