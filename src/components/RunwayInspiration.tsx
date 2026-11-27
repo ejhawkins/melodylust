@@ -16,10 +16,12 @@ const spotify = (id: string) => `https://open.spotify.com/track/${id}`;
  * After the style quiz: the runways that fit the reader's tags, the designers behind them and stacked playlists from
  * those shows' soundtracks. The agent only suggests; a playlist is saved to the reader's library when they tap.
  */
-export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag }: {
+export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag, onOpenPlaylist }: {
   profile: StyleProfile; notes: readonly RunwayNote[]; songs: readonly RunwaySong[]; onRetake: () => void;
   /** A tap in the cloud: the room saves it to the profile, so every pane follows the same tags. */
   onToggleTag: (tag: Tag, on: boolean) => void;
+  /** Opens a suggested playlist as its own featured page. */
+  onOpenPlaylist?: (id: string) => void;
 }) {
   const selected = useMemo(() => profileTags(profile), [profile]);
   const [saved, setSaved] = useState<Record<string, string>>({});
@@ -158,9 +160,12 @@ export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag
                     </li>
                   ))}
                 </ol>
-                {saved[playlist.id]
-                  ? <p role="status" className="ri-saved"><Check aria-hidden /> {saved[playlist.id]}</p>
-                  : <Button variant="listenCategory" size="chip" onClick={() => save(playlist)}><Plus aria-hidden />Save to my library</Button>}
+                <div className="ri-playlist-actions">
+                  {onOpenPlaylist && <Button variant="listenCategory" size="chip" onClick={() => onOpenPlaylist(playlist.id)}>Open playlist<ArrowUpRight aria-hidden /></Button>}
+                  {saved[playlist.id]
+                    ? <p role="status" className="ri-saved"><Check aria-hidden /> {saved[playlist.id]}</p>
+                    : <Button variant="listenCategory" size="chip" onClick={() => save(playlist)}><Plus aria-hidden />Save to my library</Button>}
+                </div>
               </article>
             ))}
           </div>

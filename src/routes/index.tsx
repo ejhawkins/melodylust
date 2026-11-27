@@ -44,6 +44,7 @@ import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { RunwayInspiration } from "@/components/RunwayInspiration";
 import { featuredShow, profileTags, readLeadTag, withTag, writeLeadTag, type Tag } from "@/lib/runway-inspiration";
 import { useStyleProfile } from "@/lib/use-style-profile";
+import { FeaturedPlaylist } from "@/components/FeaturedPlaylist";
 import { profileSelectionCount } from "@/lib/style-profile";
 import { StoryDialog } from "@/components/StoryDialog";
 import { Wishlist } from "@/components/Wishlist";
@@ -314,7 +315,7 @@ function usePhoneLayout() {
 }
 
 /** What the feed shows: the edit itself, or the Want List, the profile, a moodboard, a song look, a music video or one of the reader's playlists opened from the library. */
-type View = { kind: "feed" } | { kind: "want" } | { kind: "profile"; tab: DossierTab } | { kind: "board"; id: string } | { kind: "look"; index: number } | { kind: "video"; index: number } | { kind: "playlist"; id: string } | { kind: "note"; id: string } | { kind: "contents" } | { kind: "capsule" } | { kind: "day" };
+type View = { kind: "feed" } | { kind: "want" } | { kind: "profile"; tab: DossierTab } | { kind: "board"; id: string } | { kind: "look"; index: number } | { kind: "video"; index: number } | { kind: "playlist"; id: string } | { kind: "note"; id: string } | { kind: "contents" } | { kind: "capsule" } | { kind: "day" } | { kind: "suggested"; id: string };
 
 /** The second home page: the journal laid out like a music player, in black and white. The library
  *  sits left, the feed in the middle, Now wearing on the right and the player along the bottom. */
@@ -561,10 +562,13 @@ function ListeningRoom() {
                 onRunway={() => setCategory("Runway")} onReading={openReading} onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)} runwayCard={runwayCard} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
             </div>
+          ) : view.kind === "suggested" ? (
+            <FeaturedPlaylist key={view.id} id={view.id} profile={styleProfile.profile} notes={runwayNoteList} songs={runway}
+              nowPlaying={onStudio && listening ? song.caption : undefined} onPlay={playStudio} onBack={openProfile} />
           ) : view.kind === "profile" ? (
             // The profile page, loaded right here under the room's own header.
             <div className="ls-profile">
-              {roomStyle.enabled && <RunwayInspiration profile={styleProfile.profile} notes={runwayNoteList} songs={runway} onRetake={() => setQuizOpen(true)} onToggleTag={toggleTag} />}
+              {roomStyle.enabled && <RunwayInspiration profile={styleProfile.profile} notes={runwayNoteList} songs={runway} onRetake={() => setQuizOpen(true)} onToggleTag={toggleTag} onOpenPlaylist={id => open({ kind: "suggested", id }, "profile")} />}
               <CuratorDossier embedded tab={view.tab} onTabChange={tab => setView({ kind: "profile", tab })}
                 capsule={<ListenCapsule mix={mix} nowPlaying={listening ? song.caption : undefined} onPlay={playStudio} onWantList={openWant} onBack={goHome} />} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>

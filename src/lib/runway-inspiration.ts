@@ -274,3 +274,24 @@ export function featuredShow(selected: Tag[], notes: readonly RunwayNote[], lead
   const leading = lead && selected.some(t => tagKey(t) === tagKey(lead)) ? shows.find(show => show.matched.some(m => tagKey(m) === tagKey(lead))) : undefined;
   return leading ?? shows[0] ?? null;
 }
+
+/** One song on a featured playlist page: where it walked, who showed, what's cited, and the house's store. */
+export type PlaylistRow = { track: InspiredTrack; designers: Designer[]; part: string | null; sources: NoteSource[]; shop: { house: string; url: string } | null };
+export type PlaylistPage = { playlist: InspiredPlaylist; rows: PlaylistRow[]; shows: number; designers: Designer[] };
+
+/** The full page for one suggested playlist: each song traced back to its show and its sources. Null if it's gone. */
+export function playlistPage(inspiration: Inspiration, id: string): PlaylistPage | null {
+  const playlist = inspiration.playlists.find(p => p.id === id);
+  if (!playlist) return null;
+  const rows = playlist.tracks.map((track): PlaylistRow => {
+    const show = inspiration.shows.find(s => s.note.id === track.showId);
+    if (show) {
+      const placed = show.note.music?.tracks.find(t => t.title === track.title && t.artist === track.artist);
+      return { track, designers: show.designers, part: placed?.part ?? null, sources: show.sources, shop: houseShop(show.note.house) };
+    }
+    const extra = inspiration.setlist.find(r => r.id === track.showId);
+    return { track, designers: extra ? [extra.designer] : [], part: extra?.part ?? null, sources: extra?.sources ?? [], shop: extra?.shop ?? null };
+  });
+  const designers = rows.flatMap(r => r.designers).filter((d, i, all) => all.findIndex(o => norm(o.name) === norm(d.name)) === i);
+  return { playlist, rows, shows: new Set(playlist.tracks.map(t => t.showId)).size, designers };
+}

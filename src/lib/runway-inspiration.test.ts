@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { editorialSongs, runwayNotes } from './runway-notes';
 import { emptySamplerEdits, resolveSampler } from './runway-sampler';
 import { runwaySongs } from './runway-songs';
-import { featuredShow, inspire, SETLIST_EXTRAS, profileTags, seasonTag, showSources, showTags, tagKey, trackGenres, withTag, type Tag } from './runway-inspiration';
+import { featuredShow, inspire, playlistPage, SETLIST_EXTRAS, profileTags, seasonTag, showSources, showTags, tagKey, trackGenres, withTag, type Tag } from './runway-inspiration';
 import { houseShop } from './house-shops';
 import { emptyStyleProfile, profileFields } from './style-profile';
 
@@ -130,5 +130,24 @@ describe('house shops', () => {
   it('has a store for every house on file', () => {
     for (const house of new Set([...notes.map(n => n.house), ...SETLIST_EXTRAS.map(e => e.house)])) expect(houseShop(house), house).not.toBeNull();
     expect(houseShop('Maison Test')).toBeNull();
+  });
+});
+
+describe('featured playlist page', () => {
+  it('traces every song of a suggested playlist to its show, designers, sources and the house’s store', () => {
+    const page = playlistPage(inspire([{ kind: 'music', value: 'Hip-hop' }], notes, songs), 'music:Hip-hop')!;
+    expect(page.playlist.title).toBe('Hip-hop from the runway');
+    expect(page.rows.map(r => [r.track.title, r.designers.map(d => d.name), r.shop?.house])).toEqual([
+      ['Mathematics', ['Grace Wales Bonner'], 'Wales Bonner'],
+      ['Arya', ['Nigo'], 'Kenzo'],
+      ['Swag Surfin’', ['Kerby Jean-Raymond'], 'Pyer Moss'],
+      ['The Birds Don’t Sing', ['Pharrell Williams'], 'Louis Vuitton'],
+    ]);
+    for (const row of page.rows) expect(row.sources.length, row.track.title).toBeGreaterThan(0);
+    expect(page.shows).toBe(4);
+    expect(page.designers).toHaveLength(4);
+  });
+  it('is null for a playlist the reader’s tags no longer make', () => {
+    expect(playlistPage(inspire([{ kind: 'music', value: 'Rock' }], notes, songs), 'music:Hip-hop')).toBeNull();
   });
 });
