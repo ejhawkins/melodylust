@@ -47,6 +47,9 @@ export const ARTIST_GENRES: Record<string, readonly string[]> = {
   'lcd soundsystem': ['Electronic', 'Indie'],
   'the white stripes': ['Rock', 'Indie'],
   'bfrnd gustave rudman': ['Electronic'],
+  nigo: ['Hip-hop'],
+  'f l y fast life yungstaz': ['Hip-hop'],
+  clipse: ['Hip-hop'],
 };
 
 /** Our read of a show's aesthetic, in the quiz's vocabulary; only where the reviews make the read plain. Keyed by note id. */
@@ -100,7 +103,7 @@ export type InspiredTrack = { title: string; artist: string; spotifyId: string |
 export type InspiredShow = { note: RunwayNote; label: string; designers: Designer[]; tags: ShowTag[]; matched: Tag[]; sources: NoteSource[]; tracks: InspiredTrack[] };
 export type InspiredDesigner = { designer: Designer; shows: string[]; matched: Tag[] };
 export type InspiredPlaylist = { id: string; title: string; basis: Tag | null; tracks: InspiredTrack[] };
-export type Inspiration = { shows: InspiredShow[]; designers: InspiredDesigner[]; playlists: InspiredPlaylist[] };
+export type Inspiration = { shows: InspiredShow[]; designers: InspiredDesigner[]; setlist: SetlistRow[]; playlists: InspiredPlaylist[] };
 
 export const showLabel = (note: Pick<RunwayNote, 'house' | 'season' | 'year'>) => `${note.house} ${note.season} ${note.year}`;
 const named = (track: NoteTrack): track is NoteTrack & { title: string } => Boolean(track.title);
@@ -113,6 +116,67 @@ function designersFor(note: RunwayNote, songs: readonly RunwaySong[]): Designer[
   return names.map(name => byName.get(norm(name)) ?? { name, wikipedia: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(name)}`, photo: null });
 }
 
+/**
+ * Designer setlist extras: a song placed at a show not yet written up as a runway note, with only what its sources
+ * support. "excerpt" = seen in search results; the part says how firmly each song is placed. From the Hip Hop × Runway
+ * lab preview, re-checked 2026-11-27.
+ */
+export type SetlistExtra = {
+  id: string; designer: { name: string; wikipedia: string }; house: string; season: string; year: number; city: string;
+  title: string; artist: string; spotifyId: string; part: string; sources: NoteSource[];
+};
+export const SETLIST_EXTRAS: readonly SetlistExtra[] = [
+  {
+    id: 'kenzo-fall-winter-2022', designer: { name: 'Nigo', wikipedia: 'https://en.wikipedia.org/wiki/Nigo' },
+    house: 'Kenzo', season: 'Fall/Winter', year: 2022, city: 'Paris',
+    title: 'Arya', artist: 'Nigo, A$AP Rocky', spotifyId: '5JPtB3Wn3H4nXJhuFtvzak',
+    part: 'Lead single of I Know Nigo, the album previewed as the soundtrack of his Kenzo debut; released five days after the show',
+    sources: [
+      { title: 'Our Generation Music: Nigo previews unreleased music at Kenzo’s Fall/Winter 2022 show', url: 'https://ourgenerationmusic.com/news/nigo-previews-unreleased-music-at-kenzo-menswear-fall-winter-2022-2023-fashion-show/', checked: 'excerpt' },
+      { title: 'Universal Music: Nigo presents debut single “Arya” featuring A$AP Rocky', url: 'https://www.universalmusic.ca/press-releases/nigo-presents-debut-single-arya-featuring-aap-rocky', checked: 'excerpt' },
+    ],
+  },
+  {
+    id: 'pyer-moss-spring-summer-2019', designer: { name: 'Kerby Jean-Raymond', wikipedia: 'https://en.wikipedia.org/wiki/Kerby_Jean-Raymond' },
+    house: 'Pyer Moss', season: 'Spring/Summer', year: 2019, city: 'Brooklyn',
+    title: 'Swag Surfin’', artist: 'F.L.Y. (Fast Life Yungstaz)', spotifyId: '2PDI58wt4PEJu2lCyDeIuu',
+    part: 'Sung live by a gospel choir at the Weeksville Heritage Center; the link is the studio recording',
+    sources: [
+      { title: 'Refinery29: Pyer Moss Spring 2019', url: 'https://refinery29.com/en-us/2018/09/209382/pyer-moss-spring-2019-collection', checked: 'excerpt' },
+      { title: 'Fashionista: Pyer Moss Spring 2019 review', url: 'https://fashionista.com/2018/09/pyer-moss-spring-2019-review', checked: 'excerpt' },
+    ],
+  },
+  {
+    id: 'louis-vuitton-spring-summer-mens-2025', designer: { name: 'Pharrell Williams', wikipedia: 'https://en.wikipedia.org/wiki/Pharrell_Williams' },
+    house: 'Louis Vuitton', season: 'Spring/Summer Men’s', year: 2025, city: 'Paris',
+    title: 'The Birds Don’t Sing', artist: 'Clipse, John Legend', spotifyId: '6L3i4jdNnk0a9kMT3qIqTG',
+    part: 'Premiered at the show as “Birds Don’t Sing”; the released track adds “The”',
+    sources: [
+      { title: 'Stereogum: a new Clipse song with John Legend debuted at Louis Vuitton', url: 'https://stereogum.com/2268577/preview-a-new-clipse-song-with-john-legend-debuted-at-louis-vuittons-ss-2025-fashion-show/news', checked: 'excerpt' },
+      { title: 'Flaunt: Louis Vuitton Men’s Spring-Summer 2025', url: 'https://www.flaunt.com/post/louis-vuitton-mens-spring-summer-2025-collection', checked: 'excerpt' },
+    ],
+  },
+];
+
+/** One row of the designer setlist: a designer, their show and the song that walked with it. */
+export type SetlistRow = {
+  id: string; designer: Designer; show: string; title: string; artist: string; spotifyId: string | null;
+  part: string | null; sources: NoteSource[]; matched: Tag[];
+};
+
+function extraTags(extra: SetlistExtra): ShowTag[] {
+  const tags: ShowTag[] = trackGenres(extra.artist).map(value => ({ kind: 'music', value, basis: 'ours' }));
+  const season = seasonTag(extra.season);
+  if (season) tags.push({ kind: 'season', value: season, basis: 'show' });
+  const brand = BRANDS.find(b => norm(b) === norm(extra.house));
+  if (brand) tags.push({ kind: 'brand', value: brand, basis: 'show' });
+  return tags;
+}
+const extraTrack = (extra: SetlistExtra): InspiredTrack => ({
+  title: extra.title, artist: extra.artist, spotifyId: extra.spotifyId, genres: trackGenres(extra.artist), showId: extra.id, show: showLabel(extra),
+});
+const extraDesigner = (extra: SetlistExtra): Designer => ({ ...extra.designer, photo: null });
+
 const MIN_PLAYLIST = 2;
 
 /**
@@ -120,7 +184,7 @@ const MIN_PLAYLIST = 2;
  * tags rank it higher. Playlists stack: the reader's whole runway mix first, then one per music genre, then one per other
  * tag, each only when it has at least two songs.
  */
-export function inspire(selected: Tag[], notes: readonly RunwayNote[], songs: readonly RunwaySong[] = []): Inspiration {
+export function inspire(selected: Tag[], notes: readonly RunwayNote[], songs: readonly RunwaySong[] = [], extras: readonly SetlistExtra[] = SETLIST_EXTRAS): Inspiration {
   const wanted = new Set(selected.map(tagKey));
   const shows = notes.flatMap((note, order): (InspiredShow & { order: number })[] => {
     const sources = showSources(note);
@@ -135,25 +199,49 @@ export function inspire(selected: Tag[], notes: readonly RunwayNote[], songs: re
     return [{ note, label, designers: designersFor(note, songs), tags, matched, sources, tracks, order }];
   }).sort((a, b) => b.matched.length - a.matched.length || a.order - b.order).map(({ order: _order, ...show }) => show);
 
+  // Extras that share a tag join the shows: as setlist rows, designers and playlist tracks, after the written-up shows.
+  const extraShows = extras.flatMap(extra => {
+    const matched = extraTags(extra).filter(tag => wanted.has(tagKey(tag))).map(({ kind, value }) => ({ kind, value }));
+    return matched.length ? [{ extra, matched, label: showLabel(extra), designer: extraDesigner(extra), track: extraTrack(extra) }] : [];
+  });
+
   const designers = new Map<string, InspiredDesigner>();
-  for (const show of shows) for (const designer of show.designers) {
+  const addDesigner = (designer: Designer, label: string, matchedHere: Tag[]) => {
     const seen = designers.get(norm(designer.name));
-    const matched = [...(seen?.matched ?? []), ...show.matched].filter((t, i, all) => all.findIndex(o => tagKey(o) === tagKey(t)) === i);
-    designers.set(norm(designer.name), { designer: seen?.designer.photo ? seen.designer : designer, shows: [...(seen?.shows ?? []), show.label], matched });
-  }
+    const matched = [...(seen?.matched ?? []), ...matchedHere].filter((t, i, all) => all.findIndex(o => tagKey(o) === tagKey(t)) === i);
+    designers.set(norm(designer.name), { designer: seen?.designer.photo ? seen.designer : designer, shows: [...(seen?.shows ?? []), label], matched });
+  };
+  for (const show of shows) for (const designer of show.designers) addDesigner(designer, show.label, show.matched);
+  for (const e of extraShows) addDesigner(e.designer, e.label, e.matched);
+
+  // The setlist: per designer and show, the song that best fits the reader's genres, else the show's first named song.
+  const genres = selected.filter(t => t.kind === 'music').map(t => t.value);
+  const setlist: SetlistRow[] = [
+    ...shows.flatMap(show => {
+      const track = show.tracks.find(t => t.genres.some(g => genres.includes(g))) ?? show.tracks[0];
+      if (!track) return [];
+      const placed = show.note.music?.tracks.find(t => t.title === track.title && t.artist === track.artist);
+      return show.designers.map(designer => ({ id: `${show.note.id}:${norm(designer.name)}`, designer, show: show.label, title: track.title, artist: track.artist, spotifyId: track.spotifyId, part: placed?.part ?? null, sources: show.sources, matched: show.matched }));
+    }),
+    ...extraShows.map(e => ({ id: e.extra.id, designer: e.designer, show: e.label, title: e.extra.title, artist: e.extra.artist, spotifyId: e.extra.spotifyId, part: e.extra.part, sources: e.extra.sources, matched: e.matched })),
+  ].sort((a, b) => b.matched.length - a.matched.length); // more shared tags first; ties keep show order
 
   const unique = (tracks: InspiredTrack[]) => tracks.filter((t, i, all) => all.findIndex(o => norm(o.title) === norm(t.title) && norm(o.artist) === norm(t.artist)) === i);
-  const mix = unique(shows.flatMap(show => show.tracks));
+  const mix = unique([...shows.flatMap(show => show.tracks), ...extraShows.map(e => e.track)]);
   const playlists: InspiredPlaylist[] = [];
   if (mix.length >= MIN_PLAYLIST) playlists.push({ id: 'mix', title: 'Your runway mix', basis: null, tracks: mix });
   for (const tag of selected) {
-    const tracks = unique(shows.filter(show => tag.kind === 'music' || show.matched.some(m => tagKey(m) === tagKey(tag)))
-      .flatMap(show => show.tracks.filter(track => tag.kind !== 'music' || track.genres.includes(tag.value))));
+    const sharesTag = (matched: Tag[]) => tag.kind === 'music' || matched.some(m => tagKey(m) === tagKey(tag));
+    const fits = (track: InspiredTrack) => tag.kind !== 'music' || track.genres.includes(tag.value);
+    const tracks = unique([
+      ...shows.filter(show => sharesTag(show.matched)).flatMap(show => show.tracks.filter(fits)),
+      ...extraShows.filter(e => sharesTag(e.matched) && fits(e.track)).map(e => e.track),
+    ]);
     if (tracks.length < MIN_PLAYLIST) continue;
     const title = tag.kind === 'music' ? `${tag.value} from the runway` : tag.kind === 'brand' ? `${tag.value} on the runway` : `${tag.value} runways`;
     playlists.push({ id: tagKey(tag), title, basis: tag, tracks });
   }
-  return { shows, designers: [...designers.values()], playlists };
+  return { shows, designers: [...designers.values()], setlist, playlists };
 }
 
 /** The tag the reader tapped last, kept on their device so the room still leads with it after a reload. */

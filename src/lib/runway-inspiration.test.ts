@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { editorialSongs, runwayNotes } from './runway-notes';
 import { emptySamplerEdits, resolveSampler } from './runway-sampler';
 import { runwaySongs } from './runway-songs';
-import { featuredShow, inspire, profileTags, seasonTag, showSources, showTags, tagKey, trackGenres, withTag, type Tag } from './runway-inspiration';
+import { featuredShow, inspire, SETLIST_EXTRAS, profileTags, seasonTag, showSources, showTags, tagKey, trackGenres, withTag, type Tag } from './runway-inspiration';
 import { emptyStyleProfile, profileFields } from './style-profile';
 
 const sampler = runwaySongs(resolveSampler(emptySamplerEdits()));
@@ -57,16 +57,22 @@ describe('inspire', () => {
 
   it('lists the designers behind the matched shows, with the shows and tags that brought them in', () => {
     const { designers } = inspire([{ kind: 'music', value: 'Hip-hop' }], notes, songs);
-    expect(designers.map(d => [d.designer.name, d.shows, d.matched.map(tagKey)])).toEqual([['Grace Wales Bonner', ['Wales Bonner Autumn/Winter 2024'], ['music:Hip-hop']]]);
+    expect(designers.map(d => [d.designer.name, d.shows, d.matched.map(tagKey)])).toEqual([
+      ['Grace Wales Bonner', ['Wales Bonner Autumn/Winter 2024'], ['music:Hip-hop']],
+      ['Nigo', ['Kenzo Fall/Winter 2022'], ['music:Hip-hop']],
+      ['Kerby Jean-Raymond', ['Pyer Moss Spring/Summer 2019'], ['music:Hip-hop']],
+      ['Pharrell Williams', ['Louis Vuitton Spring/Summer Men’s 2025'], ['music:Hip-hop']],
+    ]);
   });
 
   it('stacks the runway mix first, then a playlist per tag with at least two songs, from the shows’ soundtracks only', () => {
     const { playlists } = inspire([{ kind: 'music', value: 'Rock' }, { kind: 'music', value: 'Electronic' }, { kind: 'music', value: 'Hip-hop' }], notes, songs);
-    expect(playlists.map(p => p.title)).toEqual(['Your runway mix', 'Rock from the runway', 'Electronic from the runway']); // one hip-hop song: no playlist
+    expect(playlists.map(p => p.title)).toEqual(['Your runway mix', 'Rock from the runway', 'Electronic from the runway', 'Hip-hop from the runway']);
+    expect(inspire([{ kind: 'music', value: 'Hip-hop' }], notes, songs, []).playlists).toEqual([]); // one hip-hop song on its own: no playlist
     const rock = playlists.find(p => p.id === 'music:Rock')!;
     expect(rock.tracks.every(t => t.genres.includes('Rock'))).toBe(true);
     expect(rock.tracks.map(t => t.title)).toContain('The Dope Show');
-    const runwayTitles = new Set(notes.flatMap(n => n.music?.tracks ?? []).map(t => t.title));
+    const runwayTitles = new Set([...notes.flatMap(n => n.music?.tracks ?? []).map(t => t.title), ...SETLIST_EXTRAS.map(e => e.title)]);
     for (const p of playlists) for (const t of p.tracks) expect(runwayTitles.has(t.title)).toBe(true);
   });
 });
@@ -86,5 +92,26 @@ describe('featured runway', () => {
     const on = withTag(emptyStyleProfile(), { kind: 'music', value: 'Hip-hop' }, true);
     expect(on.music).toEqual(['Hip-hop']);
     expect(withTag(on, { kind: 'music', value: 'Hip-hop' }, false).music).toEqual([]);
+  });
+});
+
+describe('designer setlist', () => {
+  it('gives each matched designer one song from their show, the reader’s genre first, with the show’s sources', () => {
+    const { setlist } = inspire([{ kind: 'music', value: 'Hip-hop' }], notes, songs);
+    expect(setlist.map(r => [r.designer.name, r.show, r.title])).toEqual([
+      ['Grace Wales Bonner', 'Wales Bonner Autumn/Winter 2024', 'Mathematics'],
+      ['Nigo', 'Kenzo Fall/Winter 2022', 'Arya'],
+      ['Kerby Jean-Raymond', 'Pyer Moss Spring/Summer 2019', 'Swag Surfin’'],
+      ['Pharrell Williams', 'Louis Vuitton Spring/Summer Men’s 2025', 'The Birds Don’t Sing'],
+    ]);
+    for (const row of setlist) expect(row.sources.length, row.id).toBeGreaterThan(0);
+    const rock = inspire([{ kind: 'music', value: 'Rock' }], notes, songs).setlist.find(r => r.designer.name === 'Thom Browne');
+    expect(rock?.title).toBe('The Dope Show'); // the Rock song, not Wagner who opened the show
+  });
+  it('tags the extras from the quiz’s vocabulary, so a season brings them in too', () => {
+    expect(inspire([{ kind: 'season', value: 'Spring / summer' }], notes, songs).setlist.map(r => r.designer.name)).toEqual(expect.arrayContaining(['Kerby Jean-Raymond', 'Pharrell Williams']));
+    expect(inspire([{ kind: 'music', value: 'Country' }], notes, songs).setlist).toEqual([]);
+    const both = inspire([{ kind: 'music', value: 'Hip-hop' }, { kind: 'season', value: 'Fall / winter' }], notes, songs).setlist;
+    expect(both.slice(0, 2).map(r => r.designer.name)).toEqual(['Grace Wales Bonner', 'Nigo']); // two shared tags rank first
   });
 });

@@ -4527,3 +4527,13 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 @media (max-width: 600px) { .ls-player:not([data-expanded="true"]) .ls-player-title { font-size: 22px; line-height: 1; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; } }
 /* /#runways-for-you lands with the heading clear of the sticky "Back to the feed" bar. */
 #runways-for-you { scroll-margin-top: 72px; }
+/* Designer setlist: designer, show, the song that walked with it (as in the Hip Hop × Runway walk-out set). */
+.ri-setlist { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--color-fig-800); }
+.ri-set { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; align-items: start; padding: 16px 0; border-bottom: 1px solid var(--color-fig-800); }
+.ri-set-pic { width: 72px; aspect-ratio: 3 / 4; display: grid; place-items: center; overflow: hidden; border-radius: 2px; background: var(--color-fig-900); font-family: var(--font-editorial); font-size: 28px; color: var(--color-lilac-fog); }
+.ri-set-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ri-set-text { display: grid; gap: 4px; min-width: 0; }
+.ri-set-name { margin: 0; font-family: var(--font-editorial); font-size: clamp(24px, 4cqi, 34px); line-height: 1.05; letter-spacing: -.01em; }
+.ri-set-show, .ri-set-artist { margin: 0; font-size: 14px; color: var(--color-lilac-fog); }
+.ri-set-song { justify-self: start; display: inline-flex; align-items: baseline; gap: 2px; margin: 4px 0 0; font-size: 17px; color: var(--color-acid-lime); text-decoration: underline; text-underline-offset: 4px; }
+.ri-set-song svg { width: 14px; height: 14px; }

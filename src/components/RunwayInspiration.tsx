@@ -23,9 +23,9 @@ export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag
 }) {
   const selected = useMemo(() => profileTags(profile), [profile]);
   const [saved, setSaved] = useState<Record<string, string>>({});
-  const { shows, designers, playlists } = useMemo(() => inspire(selected, notes, songs), [selected, notes, songs]);
+  const { shows, designers, setlist, playlists } = useMemo(() => inspire(selected, notes, songs), [selected, notes, songs]);
 
-  const unpictured = designers.filter(d => !d.designer.photo).map(d => d.designer.name);
+  const unpictured = [...new Set([...designers.map(d => d.designer), ...setlist.map(r => r.designer)].filter(d => !d.photo).map(d => d.name))];
   const { data: portraits } = useQuery({
     queryKey: ["runway-inspiration", "portraits", unpictured],
     queryFn: () => getDesignerPortraits({ data: { names: unpictured } }),
@@ -66,6 +66,28 @@ export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag
           <Button variant="listenCategory" size="chip" onClick={onRetake}>Retake the style quiz</Button>
         </div>
       ) : <>
+        <h3 className="ri-label" id="ri-setlist">Designer setlist</h3>
+        <ol className="ri-setlist" aria-labelledby="ri-setlist">
+          {setlist.map(row => {
+            const d = withPortrait(row.designer);
+            return (
+              <li key={row.id} className="ri-set">
+                <span className="ri-set-pic" aria-hidden>{d.photo ? <img src={d.photo.src} alt="" loading="lazy" referrerPolicy="no-referrer" /> : d.name.charAt(0)}</span>
+                <div className="ri-set-text">
+                  <p className="ri-set-name">{d.name}</p>
+                  <p className="ri-set-show">{row.show}</p>
+                  {row.spotifyId
+                    ? <a className="ri-set-song" href={spotify(row.spotifyId)} target="_blank" rel="noopener noreferrer">{row.title}<ArrowUpRight aria-hidden /></a>
+                    : <p className="ri-set-song">{row.title}</p>}
+                  <p className="ri-set-artist">{row.artist}</p>
+                  {row.part && <p className="ri-meta">{row.part}</p>}
+                  <p className="ri-sources">Sources: {row.sources.map((s, i) => <span key={s.url}>{i > 0 && " · "}<a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>{s.checked === "excerpt" && <small> (excerpt)</small>}</span>)}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
         <h3 className="ri-label" id="ri-designers">Designers for your profile</h3>
         <ul className="ri-designers" aria-labelledby="ri-designers">
           {designers.map(({ designer, shows: theirs, matched }) => {
