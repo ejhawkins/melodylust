@@ -44,6 +44,7 @@ import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
 import { RunwayInspiration } from "@/components/RunwayInspiration";
 import { featuredShow, profileTags, readLeadTag, withTag, writeLeadTag, type Tag } from "@/lib/runway-inspiration";
 import { useStyleProfile } from "@/lib/use-style-profile";
+import { profileSelectionCount } from "@/lib/style-profile";
 import { StoryDialog } from "@/components/StoryDialog";
 import { Wishlist } from "@/components/Wishlist";
 import { ListenWantShelf } from "@/components/ListenWantShelf";
@@ -444,6 +445,8 @@ function ListeningRoom() {
   const open = (next: View, row: string) => changeView(() => { setView(next); setActive(row); }, "auto");
   const openWant = () => open({ kind: "want" }, "want");
   const openProfile = () => open({ kind: "profile", tab: "dna" }, "profile");
+  // A first visit has no profile to open yet: "Build my profile" starts the quiz, and saving it opens the profile.
+  const buildProfile = () => (profileSelectionCount(styleProfile.profile) ? openProfile() : setQuizOpen(true));
   const board = view.kind === "board" ? moodboards.find(b => b.id === view.id) : undefined;
   const look = view.kind === "look" ? mix[view.index] : undefined;
   const video = view.kind === "video" ? moodVideos[view.index] : undefined;
@@ -656,7 +659,7 @@ function ListeningRoom() {
           </>}
         </main>
 
-        {wearingOpen && <NowWearing onProfile={openProfile} onReport={openReport} nowPlaying={runway[0]} />}
+        {wearingOpen && <NowWearing onProfile={buildProfile} onReport={openReport} nowPlaying={runway[0]} />}
       </div>
 
       {/* The sticky issue dock was retired: the in-hero buttons are the only issue nav. */}

@@ -7,7 +7,7 @@ import { inspire, profileTags, TAG_KIND_LABELS, TAG_KINDS, tagKey, type Inspired
 import type { RunwayNote } from "@/lib/runway-notes";
 import type { Designer, RunwaySong } from "@/lib/runway-songs";
 import { createStudioPlaylist, importTracks } from "@/lib/studio";
-import { profileFields, type StyleProfile } from "@/lib/style-profile";
+import { profileFields, profileSelectionCount, type StyleProfile } from "@/lib/style-profile";
 
 const options = (kind: (typeof TAG_KINDS)[number]) => (profileFields.find(field => field.key === kind)?.options ?? []) as readonly string[];
 const spotify = (id: string) => `https://open.spotify.com/track/${id}`;
@@ -63,7 +63,7 @@ export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag
       {!shows.length ? (
         <div className="ri-empty">
           <p>{selected.length ? "No runway on file shares these tags yet. Try another genre, aesthetic or season." : "Pick a few tags, or take the style quiz, and the runways that fit will show here."}</p>
-          <Button variant="listenCategory" size="chip" onClick={onRetake}>Retake the style quiz</Button>
+          <Button variant="listenCategory" size="chip" onClick={onRetake}>{profileSelectionCount(profile) ? "Retake the style quiz" : "Take the style quiz"}</Button>
         </div>
       ) : <>
         <h3 className="ri-label" id="ri-setlist">Designer setlist</h3>
