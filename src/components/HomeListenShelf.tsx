@@ -59,7 +59,7 @@ export function HomeListenShelf() {
           <Button variant="listenIcon" size="round" aria-label="Next song" onClick={() => step(1)}><SkipForward /></Button>
         </div>
         {!(listening && embed) && <p className="home-shelf-note">Plays through Spotify</p>}
-        <a className="home-shelf-room" href={runwayRoomLink(song)}>Keep listening in the Listening Room <ArrowRight aria-hidden /></a>
+        <a className="home-shelf-room" href={runwayRoomLink(song)}>{listening ? "Explore the feed" : "Keep listening in the Listening Room"} <ArrowRight aria-hidden /></a>
       </aside>
     </>
   );

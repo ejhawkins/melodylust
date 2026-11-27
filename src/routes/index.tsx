@@ -320,7 +320,7 @@ function ListeningRoom() {
   const [listening, setListening] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(true);
   const [wearingOpen, setWearingOpen] = useState(true);
-  // Phones hide the Style profile button, so the style quiz gets its own place in the top bar there.
+  // TODO: Work on button user flows.
   const [quizOpen, setQuizOpen] = useState(false);
   const styleProfile = useStyleProfile();
   const [active, setActive] = useState("mix");
@@ -484,7 +484,7 @@ function ListeningRoom() {
         </div>
         <div className="ls-head-end">
           <Button variant="listenOutline" size="bar" className="ls-hide-sm" aria-expanded={view.kind === "profile"} onClick={openProfile}><SlidersHorizontal aria-hidden />Style profile</Button>
-          <Button variant="listenOutline" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-haspopup="dialog" onClick={() => setQuizOpen(true)}><span>Style quiz</span></Button>
+          <Button variant="listenOutline" size="bar" className="ls-want-btn ls-style-btn ls-hide-sm" aria-haspopup="dialog" onClick={() => setQuizOpen(true)}><span>Style quiz</span></Button>
           <Button variant="listenSolid" size="bar" className="ls-want-btn" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
         </div>
       </header>
