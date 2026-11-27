@@ -394,6 +394,20 @@ function ListeningRoom() {
     enabled: phone && listening && Boolean(song?.caption),
     staleTime: 10 * 60 * 1000,
   });
+  // A direct link to Runways for your taste (/#runways-for-you): opens the style profile and brings the panel into view
+  // once it has rendered. Only where room personalization is on, as the panel is.
+  useEffect(() => {
+    if (!roomStyle.enabled || window.location.hash !== "#runways-for-you") return;
+    setView({ kind: "profile", tab: "dna" });
+    setActive("profile");
+    let tries = 0;
+    const find = () => {
+      const panel = document.getElementById("runways-for-you");
+      if (panel) panel.scrollIntoView({ behavior: "auto", block: "start" });
+      else if (++tries < 60) requestAnimationFrame(find);
+    };
+    requestAnimationFrame(find);
+  }, [roomStyle.enabled]);
   if (!song) return null;
 
   const go = (index: number) => { setNow(index); setActive(onRunway ? "runway-songs" : onStudio ? "studio" : onList ? `playlist-${listId}` : `look-${index}`); };

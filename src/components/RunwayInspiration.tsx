@@ -42,7 +42,7 @@ export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag
   };
 
   return (
-    <section className="ri" aria-labelledby="ri-title">
+    <section id="runways-for-you" className="ri" aria-labelledby="ri-title" tabIndex={-1}>
       <p className="ri-kicker">Runway inspiration</p>
       <h2 id="ri-title" className="ri-title">Runways for your taste</h2>
       <p className="ri-dek">Shows picked by your tags, which the whole room follows and saves on this device. Every song is placed at its show by the sources cited; genre and aesthetic tags are our read.</p>
