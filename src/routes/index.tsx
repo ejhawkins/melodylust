@@ -502,8 +502,7 @@ function ListeningRoom() {
         </div>
         <div className="ls-head-end">
           <Button variant="listenOutline" size="bar" className="ls-hide-sm" aria-expanded={view.kind === "profile"} onClick={openProfile}><SlidersHorizontal aria-hidden />Style profile</Button>
-          <Button variant="listenOutline" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-haspopup="dialog" onClick={() => setQuizOpen(true)}><span>Style quiz</span></Button>
-          <Button variant="listenSolid" size="bar" className="ls-want-btn" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
+          <Button variant="listenSolid" size="bar" className="ls-want-btn ls-hide-sm" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
         </div>
       </header>
 
