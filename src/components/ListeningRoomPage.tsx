@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { RoomLoader } from "@/components/RoomLoader";
+import { setSoundChoice, type SoundChoice } from "@/lib/silent-mode";
 import { StyleOptions } from "@/components/StylePicker";
 import { ROOM_THEMES, type ThemeId } from "@/lib/themes/theme-spec";
 import { isListeningRoomEnabled } from "@/lib/themes/room-flag";
@@ -17,17 +18,11 @@ export function ListeningRoomPage({ themeId }: { themeId: ThemeId }) {
   const activeId = style.selection?.primary ?? themeId;
   const theme = ROOM_THEMES[activeId];
   const [progress, setProgress] = useState(0);
-  const [entered, setEntered] = useState(false);
+
+  // Both doors lead into the room; the choice is kept on this device, and silence turns every player into a Spotify link.
+  const enter = (sound: SoundChoice) => { setSoundChoice(sound); void navigate({ to: "/" }); };
 
   useEffect(() => trackReadiness(roomReadinessSteps({ theme, roomOn: isListeningRoomEnabled() }), setProgress), [theme]);
-
-  if (entered) {
-    return (
-      <main className="p-8 text-center" role="status">
-        Listening mode needs Spotify sign-in, which is not connected yet.
-      </main>
-    );
-  }
 
   const setlist = resolveSetlist(theme);
   return (
@@ -35,8 +30,8 @@ export function ListeningRoomPage({ themeId }: { themeId: ThemeId }) {
       <RoomLoader
         themeId={activeId}
         progress={progress}
-        onEnter={() => setEntered(true)}
-        onStaySilent={() => void navigate({ to: "/" })}
+        onEnter={() => enter("sound")}
+        onStaySilent={() => enter("silent")}
       />
       <div className="flex flex-wrap items-start justify-center gap-6 p-6" style={{ background: theme.palette.surface, color: theme.palette.text }}>
         {style.enabled && <StyleOptions selection={{ primary: activeId }} onChoose={next => style.choose(next)} includeDefault={false} />}
