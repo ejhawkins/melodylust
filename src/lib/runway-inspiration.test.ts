@@ -3,6 +3,7 @@ import { editorialSongs, runwayNotes } from './runway-notes';
 import { emptySamplerEdits, resolveSampler } from './runway-sampler';
 import { runwaySongs } from './runway-songs';
 import { featuredShow, inspire, SETLIST_EXTRAS, profileTags, seasonTag, showSources, showTags, tagKey, trackGenres, withTag, type Tag } from './runway-inspiration';
+import { houseShop } from './house-shops';
 import { emptyStyleProfile, profileFields } from './style-profile';
 
 const sampler = runwaySongs(resolveSampler(emptySamplerEdits()));
@@ -113,5 +114,21 @@ describe('designer setlist', () => {
     expect(inspire([{ kind: 'music', value: 'Country' }], notes, songs).setlist).toEqual([]);
     const both = inspire([{ kind: 'music', value: 'Hip-hop' }, { kind: 'season', value: 'Fall / winter' }], notes, songs).setlist;
     expect(both.slice(0, 2).map(r => r.designer.name)).toEqual(['Grace Wales Bonner', 'Nigo']); // two shared tags rank first
+  });
+});
+
+describe('house shops', () => {
+  it('links each setlist row to the house’s own store, keyed by the house that showed', () => {
+    const { setlist } = inspire([{ kind: 'music', value: 'Hip-hop' }], notes, songs);
+    expect(setlist.map(r => [r.designer.name, r.shop?.url])).toEqual([
+      ['Grace Wales Bonner', 'https://walesbonner.com'],
+      ['Nigo', 'https://www.kenzo.com'],
+      ['Kerby Jean-Raymond', 'https://www.pyermoss.com'],
+      ['Pharrell Williams', 'https://www.louisvuitton.com'], // the house's store, not the designer's own label
+    ]);
+  });
+  it('has a store for every house on file', () => {
+    for (const house of new Set([...notes.map(n => n.house), ...SETLIST_EXTRAS.map(e => e.house)])) expect(houseShop(house), house).not.toBeNull();
+    expect(houseShop('Maison Test')).toBeNull();
   });
 });

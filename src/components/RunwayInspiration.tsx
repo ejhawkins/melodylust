@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, Check, Plus } from "lucide-react";
+import { ArrowUpRight, Check, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getDesignerPortraits } from "@/lib/designer-radio.functions";
 import { inspire, profileTags, TAG_KIND_LABELS, TAG_KINDS, tagKey, type InspiredPlaylist, type Tag } from "@/lib/runway-inspiration";
@@ -81,6 +81,7 @@ export function RunwayInspiration({ profile, notes, songs, onRetake, onToggleTag
                     : <p className="ri-set-song">{row.title}</p>}
                   <p className="ri-set-artist">{row.artist}</p>
                   {row.part && <p className="ri-meta">{row.part}</p>}
+                  {row.shop && <a className="ri-set-shop" href={row.shop.url} target="_blank" rel="noopener noreferrer"><ShoppingBag aria-hidden />Shop {row.shop.house}<ArrowUpRight aria-hidden /></a>}
                   <p className="ri-sources">Sources: {row.sources.map((s, i) => <span key={s.url}>{i > 0 && " · "}<a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>{s.checked === "excerpt" && <small> (excerpt)</small>}</span>)}</p>
                 </div>
               </li>

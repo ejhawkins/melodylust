@@ -7,6 +7,7 @@
 //   ours on the page, apart from the sources, which are the reviews and articles that place each song at each show.
 // A show with no source on file is left out: everything shown here roots back to a cited soundtrack.
 
+import { houseShop } from './house-shops';
 import { noteId, type NoteSource, type NoteTrack, type RunwayNote } from './runway-notes';
 import { SAMPLER_SOURCES, SAMPLER_TRACKS } from './runway-sampler';
 import type { Designer, RunwaySong } from './runway-songs';
@@ -162,6 +163,8 @@ export const SETLIST_EXTRAS: readonly SetlistExtra[] = [
 export type SetlistRow = {
   id: string; designer: Designer; show: string; title: string; artist: string; spotifyId: string | null;
   part: string | null; sources: NoteSource[]; matched: Tag[];
+  /** The house's own online store, when we have it on file. */
+  shop: { house: string; url: string } | null;
 };
 
 function extraTags(extra: SetlistExtra): ShowTag[] {
@@ -221,9 +224,9 @@ export function inspire(selected: Tag[], notes: readonly RunwayNote[], songs: re
       const track = show.tracks.find(t => t.genres.some(g => genres.includes(g))) ?? show.tracks[0];
       if (!track) return [];
       const placed = show.note.music?.tracks.find(t => t.title === track.title && t.artist === track.artist);
-      return show.designers.map(designer => ({ id: `${show.note.id}:${norm(designer.name)}`, designer, show: show.label, title: track.title, artist: track.artist, spotifyId: track.spotifyId, part: placed?.part ?? null, sources: show.sources, matched: show.matched }));
+      return show.designers.map(designer => ({ id: `${show.note.id}:${norm(designer.name)}`, designer, show: show.label, title: track.title, artist: track.artist, spotifyId: track.spotifyId, part: placed?.part ?? null, sources: show.sources, matched: show.matched, shop: houseShop(show.note.house) }));
     }),
-    ...extraShows.map(e => ({ id: e.extra.id, designer: e.designer, show: e.label, title: e.extra.title, artist: e.extra.artist, spotifyId: e.extra.spotifyId, part: e.extra.part, sources: e.extra.sources, matched: e.matched })),
+    ...extraShows.map(e => ({ id: e.extra.id, designer: e.designer, show: e.label, title: e.extra.title, artist: e.extra.artist, spotifyId: e.extra.spotifyId, part: e.extra.part, sources: e.extra.sources, matched: e.matched, shop: houseShop(e.extra.house) })),
   ].sort((a, b) => b.matched.length - a.matched.length); // more shared tags first; ties keep show order
 
   const unique = (tracks: InspiredTrack[]) => tracks.filter((t, i, all) => all.findIndex(o => norm(o.title) === norm(t.title) && norm(o.artist) === norm(t.artist)) === i);

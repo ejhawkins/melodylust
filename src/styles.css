@@ -4537,3 +4537,6 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
 .ri-set-show, .ri-set-artist { margin: 0; font-size: 14px; color: var(--color-lilac-fog); }
 .ri-set-song { justify-self: start; display: inline-flex; align-items: baseline; gap: 2px; margin: 4px 0 0; font-size: 17px; color: var(--color-acid-lime); text-decoration: underline; text-underline-offset: 4px; }
 .ri-set-song svg { width: 14px; height: 14px; }
+.ri-set-shop { justify-self: start; width: fit-content; max-width: 100%; display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 2px; padding: 6px 12px; border: 1px solid currentColor; font-size: 12px; letter-spacing: .08em; line-height: 1.3; text-transform: uppercase; color: inherit; text-decoration: none; }
+.ri-set-shop:hover, .ri-set-shop:focus-visible { background: var(--color-acid-lime); border-color: var(--color-acid-lime); color: #0b040b; }
+.ri-set-shop svg { width: 14px; height: 14px; }
