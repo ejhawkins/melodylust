@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { ROOM_THEMES, type ThemeId, type RoomTheme } from "@/lib/themes/theme-spec";
+import { TEXTURES } from "@/lib/themes/theme-css";
 
 // Themed loading screen for the listening room.
 // Reads palette, texture, motion.loader and copy.loadingCaptions from the theme spec.
@@ -36,17 +37,6 @@ function usePrefersReducedMotion(): boolean {
   }, []);
   return reduced;
 }
-
-const TEXTURES: Record<RoomTheme["texture"], (t: RoomTheme) => string> = {
-  tartan: (t) =>
-    `repeating-linear-gradient(0deg, ${t.palette.accent}55 0 12px, transparent 12px 36px), repeating-linear-gradient(90deg, ${t.palette.accent}55 0 12px, transparent 12px 36px), ${t.palette.surface}`,
-  chrome: (t) =>
-    `linear-gradient(135deg, ${t.palette.surface}, ${t.palette.ink} 45%, ${t.palette.accent}22 60%, ${t.palette.ink})`,
-  knit: (t) =>
-    `repeating-linear-gradient(45deg, ${t.palette.accent}22 0 4px, transparent 4px 8px), ${t.palette.surface}`,
-  concrete: (t) =>
-    `radial-gradient(${t.palette.accent}11 1px, transparent 1px) 0 0/6px 6px, ${t.palette.surface}`,
-};
 
 function Motif({
   theme,
@@ -96,9 +86,11 @@ function Motif({
       </svg>
     );
   }
-  // belt-and-record
+  // belt-and-record: the record and tonearm (the arm drops when ready), and a leather belt whose tip threads
+  // through a silver buckle as the room gets ready: progress is how far the strap has passed through.
+  const tip = 16 + (progress / 100) * 128;
   return (
-    <svg viewBox="0 0 160 160" width="160" height="160" aria-hidden="true">
+    <svg viewBox="0 0 160 200" width="160" height="200" aria-hidden="true">
       <g
         style={{
           transformOrigin: "80px 80px",
@@ -118,6 +110,12 @@ function Motif({
         strokeWidth={4}
         strokeLinecap="round"
       />
+      <g data-part="belt">
+        <rect x={8} y={172} width={Math.max(0, tip - 8)} height={12} rx={3} fill={highlight} />
+        {[24, 40, 56].filter(x => x < tip - 6).map(x => <circle key={x} cx={x} cy={178} r={1.6} fill={ink} />)}
+        <rect data-part="buckle" x={86} y={166} width={18} height={24} rx={4} fill="none" stroke="#d9dde3" strokeWidth={3} />
+        <line x1={95} y1={169} x2={95} y2={187} stroke="#d9dde3" strokeWidth={2} />
+      </g>
     </svg>
   );
 }
@@ -150,7 +148,7 @@ export function RoomLoader({ themeId, progress, onEnter, onStaySilent }: RoomLoa
       className="flex min-h-[70vh] flex-col items-center justify-center gap-6 p-8 text-center"
     >
       <style>{`@keyframes ml-spin{to{transform:rotate(360deg)}}`}</style>
-      <p className="text-xs uppercase tracking-[0.3em]" style={{ color: theme.palette.accent }}>
+      <p className="text-xs uppercase tracking-[0.3em]" style={{ color: theme.palette.highlight }}>
         {ready ? `${theme.copy.listeningLabel} ready` : theme.copy.silenceLabel}
       </p>
       <h1
@@ -170,7 +168,7 @@ export function RoomLoader({ themeId, progress, onEnter, onStaySilent }: RoomLoa
         aria-valuemax={100}
         aria-valuenow={pct}
         className="h-2 w-64 overflow-hidden rounded-full"
-        style={{ background: `${theme.palette.accent}33` }}
+        style={{ background: `${theme.palette.text}40` }}
       >
         <div
           className="h-full"
@@ -198,7 +196,7 @@ export function RoomLoader({ themeId, progress, onEnter, onStaySilent }: RoomLoa
             type="button"
             onClick={onStaySilent}
             className="rounded-full border px-6 py-2 focus-visible:outline focus-visible:outline-2"
-            style={{ borderColor: theme.palette.accent, color: theme.palette.text }}
+            style={{ borderColor: `${theme.palette.text}80`, color: theme.palette.text }}
           >
             Stay in {theme.copy.silenceLabel.toLowerCase()}
           </button>

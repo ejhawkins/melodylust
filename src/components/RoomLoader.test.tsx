@@ -29,3 +29,19 @@ describe("RoomLoader", () => {
     expect(screen.getByText("Listening mode ready")).toBeTruthy();
   });
 });
+
+describe("RoomLoader belt and buckle", () => {
+  it("threads the belt further through the buckle as progress rises", () => {
+    const width = (progress: number) => {
+      const { container, unmount } = render(<RoomLoader themeId="autumn-tartan" progress={progress} />);
+      const strap = container.querySelector("[data-part='belt'] rect");
+      const w = Number(strap?.getAttribute("width"));
+      unmount();
+      return w;
+    };
+    expect(width(0)).toBeLessThan(width(50));
+    expect(width(50)).toBeLessThan(width(100));
+    const buckleX = 86;
+    expect(8 + width(100)).toBeGreaterThan(buckleX + 18); // fully through at 100
+  });
+});

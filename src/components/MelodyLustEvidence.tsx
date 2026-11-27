@@ -20,6 +20,8 @@ import { ShopProducts } from './ShopProducts';
 import { ScoutedArticles } from './ScoutedArticles';
 import { ArtistSongs } from './ArtistSongs';
 import { AIArtistStyle } from './AIArtistStyle';
+import { useStyleChoice } from '@/lib/themes/style-choice';
+import { articleStrengths, songsForStyle } from '@/lib/themes/style-evidence';
 import { pieceKeyword } from '@/lib/farfetch';
 import { articleItems } from '@/lib/article-items';
 import { type StyleLookInput, type StyleNotes } from '@/lib/style-look';
@@ -29,7 +31,9 @@ import { addWish } from '@/lib/wishlist';
 function SongPicks({ music, designer, profile }: { music: { kind: string; name: string }; designer: string | null; profile: StyleProfile }) {
   const [mood, setMood] = useState<Mood | null>(null);
   const [saved, setSaved] = useState<string[]>([]);
-  const picks = recommendSongs({ music, designer, mood, profile });
+  // A room style puts its setlist songs, then its genres, first. The songs still come only from the catalog.
+  const { theme } = useStyleChoice();
+  const picks = songsForStyle(recommendSongs({ music, designer, mood, profile }), theme);
   if (!picks.length) return null;
   return <section className="stylus-songs" aria-label={`Song picks for ${designer ? `${designer} × ` : ''}${music.name}`}>
     <span className="stylus-eyebrow">Song picks</span>
@@ -273,6 +277,6 @@ export function MelodyLustEvidence({ profile, onArtist }: { profile: StyleProfil
     {recommendation && <ScoutedArticles key={recommendation.artist.name} artist={recommendation.artist.name} />}
     {/* Three songs for any artist, unless the editor's song picks above already cover them. */}
     {recommendation && !recommendSongs({ music: { kind: 'artist', name: recommendation.artist.name }, designer: null, profile }).length && <ArtistSongs key={`songs:${recommendation.artist.name}`} artist={recommendation.artist.name} />}
-    {recommendation && <AIArtistStyle key={`style:${recommendation.artist.id}`} recommendation={recommendation} articles={articles} profile={profile} />}
+    {recommendation && <AIArtistStyle key={`style:${recommendation.artist.id}`} recommendation={recommendation} articles={articles} profile={profile} strengths={articleStrengths(result?.associations ?? [])} />}
   </div>;
 }

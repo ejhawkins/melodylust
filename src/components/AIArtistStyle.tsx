@@ -7,7 +7,9 @@ import { lookupArtistSongs } from '@/lib/freqblog.functions';
 import { scoutArtistArticles } from '@/lib/scout.functions';
 import type { AIStyleResponse } from '@/lib/ai-style';
 import type { ArtistStyleRecommendation } from '@/lib/artist-style';
-import type { EvidenceDocument } from '@/lib/melodylust-evidence';
+import type { EvidenceDocument, EvidenceStrength } from '@/lib/melodylust-evidence';
+import { useStyleChoice } from '@/lib/themes/style-choice';
+import { articlesForStyle } from '@/lib/themes/style-evidence';
 import type { StyleProfile } from '@/lib/style-profile';
 import { ArtistOutfitResult } from './ArtistOutfitResult';
 import { ShopProducts } from './ShopProducts';
@@ -19,8 +21,12 @@ const preferencesOf = (profile: StyleProfile) => [...new Set([profile.color, pro
 /** AI styling for a searched artist: evidence-backed ideas (quoting approved articles) first, then
  *  creative ones, which may draw keywords, vibes and named brands from the publication coverage,
  *  each with real catalog matches. Without AI it falls back to the rule-based outfit. */
-export function AIArtistStyle({ recommendation, articles, profile }: { recommendation: ArtistStyleRecommendation; articles: EvidenceDocument[]; profile: StyleProfile }) {
+export function AIArtistStyle({ recommendation, articles, profile, strengths }: { recommendation: ArtistStyleRecommendation; articles: EvidenceDocument[]; profile: StyleProfile; strengths?: Map<string, EvidenceStrength> }) {
   const artist = recommendation.artist;
+  // The room style filters and orders the approved articles (its evidence minimum, then its garments) and is
+  // sent as an id; the server turns it into tone, garment and genre constraints from the theme spec.
+  const { theme } = useStyleChoice();
+  const styled = articlesForStyle(articles, strengths ?? new Map(), theme);
   const [state, setState] = useState<State>({ status: 'loading' });
   const [index, setIndex] = useState(0);
   const getSongs = useServerFn(lookupArtistSongs);
@@ -38,14 +44,15 @@ export function AIArtistStyle({ recommendation, articles, profile }: { recommend
       if (!current) return;
       const response = await getStyle({ data: {
         artist: artist.name, genres: artist.genres.slice(0, 8), songs,
-        articles: articles.slice(0, 8).map(a => ({ id: a.id, title: a.title, summary: a.summary, url: a.url })),
+        articles: styled.slice(0, 8).map(a => ({ id: a.id, title: a.title, summary: a.summary, url: a.url })),
         coverage: coverage.slice(0, 10).map(a => ({ url: a.url, publication: a.publication, title: a.title, summary: a.summary })),
         preferences: preferencesOf(profile),
+        ...(theme ? { style: theme.id } : {}),
       } });
       if (current) setState(response);
     })().catch(() => { if (current) setState({ status: 'unavailable', suggestions: [], provider: '' }); });
     return () => { current = false; };
-  }, [artist.name, artist.genres.join(','), articles.map(a => a.id).join(','), preferencesOf(profile).join(',')]);
+  }, [artist.name, artist.genres.join(','), styled.map(a => a.id).join(','), preferencesOf(profile).join(','), theme?.id]);
 
   if (state.status !== 'ok' || !state.suggestions.length) return <>
     {state.status === 'loading' && <p role="status" className="stylus-status">Refining styling ideas for {artist.name}…</p>}
@@ -55,7 +62,7 @@ export function AIArtistStyle({ recommendation, articles, profile }: { recommend
   if (!idea) return <ArtistOutfitResult recommendation={recommendation} articles={articles} />;
   const from = `AI styling idea for ${artist.name}`;
   return <section className="stylus-artist-outfit" aria-label={`Styling ideas for ${artist.name}`} aria-live="polite">
-    <span className="stylus-eyebrow">{idea.basis === 'evidence' ? 'From the articles · AI-styled' : idea.inspiration ? `Inspired by ${idea.inspiration.publication} coverage · AI-styled` : 'Creative idea · AI-generated'}</span>
+    <span className="stylus-eyebrow">{idea.basis === 'evidence' ? 'From the articles · AI-styled' : idea.inspiration ? `Inspired by ${idea.inspiration.publication} coverage · AI-styled` : 'Creative idea · AI-generated'}{theme ? ` · ${theme.label}` : ''}</span>
     <h3>{artist.name}</h3>
     <div className="stylus-notes">
       <h4>{idea.title}</h4>

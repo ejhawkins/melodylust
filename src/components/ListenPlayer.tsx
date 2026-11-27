@@ -52,7 +52,7 @@ export function ListenPlayer({ song, listening, onListen, onPrev, onNext, wearin
       <div className="ls-player-song">
         {art ? <img src={art} alt="" width={56} height={56} /> : <span className="ls-player-blank" aria-hidden><Disc3 /></span>}
         <div className="ls-row-text">
-          <p className="ls-player-title">{open ? <HammerTitle text={song.title} /> : song.title}</p>
+          <p className="ls-player-title" title={open ? undefined : song.title}>{open ? <HammerTitle text={song.title} /> : song.title}</p>
           <p className="ls-player-artist">{open ? <span className="ls-mask"><span className="ls-mask-in">{song.artist}</span></span> : song.artist}</p>
         </div>
         <Button variant="listenIcon" size="round" aria-pressed={Boolean(saved)} aria-label={saved ? `Remove ${song.title} from your Want List` : `Save ${song.title} to your Want List`}

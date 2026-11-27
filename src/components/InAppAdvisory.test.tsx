@@ -19,9 +19,10 @@ afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); });
 const renderAdvisory = () => { render(<InAppAdvisory />); act(() => { vi.advanceTimersByTime(1000); }); };
 
 describe('isSilent', () => {
-  it('is silent only in an in-app browser, until the reader asks for sound', () => {
+  it('is silent in an in-app browser until the reader asks for sound, and anywhere the reader chose silence', () => {
     expect(isSilent(null, null)).toBe(false);
-    expect(isSilent(null, 'silent')).toBe(false);
+    expect(isSilent(null, 'silent')).toBe(true); // "Stay in silence mode" at the room's door
+    expect(isSilent(null, 'sound')).toBe(false);
     expect(isSilent('Instagram', null)).toBe(true);
     expect(isSilent('Instagram', 'silent')).toBe(true);
     expect(isSilent('Instagram', 'sound')).toBe(false);

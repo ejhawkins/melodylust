@@ -3446,10 +3446,8 @@ body { background: var(--background); color: var(--foreground); font-family: var
 .ls-hero-tagline { --hero-inset: 24px; margin: 14px var(--hero-inset) 4px; font-family: var(--font-hammer-xxx); font-weight: 400; /* its one real weight: 900 makes Safari smear a fake bold */ text-transform: uppercase; font-size: clamp(5.9rem, (100cqi - 2 * var(--hero-inset)) / 2.86, 14.75rem); line-height: .9; letter-spacing: .01em; color: var(--color-chalk-white); }
 /* Above it, the issue's line in the home page's eyebrow style (.gs-eyebrow: 12px, tracked, uppercase, as "How it works" is
    set), centred like that one and kept to the hero's width. It runs two lines on phones, so its breaks are balanced. */
-.ls-hero-eyebrow { --hero-inset: 24px; margin: 16px var(--hero-inset) 0; text-align: center; text-wrap: balance; color: var(--color-chalk-white); }
-.ls-hero-eyebrow + .ls-hero-tagline { margin-top: 8px; }
-@media (max-width: 900px) { .ls-hero-tagline, .ls-hero-eyebrow { color: var(--color-fig-black); } }
-@media (max-width: 600px) { .ls-hero-tagline, .ls-hero-eyebrow { --hero-inset: 16px; } } /* the hero's margins narrow here too */
+@media (max-width: 900px) { .ls-hero-tagline { color: var(--color-fig-black); } }
+@media (max-width: 600px) { .ls-hero-tagline { --hero-inset: 16px; } } /* the hero's margins narrow here too */
 
 /* Listening Room Fashion tab */
 .ls-fashion { display: grid; gap: 20px; }
@@ -4455,4 +4453,122 @@ input::placeholder, textarea::placeholder { color: color-mix(in oklab, var(--col
    under most of the screen) so the runway look still reads. Tablet and up already fill the screen. */
 @media (max-width: 600px) {
   .ls-hero-cover { min-height: min(125vw, 68svh); display: flex; flex-direction: column; justify-content: space-between; }
+}
+
+/* Room styles (docs/ai-style-personalization.md). A chosen theme sets --room-* on .ls and re-points --ls-ink,
+   --ls-paper and --color-acid-lime (src/lib/themes/theme-css.ts), so the existing room follows it. No style: unchanged. */
+.ls[data-room-style] { background: var(--room-texture); font-family: var(--room-body-font); }
+.ls[data-room-style] .ls-toc-title { font-family: var(--room-display-font); font-style: var(--room-display-style); }
+.ls-style { position: relative; }
+.ls-style-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid currentColor; flex: none; }
+.ls-style-panel { display: grid; gap: 6px; min-width: 260px; padding: 14px; border: 1px solid var(--ls-line, #3a2a39); border-radius: 4px; background: var(--ls-ink, #0B040B); color: var(--ls-paper, #FAF9F6); }
+.ls-style-panel legend { margin-bottom: 6px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+.ls-style-option { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
+.ls-style-option:has(input:checked) { border-color: var(--color-acid-lime); }
+.ls-style-option:has(input:focus-visible) { outline: 2px solid var(--color-acid-lime); outline-offset: 2px; }
+.ls-style-option input { accent-color: var(--color-acid-lime); }
+.ls-style-option small { display: block; font-size: 12px; opacity: .75; }
+@media (prefers-reduced-motion: no-preference) { .ls[data-room-style] { transition: background-color var(--room-motion-ms) ease; } }
+@media (max-width: 900px) { .ls-style .ls-style-current { display: none; } } /* phones: the palette icon alone; its name is in the label */
+
+/* ===== Runway inspiration (after the style quiz) =====
+   Scoped to .ri; colours come from the room's tokens, so a room style re-themes it with everything else. */
+.ri { display: grid; gap: 18px; margin: 0 0 32px; padding: 24px; border: 1px solid var(--color-fig-800); border-radius: 4px; background: var(--color-fig-950); color: var(--color-chalk-white); }
+.ri a { color: inherit; text-underline-offset: 3px; }
+.ri a:hover { color: var(--color-acid-lime); }
+.ri :focus-visible { outline: 2px solid var(--color-acid-lime); outline-offset: 2px; }
+.ri-kicker, .ri-label { margin: 0; font-family: var(--font-isidora); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--color-acid-lime); }
+.ri-title { margin: -8px 0 0; font-family: var(--font-editorial); font-size: clamp(30px, 5cqi, 46px); font-weight: 400; line-height: 1.05; }
+.ri-dek, .ri-meta, .ri-sources, .ri-matched { margin: 0; font-size: 13px; line-height: 1.45; color: var(--color-lilac-fog); }
+.ri-cloud { display: grid; gap: 10px; margin: 0; padding: 14px 0 0; border: 0; border-top: 1px solid var(--color-fig-800); min-width: 0; }
+.ri-cloud-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.ri-cloud-kind { width: 76px; flex: none; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-lilac-fog); }
+.ri-tag { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 4px 12px; border: 1px solid var(--color-fig-800); border-radius: 999px; background: transparent; color: inherit; font-size: 13px; cursor: pointer; }
+.ri-tag svg { width: 14px; height: 14px; }
+.ri-tag[aria-pressed="true"] { background: var(--color-acid-lime); border-color: var(--color-acid-lime); color: var(--color-fig-black); }
+.ri-empty { display: grid; justify-items: start; gap: 10px; font-size: 14px; }
+.ri-designers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.ri-designer { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px; border: 1px solid var(--color-fig-800); border-radius: 4px; background: var(--color-fig-900); }
+.ri-portrait { margin: 0; display: grid; gap: 4px; }
+.ri-portrait img, .ri-initial { width: 88px; height: 110px; border-radius: 2px; object-fit: cover; background: var(--color-fig-800); }
+.ri-initial { display: grid; place-items: center; font-family: var(--font-editorial); font-size: 40px; }
+.ri-portrait figcaption { font-size: 10px; line-height: 1.3; color: var(--color-lilac-fog); overflow-wrap: anywhere; }
+.ri-name { display: inline-flex; align-items: baseline; gap: 2px; font-family: var(--font-editorial); font-size: 20px; text-decoration: none; }
+.ri-name svg { width: 14px; height: 14px; }
+.ri-matched { color: var(--color-acid-lime); }
+.ri-shows { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.ri-show { display: grid; gap: 6px; padding: 12px 0; border-top: 1px solid var(--color-fig-800); }
+.ri-show-title { margin: 0; font-family: var(--font-editorial); font-size: 20px; }
+.ri-show-songs { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.ri-show-songs li { font-size: 15px; line-height: 1.35; }
+.ri-show-songs a, .ri-show-songs li > span:first-child { display: inline-flex; align-items: baseline; gap: 2px; font-weight: 600; color: var(--color-acid-lime); }
+.ri-show-songs a:hover { color: var(--color-chalk-white); }
+.ri-show-songs svg { width: 13px; height: 13px; }
+.ri-show-artist { color: var(--color-lilac-fog); }
+.ri-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.ri-chip { padding: 2px 10px; border: 1px solid var(--color-fig-800); border-radius: 999px; font-size: 12px; }
+.ri-chip.is-match { border-color: var(--color-acid-lime); color: var(--color-acid-lime); }
+.ri-ours { color: var(--color-lilac-fog); }
+.ri-sources small { font-size: 11px; }
+.ri-stack { display: grid; gap: 12px; }
+.ri-playlist { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--color-fig-800); border-radius: 4px; background: var(--color-fig-900); box-shadow: 0 6px 0 -2px var(--color-fig-800), 0 12px 0 -5px color-mix(in oklab, var(--color-fig-800) 60%, transparent); }
+.ri-playlist header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; }
+.ri-playlist h4 { margin: 0; font-family: var(--font-editorial); font-size: 22px; font-weight: 400; }
+.ri-playlist ol { display: grid; gap: 4px; margin: 0; padding-left: 20px; font-size: 14px; }
+.ri-saved { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; color: var(--color-acid-lime); }
+.ri-saved svg { width: 14px; height: 14px; }
+@media (max-width: 600px) { .ri { padding: 16px; } .ri-cloud-kind { width: 100%; } }
+/* Contents: the tag-picked runway's label above its card. */
+.ls-for-tags { margin: 0 0 8px; font-family: var(--font-isidora); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--color-acid-lime); }
+/* Player bar: the song title and artist set large in Bodoni Moda beside the album art (the open sheet keeps its own type). */
+.ls-player:not([data-expanded="true"]) .ls-player-title { font-family: var(--font-editorial); font-weight: 500; font-size: clamp(28.6px, 2.6vw, 52px); line-height: 1.05; letter-spacing: -1px; padding-bottom: .06em; }
+.ls-player:not([data-expanded="true"]) .ls-player-artist { font-family: var(--font-editorial); font-weight: 400; font-size: 15.6px; letter-spacing: -1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Phones: the title column is narrow beside the controls, so the title wraps to two lines rather than cutting to "WE O…". */
+@media (max-width: 600px) { .ls-player:not([data-expanded="true"]) .ls-player-title { font-size: 22px; line-height: 1; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; } }
+/* /#runways-for-you lands with the heading clear of the sticky "Back to the feed" bar. */
+#runways-for-you { scroll-margin-top: 72px; }
+/* Designer setlist: designer, show, the song that walked with it (as in the Hip Hop × Runway walk-out set). */
+.ri-setlist { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--color-fig-800); }
+.ri-set { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; align-items: start; padding: 16px 0; border-bottom: 1px solid var(--color-fig-800); }
+.ri-set-pic { width: 72px; aspect-ratio: 3 / 4; display: grid; place-items: center; overflow: hidden; border-radius: 2px; background: var(--color-fig-900); font-family: var(--font-editorial); font-size: 28px; color: var(--color-lilac-fog); }
+.ri-set-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ri-set-text { display: grid; gap: 4px; min-width: 0; }
+.ri-set-name { margin: 0; font-family: var(--font-editorial); font-size: clamp(24px, 4cqi, 34px); line-height: 1.05; letter-spacing: -.01em; }
+.ri-set-show, .ri-set-artist { margin: 0; font-size: 14px; color: var(--color-lilac-fog); }
+.ri-set-song { justify-self: start; display: inline-flex; align-items: baseline; gap: 2px; margin: 4px 0 0; font-size: 17px; color: var(--color-acid-lime); text-decoration: underline; text-underline-offset: 4px; }
+.ri-set-song svg { width: 14px; height: 14px; }
+.ri-set-shop { justify-self: start; width: fit-content; max-width: 100%; display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 2px; padding: 6px 12px; border: 1px solid currentColor; font-size: 12px; letter-spacing: .08em; line-height: 1.3; text-transform: uppercase; color: inherit; text-decoration: none; }
+.ri-set-shop:hover, .ri-set-shop:focus-visible { background: var(--color-acid-lime); border-color: var(--color-acid-lime); color: #0b040b; }
+.ri-set-shop svg { width: 14px; height: 14px; }
+.ri-playlist-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* Featured playlist page: one suggested playlist, opened full size, every song traced to its runway. */
+.ls-fp { gap: 32px; container-type: inline-size; }
+.ls-fp-head { display: flex; flex-wrap: wrap; gap: 20px 28px; align-items: flex-end; width: 100%; }
+.ls-fp-intro { flex: 1 1 280px; min-width: 0; }
+.ls-fp-cover { flex: 0 0 auto; width: min(100%, 220px); display: grid; grid-template-columns: 1fr 1fr; aspect-ratio: 1; overflow: hidden; background: var(--color-fig-900); border: 1px solid var(--color-fig-800); }
+.ls-fp-cover[data-count="1"] { grid-template-columns: 1fr; }
+.ls-fp-cover[data-count="1"] .ls-fp-tile, .ls-fp-cover[data-count="3"] .ls-fp-tile:first-child { grid-row: span 2; }
+.ls-fp-tile { display: grid; place-items: center; min-height: 0; overflow: hidden; font-family: var(--font-editorial); font-size: 44px; color: var(--color-lilac-fog); background: var(--color-fig-800); }
+.ls-fp-tile img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.15) contrast(1.05); }
+.ls-fp-title { margin: 0; font-family: var(--font-editorial); font-weight: 500; font-size: clamp(34px, 9cqi, 72px); line-height: .98; letter-spacing: -1px; }
+.ls-fp-meta { margin: 10px 0 0; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-acid-lime); }
+.ls-fp-dek { margin: 8px 0 0; max-width: 52ch; font-size: 15px; line-height: 1.5; color: var(--color-lilac-fog); }
+.ls-fp-tracks { display: grid; width: 100%; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--color-fig-800); }
+.ls-fp-track { display: grid; grid-template-columns: 32px 40px minmax(0, 1fr); gap: 12px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--color-fig-800); }
+.ls-fp-track[data-playing] .ls-fp-song { color: var(--color-acid-lime); }
+.ls-fp-num { padding-top: 10px; font-size: 12px; letter-spacing: .12em; color: var(--color-lilac-fog); }
+.ls-fp-play { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid currentColor; border-radius: 50%; background: none; color: inherit; cursor: pointer; }
+.ls-fp-play:hover, .ls-fp-play:focus-visible { background: var(--color-acid-lime); border-color: var(--color-acid-lime); color: #0b040b; }
+.ls-fp-play svg { width: 16px; height: 16px; fill: currentColor; }
+span.ls-fp-play { border-style: dashed; opacity: .35; cursor: default; }
+.ls-fp-text { display: grid; gap: 4px; min-width: 0; }
+.ls-fp-song { justify-self: start; display: inline-flex; align-items: baseline; gap: 4px; margin: 0; font-family: var(--font-editorial); font-size: clamp(22px, 2.4vw, 30px); line-height: 1.05; letter-spacing: -.5px; color: inherit; text-decoration: none; }
+.ls-fp-song svg { width: 14px; height: 14px; flex: none; }
+a.ls-fp-song:hover, a.ls-fp-song:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
+.ls-fp-artist, .ls-fp-show { margin: 0; font-size: 14px; color: var(--color-lilac-fog); }
+@media (max-width: 600px) {
+  .ls-fp-cover { width: min(100%, 260px); }
+  .ls-fp-track { grid-template-columns: 24px 36px minmax(0, 1fr); gap: 10px; }
+  .ls-fp-play { width: 36px; height: 36px; }
 }

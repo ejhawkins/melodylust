@@ -38,8 +38,14 @@ import { ListenCapsule } from "@/components/ListenCapsule";
 import { ListenDayPlaylist } from "@/components/ListenDayPlaylist";
 import { moodVideos } from "@/components/RecordStack";
 import { NowWearing } from "@/components/NowWearing";
+import { useStyleChoice } from "@/lib/themes/style-choice";
+import { themeStyle } from "@/lib/themes/theme-css";
 import { StyleProfileQuiz } from "@/components/StyleProfileQuiz";
+import { RunwayInspiration } from "@/components/RunwayInspiration";
+import { featuredShow, profileTags, readLeadTag, withTag, writeLeadTag, type Tag } from "@/lib/runway-inspiration";
 import { useStyleProfile } from "@/lib/use-style-profile";
+import { FeaturedPlaylist } from "@/components/FeaturedPlaylist";
+import { profileSelectionCount } from "@/lib/style-profile";
 import { StoryDialog } from "@/components/StoryDialog";
 import { Wishlist } from "@/components/Wishlist";
 import { ListenWantShelf } from "@/components/ListenWantShelf";
@@ -289,8 +295,6 @@ function ListenHero({ onPlayMix, onNotes, onFilmSound, children }: { onPlayMix: 
           <span className="ls-hero-by ls-hide-sm" role="img" aria-label="Melody Lust" style={{ "--logo": `url(${logo})` } as CSSProperties} />
         </div>
       </section>
-      {/* The issue's line, in the home page's eyebrow style ("How it works"), above the tagline. */}
-      <p className="gs-eyebrow ls-hero-eyebrow">The First Issue Featuring: Musing from Fashion Designer Thom Browne</p>
       <p className="ls-hero-tagline">This is a mood</p>
       {children}
     </div>
@@ -311,7 +315,7 @@ function usePhoneLayout() {
 }
 
 /** What the feed shows: the edit itself, or the Want List, the profile, a moodboard, a song look, a music video or one of the reader's playlists opened from the library. */
-type View = { kind: "feed" } | { kind: "want" } | { kind: "profile"; tab: DossierTab } | { kind: "board"; id: string } | { kind: "look"; index: number } | { kind: "video"; index: number } | { kind: "playlist"; id: string } | { kind: "note"; id: string } | { kind: "contents" } | { kind: "capsule" } | { kind: "day" };
+type View = { kind: "feed" } | { kind: "want" } | { kind: "profile"; tab: DossierTab } | { kind: "board"; id: string } | { kind: "look"; index: number } | { kind: "video"; index: number } | { kind: "playlist"; id: string } | { kind: "note"; id: string } | { kind: "contents" } | { kind: "capsule" } | { kind: "day" } | { kind: "suggested"; id: string };
 
 /** The second home page: the journal laid out like a music player, in black and white. The library
  *  sits left, the feed in the middle, Now wearing on the right and the player along the bottom. */
@@ -322,6 +326,8 @@ function ListeningRoom() {
   const [wearingOpen, setWearingOpen] = useState(true);
   // Phones hide the Style profile button, so the style quiz gets its own place in the top bar there.
   const [quizOpen, setQuizOpen] = useState(false);
+  // The room style (Hip Hop x Runway, Autumn Tartan…): off unless VITE_ENABLE_AI_STYLE_PERSONALIZATION is "true".
+  const roomStyle = useStyleChoice();
   const styleProfile = useStyleProfile();
   const [active, setActive] = useState("mix");
   const [view, setView] = useState<View>({ kind: "feed" });
@@ -361,11 +367,15 @@ function ListeningRoom() {
   const { data: goodReads } = useQuery({ queryKey: ["good-reads"], queryFn: () => getGoodReads(), staleTime: 10 * 60 * 1000 });
   const editionReads = useMemo(() => (genre === "all" ? [] : storiesFor(goodReads?.reads ?? [], genre)), [goodReads, genre]);
   const editionSongs = useMemo(() => songsFor(mix, genre), [genre]);
-  const runwayShown = category === "Runway" || onRunway || shelf === "runway" || view.kind === "note" || genre !== "all";
+  const runwayShown = category === "Runway" || onRunway || shelf === "runway" || view.kind === "note" || genre !== "all" || (roomStyle.enabled && view.kind === "profile");
   const runway = useRunwaySongs(runwayShown);
   const runwayMix = useMemo(() => runway.map(fromRunway), [runway]);
   const runwayNoteList = useRunwayNotes(runway, runwayShown);
   const runwayEdition = useMemo(() => notesFor(runwayNoteList, runway, genre), [runwayNoteList, runway, genre]);
+  // The reader's tag-picked runway for the contents card, leading with the tag they tapped last (see runwayCard).
+  const [leadTag, setLeadTag] = useState<Tag | null>(null);
+  useEffect(() => setLeadTag(readLeadTag()), []);
+  const forYou = useMemo(() => (roomStyle.enabled ? featuredShow(profileTags(styleProfile.profile), runwayNoteList, leadTag) : null), [roomStyle.enabled, styleProfile.profile, runwayNoteList, leadTag]);
   // One of the reader's playlists, once it is played; it gives way to the mix if it is emptied or deleted.
   const [listId, setListId] = useState<string | null>(null);
   const playlists = usePlaylists();
@@ -386,6 +396,20 @@ function ListeningRoom() {
     enabled: phone && listening && Boolean(song?.caption),
     staleTime: 10 * 60 * 1000,
   });
+  // A direct link to Runways for your taste (/#runways-for-you): opens the style profile and brings the panel into view
+  // once it has rendered. Only where room personalization is on, as the panel is.
+  useEffect(() => {
+    if (!roomStyle.enabled || window.location.hash !== "#runways-for-you") return;
+    setView({ kind: "profile", tab: "dna" });
+    setActive("profile");
+    let tries = 0;
+    const find = () => {
+      const panel = document.getElementById("runways-for-you");
+      if (panel) panel.scrollIntoView({ behavior: "auto", block: "start" });
+      else if (++tries < 60) requestAnimationFrame(find);
+    };
+    requestAnimationFrame(find);
+  }, [roomStyle.enabled]);
   if (!song) return null;
 
   const go = (index: number) => { setNow(index); setActive(onRunway ? "runway-songs" : onStudio ? "studio" : onList ? `playlist-${listId}` : `look-${index}`); };
@@ -422,15 +446,27 @@ function ListeningRoom() {
   const open = (next: View, row: string) => changeView(() => { setView(next); setActive(row); }, "auto");
   const openWant = () => open({ kind: "want" }, "want");
   const openProfile = () => open({ kind: "profile", tab: "dna" }, "profile");
+  // A first visit has no profile to open yet: "Build my profile" starts the quiz, and saving it opens the profile.
+  const buildProfile = () => (profileSelectionCount(styleProfile.profile) ? openProfile() : setQuizOpen(true));
   const board = view.kind === "board" ? moodboards.find(b => b.id === view.id) : undefined;
   const look = view.kind === "look" ? mix[view.index] : undefined;
   const video = view.kind === "video" ? moodVideos[view.index] : undefined;
   const ownList = view.kind === "playlist" ? playlists.find(p => p.id === view.id) : undefined;
   const note = view.kind === "note" ? runwayNoteList.find(n => n.id === view.id) : undefined;
-  // The latest Runway Note (the editor lists the newest first), as a card under Runway Songs in the contents.
-  const latestNote = runwayNoteList[0];
+  // The card under Runway Songs in the contents: with personalization on, the runway that best fits the reader's tags
+  // (leading with the tag they tapped last); otherwise, or when nothing fits, the latest Runway Note (newest first).
+  const toggleTag = (tag: Tag, on: boolean) => {
+    if (!styleProfile.save(withTag(styleProfile.profile, tag, on))) return;
+    const lead = on ? tag : leadTag && leadTag.kind === tag.kind && leadTag.value === tag.value ? null : leadTag;
+    setLeadTag(lead);
+    writeLeadTag(lead);
+  };
+  const latestNote = forYou?.note ?? runwayNoteList[0];
   const latestIndex = latestNote?.lead?.songId ? runway.findIndex(s => s.id === latestNote.lead?.songId) : -1;
-  const runwayCard = latestNote && <NoteCard note={latestNote} index={latestIndex} active={onRunway && latestIndex >= 0 && latestIndex === now} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />;
+  const runwayCard = latestNote && <>
+    {forYou && <p className="ls-for-tags">For your tags · {forYou.matched.map(t => t.value).join(" · ")}</p>}
+    <NoteCard key={latestNote.id} note={latestNote} index={latestIndex} active={onRunway && latestIndex >= 0 && latestIndex === now} onPlay={playRunway} onOpen={id => open({ kind: "note", id }, `note-${id}`)} />
+  </>;
   const notes = edition.filter(s => category === "All" || s.category === category);
   const runwayListed = category === "Runway" || shelf === "runway";
   // Phones show the feed's hero on its own, ahead of Your Library; the rest of the feed follows the library.
@@ -473,7 +509,7 @@ function ListeningRoom() {
   };
 
   return (
-    <div className="ls">
+    <div className="ls" data-room-style={roomStyle.theme?.id} style={themeStyle(roomStyle.theme)}>
       <header className="ls-head">
         <Link to="/" className="ls-logo-link" aria-label="Melodylust home"><img src={logo} alt="" className="ls-logo" width={448} height={209} /></Link>
         <div className="ls-head-center">
@@ -484,8 +520,7 @@ function ListeningRoom() {
         </div>
         <div className="ls-head-end">
           <Button variant="listenOutline" size="bar" className="ls-hide-sm" aria-expanded={view.kind === "profile"} onClick={openProfile}><SlidersHorizontal aria-hidden />Style profile</Button>
-          <Button variant="listenOutline" size="bar" className="ls-want-btn ls-style-btn ls-show-sm" aria-haspopup="dialog" onClick={() => setQuizOpen(true)}><span>Style quiz</span></Button>
-          <Button variant="listenSolid" size="bar" className="ls-want-btn" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
+          <Button variant="listenSolid" size="bar" className="ls-want-btn ls-hide-sm" aria-controls="wishlist" aria-expanded={view.kind === "want"} onClick={openWant}><span>Want List</span></Button>
         </div>
       </header>
 
@@ -527,9 +562,13 @@ function ListeningRoom() {
                 onRunway={() => setCategory("Runway")} onReading={openReading} onPlaylist={id => open({ kind: "playlist", id }, `playlist-${id}`)} runwayCard={runwayCard} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
             </div>
+          ) : view.kind === "suggested" ? (
+            <FeaturedPlaylist key={view.id} id={view.id} profile={styleProfile.profile} notes={runwayNoteList} songs={runway}
+              nowPlaying={onStudio && listening ? song.caption : undefined} onPlay={playStudio} onBack={openProfile} />
           ) : view.kind === "profile" ? (
             // The profile page, loaded right here under the room's own header.
             <div className="ls-profile">
+              {roomStyle.enabled && <RunwayInspiration profile={styleProfile.profile} notes={runwayNoteList} songs={runway} onRetake={() => setQuizOpen(true)} onToggleTag={toggleTag} onOpenPlaylist={id => open({ kind: "suggested", id }, "profile")} />}
               <CuratorDossier embedded tab={view.tab} onTabChange={tab => setView({ kind: "profile", tab })}
                 capsule={<ListenCapsule mix={mix} nowPlaying={listening ? song.caption : undefined} onPlay={playStudio} onWantList={openWant} onBack={goHome} />} />
               <Button variant="listenCategory" size="chip" onClick={goHome}>Back to the feed</Button>
@@ -624,7 +663,7 @@ function ListeningRoom() {
           </>}
         </main>
 
-        {wearingOpen && <NowWearing onProfile={openProfile} onReport={openReport} nowPlaying={runway[0]} />}
+        {wearingOpen && <NowWearing onProfile={buildProfile} onReport={openReport} nowPlaying={runway[0]} />}
       </div>
 
       {/* The sticky issue dock was retired: the in-hero buttons are the only issue nav. */}
@@ -634,7 +673,7 @@ function ListeningRoom() {
         wearingOpen={wearingOpen} onWearingChange={setWearingOpen} sheet={phone} autoOpen={shelf !== "featured"}
         shop={<ListenProductCard active={phone && listening} songKey={song.caption} {...(songLook?.pieces.length ? { products: songLook.pieces } : {})} />} />
 
-      <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={styleProfile.save} onClear={styleProfile.clear}
+      <StyleProfileQuiz tone="room" open={quizOpen} onOpenChange={setQuizOpen} profile={styleProfile.profile} onSave={saved => { const ok = styleProfile.save(saved); if (ok && roomStyle.enabled) openProfile(); return ok; }} onClear={styleProfile.clear}
         onRead={id => { setQuizOpen(false); const story = stories.find(s => s.id === id); if (story) { setActive(`story-${story.id}`); setArticle(story); } }} />
       <FashionMusicSearch open={findOpen} onOpenChange={setFindOpen} playlist={playlist.tracks} tone="room" />
       <Dialog open={filmNotesOpen} onOpenChange={setFilmNotesOpen}>

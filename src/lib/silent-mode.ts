@@ -1,6 +1,6 @@
-// Silent mode, for in-app browsers only: nothing on the page makes sound, and songs open in Spotify instead of playing
-// here. A reader in a social app's browser is asked once (InAppAdvisory); the answer stays on this device. In a regular
-// browser the site behaves as always, and none of this applies.
+// Silent mode: nothing on the page makes sound, and songs open in Spotify instead of playing here. A reader in a social
+// app's browser is asked once (InAppAdvisory); anyone can choose it at the room's door (/listen, "Stay in silence
+// mode"). The answer stays on this device. A regular browser that never chose behaves as always.
 import { useSyncExternalStore } from "react";
 import { inAppBrowserName } from "@/lib/in-app-browser";
 
@@ -44,8 +44,11 @@ export function useInAppBrowser(): string | null {
   return useSyncExternalStore(noSubscription, () => inAppBrowserName(navigator.userAgent), () => null);
 }
 
-/** Silent in an in-app browser until the reader asks for sound; never silent anywhere else. */
-export const isSilent = (inApp: string | null, sound: SoundChoice | null) => inApp !== null && sound !== "sound";
+/**
+ * Silent when the reader chose silence (in the room's "Stay in silence mode", or the in-app advisory), and in an
+ * in-app browser until the reader asks for sound. A regular browser that was never asked plays as always.
+ */
+export const isSilent = (inApp: string | null, sound: SoundChoice | null) => sound === "silent" || (inApp !== null && sound !== "sound");
 
 export function useSilentMode(): boolean {
   return isSilent(useInAppBrowser(), useSoundChoice());
